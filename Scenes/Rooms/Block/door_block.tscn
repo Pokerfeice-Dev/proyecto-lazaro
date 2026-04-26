@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://ceio6dbqyn8vp"]
+
+[ext_resource type="Texture2D" uid="uid://c8gxg8h72hv0k" path="res://ProjectFrankenstein/Art/Block/Veins_shadow1_2.png" id="1_wkac4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wkac4"]
+size = Vector2(20, 104)
+
+[node name="Door_block" type="Node2D" unique_id=804001413]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=873944684]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("1_wkac4")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1984915622]
+collision_layer = 2
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1404528636]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_wkac4")

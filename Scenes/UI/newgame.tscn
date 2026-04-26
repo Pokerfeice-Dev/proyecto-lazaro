@@ -1,0 +1,105 @@
+[gd_scene format=3 uid="uid://chiqstmrw8p3c"]
+
+[ext_resource type="Texture2D" uid="uid://bhq4mfk3luea5" path="res://ProjectFrankenstein/Art/Menu/Imagen fondo.png" id="1_kownp"]
+[ext_resource type="Script" uid="uid://dwjkwwo80xt0n" path="res://Scripts/UI/newgame.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://ProjectFrankenstein/Art/Menu/Logo lazaro.png" id="2_gu4kh"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gu4kh"]
+particle_flag_align_y = true
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(1200, 1, 1)
+direction = Vector3(-0.1, 1, 0)
+spread = 5.0
+initial_velocity_min = 800.0
+initial_velocity_max = 1200.0
+gravity = Vector3(0, 98, 0)
+scale_max = 3.0
+color = Color(0.6, 0.8, 1, 0.5)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_3ol4p"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(1200, 1, 1)
+direction = Vector3(-0.3, 1, 0)
+spread = 20.0
+initial_velocity_min = 100.0
+initial_velocity_max = 200.0
+gravity = Vector3(0, 40, 0)
+scale_min = 2.0
+scale_max = 4.0
+color = Color(1, 1, 1, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_3ol4p"]
+font_size = 72
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 0.5137255)
+
+[node name="newgame" type="Control" unique_id=1220767714]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1199087739]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_kownp")
+
+[node name="RainParticles" type="GPUParticles2D" parent="." unique_id=2128081778]
+position = Vector2(960, -50)
+amount = 400
+lifetime = 2.0
+preprocess = 2.0
+process_material = SubResource("ParticleProcessMaterial_gu4kh")
+
+[node name="SnowParticles" type="GPUParticles2D" parent="." unique_id=1346824337]
+modulate = Color(1, 1, 1, 0.31764707)
+position = Vector2(960, -50)
+amount = 300
+lifetime = 10.0
+preprocess = 10.0
+process_material = SubResource("ParticleProcessMaterial_3ol4p")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1541732251]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1.3957917e-06, 0.46087438, 0.49595743, 0.5372549)
+
+[node name="Logo" type="TextureRect" parent="." unique_id=1969163400]
+layout_mode = 0
+offset_left = -75.0
+offset_top = 252.0
+offset_right = 690.0
+offset_bottom = 762.0
+texture = ExtResource("2_gu4kh")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="." unique_id=1930841910]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -296.0
+offset_top = -498.0
+offset_right = 296.0
+offset_bottom = -399.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Selecciona el slot"
+label_settings = SubResource("LabelSettings_3ol4p")

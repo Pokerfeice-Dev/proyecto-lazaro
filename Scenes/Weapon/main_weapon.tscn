@@ -1,0 +1,133 @@
+[gd_scene format=3 uid="uid://dk2o606njtsyx"]
+
+[ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_weapn"]
+[ext_resource type="Texture2D" uid="uid://bw8mct5rjv53r" path="res://ProjectFrankenstein/Art/Weapons/Distance/Glock - P80/[SHOOT WITH CASING AND MUZZLE FLASH] Glock - P80.png" id="2_ieu77"]
+[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://ProjectFrankenstein/Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="2_sstvh"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7cq3u"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(0, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xthd4"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(0, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kbdee"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(64, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kvqoc"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(128, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_72hl6"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(192, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nutss"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(256, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_svdl1"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(320, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f7qpf"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(384, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_55h32"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(448, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g1pdt"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(512, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tvvmj"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(576, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d6f3e"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(640, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_roclc"]
+atlas = ExtResource("2_ieu77")
+region = Rect2(704, 0, 64, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_mkhcp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7cq3u")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xthd4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kbdee")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kvqoc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_72hl6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nutss")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_svdl1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f7qpf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_55h32")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g1pdt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tvvmj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d6f3e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_roclc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xthd4")
+}],
+"loop": false,
+"name": &"shoot",
+"speed": 30.0
+}]
+
+[node name="Main_weapon" type="Node2D" unique_id=1188950380]
+scale = Vector2(0.6, 0.6)
+script = ExtResource("1_weapn")
+projectile_speed = 400.0
+
+[node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=450439513]
+stream = ExtResource("2_sstvh")
+
+[node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1584979104]
+position = Vector2(18, -12)
+
+[node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=958537535]
+position = Vector2(-18, -12)
+
+[node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=1008670451]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_mkhcp")
+animation = &"shoot"
+frame = 12
+frame_progress = 1.0

@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://c5yvy3a6wa2kj"]
+
+[ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://ProjectFrankenstein/Art/Menu/Logo lazaro.png" id="1_run4o"]
+[ext_resource type="Script" uid="uid://cy3knerbe2tnk" path="res://Scripts/UI/options_menu.gd" id="1_script"]
+
+[node name="Options_menu" type="CanvasLayer" unique_id=780314834]
+layer = 100
+script = ExtResource("1_script")
+
+[node name="MenuControl" type="Control" parent="." unique_id=243381375]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+
+[node name="ColorRect" type="ColorRect" parent="MenuControl" unique_id=1007330092]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.10747976, 0.10747973, 0.10747973, 0.9)
+
+[node name="TextureRect" type="TextureRect" parent="MenuControl" unique_id=1614219110]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -198.0
+offset_top = -250.0
+offset_right = -138.0
+offset_bottom = -210.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(6.6, 6.6)
+mouse_filter = 2
+texture = ExtResource("1_run4o")
+expand_mode = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuControl" unique_id=1156914449]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = 50.0
+offset_right = 150.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="VolumeLabel" type="Label" parent="MenuControl/VBoxContainer" unique_id=1217287022]
+layout_mode = 2
+text = "Volumen"
+horizontal_alignment = 1
+
+[node name="VolumeSlider" type="HSlider" parent="MenuControl/VBoxContainer" unique_id=1416529500]
+layout_mode = 2
+value = 100.0
+
+[node name="CloseButton" type="Button" parent="MenuControl/VBoxContainer" unique_id=508662138]
+layout_mode = 2
+text = "Volver"
+
+[node name="MenuButton" type="Button" parent="MenuControl/VBoxContainer" unique_id=910021931]
+layout_mode = 2
+text = "Volver al menu"
+
+[node name="QuitButton" type="Button" parent="MenuControl/VBoxContainer" unique_id=992567576]
+layout_mode = 2
+text = "Salir del juego"

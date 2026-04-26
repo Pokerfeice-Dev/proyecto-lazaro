@@ -1,0 +1,83 @@
+[gd_scene format=3 uid="uid://dvfwdaiuy34lt"]
+
+[ext_resource type="Texture2D" uid="uid://dbbsvmm1voy01" path="res://ProjectFrankenstein/Art/Weapons/Melee/Bayonet.png" id="1_kf75q"]
+[ext_resource type="Script" uid="uid://bsiy03mn5u4fj" path="res://Scripts/Weapon/second_weapon.gd" id="1_script"]
+[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://ProjectFrankenstein/Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_pq8rl"]
+[ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://ProjectFrankenstein/Art/Weapons/Melee/SpriteSheet.png" id="4_cgp1c"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kf75q"]
+size = Vector2(37, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
+size = Vector2(27, 49)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pq8rl"]
+atlas = ExtResource("4_cgp1c")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c51nk"]
+atlas = ExtResource("4_cgp1c")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cgps"]
+atlas = ExtResource("4_cgp1c")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bhmk6"]
+atlas = ExtResource("4_cgp1c")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_clk6n"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pq8rl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c51nk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2cgps")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bhmk6")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 12.0
+}]
+
+[node name="Second_weapon" type="Node2D" unique_id=990464532]
+script = ExtResource("1_script")
+damage = 5
+
+[node name="Melee_sprite" type="Sprite2D" parent="." unique_id=811593201]
+position = Vector2(0.5, 0)
+texture = ExtResource("1_kf75q")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=142443809]
+position = Vector2(0.5, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=2053058024]
+position = Vector2(-0.5, 0)
+shape = SubResource("RectangleShape2D_kf75q")
+
+[node name="Slash_attack" type="Area2D" parent="." unique_id=1591419107]
+position = Vector2(0.5, 0)
+collision_layer = 10
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Slash_attack" unique_id=1160746426]
+position = Vector2(14, -3.5)
+shape = SubResource("RectangleShape2D_d7jkh")
+
+[node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=979261601]
+stream = ExtResource("3_pq8rl")
+
+[node name="attack_fx" type="AnimatedSprite2D" parent="." unique_id=947054578]
+position = Vector2(8, 0)
+scale = Vector2(1.2961442, 1.2961442)
+sprite_frames = SubResource("SpriteFrames_clk6n")
+animation = &"attack"
+frame = 3
+frame_progress = 1.0

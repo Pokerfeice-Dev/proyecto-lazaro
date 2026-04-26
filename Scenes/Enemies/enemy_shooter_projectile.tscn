@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://bof0raujqsth2"]
+
+[ext_resource type="Texture2D" uid="uid://b3sfkuffxoep6" path="res://ProjectFrankenstein/Art/Enemy_Shooter/enemy-explosion.png" id="1_0fh2i"]
+[ext_resource type="Script" uid="uid://ihjtddlrwddx" path="res://Scripts/Projectiles/enemy_shooter_projectile.gd" id="1_script"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0iul3"]
+atlas = ExtResource("1_0fh2i")
+region = Rect2(80, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hqsr6"]
+atlas = ExtResource("1_0fh2i")
+region = Rect2(160, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mgxdm"]
+atlas = ExtResource("1_0fh2i")
+region = Rect2(240, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cd05x"]
+atlas = ExtResource("1_0fh2i")
+region = Rect2(320, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ie8o"]
+atlas = ExtResource("1_0fh2i")
+region = Rect2(400, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_78hnn"]
+atlas = ExtResource("1_0fh2i")
+region = Rect2(480, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g5esr"]
+atlas = ExtResource("1_0fh2i")
+region = Rect2(0, 0, 80, 80)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nsthf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0iul3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hqsr6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mgxdm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cd05x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ie8o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_78hnn")
+}],
+"loop": false,
+"name": &"explosion",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g5esr")
+}],
+"loop": true,
+"name": &"shoot",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
+radius = 7.707283
+
+[node name="EnemyShooter_Projectile" type="Area2D" unique_id=1932067551]
+collision_layer = 8
+collision_mask = 5
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=806443049]
+position = Vector2(-1.1920929e-07, -1.1920929e-07)
+scale = Vector2(0.26383772, 0.26383772)
+sprite_frames = SubResource("SpriteFrames_nsthf")
+animation = &"shoot"
+autoplay = "shoot"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=123456789]
+position = Vector2(-0.99999994, 3.5527137e-15)
+scale = Vector2(0.648737, 0.648737)
+shape = SubResource("CircleShape2D_proj")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

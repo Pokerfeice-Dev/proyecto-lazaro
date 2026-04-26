@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://c2w02wij8ne2x"]
+
+[ext_resource type="Script" uid="uid://dyvd64rix26ac" path="res://Scripts/Projectiles/projectile.gd" id="1_proj"]
+[ext_resource type="Texture2D" uid="uid://bamg82d46j1if" path="res://ProjectFrankenstein/Art/Weapons/Distance/Glock - P80/Casing & Bullet.png" id="2_qupxw"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
+radius = 2.0
+
+[node name="Projectile" type="Area2D" unique_id=1955768554]
+texture_filter = 1
+collision_layer = 8
+collision_mask = 7
+script = ExtResource("1_proj")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2208951]
+scale = Vector2(2, 2)
+texture = ExtResource("2_qupxw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=186395577]
+scale = Vector2(3.3643477, 3.3643477)
+shape = SubResource("CircleShape2D_proj")
