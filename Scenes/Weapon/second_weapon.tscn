@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://dvfwdaiuy34lt"]
 
-[ext_resource type="Texture2D" uid="uid://dbbsvmm1voy01" path="res://ProjectFrankenstein/Art/Weapons/Melee/Bayonet.png" id="1_kf75q"]
+[ext_resource type="Texture2D" uid="uid://dbbsvmm1voy01" path="res://Art/Weapons/Melee/Bayonet.png" id="1_kf75q"]
 [ext_resource type="Script" uid="uid://bsiy03mn5u4fj" path="res://Scripts/Weapon/second_weapon.gd" id="1_script"]
-[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://ProjectFrankenstein/Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_pq8rl"]
-[ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://ProjectFrankenstein/Art/Weapons/Melee/SpriteSheet.png" id="4_cgp1c"]
+[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_pq8rl"]
+[ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_cgp1c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kf75q"]
 size = Vector2(37, 20)
@@ -68,7 +68,7 @@ collision_layer = 10
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Slash_attack" unique_id=1160746426]
-position = Vector2(14, -3.5)
+position = Vector2(14, -3)
 shape = SubResource("RectangleShape2D_d7jkh")
 
 [node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=979261601]
