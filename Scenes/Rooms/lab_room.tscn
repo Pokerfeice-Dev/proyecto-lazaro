@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://6c1c8srkrt4t" path="res://Scripts/World/lab_room.gd" id="1_lab_room_gd"]
 [ext_resource type="TileSet" uid="uid://crs88nnfgs0gw" path="res://Scenes/Rooms/Floor.tres" id="2_fk30j"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="2_otkfy"]
-[ext_resource type="Texture2D" uid="uid://dbumaob13vcye" path="res://ProjectFrankenstein/Art/Teleport/pipo-mapeffect022_480.png" id="3_phgsy"]
+[ext_resource type="Texture2D" uid="uid://dbumaob13vcye" path="res://Art/Teleport/pipo-mapeffect022_480.png" id="3_phgsy"]
 [ext_resource type="PackedScene" uid="uid://c0l1odf8nhvug" path="res://Scenes/Ygor/ygor.tscn" id="5_fk30j"]
-[ext_resource type="AudioStream" uid="uid://d0krhd3grvu33" path="res://ProjectFrankenstein/Audio/Music/lab.ogg" id="6_yufhn"]
+[ext_resource type="AudioStream" uid="uid://d0krhd3grvu33" path="res://Audio/Music/lab.ogg" id="6_yufhn"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_h7aqu"]
 atlas = ExtResource("3_phgsy")

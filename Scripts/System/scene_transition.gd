@@ -14,18 +14,18 @@ func _ready():
 	color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(color_rect)
 	
-	var cursor = load("res://ProjectFrankenstein/Art/Mouse/Shoot_sight.png")
+	var cursor = load("res://Art/Mouse/Shoot_sight.png")
 	if cursor:
 		Input.set_custom_mouse_cursor(cursor, Input.CURSOR_ARROW, cursor.get_size() / 2)
 		
 	mainmenu_music = AudioStreamPlayer.new()
-	mainmenu_music.stream = preload("res://ProjectFrankenstein/Audio/Music/sn2.ogg")
+	mainmenu_music.stream = preload("res://Audio/Music/sn2.ogg")
 	mainmenu_music.volume_db = -3.0
 	mainmenu_music.bus = "Master"
 	add_child(mainmenu_music)
 	
 	combat_music = AudioStreamPlayer.new()
-	combat_music.stream = preload("res://ProjectFrankenstein/Audio/Music/sn1.ogg")
+	combat_music.stream = preload("res://Audio/Music/sn1.ogg")
 	combat_music.volume_db = -5.0
 	combat_music.bus = "Master"
 	add_child(combat_music)

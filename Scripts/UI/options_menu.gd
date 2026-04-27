@@ -7,7 +7,7 @@ extends CanvasLayer
 @onready var quit_btn: Button = $MenuControl/VBoxContainer/QuitButton
 
 var hover_audio: AudioStreamPlayer
-var hover_stream = preload("res://ProjectFrankenstein/Audio/Sfx/Piano_Ui (2).wav")
+var hover_stream = preload("res://Audio/Sfx/Piano_Ui (2).wav")
 
 var is_open: bool = false
 var was_paused: bool = false

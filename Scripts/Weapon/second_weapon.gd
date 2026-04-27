@@ -13,7 +13,7 @@ var _is_attacking: bool = false
 var hit_enemies: Array[Node2D] = []
 
 var attack_sounds: Array[AudioStream] = [
-	preload("res://ProjectFrankenstein/Audio/Sfx/Melee/07_human_atk_sword_1.wav"),
+	preload("res://Audio/Sfx/Melee/07_human_atk_sword_1.wav"),
 ]
 var audio_player: AudioStreamPlayer2D
 

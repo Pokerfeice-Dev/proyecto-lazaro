@@ -6,14 +6,14 @@ func _init():
 	sf.remove_animation("default") # clean up default
 	
 	var anim_map = {
-		"idle_south": "res://ProjectFrankenstein/Art/Player_art/animatios/breathing-idle/south/",
-		"idle_north": "res://ProjectFrankenstein/Art/Player_art/animatios/breathing-idle/north/",
-		"idle_east": "res://ProjectFrankenstein/Art/Player_art/animatios/breathing-idle/east/",
-		"idle_west": "res://ProjectFrankenstein/Art/Player_art/animatios/breathing-idle/west/",
-		"run_south": "res://ProjectFrankenstein/Art/Player_art/animatios/running-4-frames/south/",
-		"run_north": "res://ProjectFrankenstein/Art/Player_art/animatios/running-4-frames/north/",
-		"run_east": "res://ProjectFrankenstein/Art/Player_art/animatios/running-4-frames/east/",
-		"run_west": "res://ProjectFrankenstein/Art/Player_art/animatios/running-4-frames/west/"
+		"idle_south": "res://Art/Player_art/animatios/breathing-idle/south/",
+		"idle_north": "res://Art/Player_art/animatios/breathing-idle/north/",
+		"idle_east": "res://Art/Player_art/animatios/breathing-idle/east/",
+		"idle_west": "res://Art/Player_art/animatios/breathing-idle/west/",
+		"run_south": "res://Art/Player_art/animatios/running-4-frames/south/",
+		"run_north": "res://Art/Player_art/animatios/running-4-frames/north/",
+		"run_east": "res://Art/Player_art/animatios/running-4-frames/east/",
+		"run_west": "res://Art/Player_art/animatios/running-4-frames/west/"
 	}
 	
 	for anim_name in anim_map.keys():
