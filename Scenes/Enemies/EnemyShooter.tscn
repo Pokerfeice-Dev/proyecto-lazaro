@@ -1,19 +1,19 @@
 [gd_scene format=3 uid="uid://c7eww4cc4qhh"]
 
 [ext_resource type="Script" uid="uid://dhsv3yrtxkg7d" path="res://Scripts/Enemies/enemy_shooter.gd" id="1_es"]
-[ext_resource type="Texture2D" uid="uid://eltmypy7ftto" path="res://ProjectFrankenstein/Art/Enemy_Shooter/enemy-03.png" id="2_10tr6"]
-[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="4_gfw6v"]
-[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="5_25c3m"]
-[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="6_3mnni"]
-[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="7_ogc72"]
-[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="8_86xiu"]
-[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="9_vkefd"]
-[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="10_0pfdd"]
-[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="11_t4dnb"]
-[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="12_j2p0k"]
-[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="13_ur7kn"]
-[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://ProjectFrankenstein/Audio/Sfx/69_Enemy_death_01.wav" id="14_76nrh"]
-[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/70.png" id="15_ovjma"]
+[ext_resource type="Texture2D" uid="uid://eltmypy7ftto" path="res://Art/Enemy_Shooter/enemy-03.png" id="2_10tr6"]
+[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="4_gfw6v"]
+[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="5_25c3m"]
+[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="6_3mnni"]
+[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="7_ogc72"]
+[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="8_86xiu"]
+[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="9_vkefd"]
+[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="10_0pfdd"]
+[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="11_t4dnb"]
+[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="12_j2p0k"]
+[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="13_ur7kn"]
+[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_76nrh"]
+[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="15_ovjma"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jegfw"]
 atlas = ExtResource("2_10tr6")
@@ -235,6 +235,8 @@ radius = 10.560988
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_es")
+scrap_drop_chance = 0.1
+item_drop_chance = 0.9
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=76769354]
 texture_filter = 1

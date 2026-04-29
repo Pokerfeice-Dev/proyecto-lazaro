@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://dbbao0xxjw8pl"]
+
+[ext_resource type="Texture2D" uid="uid://ljldgfmm5xmf" path="res://Art/Items/Item1.png" id="1_bjsbo"]
+[ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "item1_w1"
+item_name = "Capsula Sonica"
+icon = ExtResource("1_bjsbo")
+stats = {
+"attack_speed": 0.5,
+"damage": 100.0
+}

@@ -1,20 +1,20 @@
 [gd_scene format=3 uid="uid://bxtfp8e3b3w56"]
 
 [ext_resource type="Script" uid="uid://cq1cbdfn7lfy7" path="res://Scripts/Enemies/enemy_follower.gd" id="1_efol"]
-[ext_resource type="Texture2D" uid="uid://dnfi6d5s0b1ip" path="res://ProjectFrankenstein/Art/Enemy_Mutation/alien-enemy-idle.png" id="2_oxu7a"]
-[ext_resource type="Texture2D" uid="uid://bp1tc8yrigwhr" path="res://ProjectFrankenstein/Art/Enemy_Mutation/alien-enemy-walk.png" id="3_ehcuq"]
-[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="4_smbn1"]
-[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="5_8jjyg"]
-[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="6_anqt5"]
-[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="7_n36py"]
-[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="8_71wew"]
-[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="9_o2jaa"]
-[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="10_2l7ve"]
-[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="11_7rpbl"]
-[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="12_jbpaa"]
-[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="13_631ej"]
-[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://ProjectFrankenstein/Audio/Sfx/69_Enemy_death_01.wav" id="14_8jjyg"]
-[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/70.png" id="15_anqt5"]
+[ext_resource type="Texture2D" uid="uid://dnfi6d5s0b1ip" path="res://Art/Enemy_Mutation/alien-enemy-idle.png" id="2_oxu7a"]
+[ext_resource type="Texture2D" uid="uid://bp1tc8yrigwhr" path="res://Art/Enemy_Mutation/alien-enemy-walk.png" id="3_ehcuq"]
+[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="4_smbn1"]
+[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="5_8jjyg"]
+[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="6_anqt5"]
+[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="7_n36py"]
+[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="8_71wew"]
+[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="9_o2jaa"]
+[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="10_2l7ve"]
+[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="11_7rpbl"]
+[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="12_jbpaa"]
+[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="13_631ej"]
+[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_8jjyg"]
+[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="15_anqt5"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_anqt5"]
 atlas = ExtResource("2_oxu7a")
@@ -249,6 +249,8 @@ collision_mask = 7
 script = ExtResource("1_efol")
 move_speed = 100.0
 damage = 7
+scrap_drop_chance = 0.9
+item_drop_chance = 0.9
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=283656131]
 texture_filter = 1
@@ -294,4 +296,5 @@ scale = Vector2(0.88871574, 0.9029864)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Detect_area" unique_id=1590030534]
 scale = Vector2(35.05152, 35.05152)
 shape = SubResource("CircleShape2D_anqt5")
+
 [connection signal="frame_changed" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_frame_changed"]

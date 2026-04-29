@@ -1,0 +1,108 @@
+[gd_scene format=3 uid="uid://iwiggne1g58n"]
+
+[ext_resource type="Script" uid="uid://iql4tan5il58" path="res://Scripts/Inventory/inventory_ui.gd" id="1_script"]
+
+[node name="InventoryUI" type="Control" unique_id=1036178308]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1278387474]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.050980393, 0.050980393, 0.050980393, 0.28627452)
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=346383054]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 238.0
+offset_top = 90.0
+offset_right = -233.11108
+offset_bottom = -175.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 64
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1198383295]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="InventoryPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=143455681]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/InventoryPanel" unique_id=993680938]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MarginContainer/HBoxContainer/InventoryPanel/VBoxContainer" unique_id=1793204264]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "INVENTARIO"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/InventoryPanel/VBoxContainer" unique_id=1630247460]
+layout_mode = 2
+
+[node name="InventoryGrid" type="GridContainer" parent="MarginContainer/HBoxContainer/InventoryPanel/VBoxContainer" unique_id=583085318]
+modulate = Color(0.25869846, 0.5026264, 1, 1)
+layout_mode = 2
+size_flags_vertical = 3
+columns = 5
+
+[node name="EquipmentPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=1973329205]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel" unique_id=1297213183]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer" unique_id=1790140326]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
+theme_override_font_sizes/font_size = 28
+text = "EQUIPAMIENTO"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer" unique_id=136383054]
+layout_mode = 2
+
+[node name="SlotsList" type="VBoxContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer" unique_id=1635861517]
+modulate = Color(0, 1, 1, 1)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatsPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=1817231679]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/StatsPanel" unique_id=153846861]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MarginContainer/HBoxContainer/StatsPanel/VBoxContainer" unique_id=240115219]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 28
+text = "ESTADÍSTICAS"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/StatsPanel/VBoxContainer" unique_id=1809149038]
+layout_mode = 2
+
+[node name="StatsLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/StatsPanel/VBoxContainer" unique_id=399768408]
+layout_mode = 2
+size_flags_vertical = 3
+text = "- Selecciona un item para ver las mejoras aplicadas al personaje -"

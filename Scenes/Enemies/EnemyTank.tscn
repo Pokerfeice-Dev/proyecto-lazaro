@@ -1,21 +1,21 @@
 [gd_scene format=3 uid="uid://7ot83tw3j3y2"]
 
 [ext_resource type="Script" uid="uid://3vgnfvuw72p5" path="res://Scripts/Enemies/enemy_tank.gd" id="1_et"]
-[ext_resource type="Texture2D" uid="uid://dnjgb3eibnbc2" path="res://ProjectFrankenstein/Art/Enemy_tank/mutant-toad-attack.png" id="2_rs3yy"]
-[ext_resource type="Texture2D" uid="uid://e5rrdmjfhqd2" path="res://ProjectFrankenstein/Art/Enemy_tank/mutant-toad-idle.png" id="3_yosx3"]
-[ext_resource type="Texture2D" uid="uid://cennu0l0hveg4" path="res://ProjectFrankenstein/Art/Enemy_tank/mutant-toad-jump.png" id="4_6d60r"]
-[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="5_00hgu"]
-[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="6_s1c57"]
-[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="7_y1qo3"]
-[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="8_v357f"]
-[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="9_sc3p5"]
-[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="10_uc11c"]
-[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="11_j5aix"]
-[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="12_lrvj6"]
-[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="13_bht2j"]
-[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="14_rqgaj"]
-[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://ProjectFrankenstein/Audio/Sfx/69_Enemy_death_01.wav" id="15_jtnus"]
-[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://ProjectFrankenstein/Art/Enemy_Mutation/fx/70.png" id="16_po6uv"]
+[ext_resource type="Texture2D" uid="uid://dnjgb3eibnbc2" path="res://Art/Enemy_tank/mutant-toad-attack.png" id="2_rs3yy"]
+[ext_resource type="Texture2D" uid="uid://e5rrdmjfhqd2" path="res://Art/Enemy_tank/mutant-toad-idle.png" id="3_yosx3"]
+[ext_resource type="Texture2D" uid="uid://cennu0l0hveg4" path="res://Art/Enemy_tank/mutant-toad-jump.png" id="4_6d60r"]
+[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="5_00hgu"]
+[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="6_s1c57"]
+[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="7_y1qo3"]
+[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="8_v357f"]
+[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="9_sc3p5"]
+[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="10_uc11c"]
+[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="11_j5aix"]
+[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="12_lrvj6"]
+[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="13_bht2j"]
+[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="14_rqgaj"]
+[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="15_jtnus"]
+[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="16_po6uv"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ciq8k"]
 atlas = ExtResource("2_rs3yy")
@@ -237,6 +237,8 @@ script = ExtResource("1_et")
 max_health = 150
 move_speed = 70.0
 damage = 17
+scrap_drop_chance = 0.9
+item_drop_chance = 0.5
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2111728552]
 texture_filter = 1

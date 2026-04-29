@@ -8,6 +8,10 @@ class_name EnemyBase
 @export var attack_speed: float = 1.0
 
 @export var scrap_scene: PackedScene = preload("res://Scenes/UI/scrap.tscn")
+@export var scrap_drop_chance: float = 1.0
+@export var item_drop_scene: PackedScene = preload("res://Scenes/Items/item_drop_world.tscn")
+@export var item_drop_data: ItemData = preload("res://Art/Items/Item1.tres")
+@export var item_drop_chance: float = 1.0
 
 var target: Node2D = null
 var is_spawning: bool = false
@@ -175,7 +179,7 @@ func die() -> void:
 	if is_dying: return
 	is_dying = true
 	enemy_died.emit(self)
-	_spawn_scrap()
+	_attempt_drops()
 	_disable_physics()
 	_hide_sprite()
 	_hide_health_bar()
@@ -187,11 +191,30 @@ func _hide_health_bar() -> void:
 	if not bar: return
 	bar.hide()
 
+func _attempt_drops() -> void:
+	_spawn_scrap()
+	_spawn_item()
+
 func _spawn_scrap() -> void:
 	if not scrap_scene: return
+	if randf() > scrap_drop_chance: return
 	var scrap = scrap_scene.instantiate()
 	scrap.global_position = global_position
 	get_tree().current_scene.call_deferred("add_child", scrap)
+
+func _spawn_item() -> void:
+	if not item_drop_scene:
+		print("ERROR: item_drop_scene no está asignado.")
+		return
+	if not item_drop_data:
+		print("ERROR: item_drop_data no está asignado en el Inspector. ¡Debes arrastrar el recurso ItemData (no el PNG) al enemigo!")
+		return
+	if randf() > item_drop_chance: return
+	var item_drop = item_drop_scene.instantiate()
+	item_drop.item_data = item_drop_data
+	item_drop.global_position = global_position
+	get_tree().current_scene.call_deferred("add_child", item_drop)
+	print("Item instanciado exitosamente.")
 
 func _disable_physics() -> void:
 	set_physics_process(false)

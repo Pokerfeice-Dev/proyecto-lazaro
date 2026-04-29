@@ -229,13 +229,23 @@ func handle_shooting() -> void:
 	if shoot_dir == Vector2.ZERO: return
 	fire_projectile(shoot_dir)
 
+func _get_equipment_damage_bonus() -> float:
+	var equip = get_node_or_null("Equipment")
+	if not equip: return 0.0
+	var char_stats = equip.get_character_stats()
+	var weapon_stats = equip.get_main_weapon_stats()
+	var bonus = 0.0
+	if char_stats.has("damage"): bonus += char_stats["damage"]
+	if weapon_stats.has("damage"): bonus += weapon_stats["damage"]
+	return bonus
+
 func fire_projectile(dir: Vector2) -> void:
 	_show_primary_weapon()
 	can_shoot = false
 	shoot_timer.start(stats.fire_rate)
 	var fire_point = global_position
 	var p_scene = projectile_scene
-	var dmg = 10.0 * stats.damage_multiplier
+	var dmg = 10.0 * stats.damage_multiplier + _get_equipment_damage_bonus()
 	var p_speed = 600.0
 	var bullets = 1
 	var spread = 0.0
@@ -244,7 +254,7 @@ func fire_projectile(dir: Vector2) -> void:
 
 	if active_weapon:
 		p_scene = _get_weapon_proj_scene(p_scene)
-		dmg = _get_weapon_damage() * stats.damage_multiplier
+		dmg = (_get_weapon_damage() + _get_equipment_damage_bonus()) * stats.damage_multiplier
 		p_speed = _get_weapon_proj_speed()
 		bullets = _get_weapon_bullets()
 		spread = _get_weapon_spread()
