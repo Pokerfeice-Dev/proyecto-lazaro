@@ -50,6 +50,7 @@ animations = [{
 [node name="Second_weapon" type="Node2D" unique_id=990464532]
 script = ExtResource("1_script")
 damage = 5
+knockback_force = 1.0
 
 [node name="Melee_sprite" type="Sprite2D" parent="." unique_id=811593201]
 position = Vector2(0.5, 0)

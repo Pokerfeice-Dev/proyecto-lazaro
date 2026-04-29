@@ -30,6 +30,7 @@ var weapon_piercing: int = 0            # bullets pierce N extra enemies
 var melee_damage: float = 30.0
 var melee_speed: float = 1.0
 var melee_range: float = 1.0
+var melee_knockback: float = 0.0
 
 # Upgrade costs (scrap) and step sizes ───────────────────────────────────────
 const UPGRADE_DEFS: Array[Dictionary] = [
@@ -110,6 +111,13 @@ const UPGRADE_DEFS: Array[Dictionary] = [
 		"cost": 1,
 		"step": 0.15
 	},
+	{
+		"key": "melee_knockback",
+		"label": "💨 Empuje Melee",
+		"desc": "Empuja a los enemigos al golpearlos",
+		"cost": 1,
+		"step": 250.0
+	},
 ]
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -137,6 +145,7 @@ func get_upgrade_level(key: String) -> float:
 		"melee_damage":      return melee_damage
 		"melee_speed":       return melee_speed
 		"melee_range":       return melee_range
+		"melee_knockback":   return melee_knockback
 	return 0.0
 
 func apply_upgrade(key: String, step: float) -> void:
@@ -163,6 +172,8 @@ func apply_upgrade(key: String, step: float) -> void:
 			melee_speed = maxf(0.1, melee_speed + step)
 		"melee_range":
 			melee_range = maxf(0.1, melee_range + step)
+		"melee_knockback":
+			melee_knockback += step
 
 func apply_to_weapon(weapon: WeaponBase) -> void:
 	if not weapon:
@@ -179,6 +190,7 @@ func apply_to_melee(melee: Node2D) -> void:
 	if "damage" in melee: melee.damage = int(melee_damage)
 	if "attack_speed" in melee: melee.attack_speed = melee_speed
 	if "attack_range" in melee: melee.attack_range = melee_range
+	if "knockback_force" in melee: melee.knockback_force = melee_knockback
 	if melee.has_method("_ready"):
 		melee.scale = Vector2(melee_range, melee_range)
 
@@ -210,6 +222,7 @@ func save_game(slot: int = -1) -> void:
 		"melee_damage": melee_damage,
 		"melee_speed": melee_speed,
 		"melee_range": melee_range,
+		"melee_knockback": melee_knockback,
 		"play_time": play_time
 	}
 	var file = FileAccess.open(get_save_path(slot), FileAccess.WRITE)
@@ -240,6 +253,7 @@ func load_game(slot: int) -> bool:
 	melee_damage = float(json.get("melee_damage", 30.0))
 	melee_speed = float(json.get("melee_speed", 1.0))
 	melee_range = float(json.get("melee_range", 1.0))
+	melee_knockback = float(json.get("melee_knockback", 0.0))
 	play_time = float(json.get("play_time", 0.0))
 	
 	scrap_changed.emit(scrap)
@@ -278,6 +292,7 @@ func reset_data() -> void:
 	melee_damage = 30.0
 	melee_speed = 1.0
 	melee_range = 1.0
+	melee_knockback = 0.0
 	play_time = 0.0
 	scrap_changed.emit(scrap)
 
@@ -296,7 +311,7 @@ func get_slot_info(slot: int) -> Dictionary:
 
 func format_time(time: float) -> String:
 	var total_secs = int(time)
-	var hours = total_secs / 3600
-	var minutes = (total_secs % 3600) / 60
+	var hours = int(total_secs / 3600.0)
+	var minutes = int((total_secs % 3600) / 60.0)
 	var seconds = total_secs % 60
 	return "%02d:%02d:%02d" % [hours, minutes, seconds]

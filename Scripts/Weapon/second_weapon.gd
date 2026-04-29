@@ -8,6 +8,7 @@ extends Node2D
 @export var damage: int = 30
 @export var attack_speed: float = 1.0
 @export var attack_range: float = 1.0
+@export var knockback_force: float = 0.0
 
 var _is_attacking: bool = false
 var hit_enemies: Array[Node2D] = []
@@ -71,3 +72,6 @@ func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("enemy") and body.has_method("take_damage"):
 		hit_enemies.append(body)
 		body.take_damage(damage)
+		if knockback_force > 0.0 and body.has_method("apply_knockback"):
+			var dir = (body.global_position - global_position).normalized()
+			body.apply_knockback(knockback_force, dir)

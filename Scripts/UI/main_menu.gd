@@ -6,13 +6,11 @@ extends Control
 @onready var exit_button: Button = $VBoxContainer/ExitButton
 
 func _ready():
-	# Conectamos las señales de los botones a sus funciones
 	play_button.pressed.connect(_on_play_pressed)
 	if continue_button: continue_button.pressed.connect(_on_continue_pressed)
 	options_button.pressed.connect(_on_options_pressed)
 	exit_button.pressed.connect(_on_exit_pressed)
 	
-	# Usar el ratón para los menús
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	if continue_button:

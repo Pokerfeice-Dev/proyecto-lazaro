@@ -1,23 +1,11 @@
 [gd_scene format=3 uid="uid://b20sbdsvafnw3"]
 
 [ext_resource type="Script" uid="uid://dlqbx2q4ykky3" path="res://Scripts/Managers/game_manager.gd" id="1_gm"]
-[ext_resource type="Script" uid="uid://chsgjn7mkjq8n" path="res://Scripts/Managers/wave_manager.gd" id="2_wm"]
-[ext_resource type="Script" uid="uid://brxg2ugypn6un" path="res://Scripts/World/arena_generator.gd" id="3_ag"]
-[ext_resource type="Script" uid="uid://erpga3nhh6m5" path="res://Scripts/Managers/upgrade_system.gd" id="4_us"]
-[ext_resource type="AudioStream" uid="uid://dhykqxa081xt8" path="res://ProjectFrankenstein/Audio/Music/sn1.ogg" id="5_v1gob"]
+[ext_resource type="AudioStream" uid="uid://dhykqxa081xt8" path="res://Audio/Music/sn1.ogg" id="5_v1gob"]
 [ext_resource type="PackedScene" uid="uid://lpsu8nbsyhl5" path="res://Scenes/Rooms/room_1.tscn" id="7_jw32o"]
 
 [node name="Main" type="Node2D" unique_id=607205068]
 script = ExtResource("1_gm")
-
-[node name="WaveManager" type="Node" parent="." unique_id=143970182 groups=["wave_manager"]]
-script = ExtResource("2_wm")
-
-[node name="ArenaGenerator" type="Node2D" parent="." unique_id=1816012775 groups=["arena_generator"]]
-script = ExtResource("3_ag")
-
-[node name="UpgradeSystem" type="Node" parent="." unique_id=1797732868 groups=["upgrade_system"]]
-script = ExtResource("4_us")
 
 [node name="Main_music" type="AudioStreamPlayer" parent="." unique_id=1782783216]
 stream = ExtResource("5_v1gob")

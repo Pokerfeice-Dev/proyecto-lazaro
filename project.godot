@@ -14,8 +14,6 @@ config/name="Proyecto Lázaro"
 run/main_scene="uid://cc1lqc7wlyhbn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="uid://dygs5q4tto8q4"
-config/macos_native_icon="uid://dygs5q4tto8q4"
-config/windows_native_icon="uid://dygs5q4tto8q4"
 
 [autoload]
 

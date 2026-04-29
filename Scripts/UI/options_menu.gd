@@ -99,7 +99,10 @@ func _on_menu_pressed() -> void:
 	SceneTransition.change_scene("res://Scenes/UI/MainMenu.tscn")
 
 func _on_save_pressed() -> void:
-	$Btn_snd.play() if has_node("Btn_snd") else _play_hover_sound()
+	if has_node("Btn_snd"):
+		$Btn_snd.play()
+	else:
+		_play_hover_sound()
 	GameData.save_game()
 	save_btn.text = "¡Partida Guardada!"
 	var t = create_tween()
