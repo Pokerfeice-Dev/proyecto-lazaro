@@ -44,8 +44,9 @@ func _load_level1_rooms() -> void:
 
 func _add_room_if_valid(file_name: String, path: String) -> void:
 	if not file_name.begins_with("Level1_Room"): return
-	if not file_name.ends_with(".tscn"): return
-	rooms_pool.append(path + file_name)
+	var clean_name = file_name.trim_suffix(".remap")
+	if not clean_name.ends_with(".tscn"): return
+	rooms_pool.append(path + clean_name)
 
 func start_new_run() -> String:
 	current_run_room = 1
