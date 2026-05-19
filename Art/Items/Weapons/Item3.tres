@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://03v73ijrmpka"]
+
+[ext_resource type="Texture2D" uid="uid://cwjr2q12jqjhn" path="res://Art/Items/Weapons/Item3_Cerebro.png" id="1_tex"]
+[ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+id = "cerebro"
+item_name = "Cerebro"
+icon = ExtResource("1_tex")
+stats = {
+"cone_spread_angle": -5.0,
+"lifetime": 1.0
+}

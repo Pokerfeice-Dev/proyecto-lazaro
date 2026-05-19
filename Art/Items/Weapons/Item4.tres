@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://ca8ertdsmxlnt"]
+
+[ext_resource type="Texture2D" uid="uid://bwuvg3ihlq80v" path="res://Art/Items/Weapons/Item4_CabezaDePerro.png" id="1_tex"]
+[ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+id = "cabeza_de_perro"
+item_name = "Cabeza de Perro"
+icon = ExtResource("1_tex")
+stats = {
+"attack_speed": 0.15,
+"bullet_count": 1.0
+}

@@ -148,6 +148,5 @@ func _apply_upgrades_to_player() -> void:
 	var player = get_tree().get_first_node_in_group("player") as Player
 	if not player:
 		return
-	GameData.apply_to_player_stats(player.stats)
 	GameData.apply_to_weapon(player.active_weapon)
 	GameData.apply_to_melee(player.second_weapon)

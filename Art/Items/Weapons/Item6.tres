@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://b8r4v001024w8"]
+
+[ext_resource type="Texture2D" uid="uid://bsiuug6yyf6b" path="res://Art/Items/Weapons/Item6_Motocicleta.png" id="1_tex"]
+[ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+id = "motocicleta"
+item_name = "Motocicleta"
+icon = ExtResource("1_tex")
+stats = {
+"attack_speed": 0.3,
+"damage": -2.0
+}

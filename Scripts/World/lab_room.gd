@@ -62,12 +62,18 @@ func _setup_interaction_label() -> void:
 	add_child(interaction_label)
 
 func _input(event: InputEvent) -> void:
-	if not can_teleport:
-		return
-	if not event is InputEventKey:
-		return
-	if event.physical_keycode == KEY_E and event.pressed and not event.echo:
-		SceneTransition.change_scene("res://Scenes/Main.tscn")
+	if not can_teleport: return
+	if not event is InputEventKey: return
+	if event.physical_keycode != KEY_E: return
+	if not event.pressed: return
+	if event.echo: return
+	
+	_handle_teleport()
+
+func _handle_teleport() -> void:
+	var next_scene: String = GameData.start_new_run()
+	SceneTransition.play_teleport_sound()
+	SceneTransition.change_scene(next_scene)
 
 func _on_teleport_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):

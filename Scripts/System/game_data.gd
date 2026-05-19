@@ -10,6 +10,15 @@ signal scrap_changed(new_amount: int)
 var play_time: float = 0.0
 var current_slot: int = 1
 
+# ── Items & Inventory ────────────────────────────────────────────────────────
+var inventory_items: Array[ItemData] = []
+var equipment_slots: Dictionary = {}
+
+func _ready() -> void:
+	_load_level1_rooms()
+	for slot in ItemData.ItemSlot.values():
+		equipment_slots[slot] = null
+
 func _process(delta: float) -> void:
 	if get_tree().paused: return
 	if not get_tree().current_scene: return
@@ -17,14 +26,124 @@ func _process(delta: float) -> void:
 	if scene_name != "mainmenu" and scene_name != "newgame":
 		play_time += delta
 
+# ── Run Management ────────────────────────────────────────────────────────────
+var current_run_room: int = 0
+var rooms_pool: Array[String] = []
+var last_room_path: String = ""
+
+func _load_level1_rooms() -> void:
+	var path: String = "res://Scenes/Rooms/"
+	var dir = DirAccess.open(path)
+	if not dir: return
+	
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	while file_name != "":
+		_add_room_if_valid(file_name, path)
+		file_name = dir.get_next()
+
+func _add_room_if_valid(file_name: String, path: String) -> void:
+	if not file_name.begins_with("Level1_Room"): return
+	if not file_name.ends_with(".tscn"): return
+	rooms_pool.append(path + file_name)
+
+func start_new_run() -> String:
+	current_run_room = 1
+	return get_random_room_from_pool()
+
+func get_next_room() -> String:
+	current_run_room += 1
+	return determine_next_room()
+
+func determine_next_room() -> String:
+	if current_run_room >= 8:
+		return get_boss_room()
+	return check_for_ygor_room()
+
+func get_boss_room() -> String:
+	print("Llegaste a la sala del jefe, pero no está lista. Volviendo al laboratorio.")
+	return "res://Scenes/Rooms/lab_room.tscn"
+
+func check_for_ygor_room() -> String:
+	var is_multiple_of_three: bool = (current_run_room % 3 == 0)
+	if not is_multiple_of_three:
+		return get_random_room_from_pool()
+	return roll_for_ygor_room()
+
+func roll_for_ygor_room() -> String:
+	var roll: float = randf()
+	if roll < 0.5:
+		return "res://Scenes/Rooms/room_ygor.tscn"
+	return get_random_room_from_pool()
+
+func get_random_room_from_pool() -> String:
+	if rooms_pool.is_empty():
+		return "res://Scenes/Rooms/lab_room.tscn"
+	
+	if rooms_pool.size() == 1:
+		last_room_path = rooms_pool[0]
+		return rooms_pool[0]
+		
+	var next_room = rooms_pool.pick_random()
+	while next_room == last_room_path:
+		next_room = rooms_pool.pick_random()
+		
+	last_room_path = next_room
+	return next_room
+
+func get_room_config() -> Dictionary:
+	var config: Dictionary = _create_base_config()
+	_apply_room_scaling(config, current_run_room)
+	return config
+
+func _create_base_config() -> Dictionary:
+	return {
+		"total_enemies": 4,
+		"max_concurrent": 3,
+		"spawn_interval": 1.5,
+		"allowed_enemies": ["follower"]
+	}
+
+func _apply_room_scaling(config: Dictionary, room: int) -> void:
+	if room <= 1:
+		_set_room_1_config(config)
+		return
+	if room == 2:
+		_set_room_2_config(config)
+		return
+	_set_room_n_config(config, room)
+
+func _set_room_1_config(config: Dictionary) -> void:
+	config.total_enemies = 4
+	config.max_concurrent = 3
+	config.spawn_interval = 1.5
+	config.allowed_enemies = ["follower"]
+
+func _set_room_2_config(config: Dictionary) -> void:
+	config.total_enemies = 7
+	config.max_concurrent = 4
+	config.spawn_interval = 1.3
+	config.allowed_enemies = ["follower", "shooter"]
+
+func _set_room_n_config(config: Dictionary, room: int) -> void:
+	var extra_rooms = room - 3
+	config.total_enemies = 11 + (extra_rooms * 4)
+	config.max_concurrent = 5 + int(extra_rooms / 2)
+	
+	var new_interval = 1.1 - (extra_rooms * 0.05)
+	config.spawn_interval = maxf(0.3, new_interval)
+	
+	config.allowed_enemies = ["follower", "shooter", "tank"]
+
 # ── Weapon upgrades ─────────────────────────────────────────────────────────
 var weapon_damage: float = 10.0
-var weapon_fire_rate: float = 0.5      # seconds between shots (lower = faster)
+var weapon_fire_rate: float = 1.0      # attacks per second (APS)
 var weapon_bullet_count: int = 1
 var weapon_bullet_speed: float = 400.0
 var weapon_spread: float = 15.0
 var weapon_damage_multiplier: float = 1.0
 var weapon_crit_chance: float = 0.0     # 0‒1
+var weapon_crit_damage: float = 2.0     # 2x multiplier by default
 var weapon_piercing: int = 0            # bullets pierce N extra enemies
 
 var melee_damage: float = 30.0
@@ -46,7 +165,7 @@ const UPGRADE_DEFS: Array[Dictionary] = [
 		"label": "🔥 Cadencia",
 		"desc": "Dispara más rápido",
 		"cost": 1,
-		"step": -0.05
+		"step": 0.2
 	},
 	{
 		"key": "bullet_count",
@@ -141,6 +260,7 @@ func get_upgrade_level(key: String) -> float:
 		"spread":            return weapon_spread
 		"damage_multiplier": return weapon_damage_multiplier
 		"crit_chance":       return weapon_crit_chance
+		"crit_damage":       return weapon_crit_damage
 		"piercing":          return weapon_piercing
 		"melee_damage":      return melee_damage
 		"melee_speed":       return melee_speed
@@ -153,7 +273,7 @@ func apply_upgrade(key: String, step: float) -> void:
 		"damage":
 			weapon_damage = maxf(1.0, weapon_damage + step)
 		"fire_rate":
-			weapon_fire_rate = maxf(0.05, weapon_fire_rate + step)
+			weapon_fire_rate = maxf(0.1, weapon_fire_rate + step)
 		"bullet_count":
 			weapon_bullet_count = max(1, weapon_bullet_count + int(step))
 		"bullet_speed":
@@ -164,6 +284,8 @@ func apply_upgrade(key: String, step: float) -> void:
 			weapon_damage_multiplier = maxf(1.0, weapon_damage_multiplier + step)
 		"crit_chance":
 			weapon_crit_chance = clampf(weapon_crit_chance + step, 0.0, 1.0)
+		"crit_damage":
+			weapon_crit_damage = maxf(1.0, weapon_crit_damage + step)
 		"piercing":
 			weapon_piercing = max(0, weapon_piercing + int(step))
 		"melee_damage":
@@ -175,17 +297,23 @@ func apply_upgrade(key: String, step: float) -> void:
 		"melee_knockback":
 			melee_knockback += step
 
-func apply_to_weapon(weapon: WeaponBase) -> void:
+func apply_to_weapon(weapon) -> void:
 	if not weapon:
 		return
-	weapon.damage            = weapon_damage
-	weapon.projectile_speed  = weapon_bullet_speed
-	weapon.bullet_count      = weapon_bullet_count
-	weapon.cone_spread_angle = weapon_spread
-	weapon.piercing          = weapon_piercing
-	weapon.crit_chance       = weapon_crit_chance
+	if "damage" in weapon: weapon.damage = weapon_damage
+	if "projectile_speed" in weapon: weapon.projectile_speed = weapon_bullet_speed
+	if "bullet_count" in weapon: weapon.bullet_count = weapon_bullet_count
+	if "cone_spread_angle" in weapon: weapon.cone_spread_angle = weapon_spread
+	if "piercing" in weapon: weapon.piercing = weapon_piercing
+	if "crit_chance" in weapon: weapon.crit_chance = weapon_crit_chance
+	if "crit_damage" in weapon:
+		weapon.crit_damage = weapon_crit_damage
+	if "attack_speed" in weapon:
+		weapon.attack_speed = weapon_fire_rate
+	if "damage_multiplier" in weapon:
+		weapon.damage_multiplier = weapon_damage_multiplier
 
-func apply_to_melee(melee: Node2D) -> void:
+func apply_to_melee(melee) -> void:
 	if not melee: return
 	if "damage" in melee: melee.damage = int(melee_damage)
 	if "attack_speed" in melee: melee.attack_speed = melee_speed
@@ -193,12 +321,6 @@ func apply_to_melee(melee: Node2D) -> void:
 	if "knockback_force" in melee: melee.knockback_force = melee_knockback
 	if melee.has_method("_ready"):
 		melee.scale = Vector2(melee_range, melee_range)
-
-func apply_to_player_stats(stats: PlayerStats) -> void:
-	if not stats:
-		return
-	stats.fire_rate         = weapon_fire_rate
-	stats.damage_multiplier = weapon_damage_multiplier
 
 # ── Save System ──────────────────────────────────────────────────────────────
 func get_save_path(slot: int) -> String:
@@ -218,6 +340,7 @@ func save_game(slot: int = -1) -> void:
 		"weapon_spread": weapon_spread,
 		"weapon_damage_multiplier": weapon_damage_multiplier,
 		"weapon_crit_chance": weapon_crit_chance,
+		"weapon_crit_damage": weapon_crit_damage,
 		"weapon_piercing": weapon_piercing,
 		"melee_damage": melee_damage,
 		"melee_speed": melee_speed,
@@ -243,12 +366,13 @@ func load_game(slot: int) -> bool:
 	current_slot = slot
 	scrap = int(json.get("scrap", 0))
 	weapon_damage = float(json.get("weapon_damage", 10.0))
-	weapon_fire_rate = float(json.get("weapon_fire_rate", 0.5))
+	weapon_fire_rate = float(json.get("weapon_fire_rate", 1.0))
 	weapon_bullet_count = int(json.get("weapon_bullet_count", 1))
 	weapon_bullet_speed = float(json.get("weapon_bullet_speed", 400.0))
 	weapon_spread = float(json.get("weapon_spread", 15.0))
 	weapon_damage_multiplier = float(json.get("weapon_damage_multiplier", 1.0))
 	weapon_crit_chance = float(json.get("weapon_crit_chance", 0.0))
+	weapon_crit_damage = float(json.get("weapon_crit_damage", 2.0))
 	weapon_piercing = int(json.get("weapon_piercing", 0))
 	melee_damage = float(json.get("melee_damage", 30.0))
 	melee_speed = float(json.get("melee_speed", 1.0))
@@ -279,21 +403,30 @@ func delete_save(slot: int) -> void:
 	if FileAccess.file_exists(path):
 		DirAccess.remove_absolute(path)
 
+func clear_items() -> void:
+	inventory_items.clear()
+	for k in equipment_slots.keys():
+		equipment_slots[k] = null
+
 func reset_data() -> void:
 	scrap = 0
 	weapon_damage = 10.0
-	weapon_fire_rate = 0.5
+	weapon_fire_rate = 1.0
 	weapon_bullet_count = 1
 	weapon_bullet_speed = 400.0
 	weapon_spread = 15.0
 	weapon_damage_multiplier = 1.0
 	weapon_crit_chance = 0.0
+	weapon_crit_damage = 2.0
 	weapon_piercing = 0
 	melee_damage = 30.0
 	melee_speed = 1.0
 	melee_range = 1.0
 	melee_knockback = 0.0
 	play_time = 0.0
+	inventory_items.clear()
+	for k in equipment_slots.keys():
+		equipment_slots[k] = null
 	scrap_changed.emit(scrap)
 
 func get_slot_info(slot: int) -> Dictionary:

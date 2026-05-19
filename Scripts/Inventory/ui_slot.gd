@@ -55,8 +55,22 @@ func _gui_input(event: InputEvent) -> void:
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	if not item: return null
-	var preview = Label.new()
-	preview.text = item.item_name
+	
+	var preview = Control.new()
+	if item.icon:
+		var trect = TextureRect.new()
+		trect.texture = item.icon
+		trect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		trect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		trect.custom_minimum_size = Vector2(64, 64)
+		trect.position = -trect.custom_minimum_size / 2.0
+		preview.add_child(trect)
+	else:
+		var lbl = Label.new()
+		lbl.text = item.item_name
+		lbl.position = Vector2(-20, -10)
+		preview.add_child(lbl)
+		
 	set_drag_preview(preview)
 	return {"item": item, "source_slot": self}
 
@@ -66,15 +80,13 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if is_inventory_slot: return true
 	var drag_item: ItemData = data["item"]
 	
-	if drag_item.type == ItemData.ItemType.MAIN_WEAPON:
-		if slot_type in [ItemData.ItemSlot.MAIN_W1, ItemData.ItemSlot.MAIN_W2, ItemData.ItemSlot.MAIN_W3]:
+	if drag_item.type == ItemData.ItemType.WEAPON:
+		if slot_type in [ItemData.ItemSlot.MAIN_W1, ItemData.ItemSlot.MAIN_W2, ItemData.ItemSlot.MAIN_W3, ItemData.ItemSlot.SEC_W1, ItemData.ItemSlot.SEC_W2, ItemData.ItemSlot.SEC_W3]:
 			return true
-	if drag_item.type == ItemData.ItemType.SECONDARY_WEAPON:
-		if slot_type in [ItemData.ItemSlot.SEC_W1, ItemData.ItemSlot.SEC_W2, ItemData.ItemSlot.SEC_W3]:
-			return true
-			
-	if drag_item.slot != slot_type: return false
-	return true
+	elif drag_item.type == ItemData.ItemType.TORSO and slot_type == ItemData.ItemSlot.TORSO: return true
+	elif drag_item.type == ItemData.ItemType.ARMS and slot_type == ItemData.ItemSlot.ARMS: return true
+	elif drag_item.type == ItemData.ItemType.LEGS and slot_type == ItemData.ItemSlot.LEGS: return true
+	return false
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var drag_item: ItemData = data["item"]

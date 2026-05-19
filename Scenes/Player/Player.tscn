@@ -55,10 +55,8 @@
 [ext_resource type="Script" uid="uid://bs5ls16658xo0" path="res://Scripts/Inventory/inventory.gd" id="100_inv"]
 [ext_resource type="Script" uid="uid://bfyvaviudoe86" path="res://Scripts/Equipment/equipment.gd" id="101_equ"]
 
-[sub_resource type="Resource" id="Resource_h54ih"]
+[sub_resource type="Resource" id="Resource_b7nrf"]
 script = ExtResource("2_ft8w5")
-move_speed = 150.0
-fire_rate = 1.0
 metadata/_custom_type_script = "uid://bi0sm5p5ejgtm"
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_ft8w5"]
@@ -201,7 +199,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(19, 48)
+size = Vector2(12, 39)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_jbjyn"]
 animations = [{
@@ -266,11 +264,9 @@ animations = [{
 
 [node name="Player" type="CharacterBody2D" unique_id=672756116 groups=["player"]]
 collision_mask = 6
+safe_margin = 1.0
 script = ExtResource("1_pl1")
-stats = SubResource("Resource_h54ih")
-friction = 400.0
-dash_speed = 400.0
-dash_duration = 0.3
+stats = SubResource("Resource_b7nrf")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1758516561]
 z_index = -1
@@ -298,12 +294,11 @@ color = Color(0, 0, 0, 1)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1352715319]
 sprite_frames = SubResource("SpriteFrames_ft8w5")
-animation = &"idle_down"
+animation = &"run_left"
 autoplay = "idle_down"
-frame_progress = 0.5722948
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1078907818]
-position = Vector2(0.5, -1)
+position = Vector2(0, -0.5)
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Summon_anim" type="AnimatedSprite2D" parent="." unique_id=903373837]

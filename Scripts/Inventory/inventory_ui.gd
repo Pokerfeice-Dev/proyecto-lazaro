@@ -37,6 +37,8 @@ func _ready() -> void:
 	
 	inventory.inventory_updated.connect(update_items_list)
 	equipment.equipment_changed.connect(update_ui)
+	var stats_lbl = $MarginContainer/HBoxContainer/StatsPanel/VBoxContainer/StatsLabel
+	stats_lbl.bbcode_enabled = true
 	_setup_slots()
 
 func _auto_fetch_player_nodes() -> void:
@@ -61,14 +63,14 @@ func _setup_slots() -> void:
 	body_grid.add_child(Control.new())
 	
 	# Row 2
-	_create_equip_slot(ItemData.ItemSlot.ARM_L, "Brazo\nIzq", body_grid)
 	body_grid.add_child(Control.new())
-	_create_equip_slot(ItemData.ItemSlot.ARM_R, "Brazo\nDer", body_grid)
+	_create_equip_slot(ItemData.ItemSlot.ARMS, "Brazos", body_grid)
+	body_grid.add_child(Control.new())
 	
 	# Row 3
-	_create_equip_slot(ItemData.ItemSlot.LEG_L, "Pierna\nIzq", body_grid)
 	body_grid.add_child(Control.new())
-	_create_equip_slot(ItemData.ItemSlot.LEG_R, "Pierna\nDer", body_grid)
+	_create_equip_slot(ItemData.ItemSlot.LEGS, "Piernas", body_grid)
+	body_grid.add_child(Control.new())
 
 	var sep = HSeparator.new()
 	sep.custom_minimum_size.y = 16
@@ -106,23 +108,70 @@ func _create_equip_slot(slot_key: ItemData.ItemSlot, empty_text: String, parent:
 
 func _on_item_dropped(drag_item: ItemData, source_slot: UISlot, target_slot: UISlot) -> void:
 	if source_slot.is_inventory_slot and not target_slot.is_inventory_slot:
+		var old_item = equipment.slots.get(target_slot.slot_type)
 		drag_item.slot = target_slot.slot_type
 		inventory.remove_item(drag_item)
+		if old_item:
+			inventory.add_item(old_item)
 		equipment.equip_item(drag_item)
+		
 	elif not source_slot.is_inventory_slot and target_slot.is_inventory_slot:
 		equipment.slots[source_slot.slot_type] = null
 		equipment.equipment_changed.emit()
 		inventory.add_item(drag_item)
+		
 	elif not source_slot.is_inventory_slot and not target_slot.is_inventory_slot:
-		equipment.slots[source_slot.slot_type] = null
+		var old_item = equipment.slots.get(target_slot.slot_type)
+		equipment.slots[source_slot.slot_type] = old_item
+		if old_item:
+			old_item.slot = source_slot.slot_type
 		drag_item.slot = target_slot.slot_type
 		equipment.equip_item(drag_item)
+		
 	else:
 		update_ui()
 
 func _on_slot_clicked(item: ItemData) -> void:
 	var stats_lbl = $MarginContainer/HBoxContainer/StatsPanel/VBoxContainer/StatsLabel
-	stats_lbl.text = "Stats de " + item.item_name + ":\n" + str(item.stats)
+	var txt = "[b]Stats de " + item.item_name + ":[/b]\n"
+	if item.stats.is_empty():
+		txt += "(Sin mejoras)\n"
+	else:
+		for k in item.stats.keys():
+			txt += format_stat_string(k, item.stats[k]) + "\n"
+	stats_lbl.text = txt
+
+func format_stat_string(k: String, v: float) -> String:
+	var stat_name = k.capitalize()
+	var is_percent = false
+	var is_negative_good = false
+	
+	match k:
+		"max_health_percent": stat_name = "Vida Máxima"; is_percent = true
+		"move_speed_percent": stat_name = "Vel. Movimiento"; is_percent = true
+		"armor": stat_name = "Armadura"
+		"damage": stat_name = "Daño"
+		"projectile_speed": stat_name = "Vel. Proyectil"
+		"bullet_count": stat_name = "Proyectiles"
+		"cone_spread_angle": stat_name = "Dispersión"; is_negative_good = true
+		"piercing": stat_name = "Perforación"
+		"crit_chance": stat_name = "Prob. Crítico"; is_percent = true
+		"crit_damage": stat_name = "Daño Crítico"
+		"attack_speed": stat_name = "Vel. Ataque"; is_negative_good = true
+		"damage_multiplier": stat_name = "Multiplicador de Daño"
+		"knockback_force": stat_name = "Empuje"
+		"lifetime": stat_name = "Alcance"
+		"attack_range": stat_name = "Rango de Ataque"
+		
+	var prefix = "+" if v > 0 else ""
+	var display_val = ""
+	
+	if is_percent:
+		display_val = str(round(v * 100)) + "%"
+	else:
+		display_val = str(v)
+		
+	return "%s: [color=yellow]%s%s[/color]" % [stat_name, prefix, display_val]
 
 func update_items_list() -> void:
 	if inventory == null: return
@@ -145,17 +194,38 @@ func update_stats_display() -> void:
 
 func display_stats(_main_stats: Dictionary, _sec_stats: Dictionary) -> void:
 	var lbl = $MarginContainer/HBoxContainer/StatsPanel/VBoxContainer/StatsLabel
-	var txt = "--- Stats Arma Principal ---\n"
-	if _main_stats.is_empty(): txt += "(Sin stats)\n"
-	for k in _main_stats.keys(): txt += str(k) + ": " + str(_main_stats[k]) + "\n"
+	var txt = "[b]--- Estadísticas Globales ---[/b]\n"
 	
-	txt += "\n--- Stats Arma Secundaria ---\n"
-	if _sec_stats.is_empty(): txt += "(Sin stats)\n"
-	for k in _sec_stats.keys(): txt += str(k) + ": " + str(_sec_stats[k]) + "\n"
+	var players = get_tree().get_nodes_in_group("player")
+	if players.is_empty(): return
+	var p = players[0]
+	var p_stats = p.stats
 	
-	var char_stats = equipment.get_character_stats()
-	txt += "\n--- Stats de Personaje ---\n"
-	if char_stats.is_empty(): txt += "(Sin stats)\n"
-	for k in char_stats.keys(): txt += str(k) + ": " + str(char_stats[k]) + "\n"
+	var armor = p._get_equip_stat("armor", false)
+	txt += "Vida Máxima: [color=yellow]" + str(p_stats.max_health) + "[/color]\n"
+	txt += "Vel. Movimiento: [color=yellow]" + str(p_stats.move_speed) + "[/color]\n"
+	txt += "Armadura: [color=yellow]" + str(armor) + "[/color]\n"
+	
+	txt += "\n[b]--- Arma Principal ---[/b]\n"
+	var w_dmg = (GameData.weapon_damage + p._get_equip_stat("damage", true)) * (GameData.weapon_damage_multiplier + p._get_equip_stat("damage_multiplier", true))
+	var w_spd = maxf(0.05, GameData.weapon_fire_rate - p._get_equip_stat("attack_speed", true))
+	var w_proj = GameData.weapon_bullet_count + int(p._get_equip_stat("bullet_count", true))
+	var w_crit_c = GameData.weapon_crit_chance + p._get_equip_stat("crit_chance", true)
+	var w_crit_d = GameData.weapon_crit_damage + p._get_equip_stat("crit_damage", true)
+	
+	txt += "Daño Total: [color=yellow]" + str(w_dmg) + "[/color]\n"
+	txt += "Velocidad de Ataque: [color=yellow]" + str(w_spd) + "[/color]s\n"
+	txt += "Proyectiles: [color=yellow]" + str(w_proj) + "[/color]\n"
+	txt += "Prob. Crítico: [color=yellow]" + str(w_crit_c * 100) + "%[/color]\n"
+	txt += "Daño Crítico: [color=yellow]x" + str(w_crit_d) + "[/color]\n"
+	
+	txt += "\n[b]--- Cuerpo a Cuerpo ---[/b]\n"
+	var m_dmg = GameData.melee_damage + p._get_equip_stat("damage", false)
+	var m_spd = GameData.melee_speed + p._get_equip_stat("attack_speed", false)
+	var m_knock = GameData.melee_knockback + p._get_equip_stat("knockback_force", false)
+	
+	txt += "Daño: [color=yellow]" + str(m_dmg) + "[/color]\n"
+	txt += "Velocidad Ataque: [color=yellow]" + str(m_spd) + "[/color]\n"
+	txt += "Empuje: [color=yellow]" + str(m_knock) + "[/color]\n"
 	
 	lbl.text = txt

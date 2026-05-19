@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://puv02ssvv07w"]
+
+[ext_resource type="Texture2D" uid="uid://pjlhcfun80bo" path="res://Art/Items/Weapons/Item2_AguijonMecanico.png" id="1_tex"]
+[ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+id = "aguijon_mecanico"
+item_name = "Aguijón Mecánico"
+icon = ExtResource("1_tex")
+stats = {
+"piercing": 1.0,
+"projectile_speed": 100.0
+}

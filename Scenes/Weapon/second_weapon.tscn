@@ -9,7 +9,7 @@
 size = Vector2(37, 20)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
-size = Vector2(27, 49)
+size = Vector2(27.5, 49)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pq8rl"]
 atlas = ExtResource("4_cgp1c")
@@ -49,8 +49,6 @@ animations = [{
 
 [node name="Second_weapon" type="Node2D" unique_id=990464532]
 script = ExtResource("1_script")
-damage = 5
-knockback_force = 1.0
 
 [node name="Melee_sprite" type="Sprite2D" parent="." unique_id=811593201]
 position = Vector2(0.5, 0)
@@ -69,7 +67,7 @@ collision_layer = 10
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Slash_attack" unique_id=1160746426]
-position = Vector2(14, -3)
+position = Vector2(13.75, -3)
 shape = SubResource("RectangleShape2D_d7jkh")
 
 [node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=979261601]

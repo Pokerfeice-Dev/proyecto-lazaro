@@ -3,8 +3,8 @@ class_name Player
 
 @export var stats: PlayerStats = PlayerStats.new()
 @export var acceleration: float = 2000.0
-@export var friction: float = 1800.0
-@export var dash_speed: float = 1000.0
+@export var friction: float = 650
+@export var dash_speed: float = 500
 @export var dash_duration: float = 0.2
 @export var projectile_scene: PackedScene = preload("res://Scenes/Projectiles/Projectile.tscn")
 @export var weapon_scene: PackedScene = preload("res://Scenes/Weapon/main_weapon.tscn")
@@ -38,8 +38,8 @@ var invuln_timer: Timer
 
 var weapon_hide_timer: Timer
 
-var active_weapon: Node2D
-var second_weapon: Node2D
+var active_weapon
+var second_weapon
 
 func _ready() -> void:
 	_init_timers()
@@ -50,6 +50,24 @@ func _ready() -> void:
 	_apply_game_data_upgrades()
 	_update_hud_health(stats.current_health, stats.max_health)
 	_update_hud_scrap(GameData.scrap)
+	
+	var equip = get_node_or_null("Equipment")
+	if equip:
+		equip.equipment_changed.connect(_on_equipment_changed)
+	_update_player_stats()
+
+func _on_equipment_changed() -> void:
+	_update_player_stats()
+
+func _update_player_stats() -> void:
+	var bonus_hp_percent = _get_equip_stat("max_health_percent", false)
+	var new_max_hp = int(stats.base_max_health * (1.0 + bonus_hp_percent))
+	if new_max_hp != stats.max_health:
+		stats.update_max_health(new_max_hp)
+		
+	var bonus_speed_percent = _get_equip_stat("move_speed_percent", false)
+	var flat_speed = _get_equip_stat("move_speed", false)
+	stats.move_speed = (stats.base_move_speed + flat_speed) * (1.0 + bonus_speed_percent)
 
 func _init_timers() -> void:
 	_create_shoot_timer()
@@ -121,8 +139,8 @@ func _init_secondary_weapon() -> void:
 	add_child(second_weapon)
 
 func _apply_game_data_upgrades() -> void:
-	GameData.apply_to_player_stats(stats)
-	GameData.apply_to_weapon(active_weapon)
+	if active_weapon and active_weapon.has_method("get_damage"):
+		GameData.apply_to_weapon(active_weapon)
 	GameData.apply_to_melee(second_weapon)
 
 func _physics_process(delta: float) -> void:
@@ -229,43 +247,58 @@ func handle_shooting() -> void:
 	if shoot_dir == Vector2.ZERO: return
 	fire_projectile(shoot_dir)
 
-func _get_equipment_damage_bonus() -> float:
+func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 	var equip = get_node_or_null("Equipment")
 	if not equip: return 0.0
-	var char_stats = equip.get_character_stats()
-	var weapon_stats = equip.get_main_weapon_stats()
 	var bonus = 0.0
-	if char_stats.has("damage"): bonus += char_stats["damage"]
-	if weapon_stats.has("damage"): bonus += weapon_stats["damage"]
+	var char_stats = equip.get_character_stats()
+	if char_stats.has(stat_name): bonus += float(char_stats[stat_name])
+	
+	if is_main:
+		var w_stats = equip.get_main_weapon_stats()
+		if w_stats.has(stat_name): bonus += float(w_stats[stat_name])
+	else:
+		var w_stats = equip.get_secondary_weapon_stats()
+		if w_stats.has(stat_name): bonus += float(w_stats[stat_name])
 	return bonus
 
 func fire_projectile(dir: Vector2) -> void:
 	_show_primary_weapon()
 	can_shoot = false
-	shoot_timer.start(stats.fire_rate)
+	var base_aps = 1.0
+	var bonus_aps_pct = _get_equip_stat("attack_speed")
+	var final_aps = base_aps * (1.0 + bonus_aps_pct)
+	var final_fire_rate = 1.0 / maxf(0.1, final_aps)
 	var fire_point = global_position
 	var p_scene = projectile_scene
-	var dmg = 10.0 * stats.damage_multiplier + _get_equipment_damage_bonus()
-	var p_speed = 600.0
-	var bullets = 1
-	var spread = 0.0
-	var piercing = 0
-	var crit_chance = 0.0
+	var dmg = (10.0 + _get_equip_stat("damage")) * (1.0 + _get_equip_stat("damage_multiplier"))
+	var p_speed = 600.0 + _get_equip_stat("projectile_speed")
+	var bullets = 1 + int(_get_equip_stat("bullet_count"))
+	var spread = 0.0 + _get_equip_stat("cone_spread_angle")
+	var piercing = 0 + int(_get_equip_stat("piercing"))
+	var crit_chance = 0.0 + _get_equip_stat("crit_chance")
+	var crit_damage = 2.0 + _get_equip_stat("crit_damage")
+	var lifetime = 3.0 + _get_equip_stat("lifetime")
 
 	if active_weapon:
+		var w_base_aps = _get_weapon_attack_speed()
+		var w_final_aps = w_base_aps * (1.0 + bonus_aps_pct)
+		final_fire_rate = 1.0 / maxf(0.1, w_final_aps)
 		p_scene = _get_weapon_proj_scene(p_scene)
-		dmg = (_get_weapon_damage() + _get_equipment_damage_bonus()) * stats.damage_multiplier
-		p_speed = _get_weapon_proj_speed()
-		bullets = _get_weapon_bullets()
-		spread = _get_weapon_spread()
-		piercing = _get_weapon_piercing()
-		crit_chance = _get_weapon_crit_chance()
-		_play_weapon_anim()
-		_play_weapon_sound()
+		dmg = (_get_weapon_damage() + _get_equip_stat("damage")) * (_get_weapon_damage_multiplier() + _get_equip_stat("damage_multiplier"))
+		p_speed = _get_weapon_proj_speed() + _get_equip_stat("projectile_speed")
+		bullets = _get_weapon_bullets() + int(_get_equip_stat("bullet_count"))
+		spread = maxf(0.0, _get_weapon_spread() - _get_equip_stat("cone_spread_angle"))
+		piercing = _get_weapon_piercing() + int(_get_equip_stat("piercing"))
+		crit_chance = _get_weapon_crit_chance() + _get_equip_stat("crit_chance")
+		crit_damage = _get_weapon_crit_damage() + _get_equip_stat("crit_damage")
+		lifetime = _get_weapon_lifetime() + _get_equip_stat("lifetime")
+		_play_weapon_effects()
 		fire_point = _get_weapon_mark(fire_point)
 
 	if not p_scene: return
-	_spawn_bullets(p_scene, bullets, spread, dir, dmg, p_speed, fire_point, piercing, crit_chance)
+	shoot_timer.start(final_fire_rate)
+	_spawn_bullets(p_scene, bullets, spread, dir, dmg, p_speed, fire_point, piercing, crit_chance, crit_damage, lifetime)
 	apply_camera_shake()
 
 func _get_weapon_proj_scene(fallback: PackedScene) -> PackedScene:
@@ -273,6 +306,14 @@ func _get_weapon_proj_scene(fallback: PackedScene) -> PackedScene:
 	var ws = active_weapon.get_projectile_scene()
 	if not ws: return fallback
 	return ws
+
+func _get_weapon_attack_speed() -> float:
+	if not active_weapon.has_method("get_attack_speed"): return 0.5
+	return active_weapon.get_attack_speed()
+
+func _get_weapon_damage_multiplier() -> float:
+	if not active_weapon.has_method("get_damage_multiplier"): return 1.0
+	return active_weapon.get_damage_multiplier()
 
 func _get_weapon_damage() -> float:
 	if not active_weapon.has_method("get_damage"): return 10.0
@@ -298,27 +339,41 @@ func _get_weapon_crit_chance() -> float:
 	if not active_weapon.has_method("get_crit_chance"): return 0.0
 	return active_weapon.get_crit_chance()
 
-func _play_weapon_anim() -> void:
-	var weapon_anim = active_weapon.get_node_or_null("Weapon_Sprites")
-	if not weapon_anim: return
-	weapon_anim.stop()
-	weapon_anim.play("shoot")
+func _get_weapon_crit_damage() -> float:
+	if not active_weapon.has_method("get_crit_damage"): return 2.0
+	return active_weapon.get_crit_damage()
 
-func _play_weapon_sound() -> void:
+func _get_weapon_lifetime() -> float:
+	if not active_weapon.has_method("get_lifetime"): return 3.0
+	return active_weapon.get_lifetime()
+
+func _play_weapon_effects() -> void:
+	if active_weapon and active_weapon.has_method("play_shoot_effects"):
+		active_weapon.play_shoot_effects()
+	
+	# Fallback para armas viejas que no usan el nuevo sistema
+	var weapon_anim = active_weapon.get_node_or_null("Weapon_Sprites")
+	if weapon_anim:
+		weapon_anim.stop()
+		weapon_anim.play("shoot")
+		
 	var w_sound = active_weapon.get_node_or_null("Bullet_sound")
-	if not w_sound: return
-	if not w_sound.has_method("play"): return
-	w_sound.play()
+	if w_sound and w_sound.has_method("play"):
+		w_sound.play()
 
 func _get_weapon_mark(fallback: Vector2) -> Vector2:
+	if active_weapon and active_weapon.has_method("get_bullet_spawn_pos"):
+		var pos = active_weapon.get_bullet_spawn_pos(fallback)
+		if pos != fallback: return pos
+		
 	var mark_node = active_weapon.get_node_or_null("Bullet_mark_right")
 	if not mark_node: return fallback
 	return mark_node.global_position
 
-func _spawn_bullets(p_scene: PackedScene, count: int, spread: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float) -> void:
+func _spawn_bullets(p_scene: PackedScene, count: int, spread: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float, crit_damage: float, lifetime: float) -> void:
 	var start_angle = _get_start_angle(dir, count, spread)
 	var step_angle = _get_step_angle(count, spread)
-	_instantiate_bullets(p_scene, count, start_angle, step_angle, dir, dmg, p_speed, spawn_pos, piercing, crit_chance)
+	_instantiate_bullets(p_scene, count, start_angle, step_angle, dir, dmg, p_speed, spawn_pos, piercing, crit_chance, crit_damage, lifetime)
 
 func _get_start_angle(dir: Vector2, count: int, spread: float) -> float:
 	var angle = dir.angle()
@@ -329,11 +384,11 @@ func _get_step_angle(count: int, spread: float) -> float:
 	if count <= 1: return 0.0
 	return deg_to_rad(spread) / float(count - 1)
 
-func _instantiate_bullets(p_scene: PackedScene, count: int, start_angle: float, step_angle: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float) -> void:
+func _instantiate_bullets(p_scene: PackedScene, count: int, start_angle: float, step_angle: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float, crit_damage: float, lifetime: float) -> void:
 	for i in range(count):
-		_spawn_single_bullet(p_scene, i, count, start_angle, step_angle, dir, dmg, p_speed, spawn_pos, piercing, crit_chance)
+		_spawn_single_bullet(p_scene, i, count, start_angle, step_angle, dir, dmg, p_speed, spawn_pos, piercing, crit_chance, crit_damage, lifetime)
 
-func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle: float, step_angle: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float) -> void:
+func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle: float, step_angle: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float, crit_damage: float, lifetime: float) -> void:
 	var final_dir = dir
 	if count > 1:
 		final_dir = Vector2.RIGHT.rotated(start_angle + (step_angle * float(i)))
@@ -344,12 +399,13 @@ func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle:
 	var final_dmg = dmg
 	var is_crit = false
 	if randf() <= crit_chance:
-		final_dmg *= 2.0
+		final_dmg *= crit_damage
 		is_crit = true
 		
 	proj.setup(final_dir, final_dmg, "enemy", is_crit)
 	if "speed" in proj: proj.speed = p_speed
 	if "piercing" in proj: proj.piercing = piercing
+	if "lifetime" in proj: proj.lifetime = lifetime
 
 func apply_camera_shake() -> void:
 	var camera = get_viewport().get_camera_2d()
@@ -424,9 +480,13 @@ func _on_dash_timer_timeout() -> void:
 func take_damage(amount: int) -> void:
 	if is_invulnerable: return
 	is_invulnerable = true
+	
+	var armor = _get_equip_stat("armor", false)
+	var final_amount = maxi(1, amount - int(armor))
+	
 	invuln_timer.start(0.5)
-	stats.take_damage(amount)
-	_show_damage_text(amount)
+	stats.take_damage(final_amount)
+	_show_damage_text(final_amount)
 	_play_hurt_sound()
 	_animate_damage_vignette()
 	_animate_damage_flash()
@@ -501,6 +561,7 @@ func _update_hud_scrap(amount: int) -> void:
 func _on_died() -> void:
 	process_mode = Node.PROCESS_MODE_DISABLED
 	hide()
+	GameData.clear_items()
 	_show_death_screen()
 
 func _show_death_screen() -> void:

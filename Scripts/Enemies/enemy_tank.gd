@@ -35,7 +35,8 @@ func _ready() -> void:
 func _setup_attack_timer() -> void:
 	attack_timer = Timer.new()
 	attack_timer.wait_time = 2.5
-	attack_timer.one_shot = true
+	attack_timer.one_shot = false
+	attack_timer.autostart = true
 	attack_timer.timeout.connect(_on_attack_timer_timeout)
 	add_child(attack_timer)
 
@@ -51,13 +52,11 @@ func _on_detect_area_body_entered(body: Node2D) -> void:
 		current_state = State.CHASE
 
 func _on_area_attack_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player"):
-		_try_attack(body)
+	pass
 
 func _try_attack(_body: Node2D) -> void:
 	if is_dying or current_state == State.DEAD: return
 	if current_state == State.ATTACK: return
-	if not attack_timer.is_stopped(): return
 	
 	perform_attack()
 
@@ -92,7 +91,6 @@ func _finish_attack() -> void:
 	if is_dying: return
 	anim_sprite.speed_scale = 1.0
 	current_state = State.CHASE
-	attack_timer.start()
 
 func _on_attack_timer_timeout() -> void:
 	if is_dying: return

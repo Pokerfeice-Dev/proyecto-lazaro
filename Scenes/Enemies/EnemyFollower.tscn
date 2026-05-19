@@ -132,7 +132,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ef"]
-size = Vector2(18.5, 17.5)
+size = Vector2(14, 10)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_76jir"]
 animations = [{
@@ -176,6 +176,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_smbn1"]
+radius = 11.477476
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o2jaa"]
 atlas = ExtResource("15_anqt5")
@@ -242,15 +243,16 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_anqt5"]
+radius = 10.433105
 
 [node name="EnemyFollower" type="CharacterBody2D" unique_id=1430605277 groups=["enemy"]]
 collision_layer = 2
 collision_mask = 7
+safe_margin = 0.5
 script = ExtResource("1_efol")
 move_speed = 100.0
 damage = 7
-scrap_drop_chance = 0.9
-item_drop_chance = 0.9
+attack_speed = 0.7
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=283656131]
 texture_filter = 1
@@ -261,7 +263,7 @@ frame = 4
 frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1811914106]
-position = Vector2(2, 4)
+position = Vector2(2, 5)
 shape = SubResource("RectangleShape2D_ef")
 
 [node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=345734890]

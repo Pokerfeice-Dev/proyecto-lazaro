@@ -1,14 +1,16 @@
 extends Node2D
+class_name MeleeWeaponBase
 
-@onready var melee_sprite: Sprite2D = $Melee_sprite
-@onready var slash_attack: Area2D = $Slash_attack
-@onready var attack_fx: AnimatedSprite2D = $attack_fx
+@export_category("Melee Nodes")
+@export var melee_sprite: Sprite2D
+@export var slash_attack: Area2D
+@export var attack_fx: AnimatedSprite2D
 
 @export_category("Melee Stats")
-@export var damage: int = 30
+@export var damage: int = 15
 @export var attack_speed: float = 1.0
 @export var attack_range: float = 1.0
-@export var knockback_force: float = 0.0
+@export var knockback_force: float = 150.0
 
 var _is_attacking: bool = false
 var hit_enemies: Array[Node2D] = []
@@ -22,9 +24,18 @@ func _ready() -> void:
 	audio_player = AudioStreamPlayer2D.new()
 	add_child(audio_player)
 	scale = Vector2(attack_range, attack_range)
-	slash_attack.body_entered.connect(_on_body_entered)
-	slash_attack.monitoring = false
-	
+	if slash_attack:
+		slash_attack.body_entered.connect(_on_body_entered)
+		slash_attack.monitoring = false
+	else:
+		# Fallback para armas viejas que no asignaron los exports
+		slash_attack = get_node_or_null("Slash_attack")
+		if slash_attack:
+			slash_attack.body_entered.connect(_on_body_entered)
+			slash_attack.monitoring = false
+			
+	if not attack_fx:
+		attack_fx = get_node_or_null("attack_fx")
 	if attack_fx:
 		attack_fx.hide()
 		attack_fx.animation_finished.connect(_on_attack_fx_finished)
@@ -36,15 +47,24 @@ func attack() -> void:
 	if _is_attacking: return
 	_is_attacking = true
 	hit_enemies.clear()
-	slash_attack.monitoring = true
+	if slash_attack: slash_attack.monitoring = true
 	
 	var tween = create_tween()
 	var start_rot = rotation - deg_to_rad(60)
 	var end_rot = rotation + deg_to_rad(60)
 	
-	var safe_speed = maxf(0.1, attack_speed)
-	var swing_time = 0.3 / safe_speed
-	var recovery_time = 0.4 / safe_speed
+	var p = get_parent()
+	var final_speed = attack_speed
+	var final_range = attack_range
+	if p and p.has_method("_get_equip_stat"):
+		var bonus_speed_pct = p._get_equip_stat("attack_speed", false)
+		final_speed *= (1.0 + bonus_speed_pct)
+		final_range += p._get_equip_stat("attack_range", false)
+		
+	scale = Vector2(final_range, final_range)
+	var safe_speed = maxf(0.1, final_speed)
+	var swing_time = 0.4 / safe_speed
+	var recovery_time = 0.6 / safe_speed
 	
 	audio_player.stream = attack_sounds.pick_random()
 	audio_player.play()
@@ -55,13 +75,14 @@ func attack() -> void:
 		attack_fx.play("attack")
 	
 	rotation = start_rot
-	tween.tween_property(self, "rotation", end_rot, swing_time).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(self, "rotation", (start_rot + end_rot) / 2.0, recovery_time)
-	tween.finished.connect(_on_attack_finished)
+	tween.tween_property(self, "rotation", end_rot, swing_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(func(): if slash_attack: slash_attack.set_deferred("monitoring", false))
+	tween.tween_property(self, "rotation", start_rot, recovery_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(_on_attack_finished)
 
 func _on_attack_finished() -> void:
 	_is_attacking = false
-	slash_attack.monitoring = false
+	if slash_attack: slash_attack.monitoring = false
 
 func is_attacking() -> bool:
 	return _is_attacking
@@ -71,7 +92,25 @@ func _on_body_entered(body: Node2D) -> void:
 	if body in hit_enemies: return
 	if body.is_in_group("enemy") and body.has_method("take_damage"):
 		hit_enemies.append(body)
-		body.take_damage(damage)
-		if knockback_force > 0.0 and body.has_method("apply_knockback"):
+		
+		var p = get_parent()
+		var final_dmg = damage
+		var final_kb = knockback_force
+		var is_crit = false
+		var crit_chance = 0.0
+		var crit_damage = 2.0
+		
+		if p and p.has_method("_get_equip_stat"):
+			final_dmg += int(p._get_equip_stat("damage", false))
+			final_kb += p._get_equip_stat("knockback_force", false)
+			crit_chance += p._get_equip_stat("crit_chance", false)
+			crit_damage += p._get_equip_stat("crit_damage", false)
+			
+		if randf() <= crit_chance:
+			final_dmg = int(final_dmg * crit_damage)
+			is_crit = true
+			
+		body.take_damage(final_dmg, is_crit)
+		if final_kb > 0.0 and body.has_method("apply_knockback"):
 			var dir = (body.global_position - global_position).normalized()
-			body.apply_knockback(knockback_force, dir)
+			body.apply_knockback(final_kb, dir)

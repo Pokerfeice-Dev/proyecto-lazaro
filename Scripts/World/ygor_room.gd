@@ -28,12 +28,6 @@ func _spawn_fresh_player(spawn_pos: Vector2) -> void:
 	var p_inst = player_scene.instantiate()
 	p_inst.global_position = spawn_pos
 	get_tree().current_scene.call_deferred("add_child", p_inst)
-	# Ensure health is max and HUD is synced after spawning
-	p_inst.ready.connect(func():
-		var s = p_inst.stats
-		s.current_health = s.max_health
-		s.health_changed.emit(s.current_health, s.max_health)
-	)
 
 func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 	player.global_position = spawn_pos
@@ -41,11 +35,6 @@ func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 	if player.process_mode == Node.PROCESS_MODE_DISABLED:
 		player.process_mode = Node.PROCESS_MODE_INHERIT
 		player.show()
-	# Reset health to max and re-apply upgrades/sync HUD
-	if "stats" in player:
-		var s = player.stats
-		s.current_health = s.max_health
-		s.health_changed.emit(s.current_health, s.max_health)
 	if player.has_method("_apply_game_data_upgrades"):
 		player._apply_game_data_upgrades()
 
@@ -62,12 +51,18 @@ func _setup_interaction_label() -> void:
 	add_child(interaction_label)
 
 func _input(event: InputEvent) -> void:
-	if not can_teleport:
-		return
-	if not event is InputEventKey:
-		return
-	if event.physical_keycode == KEY_E and event.pressed and not event.echo:
-		SceneTransition.change_scene("res://Scenes/Rooms/room_2.tscn")
+	if not can_teleport: return
+	if not event is InputEventKey: return
+	if event.physical_keycode != KEY_E: return
+	if not event.pressed: return
+	if event.echo: return
+	
+	_handle_teleport()
+
+func _handle_teleport() -> void:
+	var next_scene: String = GameData.get_next_room()
+	SceneTransition.play_teleport_sound()
+	SceneTransition.change_scene(next_scene)
 
 func _on_teleport_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):

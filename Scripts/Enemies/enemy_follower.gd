@@ -1,6 +1,5 @@
-extends EnemyBase
 class_name EnemyFollower
-
+extends EnemyBase
 enum State {
 	IDLE,
 	CHASE,
@@ -47,7 +46,8 @@ func _create_attack_area() -> void:
 func _create_attack_timer() -> void:
 	attack_timer = Timer.new()
 	attack_timer.wait_time = 1.0
-	attack_timer.one_shot = true
+	attack_timer.one_shot = false
+	attack_timer.autostart = true
 	attack_timer.timeout.connect(_on_attack_timer_timeout)
 	add_child(attack_timer)
 
@@ -103,7 +103,6 @@ func _finish_attack() -> void:
 		return
 	anim_sprite.speed_scale = 1.0
 	current_state = State.CHASE
-	attack_timer.start()
 
 func process_movement(delta: float) -> void:
 	if is_dying:
@@ -152,9 +151,6 @@ func move_towards_target() -> void:
 	var dist = global_position.distance_to(target.global_position)
 	if dist <= attack_range * 0.8:
 		velocity = Vector2.ZERO
-		# Intentar atacar si el timer lo permite
-		if attack_timer.is_stopped():
-			perform_attack()
 		return
 	_apply_chase_velocity()
 

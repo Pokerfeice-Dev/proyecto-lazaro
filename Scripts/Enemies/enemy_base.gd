@@ -10,13 +10,24 @@ class_name EnemyBase
 @export var scrap_scene: PackedScene = preload("res://Scenes/UI/scrap.tscn")
 @export var scrap_drop_chance: float = 1.0
 @export var item_drop_scene: PackedScene = preload("res://Scenes/Items/item_drop_world.tscn")
-@export var item_drop_data: ItemData = preload("res://Art/Items/Item1.tres")
-@export var item_drop_chance: float = 1.0
+@export var all_items: Array[ItemData] = [
+	preload("res://Art/Items/Weapons/Item1.tres"),
+	preload("res://Art/Items/Weapons/Item2.tres"),
+	preload("res://Art/Items/Weapons/Item3.tres"),
+	preload("res://Art/Items/Weapons/Item4.tres"),
+	preload("res://Art/Items/Weapons/Item5.tres"),
+	preload("res://Art/Items/Weapons/Item6.tres"),
+	preload("res://Art/Items/Player/Arms/Item1_Arms.tres"),
+	preload("res://Art/Items/Player/Body/Item1_Chest.tres"),
+	preload("res://Art/Items/Player/Legs/Item1_Boots.tres")
+]
+@export var item_drop_chance: float = 0.1
 
 var target: Node2D = null
 var is_spawning: bool = false
 var is_dying: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO
+var hit_stun_timer: float = 0.0
 
 signal enemy_died(enemy: EnemyBase)
 
@@ -26,10 +37,13 @@ func _ready() -> void:
 	_find_player()
 	_setup_health_bar()
 
+
+
 func _find_player() -> void:
 	var players = get_tree().get_nodes_in_group("player")
 	if players.is_empty(): return
 	target = players[0]
+	add_collision_exception_with(target)
 
 func _setup_health_bar() -> void:
 	var bar = ProgressBar.new()
@@ -101,7 +115,10 @@ func _finish_spawn() -> void:
 	is_spawning = false
 
 func _physics_process(delta: float) -> void:
-	process_movement(delta)
+	if hit_stun_timer > 0.0:
+		hit_stun_timer -= delta
+	else:
+		process_movement(delta)
 	
 	if knockback_velocity.length() > 5.0:
 		knockback_velocity = knockback_velocity.lerp(Vector2.ZERO, 10.0 * delta)
@@ -112,6 +129,8 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	handle_collisions()
 
+
+
 func apply_knockback(force: float, direction: Vector2) -> void:
 	if is_dying: return
 	knockback_velocity = direction.normalized() * force
@@ -121,6 +140,7 @@ func process_movement(_delta: float) -> void:
 
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	current_health -= amount
+	hit_stun_timer = 0.15
 	_show_damage_text(amount, is_crit)
 	_flash_red()
 	_update_health_bar()
@@ -206,12 +226,11 @@ func _spawn_item() -> void:
 	if not item_drop_scene:
 		print("ERROR: item_drop_scene no está asignado.")
 		return
-	if not item_drop_data:
-		print("ERROR: item_drop_data no está asignado en el Inspector. ¡Debes arrastrar el recurso ItemData (no el PNG) al enemigo!")
+	if all_items.is_empty():
 		return
 	if randf() > item_drop_chance: return
 	var item_drop = item_drop_scene.instantiate()
-	item_drop.item_data = item_drop_data
+	item_drop.item_data = all_items.pick_random()
 	item_drop.global_position = global_position
 	get_tree().current_scene.call_deferred("add_child", item_drop)
 	print("Item instanciado exitosamente.")
@@ -255,21 +274,7 @@ func _check_sound_and_free() -> void:
 	queue_free()
 
 func handle_collisions() -> void:
-	var count = get_slide_collision_count()
-	if count == 0: return
-	_process_collisions(count)
-
-func _process_collisions(count: int) -> void:
-	for i in range(count):
-		_check_single_collision(i)
-
-func _check_single_collision(i: int) -> void:
-	var collision = get_slide_collision(i)
-	var collider = collision.get_collider()
-	if not collider: return
-	if not collider.is_in_group("player"): return
-	if not collider.has_method("take_damage"): return
-	collider.take_damage(damage)
+	pass
 
 func _safe_play_animated_sprite(sprite: AnimatedSprite2D, anim_name: String) -> void:
 	if not sprite: return

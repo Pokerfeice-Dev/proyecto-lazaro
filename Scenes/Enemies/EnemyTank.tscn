@@ -160,7 +160,7 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_rs3yy"]
-radius = 11.822861
+radius = 10.50921
 height = 115.6013
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o2jaa"]

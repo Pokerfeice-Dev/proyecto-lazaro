@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bpghyo3wvdxii" path="res://Art/HUD/BarV5_Bar.png" id="2_xaom8"]
 [ext_resource type="Texture2D" uid="uid://bvq1ahpk5rvaw" path="res://Art/HUD/BarV5_ProgressBar.png" id="3_4bm6u"]
 [ext_resource type="Texture2D" uid="uid://b7p8cuvt3vb41" path="res://Art/Scrap/Icon31_14.png" id="4_4bm6u"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/inventory_ui.tscn" id="5_ykvyr"]
+[ext_resource type="PackedScene" uid="uid://iwiggne1g58n" path="res://Scenes/UI/inventory_ui.tscn" id="5_ykvyr"]
 
 [node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label")]
 script = ExtResource("1_hud")

@@ -4,6 +4,7 @@ var color_rect: ColorRect
 var is_transitioning: bool = false
 var mainmenu_music: AudioStreamPlayer
 var combat_music: AudioStreamPlayer
+var teleport_sfx: AudioStreamPlayer
 
 func _ready():
 	layer = 120 # Aseguramos que se superponga por encima de cualquier otro CanvasLayer u objeto HUD.
@@ -30,8 +31,17 @@ func _ready():
 	combat_music.bus = "Master"
 	add_child(combat_music)
 	
+	teleport_sfx = AudioStreamPlayer.new()
+	teleport_sfx.stream = preload("res://Audio/Sfx/Teleport/Teleport.wav")
+	teleport_sfx.bus = "Master"
+	add_child(teleport_sfx)
+	
 	# Manejar música inicial basada en la escena actual
 	_handle_scene_music(get_tree().current_scene.scene_file_path)
+
+func play_teleport_sound() -> void:
+	if teleport_sfx:
+		teleport_sfx.play()
 
 func play_main_music() -> void:
 	if combat_music.playing:
@@ -59,7 +69,7 @@ func _handle_scene_music(path: String) -> void:
 	if "mainmenu" in scene_name or "newgame" in scene_name:
 		play_main_music()
 		stop_combat_music()
-	elif "room_" in scene_name and not "room_ygor" in scene_name:
+	elif "level1_room" in scene_name:
 		play_combat_music()
 		stop_main_music()
 	elif "lab_room" in scene_name or "room_ygor" in scene_name:

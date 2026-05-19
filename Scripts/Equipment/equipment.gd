@@ -6,20 +6,7 @@ signal equipment_changed
 var slots: Dictionary = {}
 
 func _ready() -> void:
-	initialize_slots()
-
-func initialize_slots() -> void:
-	slots[ItemData.ItemSlot.MAIN_W1] = null
-	slots[ItemData.ItemSlot.MAIN_W2] = null
-	slots[ItemData.ItemSlot.MAIN_W3] = null
-	slots[ItemData.ItemSlot.SEC_W1] = null
-	slots[ItemData.ItemSlot.SEC_W2] = null
-	slots[ItemData.ItemSlot.SEC_W3] = null
-	slots[ItemData.ItemSlot.LEG_L] = null
-	slots[ItemData.ItemSlot.LEG_R] = null
-	slots[ItemData.ItemSlot.ARM_L] = null
-	slots[ItemData.ItemSlot.ARM_R] = null
-	slots[ItemData.ItemSlot.TORSO] = null
+	slots = GameData.equipment_slots
 
 func equip_item(item: ItemData) -> void:
 	remove_old_item(item.slot)
@@ -37,26 +24,25 @@ func destroy_item(_item: ItemData) -> void:
 	_item = null
 
 func get_main_weapon_stats() -> Dictionary:
-	return calculate_stats_for_type(ItemData.ItemType.MAIN_WEAPON)
-
-func get_secondary_weapon_stats() -> Dictionary:
-	return calculate_stats_for_type(ItemData.ItemType.SECONDARY_WEAPON)
-
-func get_character_stats() -> Dictionary:
-	return calculate_stats_for_type(ItemData.ItemType.CHARACTER)
-
-func calculate_stats_for_type(type: ItemData.ItemType) -> Dictionary:
 	var total_stats: Dictionary = {}
-	for slot_key in slots.keys():
-		process_slot_for_stats(slots[slot_key], type, total_stats)
+	for slot_key in [ItemData.ItemSlot.MAIN_W1, ItemData.ItemSlot.MAIN_W2, ItemData.ItemSlot.MAIN_W3]:
+		if slots.has(slot_key) and slots[slot_key]:
+			add_item_stats(total_stats, slots[slot_key].stats)
 	return total_stats
 
-func process_slot_for_stats(item: ItemData, type: ItemData.ItemType, total_stats: Dictionary) -> void:
-	if item == null:
-		return
-	if item.type != type:
-		return
-	add_item_stats(total_stats, item.stats)
+func get_secondary_weapon_stats() -> Dictionary:
+	var total_stats: Dictionary = {}
+	for slot_key in [ItemData.ItemSlot.SEC_W1, ItemData.ItemSlot.SEC_W2, ItemData.ItemSlot.SEC_W3]:
+		if slots.has(slot_key) and slots[slot_key]:
+			add_item_stats(total_stats, slots[slot_key].stats)
+	return total_stats
+
+func get_character_stats() -> Dictionary:
+	var total_stats: Dictionary = {}
+	for slot_key in [ItemData.ItemSlot.TORSO, ItemData.ItemSlot.ARMS, ItemData.ItemSlot.LEGS]:
+		if slots.has(slot_key) and slots[slot_key]:
+			add_item_stats(total_stats, slots[slot_key].stats)
+	return total_stats
 
 func add_item_stats(total: Dictionary, item_stats: Dictionary) -> void:
 	for stat_name in item_stats.keys():

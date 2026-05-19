@@ -1,11 +1,11 @@
 class_name ItemData
 extends Resource
 
-enum ItemType { MAIN_WEAPON, SECONDARY_WEAPON, CHARACTER }
+enum ItemType { WEAPON, TORSO, ARMS, LEGS }
 enum ItemSlot { 
 	MAIN_W1, MAIN_W2, MAIN_W3, 
 	SEC_W1, SEC_W2, SEC_W3, 
-	LEG_L, LEG_R, ARM_L, ARM_R, TORSO 
+	TORSO, ARMS, LEGS 
 }
 
 @export var id: String

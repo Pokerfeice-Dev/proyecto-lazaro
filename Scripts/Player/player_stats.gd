@@ -1,11 +1,11 @@
 extends Resource
 class_name PlayerStats
 
+@export var base_max_health: int = 100
 @export var max_health: int = 100
 @export var current_health: int = 100
-@export var move_speed: float = 300.0
-@export var damage_multiplier: float = 1.0
-@export var fire_rate: float = 0.5  # Seconds between shots
+@export var base_move_speed: float = 150
+@export var move_speed: float = 150
 
 # Scrap is stored in the GameData autoload so it persists through deaths.
 var scrap_count: int:
@@ -25,6 +25,11 @@ func take_damage(amount: int) -> void:
 	health_changed.emit(current_health, max_health)
 	if current_health <= 0:
 		player_died.emit()
+		
+func update_max_health(new_max: int) -> void:
+	max_health = new_max
+	current_health = min(current_health, max_health)
+	health_changed.emit(current_health, max_health)
 
 func add_scrap(amount: int) -> void:
 	GameData.add_scrap(amount)
@@ -41,12 +46,7 @@ func apply_upgrade(type: String, value: float) -> void:
 			health_changed.emit(current_health, max_health)
 		"speed":
 			move_speed += value
-		"damage":
-			damage_multiplier += value
-		"fire_rate":
-			fire_rate = max(0.05, fire_rate - value)
 	stats_changed.emit()
 
 func restore_from_game_data() -> void:
-	fire_rate = GameData.weapon_fire_rate
-	damage_multiplier = GameData.weapon_damage_multiplier
+	pass

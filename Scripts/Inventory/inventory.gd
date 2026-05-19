@@ -5,6 +5,9 @@ signal inventory_updated
 
 var items: Array[ItemData] = []
 
+func _ready() -> void:
+	items = GameData.inventory_items
+
 func add_item(item: ItemData) -> void:
 	items.append(item)
 	inventory_updated.emit()

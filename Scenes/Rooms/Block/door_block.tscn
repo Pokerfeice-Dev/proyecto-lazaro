@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ceio6dbqyn8vp"]
 
-[ext_resource type="Texture2D" uid="uid://c8gxg8h72hv0k" path="res://ProjectFrankenstein/Art/Block/Veins_shadow1_2.png" id="1_wkac4"]
+[ext_resource type="Texture2D" uid="uid://c8gxg8h72hv0k" path="res://Art/Block/Veins_shadow1_2.png" id="1_wkac4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wkac4"]
 size = Vector2(20, 104)

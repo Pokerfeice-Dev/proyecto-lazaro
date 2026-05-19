@@ -5,12 +5,24 @@ class_name HUD
 @export var scrap_label: Label
 
 var dash_cd_bar: TextureProgressBar
+var health_label: Label
 
 func _ready():
 	add_to_group("hud")
+	_setup_health_label()
 	_setup_dash_cooldown()
 	update_scrap(GameData.scrap)
 	_initialize_health()
+
+func _setup_health_label() -> void:
+	if not health_bar: return
+	health_label = Label.new()
+	health_label.add_theme_font_size_override("font_size", 18)
+	health_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	health_label.add_theme_constant_override("outline_size", 4)
+	health_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	health_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	health_bar.get_parent().add_child(health_label)
 
 func _initialize_health() -> void:
 	var players = get_tree().get_nodes_in_group("player")
@@ -81,6 +93,15 @@ func update_health(new_health: int, max_health: int):
 	if health_bar:
 		health_bar.max_value = max_health
 		health_bar.value = new_health
+		# Escalar la barra visualmente en base a la vida (100 = escala 1.0)
+		var target_scale = float(max_health) / 100.0
+		health_bar.scale.x = target_scale
+		
+	if health_label:
+		health_label.text = "%d / %d" % [new_health, max_health]
+		var scaled_width = 272.0 * (float(max_health) / 100.0)
+		health_label.size = Vector2(scaled_width, 40)
+		health_label.position = health_bar.position
 
 func update_scrap(amount: int):
 	if scrap_label:

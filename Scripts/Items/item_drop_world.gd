@@ -11,6 +11,13 @@ var is_collected: bool = false
 var target_inventory: Inventory = null
 
 func _ready() -> void:
+	if item_data and item_data.icon:
+		var sprite = get_node_or_null("Sprite2D")
+		if sprite:
+			sprite.texture = item_data.icon
+			# Ajustar el tamaño si el ícono es muy grande. 0.5 o similar si fuera necesario.
+			# sprite.scale = Vector2(0.5, 0.5) 
+			
 	var grab = get_node_or_null("Grab_area")
 	if grab:
 		grab.body_entered.connect(_on_grab_area_body_entered)

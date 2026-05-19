@@ -2,20 +2,13 @@ extends Node2D
 class_name CombatRoom
 
 @export_category("Roguelike Room Settings")
-## Total de enemigos que aparecerán antes de limpiar la habitación.
-@export var total_enemies_to_spawn: int = 15
-## Máxima cantidad de enemigos que pueden estar vivos al mismo tiempo.
-@export var max_concurrent_enemies: int = 5
-## Tiempo de espera entre cada aparición de enemigo.
-@export var spawn_interval: float = 1.5
-## Lista de enemigos posibles que pueden spawnear.
-@export var enemy_pool: Array[PackedScene] = [
-	preload("res://Scenes/Enemies/EnemyFollower.tscn"),
-	preload("res://Scenes/Enemies/EnemyShooter.tscn"),
-	preload("res://Scenes/Enemies/EnemyTank.tscn")
-]
 ## Escena del jugador (si no hay uno en el árbol).
 @export var player_scene: PackedScene = preload("res://Scenes/Player/Player.tscn")
+
+var total_enemies_to_spawn: int = 15
+var max_concurrent_enemies: int = 5
+var spawn_interval: float = 1.5
+var enemy_pool: Array[PackedScene] = []
 
 @export_category("Rewards")
 ## Recompensa que se spawnea al limpiar la habitación (Ej. Cofre, Scrap gigante, etc.)
@@ -34,6 +27,7 @@ var interaction_label: Label
 var can_teleport: bool = false
 
 func _ready() -> void:
+	_apply_difficulty_settings()
 	_setup_player()
 	_setup_spawn_points()
 	_setup_spawn_timer()
@@ -45,6 +39,34 @@ func _ready() -> void:
 	var start_area = get_node_or_null("Area_entered")
 	if start_area:
 		start_area.body_entered.connect(_on_start_area_entered)
+
+func _apply_difficulty_settings() -> void:
+	var config: Dictionary = GameData.get_room_config()
+	total_enemies_to_spawn = config.total_enemies
+	max_concurrent_enemies = config.max_concurrent
+	spawn_interval = config.spawn_interval
+	_build_enemy_pool(config.allowed_enemies)
+
+func _build_enemy_pool(allowed: Array) -> void:
+	var new_pool: Array[PackedScene] = []
+	_add_follower_if_allowed(allowed, new_pool)
+	_add_shooter_if_allowed(allowed, new_pool)
+	_add_tank_if_allowed(allowed, new_pool)
+	
+	if new_pool.is_empty(): return
+	enemy_pool = new_pool
+
+func _add_follower_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
+	if not allowed.has("follower"): return
+	pool.append(preload("res://Scenes/Enemies/EnemyFollower.tscn"))
+
+func _add_shooter_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
+	if not allowed.has("shooter"): return
+	pool.append(preload("res://Scenes/Enemies/EnemyShooter.tscn"))
+
+func _add_tank_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
+	if not allowed.has("tank"): return
+	pool.append(preload("res://Scenes/Enemies/EnemyTank.tscn"))
 
 func _setup_player() -> void:
 	var p_spawn = get_node_or_null("player_spawn")
@@ -123,6 +145,59 @@ func _clear_room() -> void:
 	room_started = false
 	_open_door()
 	_spawn_reward()
+	_play_room_clear_effects()
+
+func _play_room_clear_effects() -> void:
+	_play_room_clear_sound()
+	_play_room_clear_flash()
+
+func _play_room_clear_sound() -> void:
+	var stream: AudioStream = preload("res://Audio/Sfx/Room_clear/Room_clear.wav")
+	var player: AudioStreamPlayer = AudioStreamPlayer.new()
+	player.stream = stream
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+
+func _play_room_clear_flash() -> void:
+	var canvas: CanvasLayer = CanvasLayer.new()
+	canvas.layer = 100
+	add_child(canvas)
+	
+	var rect: ColorRect = ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var mat: ShaderMaterial = ShaderMaterial.new()
+	var shader: Shader = Shader.new()
+	shader.code = _get_green_flash_shader()
+	mat.shader = shader
+	mat.set_shader_parameter("border_color", Color(0.2, 1.0, 0.2, 1.0))
+	mat.set_shader_parameter("intensity", 0.0)
+	rect.material = mat
+	canvas.add_child(rect)
+	
+	var t: Tween = create_tween()
+	t.tween_method(_set_flash_intensity.bind(mat), 0.0, 1.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	t.tween_method(_set_flash_intensity.bind(mat), 1.0, 0.0, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	t.finished.connect(canvas.queue_free)
+
+func _get_green_flash_shader() -> String:
+	return """
+shader_type canvas_item;
+uniform vec4 border_color : source_color = vec4(0.0, 1.0, 0.0, 1.0);
+uniform float intensity = 0.0;
+void fragment() {
+	vec2 uv = UV;
+	float d = distance(uv, vec2(0.5, 0.5));
+	float alpha = smoothstep(0.35, 0.75, d) * intensity;
+	COLOR = border_color;
+	COLOR.a *= alpha;
+}
+"""
+
+func _set_flash_intensity(val: float, mat: ShaderMaterial) -> void:
+	mat.set_shader_parameter("intensity", val)
 
 func _close_door() -> void:
 	var door = get_node_or_null("Door_block")
@@ -166,12 +241,18 @@ func _setup_interaction_label() -> void:
 	add_child(interaction_label)
 
 func _input(event: InputEvent) -> void:
-	if not can_teleport:
-		return
-	if not event is InputEventKey:
-		return
-	if event.physical_keycode == KEY_E and event.pressed and not event.echo:
-		SceneTransition.change_scene("res://Scenes/Rooms/room_ygor.tscn")
+	if not can_teleport: return
+	if not event is InputEventKey: return
+	if event.physical_keycode != KEY_E: return
+	if not event.pressed: return
+	if event.echo: return
+	
+	_handle_teleport()
+
+func _handle_teleport() -> void:
+	var next_scene: String = GameData.get_next_room()
+	SceneTransition.play_teleport_sound()
+	SceneTransition.change_scene(next_scene)
 
 func _on_teleport_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"): return
