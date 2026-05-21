@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://da2ojoyvpj7qi"]
 
-[ext_resource type="Texture2D" uid="uid://b7p8cuvt3vb41" path="res://ProjectFrankenstein/Art/Scrap/Icon31_14.png" id="1_yo6nm"]
+[ext_resource type="Texture2D" uid="uid://cgccjwr5cwj41" path="res://Art/Scrap/Scrap_icon.png" id="1_yo6nm"]
 [ext_resource type="Script" uid="uid://siy8tp7e77ku" path="res://Scripts/Items/scrap.gd" id="2_scrap"]
-[ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://ProjectFrankenstein/Art/Scrap/atlas_56a.png" id="3_y4j6m"]
-[ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://ProjectFrankenstein/Art/Scrap/Scrap_snd.wav" id="4_dytfl"]
+[ext_resource type="Texture2D" uid="uid://evhu5eu2upic" path="res://Art/Lights/Cyan_light.png" id="3_qxo4c"]
+[ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://Art/Scrap/atlas_56a.png" id="3_y4j6m"]
+[ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://Art/Scrap/Scrap_snd.wav" id="4_dytfl"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_yo6nm"]
 
@@ -105,8 +106,16 @@ script = ExtResource("2_scrap")
 
 [node name="Scrap_sprite" type="Sprite2D" parent="." unique_id=1764180436]
 texture_filter = 1
-scale = Vector2(0.9, 0.9)
+scale = Vector2(0.15, 0.15)
 texture = ExtResource("1_yo6nm")
+
+[node name="PointLight2D" type="PointLight2D" parent="Scrap_sprite" unique_id=373406519]
+position = Vector2(0, 44.44444)
+scale = Vector2(6.6666675, 6.6666675)
+energy = 0.5
+shadow_enabled = true
+texture = ExtResource("3_qxo4c")
+texture_scale = 0.5
 
 [node name="Grab_area" type="Area2D" parent="." unique_id=1926700011]
 

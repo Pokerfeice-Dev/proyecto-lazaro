@@ -129,7 +129,7 @@ func _set_room_2_config(config: Dictionary) -> void:
 func _set_room_n_config(config: Dictionary, room: int) -> void:
 	var extra_rooms = room - 3
 	config.total_enemies = 11 + (extra_rooms * 4)
-	config.max_concurrent = 5 + int(extra_rooms / 2)
+	config.max_concurrent = 5 + int(extra_rooms / 2.0)
 	
 	var new_interval = 1.1 - (extra_rooms * 0.05)
 	config.spawn_interval = maxf(0.3, new_interval)

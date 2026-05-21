@@ -1,0 +1,10 @@
+[gd_resource type="LabelSettings" format=3 uid="uid://dbjmlonrgm51f"]
+
+[ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="1_pvkg5"]
+
+[resource]
+font = ExtResource("1_pvkg5")
+font_size = 18
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+shadow_color = Color(0, 0, 0, 0.64705884)

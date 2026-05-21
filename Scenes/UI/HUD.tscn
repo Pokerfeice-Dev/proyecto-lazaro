@@ -1,15 +1,34 @@
 [gd_scene format=3 uid="uid://mpouyawdwg70"]
 
 [ext_resource type="Script" uid="uid://4fd7xw83wlms" path="res://Scripts/UI/hud.gd" id="1_hud"]
-[ext_resource type="Texture2D" uid="uid://bpghyo3wvdxii" path="res://Art/HUD/BarV5_Bar.png" id="2_xaom8"]
-[ext_resource type="Texture2D" uid="uid://bvq1ahpk5rvaw" path="res://Art/HUD/BarV5_ProgressBar.png" id="3_4bm6u"]
-[ext_resource type="Texture2D" uid="uid://b7p8cuvt3vb41" path="res://Art/Scrap/Icon31_14.png" id="4_4bm6u"]
+[ext_resource type="Texture2D" uid="uid://ch5jje550nle7" path="res://Art/HUD/Barra de vida.png" id="2_1ree7"]
+[ext_resource type="Texture2D" uid="uid://75mbk812cg23" path="res://Art/HUD/Bar.png" id="2_lelo4"]
+[ext_resource type="Texture2D" uid="uid://cgccjwr5cwj41" path="res://Art/Scrap/Scrap_icon.png" id="4_4bm6u"]
+[ext_resource type="Texture2D" uid="uid://lmvxg2i1eybs" path="res://Art/HUD/Underbar2.png" id="4_d2sja"]
+[ext_resource type="LabelSettings" uid="uid://dbjmlonrgm51f" path="res://Art/Fonts/Base_exo2.tres" id="5_1ree7"]
 [ext_resource type="PackedScene" uid="uid://iwiggne1g58n" path="res://Scenes/UI/inventory_ui.tscn" id="5_ykvyr"]
+[ext_resource type="Texture2D" uid="uid://bgqo6016rrpmk" path="res://Art/HUD/Dash_under.png" id="6_yenib"]
+[ext_resource type="Texture2D" uid="uid://ddruhq73oyxu" path="res://Art/HUD/Dash_circle.png" id="7_pydgx"]
+[ext_resource type="Texture2D" uid="uid://b4jhp800dnmet" path="res://Art/HUD/Dash_progress.png" id="8_eebq5"]
 
-[node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label")]
+[node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label", "dash_cd_bar", "health_label", "health_particles")]
 script = ExtResource("1_hud")
 health_bar = NodePath("Control/TextureProgressBar")
 scrap_label = NodePath("Control/HBoxContainer/Scrap_count")
+dash_cd_bar = NodePath("Control/DashCDBar")
+health_label = NodePath("Control/TextureProgressBar/HealthLabel")
+health_particles = NodePath("Control/HealthParticles")
+particles_high_color = Color(0.4, 0.9019608, 0.6, 0.79607844)
+particles_high_speed = 0.8
+particles_high_vel_min = 60.0
+particles_high_vel_max = 80.0
+particles_high_lifetime = 3.2
+particles_mid_color = Color(0.69803923, 0.3019608, 0.9019608, 0.8745098)
+particles_mid_vel_min = 100.0
+particles_mid_vel_max = 140.0
+particles_low_color = Color(1, 0.2, 0.2, 0.9529412)
+particles_low_vel_min = 140.0
+particles_low_vel_max = 180.0
 
 [node name="Control" type="Control" parent="." unique_id=1458845397]
 layout_mode = 3
@@ -21,28 +40,75 @@ grow_vertical = 2
 
 [node name="TextureProgressBar" type="TextureProgressBar" parent="Control" unique_id=1638087427]
 layout_mode = 0
-offset_left = 64.0
+offset_top = 16.0
+offset_right = 600.0
+offset_bottom = 156.0
+value = 100.0
+texture_under = ExtResource("2_1ree7")
+texture_over = ExtResource("2_lelo4")
+texture_progress = ExtResource("4_d2sja")
+texture_progress_offset = Vector2(147.825, 49.635)
+
+[node name="HealthLabel" type="Label" parent="Control/TextureProgressBar" unique_id=595281680]
+layout_mode = 0
+offset_left = 192.0
 offset_top = 64.0
-offset_right = 336.0
+offset_right = 464.0
 offset_bottom = 104.0
-texture_under = ExtResource("2_xaom8")
-texture_progress = ExtResource("3_4bm6u")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "100 / 100"
+label_settings = ExtResource("5_1ree7")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HealthParticles" type="CPUParticles2D" parent="Control" unique_id=481555703]
+position = Vector2(154, 85)
+scale = Vector2(1.3, 1.3)
+amount = 40
+lifetime = 3.1999999999999997
+emission_shape = 3
+emission_rect_extents = Vector2(1, 20)
+spread = 8.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 60.0
+initial_velocity_max = 80.0
+scale_amount_min = 1.3
+scale_amount_max = 1.6
+color = Color(0.4, 0.9, 0.6, 0.7)
+
+[node name="DashCDBar" type="TextureProgressBar" parent="Control" unique_id=688935870]
+layout_mode = 0
+offset_left = 115.0
+offset_top = 128.0
+offset_right = 415.0
+offset_bottom = 428.0
+scale = Vector2(0.5, 0.5)
+max_value = 5.0
+step = 0.01
+value = 5.0
+fill_mode = 4
+texture_under = ExtResource("6_yenib")
+texture_over = ExtResource("7_pydgx")
+texture_progress = ExtResource("8_eebq5")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Control" unique_id=1932389632]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -160.0
-offset_top = 40.0
-offset_right = -115.0
-offset_bottom = 80.0
+offset_left = -176.0
+offset_top = 56.0
+offset_right = -131.0
+offset_bottom = 96.0
 grow_horizontal = 0
 scale = Vector2(1.5, 1.5)
 
 [node name="Scrap_count" type="Label" parent="Control/HBoxContainer" unique_id=663140295]
 layout_mode = 2
 size_flags_horizontal = 8
+label_settings = ExtResource("5_1ree7")
 horizontal_alignment = 2
 
 [node name="TextureRect" type="TextureRect" parent="Control/HBoxContainer" unique_id=612468089]
@@ -51,57 +117,6 @@ layout_mode = 2
 texture = ExtResource("4_4bm6u")
 expand_mode = 2
 
-[node name="Panel" type="Panel" parent="Control" unique_id=652849171]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -150.0
-offset_right = 200.0
-offset_bottom = 150.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Label" type="Label" parent="Control/Panel" unique_id=1070859147]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 40.0
-grow_horizontal = 2
-text = "Choose an Upgrade"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/Panel" unique_id=1213360822]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 40.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Button1" type="Button" parent="Control/Panel/VBoxContainer" unique_id=2069413673]
-layout_mode = 2
-size_flags_vertical = 3
-text = "Upgrade 1"
-
-[node name="Button2" type="Button" parent="Control/Panel/VBoxContainer" unique_id=1536479587]
-layout_mode = 2
-size_flags_vertical = 3
-text = "Upgrade 2"
-
-[node name="Button3" type="Button" parent="Control/Panel/VBoxContainer" unique_id=4137884]
-layout_mode = 2
-size_flags_vertical = 3
-text = "Upgrade 3"
-
 [node name="InventoryUI" parent="." unique_id=977028758 instance=ExtResource("5_ykvyr")]
 visible = false
+theme = null

@@ -212,26 +212,43 @@ func _hide_health_bar() -> void:
 	bar.hide()
 
 func _attempt_drops() -> void:
-	_spawn_scrap()
-	_spawn_item()
+	var spawns_scrap = _should_drop_scrap()
+	var spawns_item = _should_drop_item()
 
-func _spawn_scrap() -> void:
-	if not scrap_scene: return
-	if randf() > scrap_drop_chance: return
-	var scrap = scrap_scene.instantiate()
-	scrap.global_position = global_position
-	get_tree().current_scene.call_deferred("add_child", scrap)
+	if spawns_scrap and spawns_item:
+		_spawn_scrap_at(global_position + Vector2(-20, 0))
+		_spawn_item_at(global_position + Vector2(20, 0))
+		return
 
-func _spawn_item() -> void:
+	if spawns_scrap:
+		_spawn_scrap_at(global_position)
+		return
+
+	if spawns_item:
+		_spawn_item_at(global_position)
+		return
+
+func _should_drop_scrap() -> bool:
+	if not scrap_scene: return false
+	return randf() <= scrap_drop_chance
+
+func _should_drop_item() -> bool:
 	if not item_drop_scene:
 		print("ERROR: item_drop_scene no está asignado.")
-		return
+		return false
 	if all_items.is_empty():
-		return
-	if randf() > item_drop_chance: return
+		return false
+	return randf() <= item_drop_chance
+
+func _spawn_scrap_at(pos: Vector2) -> void:
+	var scrap = scrap_scene.instantiate()
+	scrap.global_position = pos
+	get_tree().current_scene.call_deferred("add_child", scrap)
+
+func _spawn_item_at(pos: Vector2) -> void:
 	var item_drop = item_drop_scene.instantiate()
 	item_drop.item_data = all_items.pick_random()
-	item_drop.global_position = global_position
+	item_drop.global_position = pos
 	get_tree().current_scene.call_deferred("add_child", item_drop)
 	print("Item instanciado exitosamente.")
 

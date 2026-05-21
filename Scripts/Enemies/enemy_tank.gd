@@ -51,7 +51,7 @@ func _on_detect_area_body_entered(body: Node2D) -> void:
 		has_detected_player = true
 		current_state = State.CHASE
 
-func _on_area_attack_body_entered(body: Node2D) -> void:
+func _on_area_attack_body_entered(_body: Node2D) -> void:
 	pass
 
 func _try_attack(_body: Node2D) -> void:

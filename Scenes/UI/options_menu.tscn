@@ -2,9 +2,12 @@
 
 [ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://ProjectFrankenstein/Art/Menu/Logo lazaro.png" id="1_run4o"]
 [ext_resource type="Script" uid="uid://cy3knerbe2tnk" path="res://Scripts/UI/options_menu.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Art/Ui/game_theme.tres" id="3_theme"]
+
 
 [node name="Options_menu" type="CanvasLayer" unique_id=780314834]
 layer = 100
+theme = ExtResource("3_theme")
 script = ExtResource("1_script")
 
 [node name="MenuControl" type="Control" parent="." unique_id=243381375]

@@ -3,6 +3,8 @@
 [ext_resource type="Texture2D" uid="uid://bhq4mfk3luea5" path="res://ProjectFrankenstein/Art/Menu/Imagen fondo.png" id="1_kownp"]
 [ext_resource type="Script" uid="uid://dwjkwwo80xt0n" path="res://Scripts/UI/newgame.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://ProjectFrankenstein/Art/Menu/Logo lazaro.png" id="2_gu4kh"]
+[ext_resource type="Theme" path="res://Art/Ui/game_theme.tres" id="3_theme"]
+
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gu4kh"]
 particle_flag_align_y = true
@@ -44,6 +46,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="TextureRect" parent="." unique_id=1199087739]

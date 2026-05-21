@@ -11,6 +11,16 @@ signal slot_clicked(item_data: ItemData)
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(64, 64)
+	_setup_slot_style()
+
+func _setup_slot_style() -> void:
+	var style = StyleBoxTexture.new()
+	style.texture = load("res://Art/Ui/Cell 2.png")
+	style.texture_margin_left = 8.0
+	style.texture_margin_top = 8.0
+	style.texture_margin_right = 8.0
+	style.texture_margin_bottom = 8.0
+	add_theme_stylebox_override("panel", style)
 
 func update_slot(new_item: ItemData) -> void:
 	item = new_item
