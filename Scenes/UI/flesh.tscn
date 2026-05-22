@@ -1,0 +1,139 @@
+[gd_scene format=3 uid="uid://bpkkua5xbf81i"]
+
+[ext_resource type="Script" path="res://Scripts/Items/flesh.gd" id="1_bhe41"]
+[ext_resource type="Texture2D" uid="uid://b06510pa6633t" path="res://Art/Flesh/Flesh_icon.png" id="2_bhe41"]
+[ext_resource type="Texture2D" uid="uid://evhu5eu2upic" path="res://Art/Lights/Cyan_light.png" id="3_52gp0"]
+[ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://Art/Scrap/atlas_56a.png" id="4_o0mdh"]
+[ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://Art/Scrap/Scrap_snd.wav" id="5_o4a1k"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yo6nm"]
+radius = 11.0404
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dytfl"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(0, 0, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qxo4c"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(1024, 0, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wtiar"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(2048, 0, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_602xs"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(0, 1024, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_25h12"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(1024, 1024, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bngko"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(2048, 1024, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qqwm6"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(0, 2048, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3jbmc"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(1024, 2048, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mgta0"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(2048, 2048, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i72pk"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(0, 3072, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qysuy"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(1024, 3072, 1024, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n2i8h"]
+atlas = ExtResource("4_o0mdh")
+region = Rect2(2048, 3072, 1024, 1024)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5lmtc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dytfl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qxo4c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wtiar")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_602xs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_25h12")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bngko")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qqwm6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3jbmc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mgta0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i72pk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qysuy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n2i8h")
+}],
+"loop": true,
+"name": &"fx",
+"speed": 24.0
+}]
+
+[node name="Flesh" type="Node2D" unique_id=1014588695]
+scale = Vector2(0.9, 0.9)
+script = ExtResource("1_bhe41")
+
+[node name="flesh_sprite" type="Sprite2D" parent="." unique_id=1764180436]
+texture_filter = 1
+scale = Vector2(0.15, 0.15)
+texture = ExtResource("2_bhe41")
+
+[node name="PointLight2D" type="PointLight2D" parent="flesh_sprite" unique_id=373406519]
+position = Vector2(0, 44.44444)
+scale = Vector2(6.6666675, 6.6666675)
+color = Color(1, 0, 0, 1)
+energy = 0.5
+shadow_enabled = true
+texture = ExtResource("3_52gp0")
+texture_scale = 0.5
+
+[node name="Grab_area" type="Area2D" parent="." unique_id=1926700011]
+
+[node name="Grab_shape" type="CollisionShape2D" parent="Grab_area" unique_id=314142571]
+scale = Vector2(3.4232562, 3.4232562)
+shape = SubResource("CircleShape2D_yo6nm")
+
+[node name="flesh_anim" type="AnimatedSprite2D" parent="." unique_id=507734613]
+modulate = Color(1, 1, 1, 0.24313726)
+texture_filter = 1
+scale = Vector2(0.115, 0.115)
+sprite_frames = SubResource("SpriteFrames_5lmtc")
+animation = &"fx"
+autoplay = "fx"
+frame_progress = 0.87324685
+
+[node name="Scrap_snd" type="AudioStreamPlayer" parent="." unique_id=367089903]
+stream = ExtResource("5_o4a1k")
+pitch_scale = 3.0

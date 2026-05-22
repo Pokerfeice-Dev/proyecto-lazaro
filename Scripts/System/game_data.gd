@@ -6,6 +6,10 @@ extends Node
 var scrap: int = 0
 signal scrap_changed(new_amount: int)
 
+# ── Flesh ───────────────────────────────────────────────────────────────────
+var flesh: int = 0
+signal flesh_changed(new_amount: int)
+
 # ── Metadata ───────────────────────────────────────────────────────────────────
 var play_time: float = 0.0
 var current_slot: int = 1
@@ -252,6 +256,17 @@ func spend_scrap(amount: int) -> bool:
 	scrap_changed.emit(scrap)
 	return true
 
+func add_flesh(amount: int) -> void:
+	flesh += amount
+	flesh_changed.emit(flesh)
+
+func spend_flesh(amount: int) -> bool:
+	if flesh < amount:
+		return false
+	flesh -= amount
+	flesh_changed.emit(flesh)
+	return true
+
 func get_upgrade_level(key: String) -> float:
 	match key:
 		"damage":            return weapon_damage
@@ -408,9 +423,12 @@ func clear_items() -> void:
 	inventory_items.clear()
 	for k in equipment_slots.keys():
 		equipment_slots[k] = null
+	flesh = 0
+	flesh_changed.emit(flesh)
 
 func reset_data() -> void:
 	scrap = 0
+	flesh = 0
 	weapon_damage = 10.0
 	weapon_fire_rate = 1.0
 	weapon_bullet_count = 1
@@ -429,6 +447,7 @@ func reset_data() -> void:
 	for k in equipment_slots.keys():
 		equipment_slots[k] = null
 	scrap_changed.emit(scrap)
+	flesh_changed.emit(flesh)
 
 func get_slot_info(slot: int) -> Dictionary:
 	if not FileAccess.file_exists(get_save_path(slot)):

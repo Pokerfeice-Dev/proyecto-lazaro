@@ -7,8 +7,8 @@ class_name EnemyBase
 @export var damage: int = 10
 @export var attack_speed: float = 1.0
 
-@export var scrap_scene: PackedScene = preload("res://Scenes/UI/scrap.tscn")
-@export var scrap_drop_chance: float = 1.0
+@export var flesh_scene: PackedScene = preload("res://Scenes/UI/flesh.tscn")
+@export var flesh_drop_chance: float = 1.0
 @export var item_drop_scene: PackedScene = preload("res://Scenes/Items/item_drop_world.tscn")
 @export var all_items: Array[ItemData] = [
 	preload("res://Art/Items/Weapons/Item1.tres"),
@@ -212,25 +212,25 @@ func _hide_health_bar() -> void:
 	bar.hide()
 
 func _attempt_drops() -> void:
-	var spawns_scrap = _should_drop_scrap()
+	var spawns_flesh = _should_drop_flesh()
 	var spawns_item = _should_drop_item()
 
-	if spawns_scrap and spawns_item:
-		_spawn_scrap_at(global_position + Vector2(-20, 0))
+	if spawns_flesh and spawns_item:
+		_spawn_flesh_at(global_position + Vector2(-20, 0))
 		_spawn_item_at(global_position + Vector2(20, 0))
 		return
 
-	if spawns_scrap:
-		_spawn_scrap_at(global_position)
+	if spawns_flesh:
+		_spawn_flesh_at(global_position)
 		return
 
 	if spawns_item:
 		_spawn_item_at(global_position)
 		return
 
-func _should_drop_scrap() -> bool:
-	if not scrap_scene: return false
-	return randf() <= scrap_drop_chance
+func _should_drop_flesh() -> bool:
+	if not flesh_scene: return false
+	return randf() <= flesh_drop_chance
 
 func _should_drop_item() -> bool:
 	if not item_drop_scene:
@@ -240,10 +240,10 @@ func _should_drop_item() -> bool:
 		return false
 	return randf() <= item_drop_chance
 
-func _spawn_scrap_at(pos: Vector2) -> void:
-	var scrap = scrap_scene.instantiate()
-	scrap.global_position = pos
-	get_tree().current_scene.call_deferred("add_child", scrap)
+func _spawn_flesh_at(pos: Vector2) -> void:
+	var flesh_inst = flesh_scene.instantiate()
+	flesh_inst.global_position = pos
+	get_tree().current_scene.call_deferred("add_child", flesh_inst)
 
 func _spawn_item_at(pos: Vector2) -> void:
 	var item_drop = item_drop_scene.instantiate()

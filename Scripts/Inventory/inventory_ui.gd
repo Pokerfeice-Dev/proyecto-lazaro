@@ -84,20 +84,15 @@ func _create_centered_grid(cols: int) -> GridContainer:
 	return grid
 
 func _add_body_grid_slots(grid: GridContainer) -> void:
-	# Row 1
-	grid.add_child(Control.new())
+	# Row 1: Brazo Izq, Torso, Brazo Der
+	_create_equip_slot(ItemData.ItemSlot.ARM_L, "Brazo I", grid)
 	_create_equip_slot(ItemData.ItemSlot.TORSO, "Torso", grid)
-	grid.add_child(Control.new())
+	_create_equip_slot(ItemData.ItemSlot.ARM_R, "Brazo D", grid)
 	
-	# Row 2
+	# Row 2: Pierna Izq, Spacer, Pierna Der
+	_create_equip_slot(ItemData.ItemSlot.LEG_L, "Pierna I", grid)
 	grid.add_child(Control.new())
-	_create_equip_slot(ItemData.ItemSlot.ARMS, "Brazos", grid)
-	grid.add_child(Control.new())
-	
-	# Row 3
-	grid.add_child(Control.new())
-	_create_equip_slot(ItemData.ItemSlot.LEGS, "Piernas", grid)
-	grid.add_child(Control.new())
+	_create_equip_slot(ItemData.ItemSlot.LEG_R, "Pierna D", grid)
 
 func _add_weapon_grid_slots(grid: GridContainer) -> void:
 	_create_equip_slot(ItemData.ItemSlot.MAIN_W1, "Arma 1", grid)
@@ -107,14 +102,6 @@ func _add_weapon_grid_slots(grid: GridContainer) -> void:
 	_create_equip_slot(ItemData.ItemSlot.SEC_W1, "Sec 1", grid)
 	_create_equip_slot(ItemData.ItemSlot.SEC_W2, "Sec 2", grid)
 	_create_equip_slot(ItemData.ItemSlot.SEC_W3, "Sec 3", grid)
-		
-	for i in range(25):
-		var slot_ui = UISlot.new()
-		slot_ui.is_inventory_slot = true
-		slot_ui.item_dropped.connect(_on_item_dropped)
-		slot_ui.slot_clicked.connect(_on_slot_clicked)
-		inventory_grid.add_child(slot_ui)
-		inventory_slots.append(slot_ui)
 
 func _create_equip_slot(slot_key: ItemData.ItemSlot, empty_text: String, parent: Control) -> void:
 	var slot_ui = UISlot.new()

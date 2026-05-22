@@ -122,6 +122,7 @@ func _init_stats() -> void:
 	if not stats: stats = PlayerStats.new()
 	stats.health_changed.connect(_on_health_changed)
 	GameData.scrap_changed.connect(_on_scrap_changed)
+	GameData.flesh_changed.connect(_on_flesh_changed)
 	stats.player_died.connect(_on_died)
 
 func _init_weapon() -> void:
@@ -557,6 +558,14 @@ func _update_hud_scrap(amount: int) -> void:
 	var huds = get_tree().get_nodes_in_group("hud")
 	if huds.is_empty(): return
 	huds[0].update_scrap(amount)
+
+func _on_flesh_changed(amount: int) -> void:
+	_update_hud_flesh(amount)
+
+func _update_hud_flesh(amount: int) -> void:
+	var huds = get_tree().get_nodes_in_group("hud")
+	if huds.is_empty(): return
+	huds[0].update_flesh(amount)
 
 func _on_died() -> void:
 	process_mode = Node.PROCESS_MODE_DISABLED

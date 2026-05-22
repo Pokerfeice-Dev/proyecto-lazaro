@@ -9,7 +9,7 @@ id = "boots_speed"
 item_name = "Botas Veloces"
 icon = ExtResource("1_tex")
 type = 3
-slot = 8
+slot = 9
 stats = {
 "move_speed_percent": 0.2
 }

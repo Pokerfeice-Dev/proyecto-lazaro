@@ -5,7 +5,7 @@ extends CanvasLayer
 signal menu_closed
 
 @onready var root_panel: PanelContainer = $BgDim/Panel
-@onready var scrap_label: Label       = $BgDim/Panel/MarginContainer/VBox/Header/ScrapLabel
+@onready var flesh_label: Label       = $BgDim/Panel/MarginContainer/VBox/Header/FleshLabel
 @onready var items_container: VBoxContainer = $BgDim/Panel/MarginContainer/VBox/Scroll/Items
 @onready var close_btn: Button        = $BgDim/Panel/MarginContainer/VBox/Header/CloseBtn
 @onready var bg_dim: ColorRect        = $BgDim
@@ -63,11 +63,11 @@ func _input(event: InputEvent) -> void:
 
 # ── UI construction ───────────────────────────────────────────────────────────
 func _refresh_ui() -> void:
-	_update_scrap_label()
+	_update_flesh_label()
 	_rebuild_items()
 
-func _update_scrap_label() -> void:
-	scrap_label.text = str(GameData.scrap)
+func _update_flesh_label() -> void:
+	flesh_label.text = str(GameData.flesh)
 
 const WEAPON_ITEM_PATHS: Array[String] = [
 	"res://Art/Items/Weapons/Item1.tres",
@@ -167,9 +167,9 @@ func _update_value_label(lbl: Label, key: String) -> void:
 			lbl.text = "Se añadirá al inventario"
 
 func _on_buy_pressed(def: Dictionary, row: Control) -> void:
-	var purchased = GameData.spend_scrap(def["cost"])
+	var purchased = GameData.spend_flesh(def["cost"])
 	if not purchased:
-		_flash_no_scrap(row)
+		_flash_no_flesh(row)
 		return
 	_handle_purchase(def["key"])
 	_refresh_ui()
@@ -200,7 +200,7 @@ func _give_random_item(player: Node2D, paths: Array[String]) -> void:
 		return
 	inv.add_item(item_data)
 
-func _flash_no_scrap(row: Control) -> void:
+func _flash_no_flesh(row: Control) -> void:
 	var tween = create_tween()
 	tween.tween_property(row, "modulate", Color(1, 0.2, 0.2), 0.1)
 	tween.tween_property(row, "modulate", Color.WHITE, 0.3)
@@ -210,7 +210,7 @@ func _create_cost_container(cost: int) -> HBoxContainer:
 	container.add_theme_constant_override("separation", 6)
 	
 	var icon = TextureRect.new()
-	icon.texture = preload("res://Art/Scrap/Scrap_icon.png")
+	icon.texture = preload("res://Art/Flesh/Flesh_icon.png")
 	icon.custom_minimum_size = Vector2(24, 24)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

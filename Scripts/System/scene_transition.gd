@@ -36,8 +36,21 @@ func _ready():
 	teleport_sfx.bus = "Master"
 	add_child(teleport_sfx)
 	
+	_setup_loops()
+	
 	# Manejar música inicial basada en la escena actual
 	_handle_scene_music(get_tree().current_scene.scene_file_path)
+
+func _setup_loops() -> void:
+	_set_stream_loop(mainmenu_music)
+	_set_stream_loop(combat_music)
+
+func _set_stream_loop(player: AudioStreamPlayer) -> void:
+	if not player:
+		return
+	if not player.stream:
+		return
+	player.stream.loop = true
 
 func play_teleport_sound() -> void:
 	if teleport_sfx:

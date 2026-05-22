@@ -5,7 +5,7 @@ enum ItemType { WEAPON, TORSO, ARMS, LEGS }
 enum ItemSlot { 
 	MAIN_W1, MAIN_W2, MAIN_W3, 
 	SEC_W1, SEC_W2, SEC_W3, 
-	TORSO, ARMS, LEGS 
+	TORSO, ARM_L, ARM_R, LEG_L, LEG_R 
 }
 
 @export var id: String

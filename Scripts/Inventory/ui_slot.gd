@@ -94,8 +94,8 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 		if slot_type in [ItemData.ItemSlot.MAIN_W1, ItemData.ItemSlot.MAIN_W2, ItemData.ItemSlot.MAIN_W3, ItemData.ItemSlot.SEC_W1, ItemData.ItemSlot.SEC_W2, ItemData.ItemSlot.SEC_W3]:
 			return true
 	elif drag_item.type == ItemData.ItemType.TORSO and slot_type == ItemData.ItemSlot.TORSO: return true
-	elif drag_item.type == ItemData.ItemType.ARMS and slot_type == ItemData.ItemSlot.ARMS: return true
-	elif drag_item.type == ItemData.ItemType.LEGS and slot_type == ItemData.ItemSlot.LEGS: return true
+	elif drag_item.type == ItemData.ItemType.ARMS and slot_type in [ItemData.ItemSlot.ARM_L, ItemData.ItemSlot.ARM_R]: return true
+	elif drag_item.type == ItemData.ItemType.LEGS and slot_type in [ItemData.ItemSlot.LEG_L, ItemData.ItemSlot.LEG_R]: return true
 	return false
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:

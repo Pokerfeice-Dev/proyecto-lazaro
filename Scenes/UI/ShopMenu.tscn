@@ -4,7 +4,7 @@
 [ext_resource type="Theme" uid="uid://vjygo4dmal04" path="res://Art/Ui/game_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" uid="uid://bckena5gp0w42" path="res://Art/Ui/Button 2/Card X12.png" id="3_card_x12"]
 [ext_resource type="Texture2D" uid="uid://c6jeu3xwq7u3a" path="res://Art/Ui/Panel Border 1.png" id="4_border"]
-[ext_resource type="Texture2D" uid="uid://cgccjwr5cwj41" path="res://Art/Scrap/Scrap_icon.png" id="5_scrap_icon"]
+[ext_resource type="Texture2D" uid="uid://b06510pa6633t" path="res://Art/Flesh/Flesh_icon.png" id="5_flesh_icon"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panels"]
 
@@ -78,15 +78,15 @@ theme_override_font_sizes/font_size = 22
 text = "🧟 Ygor – Tienda de mejoras"
 vertical_alignment = 1
 
-[node name="ScrapIcon" type="TextureRect" parent="BgDim/Panel/MarginContainer/VBox/Header" unique_id=1148896354]
+[node name="FleshIcon" type="TextureRect" parent="BgDim/Panel/MarginContainer/VBox/Header" unique_id=1148896354]
 texture_filter = 1
 custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-texture = ExtResource("5_scrap_icon")
+texture = ExtResource("5_flesh_icon")
 expand_mode = 2
 stretch_mode = 5
 
-[node name="ScrapLabel" type="Label" parent="BgDim/Panel/MarginContainer/VBox/Header" unique_id=1148896353]
+[node name="FleshLabel" type="Label" parent="BgDim/Panel/MarginContainer/VBox/Header" unique_id=1148896353]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 1, 0.6, 1)
 theme_override_font_sizes/font_size = 18

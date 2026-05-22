@@ -39,7 +39,14 @@ func get_secondary_weapon_stats() -> Dictionary:
 
 func get_character_stats() -> Dictionary:
 	var total_stats: Dictionary = {}
-	for slot_key in [ItemData.ItemSlot.TORSO, ItemData.ItemSlot.ARMS, ItemData.ItemSlot.LEGS]:
+	var slot_keys = [
+		ItemData.ItemSlot.TORSO,
+		ItemData.ItemSlot.ARM_L,
+		ItemData.ItemSlot.ARM_R,
+		ItemData.ItemSlot.LEG_L,
+		ItemData.ItemSlot.LEG_R
+	]
+	for slot_key in slot_keys:
 		if slots.has(slot_key) and slots[slot_key]:
 			add_item_stats(total_stats, slots[slot_key].stats)
 	return total_stats

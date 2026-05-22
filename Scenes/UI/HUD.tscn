@@ -10,11 +10,13 @@
 [ext_resource type="Texture2D" uid="uid://bgqo6016rrpmk" path="res://Art/HUD/Dash_under.png" id="6_yenib"]
 [ext_resource type="Texture2D" uid="uid://ddruhq73oyxu" path="res://Art/HUD/Dash_circle.png" id="7_pydgx"]
 [ext_resource type="Texture2D" uid="uid://b4jhp800dnmet" path="res://Art/HUD/Dash_progress.png" id="8_eebq5"]
+[ext_resource type="Texture2D" uid="uid://b06510pa6633t" path="res://Art/Flesh/Flesh_icon.png" id="9_flesh_icon"]
 
-[node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label", "dash_cd_bar", "health_label", "health_particles")]
+[node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label", "flesh_label", "dash_cd_bar", "health_label", "health_particles")]
 script = ExtResource("1_hud")
 health_bar = NodePath("Control/TextureProgressBar")
-scrap_label = NodePath("Control/HBoxContainer/Scrap_count")
+scrap_label = NodePath("Control/CurrencyContainer/Scrap_container/Scrap_count")
+flesh_label = NodePath("Control/CurrencyContainer/Flesh_container/Flesh_count")
 dash_cd_bar = NodePath("Control/DashCDBar")
 health_label = NodePath("Control/TextureProgressBar/HealthLabel")
 health_particles = NodePath("Control/HealthParticles")
@@ -40,9 +42,10 @@ grow_vertical = 2
 
 [node name="TextureProgressBar" type="TextureProgressBar" parent="Control" unique_id=1638087427]
 layout_mode = 0
-offset_top = 16.0
-offset_right = 600.0
-offset_bottom = 156.0
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 632.0
+offset_bottom = 168.0
 value = 100.0
 texture_under = ExtResource("2_1ree7")
 texture_over = ExtResource("2_lelo4")
@@ -64,7 +67,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="HealthParticles" type="CPUParticles2D" parent="Control" unique_id=481555703]
-position = Vector2(154, 85)
+position = Vector2(190, 97)
 scale = Vector2(1.3, 1.3)
 amount = 40
 lifetime = 3.1999999999999997
@@ -80,10 +83,10 @@ color = Color(0.4, 0.9, 0.6, 0.7)
 
 [node name="DashCDBar" type="TextureProgressBar" parent="Control" unique_id=688935870]
 layout_mode = 0
-offset_left = 115.0
-offset_top = 128.0
-offset_right = 415.0
-offset_bottom = 428.0
+offset_left = 205.0
+offset_top = 123.0
+offset_right = 505.0
+offset_bottom = 423.0
 scale = Vector2(0.5, 0.5)
 max_value = 5.0
 step = 0.01
@@ -93,25 +96,48 @@ texture_under = ExtResource("6_yenib")
 texture_over = ExtResource("7_pydgx")
 texture_progress = ExtResource("8_eebq5")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Control" unique_id=1932389632]
+[node name="CurrencyContainer" type="VBoxContainer" parent="Control" unique_id=1932389632]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -176.0
-offset_top = 56.0
-offset_right = -131.0
-offset_bottom = 96.0
+offset_left = -304.0
+offset_top = 43.0
+offset_right = -154.0
+offset_bottom = 123.0
 grow_horizontal = 0
 scale = Vector2(1.5, 1.5)
 
-[node name="Scrap_count" type="Label" parent="Control/HBoxContainer" unique_id=663140295]
+[node name="Flesh_container" type="HBoxContainer" parent="Control/CurrencyContainer" unique_id=2000000000]
+layout_mode = 2
+alignment = 2
+
+[node name="Flesh_count" type="Label" parent="Control/CurrencyContainer/Flesh_container" unique_id=2000000001]
 layout_mode = 2
 size_flags_horizontal = 8
+text = "0"
 label_settings = ExtResource("5_1ree7")
 horizontal_alignment = 2
 
-[node name="TextureRect" type="TextureRect" parent="Control/HBoxContainer" unique_id=612468089]
+[node name="Flesh_icon" type="TextureRect" parent="Control/CurrencyContainer/Flesh_container" unique_id=2000000002]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("9_flesh_icon")
+expand_mode = 2
+
+[node name="Scrap_container" type="HBoxContainer" parent="Control/CurrencyContainer" unique_id=2000000003]
+layout_mode = 2
+alignment = 2
+
+[node name="Scrap_count" type="Label" parent="Control/CurrencyContainer/Scrap_container" unique_id=663140295]
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 8
+text = "0"
+label_settings = ExtResource("5_1ree7")
+horizontal_alignment = 2
+
+[node name="Scrap_icon" type="TextureRect" parent="Control/CurrencyContainer/Scrap_container" unique_id=612468089]
 texture_filter = 1
 layout_mode = 2
 texture = ExtResource("4_4bm6u")

@@ -4,7 +4,7 @@
 
 [resource]
 font = ExtResource("1_pvkg5")
-font_size = 18
+font_size = 24
 outline_size = 1
 outline_color = Color(0, 0, 0, 1)
 shadow_color = Color(0, 0, 0, 0.64705884)

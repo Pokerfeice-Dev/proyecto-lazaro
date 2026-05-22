@@ -3,6 +3,7 @@ class_name HUD
 
 @export var health_bar: TextureProgressBar
 @export var scrap_label: Label
+@export var flesh_label: Label
 @export var dash_cd_bar: TextureProgressBar
 @export var health_label: Label
 @export var health_particles: CPUParticles2D
@@ -46,6 +47,7 @@ func _ready():
 	_setup_dash_cooldown()
 	_setup_health_particles()
 	update_scrap(GameData.scrap)
+	update_flesh(GameData.flesh)
 	_initialize_health()
 
 func _setup_health_label() -> void:
@@ -205,6 +207,10 @@ func update_health(new_health: int, max_health: int):
 func update_scrap(amount: int):
 	if scrap_label:
 		scrap_label.text = str(amount)
+
+func update_flesh(amount: int):
+	if flesh_label:
+		flesh_label.text = str(amount)
 
 func _setup_health_particles() -> void:
 	if health_particles: return

@@ -11,6 +11,10 @@ class_name PlayerStats
 var scrap_count: int:
 	get: return GameData.scrap
 
+# Flesh is stored in the GameData autoload and resets on run end/death.
+var flesh_count: int:
+	get: return GameData.flesh
+
 signal health_changed(new_health: int, max_health: int)
 signal stats_changed
 signal player_died
@@ -33,6 +37,9 @@ func update_max_health(new_max: int) -> void:
 
 func add_scrap(amount: int) -> void:
 	GameData.add_scrap(amount)
+
+func add_flesh(amount: int) -> void:
+	GameData.add_flesh(amount)
 
 func heal(amount: int) -> void:
 	current_health = clampi(current_health + amount, 0, max_health)

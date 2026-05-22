@@ -11,6 +11,15 @@ func _ready() -> void:
 	_spawn_or_reposition_player()
 	_setup_teleport()
 	_setup_interaction_label()
+	_setup_music_loop()
+
+func _setup_music_loop() -> void:
+	var music_node = get_node_or_null("Audio_lab")
+	if not music_node:
+		return
+	if not music_node.stream:
+		return
+	music_node.stream.loop = true
 
 func _spawn_or_reposition_player() -> void:
 	var p_spawn = get_node_or_null("player_spawn")

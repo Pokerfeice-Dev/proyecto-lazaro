@@ -237,7 +237,7 @@ script = ExtResource("1_et")
 max_health = 150
 move_speed = 70.0
 damage = 17
-scrap_drop_chance = 0.9
+flesh_drop_chance = 0.9
 item_drop_chance = 0.5
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2111728552]
