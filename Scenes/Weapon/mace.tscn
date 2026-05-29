@@ -1,0 +1,90 @@
+[gd_scene format=3 uid="uid://c222222222222"]
+
+[ext_resource type="Texture2D" uid="uid://4ci4d4brar8p" path="res://Art/Weapons/Melee/Mace/Weapon_Mace.png" id="1_maza"]
+[ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
+[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_sound"]
+[ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
+size = Vector2(27.5, 49)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pq8rl"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c51nk"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cgps"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bhmk6"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_clk6n"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pq8rl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c51nk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2cgps")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bhmk6")
+}, {
+"duration": 1.0,
+"texture": null
+}],
+"loop": false,
+"name": &"attack",
+"speed": 4.0
+}]
+
+[node name="Mace" type="Node2D" unique_id=845729058 node_paths=PackedStringArray("melee_sprite", "slash_attack", "attack_fx")]
+script = ExtResource("2_script")
+melee_sprite = NodePath("Melee_sprite")
+slash_attack = NodePath("Slash_attack")
+attack_fx = NodePath("attack_fx")
+damage = 35
+attack_speed = 0.5
+knockback_force = 90.0
+swing_start_angle = -20.0
+swing_end_angle = 120.0
+
+[node name="Melee_sprite" type="Sprite2D" parent="." unique_id=1705333899]
+position = Vector2(3.1999989, -12.800001)
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("1_maza")
+
+[node name="Weapon_mark" type="Marker2D" parent="Melee_sprite" unique_id=2068377603]
+position = Vector2(-2.4615376, 9.846155)
+
+[node name="Slash_attack" type="Area2D" parent="." unique_id=1840934610]
+position = Vector2(3.6999989, -12.800001)
+collision_layer = 10
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Slash_attack" unique_id=1160942355]
+position = Vector2(20.5, -3)
+scale = Vector2(1.5130508, 1.5130508)
+shape = SubResource("RectangleShape2D_d7jkh")
+
+[node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=1206396681]
+stream = ExtResource("3_sound")
+pitch_scale = 0.4
+
+[node name="attack_fx" type="AnimatedSprite2D" parent="." unique_id=1694405846]
+position = Vector2(32.999996, -27.999998)
+scale = Vector2(1.7, 1.7)
+sprite_frames = SubResource("SpriteFrames_clk6n")
+animation = &"attack"
+frame = 4
+frame_progress = 1.0
+flip_v = true

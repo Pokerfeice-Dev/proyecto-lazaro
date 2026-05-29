@@ -52,6 +52,8 @@ func _is_shop_open() -> bool:
 	return shop_instance != null and shop_instance.visible
 
 func _open_shop() -> void:
+	if GameData.has_method("unlock_codex_entry"):
+		GameData.unlock_codex_entry("npcs", "ygor")
 	if shop_instance == null:
 		shop_instance = SHOP_MENU_SCENE.instantiate()
 		get_tree().current_scene.add_child(shop_instance)

@@ -18,10 +18,30 @@ var current_slot: int = 1
 var inventory_items: Array[ItemData] = []
 var equipment_slots: Dictionary = {}
 
+var codex_unlocks: Dictionary = {
+	"enemies": [],
+	"weapons": [],
+	"items": [],
+	"npcs": [],
+	"levels": []
+}
+
+func unlock_codex_entry(category: String, entry_id: String) -> void:
+	if not codex_unlocks.has(category): return
+	if not codex_unlocks[category].has(entry_id):
+		codex_unlocks[category].append(entry_id)
+		print("Codex unlocked: ", category, " -> ", entry_id)
+
+func is_codex_unlocked(category: String, entry_id: String) -> bool:
+	if not codex_unlocks.has(category): return false
+	return codex_unlocks[category].has(entry_id)
+
 func _ready() -> void:
 	_load_level1_rooms()
 	for slot in ItemData.ItemSlot.values():
 		equipment_slots[slot] = null
+	unlock_codex_entry("levels", "level_1")
+	unlock_codex_entry("weapons", "pistol")
 
 func _process(delta: float) -> void:
 	if get_tree().paused: return
@@ -139,6 +159,11 @@ func _set_room_n_config(config: Dictionary, room: int) -> void:
 	config.spawn_interval = maxf(0.3, new_interval)
 	
 	config.allowed_enemies = ["follower", "shooter", "tank"]
+	_add_turret_to_allowed_enemies_if_level_4(config, room)
+
+func _add_turret_to_allowed_enemies_if_level_4(config: Dictionary, room: int) -> void:
+	if room < 4: return
+	config.allowed_enemies.append("turret")
 
 # ── Weapon upgrades ─────────────────────────────────────────────────────────
 var weapon_damage: float = 10.0

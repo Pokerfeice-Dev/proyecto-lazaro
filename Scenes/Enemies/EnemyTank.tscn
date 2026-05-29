@@ -116,7 +116,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_126gs"]
-size = Vector2(14, 12)
+size = Vector2(27, 25)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_t3qsv"]
 animations = [{
@@ -244,11 +244,11 @@ item_drop_chance = 0.5
 texture_filter = 1
 position = Vector2(0, -9)
 sprite_frames = SubResource("SpriteFrames_kfsmf")
-animation = &"attack"
+animation = &"walk"
 autoplay = "idle"
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="." unique_id=638250215]
-position = Vector2(0, 2)
+position = Vector2(-1.5, 2.5)
 shape = SubResource("RectangleShape2D_126gs")
 
 [node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=1742289656]

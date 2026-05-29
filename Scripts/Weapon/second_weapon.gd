@@ -1,5 +1,4 @@
 extends Node2D
-class_name MeleeWeaponBase
 
 @export_category("Melee Nodes")
 @export var melee_sprite: Sprite2D

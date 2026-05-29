@@ -1,0 +1,91 @@
+[gd_scene format=3 uid="uid://c7k2p8b15d2a6"]
+
+[ext_resource type="Texture2D" uid="uid://yhoqr7mn7xt7" path="res://Art/Weapons/Distance/Pistol/Weapon_Pisotol.png" id="1_lpjyf"]
+[ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_weapn"]
+[ext_resource type="Texture2D" uid="uid://yvojmcbopcyn" path="res://Art/Weapons/Distance/Pistol/Weapon_Pistol_Animated.png" id="2_5c775"]
+[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="2_sstvh"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5c775"]
+atlas = ExtResource("2_5c775")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mscti"]
+atlas = ExtResource("2_5c775")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_12l64"]
+atlas = ExtResource("2_5c775")
+region = Rect2(0, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8nyrk"]
+atlas = ExtResource("2_5c775")
+region = Rect2(48, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u7l32"]
+atlas = ExtResource("2_5c775")
+region = Rect2(0, 96, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_smho5"]
+atlas = ExtResource("2_5c775")
+region = Rect2(48, 96, 48, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_mkhcp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_lpjyf")
+}],
+"loop": false,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5c775")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mscti")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_12l64")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8nyrk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u7l32")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_smho5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5c775")
+}],
+"loop": false,
+"name": &"shoot",
+"speed": 24.0
+}]
+
+[node name="Pistol" type="Node2D" unique_id=1627227960]
+script = ExtResource("1_weapn")
+projectile_speed = 400.0
+
+[node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=341135821]
+texture_filter = 1
+scale = Vector2(1.3, 1.3)
+sprite_frames = SubResource("SpriteFrames_mkhcp")
+animation = &"shoot"
+frame = 6
+frame_progress = 1.0
+
+[node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=1249833403]
+stream = ExtResource("2_sstvh")
+
+[node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1844449701]
+position = Vector2(-21, -2)
+
+[node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=1604435276]
+position = Vector2(21, -2)
+
+[node name="Weapon_mark" type="Marker2D" parent="." unique_id=832653660]
+position = Vector2(-9, 4)

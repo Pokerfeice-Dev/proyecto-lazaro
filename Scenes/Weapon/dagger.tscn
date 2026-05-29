@@ -1,0 +1,82 @@
+[gd_scene format=3 uid="uid://c111111111111"]
+
+[ext_resource type="Texture2D" uid="uid://dv8bgmlxktnri" path="res://Art/Weapons/Melee/Dagger/Weapon_Dagger.png" id="1_daga"]
+[ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
+[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_sound"]
+[ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pq8rl"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c51nk"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cgps"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bhmk6"]
+atlas = ExtResource("4_spritesheet")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_clk6n"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pq8rl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c51nk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2cgps")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bhmk6")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 12.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
+size = Vector2(27.5, 49)
+
+[node name="Dagger" type="Node2D" unique_id=873535165]
+script = ExtResource("2_script")
+damage = 8
+attack_speed = 1.5
+knockback_force = 30.0
+swing_start_angle = -30.0
+swing_end_angle = 130.0
+
+[node name="Melee_sprite" type="Sprite2D" parent="." unique_id=777334414]
+position = Vector2(2, -3)
+texture = ExtResource("1_daga")
+
+[node name="Weapon_mark" type="Marker2D" parent="Melee_sprite" unique_id=561848754]
+position = Vector2(-1, 3)
+
+[node name="attack_fx" type="AnimatedSprite2D" parent="." unique_id=1910123970]
+position = Vector2(11, -10)
+sprite_frames = SubResource("SpriteFrames_clk6n")
+animation = &"attack"
+frame = 3
+frame_progress = 1.0
+flip_v = true
+
+[node name="Slash_attack" type="Area2D" parent="." unique_id=2088918538]
+position = Vector2(2, -3)
+collision_layer = 10
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Slash_attack" unique_id=1119203181]
+position = Vector2(9.5, -2.3841858e-07)
+scale = Vector2(0.7, 0.7)
+shape = SubResource("RectangleShape2D_d7jkh")
+
+[node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=1542019552]
+stream = ExtResource("3_sound")
+pitch_scale = 1.2

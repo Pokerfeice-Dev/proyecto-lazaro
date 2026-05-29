@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://btkevi6xbadgv"]
+
+[ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bypy62hnxs8bg" path="res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png" id="2_mni3a"]
+[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_7vofb"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_q1g7k"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_mni3a")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_mni3a")
+}],
+"loop": false,
+"name": &"shoot",
+"speed": 12.0
+}]
+
+[node name="Uzi" type="Node2D" unique_id=1008034859 node_paths=PackedStringArray("sprite_anim", "shoot_sound")]
+script = ExtResource("1_script")
+sprite_anim = NodePath("Weapon_Sprites")
+shoot_sound = NodePath("Bullet_sound")
+damage = 4.0
+projectile_speed = 500.0
+lifetime = 1.5
+attack_speed = 2.0
+
+[node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013830]
+texture_filter = 1
+scale = Vector2(1.4, 1.4)
+sprite_frames = SubResource("SpriteFrames_q1g7k")
+animation = &"idle"
+
+[node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722064]
+stream = ExtResource("3_7vofb")
+
+[node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1778873977]
+position = Vector2(16, -2)
+
+[node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=454493303]
+position = Vector2(-16, -2)
+
+[node name="Weapon_mark" type="Marker2D" parent="." unique_id=1276239138]
+position = Vector2(-6, 3)

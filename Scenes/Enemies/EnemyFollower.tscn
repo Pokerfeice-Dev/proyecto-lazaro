@@ -132,7 +132,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ef"]
-size = Vector2(14, 10)
+size = Vector2(16, 13)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_76jir"]
 animations = [{
@@ -256,6 +256,7 @@ attack_speed = 0.7
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=283656131]
 texture_filter = 1
+scale = Vector2(0.9, 0.9)
 sprite_frames = SubResource("SpriteFrames_anqt5")
 animation = &"attack"
 autoplay = "idle"
@@ -263,7 +264,7 @@ frame = 4
 frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1811914106]
-position = Vector2(2, 5)
+position = Vector2(2, 4.5)
 shape = SubResource("RectangleShape2D_ef")
 
 [node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=345734890]

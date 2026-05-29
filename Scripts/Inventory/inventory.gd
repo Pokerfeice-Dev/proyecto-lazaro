@@ -10,6 +10,8 @@ func _ready() -> void:
 
 func add_item(item: ItemData) -> void:
 	items.append(item)
+	if GameData.has_method("unlock_codex_entry") and item:
+		GameData.unlock_codex_entry("items", item.id)
 	inventory_updated.emit()
 
 func remove_item(item: ItemData) -> void:

@@ -8,9 +8,9 @@ class_name HUD
 @export var health_label: Label
 @export var health_particles: CPUParticles2D
 
+@export var primary_weapon_rect: TextureRect
+@export var secondary_weapon_rect: TextureRect
 var _dash_was_on_cooldown: bool = false
-
-
 @export_group("Particles High Health (+70%)")
 @export var particles_high_color: Color = Color(0.4, 0.9, 0.6, 0.7)
 @export var particles_high_speed: float = 1.0
@@ -46,9 +46,33 @@ func _ready():
 	_setup_health_label()
 	_setup_dash_cooldown()
 	_setup_health_particles()
+	_setup_weapon_hud()
 	update_scrap(GameData.scrap)
 	update_flesh(GameData.flesh)
 	_initialize_health()
+
+func _setup_weapon_hud() -> void:
+	var circle_bg = _create_filled_circle_texture(Color(0.05, 0.05, 0.1, 0.7), Color(0.2, 0.8, 1.0, 0.8))
+	var primary_panel = get_node_or_null("Control/WeaponHUD/PrimaryPanel")
+	if primary_panel and primary_panel is TextureRect:
+		primary_panel.texture = circle_bg
+	var secondary_panel = get_node_or_null("Control/WeaponHUD/SecondaryPanel")
+	if secondary_panel and secondary_panel is TextureRect:
+		secondary_panel.texture = circle_bg
+
+func _create_filled_circle_texture(bg_color: Color, border_color: Color) -> ImageTexture:
+	var img = Image.create(80, 80, false, Image.FORMAT_RGBA8)
+	var center = Vector2(40, 40)
+	for x in range(80):
+		for y in range(80):
+			var d = Vector2(x, y).distance_to(center)
+			if d <= 38.0 and d >= 35.0:
+				img.set_pixel(x, y, border_color)
+			elif d < 35.0:
+				img.set_pixel(x, y, bg_color)
+			else:
+				img.set_pixel(x, y, Color.TRANSPARENT)
+	return ImageTexture.create_from_image(img)
 
 func _setup_health_label() -> void:
 	if health_label: return
@@ -128,10 +152,10 @@ func _create_dash_bar_fallback() -> void:
 		control.add_child(dash_cd_bar)
 
 func _create_circle_texture(color: Color) -> ImageTexture:
-	var img = Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	var img = Image.create(72, 72, false, Image.FORMAT_RGBA8)
 	var center = Vector2(32, 32)
-	for x in range(64):
-		for y in range(64):
+	for x in range(72):
+		for y in range(72):
 			var d = Vector2(x, y).distance_to(center)
 			if d <= 30.0 and d >= 22.0:
 				img.set_pixel(x, y, color)
@@ -157,6 +181,37 @@ func _process(_delta: float) -> void:
 	if "dash_cd_timer" in p and p.dash_cd_timer:
 		var time_left = 0.0 if p.dash_cd_timer.is_stopped() else p.dash_cd_timer.time_left
 		update_dash_cooldown(time_left, 5.0)
+	_update_weapons_hud(p)
+
+func _update_weapons_hud(p: Node2D) -> void:
+	if "active_weapon" in p and p.active_weapon:
+		var tex = _get_weapon_texture(p.active_weapon)
+		if primary_weapon_rect:
+			primary_weapon_rect.texture = tex
+			
+	if "second_weapon" in p and p.second_weapon:
+		var tex = _get_weapon_texture(p.second_weapon)
+		if secondary_weapon_rect:
+			secondary_weapon_rect.texture = tex
+
+func _get_weapon_texture(weapon_container: Node) -> Texture2D:
+	if not weapon_container: return null
+	var cur = weapon_container.get("current_weapon")
+	if not cur: return null
+	
+	var sprite = cur.get_node_or_null("Melee_sprite")
+	if sprite and sprite is Sprite2D:
+		return sprite.texture
+		
+	var anim_sprite = cur.get_node_or_null("Weapon_Sprites")
+	if anim_sprite and anim_sprite is AnimatedSprite2D:
+		var frames = anim_sprite.sprite_frames
+		if frames and frames.has_animation(anim_sprite.animation):
+			var frame_count = frames.get_frame_count(anim_sprite.animation)
+			if frame_count > 0:
+				return frames.get_frame_texture(anim_sprite.animation, 0)
+				
+	return null
 
 func update_dash_cooldown(time_left: float, max_time: float) -> void:
 	if not dash_cd_bar: return

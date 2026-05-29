@@ -198,6 +198,7 @@ func _check_death() -> void:
 func die() -> void:
 	if is_dying: return
 	is_dying = true
+	_unlock_bestiary_entry()
 	enemy_died.emit(self)
 	_attempt_drops()
 	_disable_physics()
@@ -205,6 +206,18 @@ func die() -> void:
 	_hide_health_bar()
 	_play_death_sound()
 	_play_death_fx()
+
+func _unlock_bestiary_entry() -> void:
+	if not is_inside_tree() or not GameData.has_method("unlock_codex_entry"): return
+	var script_path = get_script().resource_path.to_lower()
+	if "follower" in script_path:
+		GameData.unlock_codex_entry("enemies", "follower")
+	elif "shooter" in script_path:
+		GameData.unlock_codex_entry("enemies", "shooter")
+	elif "tank" in script_path:
+		GameData.unlock_codex_entry("enemies", "tank")
+	elif "turret" in script_path:
+		GameData.unlock_codex_entry("enemies", "turret")
 
 func _hide_health_bar() -> void:
 	var bar = get_node_or_null("HealthBar")

@@ -8,10 +8,21 @@ var item: ItemData = null
 
 signal item_dropped(item_data: ItemData, source_slot: UISlot, target_slot: UISlot)
 signal slot_clicked(item_data: ItemData)
+signal slot_hovered(item_data: ItemData, slot_rect: Rect2)
+signal slot_unhovered()
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(64, 64)
 	_setup_slot_style()
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
+
+func _on_mouse_entered() -> void:
+	if item:
+		slot_hovered.emit(item, get_global_rect())
+
+func _on_mouse_exited() -> void:
+	slot_unhovered.emit()
 
 func _setup_slot_style() -> void:
 	var style = StyleBoxTexture.new()
@@ -22,14 +33,13 @@ func _setup_slot_style() -> void:
 	style.texture_margin_bottom = 8.0
 	add_theme_stylebox_override("panel", style)
 
-func update_slot(new_item: ItemData) -> void:
+func update_slot(new_item: ItemData, qty: int = 1) -> void:
 	item = new_item
 	for c in get_children():
 		c.queue_free()
 	
 	tooltip_text = ""
 	if item:
-		tooltip_text = item.item_name
 		if item.icon:
 			var trect = TextureRect.new()
 			trect.texture = item.icon
@@ -47,6 +57,24 @@ func update_slot(new_item: ItemData) -> void:
 			lbl.add_theme_font_size_override("font_size", 10)
 			lbl.add_theme_color_override("font_color", Color(1, 1, 1))
 			add_child(lbl)
+		
+		# Mostrar cantidad si es mayor a 1
+		if qty > 1:
+			var helper_control = Control.new()
+			helper_control.set_anchors_preset(Control.PRESET_FULL_RECT)
+			add_child(helper_control)
+			
+			var count_lbl = Label.new()
+			count_lbl.text = str(qty)
+			count_lbl.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+			count_lbl.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+			count_lbl.grow_vertical = Control.GROW_DIRECTION_BEGIN
+			count_lbl.position = Vector2(44, 44)
+			count_lbl.add_theme_font_size_override("font_size", 12)
+			count_lbl.add_theme_color_override("font_color", Color(0, 1, 0.8)) # Color cian/verde
+			count_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+			count_lbl.add_theme_constant_override("outline_size", 3)
+			helper_control.add_child(count_lbl)
 	else:
 		var lbl = Label.new()
 		lbl.text = empty_text

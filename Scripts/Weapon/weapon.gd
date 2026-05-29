@@ -59,6 +59,8 @@ func play_shoot_effects() -> void:
 	if shoot_sound:
 		shoot_sound.play()
 
+
+
 func get_bullet_spawn_pos(fallback: Vector2) -> Vector2:
 	if bullet_mark:
 		return bullet_mark.global_position

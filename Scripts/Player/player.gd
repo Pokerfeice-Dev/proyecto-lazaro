@@ -10,6 +10,20 @@ class_name Player
 @export var weapon_scene: PackedScene = preload("res://Scenes/Weapon/main_weapon.tscn")
 @export var second_weapon_scene: PackedScene = preload("res://Scenes/Weapon/second_weapon.tscn")
 
+@export_category("Weapon Animation Offsets")
+@export var animation_frame_offsets: Dictionary = {
+	"idle_default": [
+		Vector2(0, 0),
+		Vector2(0, 1),
+		Vector2(0, 2),
+		Vector2(0, 1),
+		Vector2(0, 0),
+		Vector2(0, -1),
+		Vector2(0, -2),
+		Vector2(0, -1)
+	]
+}
+
 @export_category("Camera Feedback")
 @export var shake_intensity: float = 6.0
 @export var shake_duration: float = 0.1
@@ -101,22 +115,17 @@ func _create_weapon_hide_timer() -> void:
 	weapon_hide_timer = Timer.new()
 	weapon_hide_timer.one_shot = true
 	add_child(weapon_hide_timer)
-	weapon_hide_timer.timeout.connect(_on_weapon_hide_timeout)
-	weapon_hide_timer.start(2.0)
 
 func _on_weapon_hide_timeout() -> void:
-	if active_weapon: active_weapon.hide()
-	if second_weapon: second_weapon.hide()
+	pass
 
 func _show_primary_weapon() -> void:
 	if active_weapon: active_weapon.show()
 	if second_weapon: second_weapon.hide()
-	weapon_hide_timer.start(2.0)
 
 func _show_secondary_weapon() -> void:
 	if active_weapon: active_weapon.hide()
 	if second_weapon: second_weapon.show()
-	weapon_hide_timer.start(2.0)
 
 func _init_stats() -> void:
 	if not stats: stats = PlayerStats.new()
@@ -128,6 +137,7 @@ func _init_stats() -> void:
 func _init_weapon() -> void:
 	_init_primary_weapon()
 	_init_secondary_weapon()
+	_show_primary_weapon()
 
 func _init_primary_weapon() -> void:
 	if not weapon_scene: return
@@ -138,6 +148,8 @@ func _init_secondary_weapon() -> void:
 	if not second_weapon_scene: return
 	second_weapon = second_weapon_scene.instantiate()
 	add_child(second_weapon)
+	if GameData.has_method("unlock_codex_entry"):
+		GameData.unlock_codex_entry("weapons", "second_weapon")
 
 func _apply_game_data_upgrades() -> void:
 	if active_weapon and active_weapon.has_method("get_damage"):
@@ -227,7 +239,7 @@ func handle_movement(delta: float) -> void:
 		_apply_friction(delta)
 		return
 	_apply_acceleration(input_dir, delta)
-	_update_last_dir(input_dir)
+
 
 func _apply_friction(delta: float) -> void:
 	velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
@@ -236,10 +248,24 @@ func _apply_acceleration(input_dir: Vector2, delta: float) -> void:
 	velocity = velocity.move_toward(input_dir * stats.move_speed, acceleration * delta)
 
 func _update_last_dir(input_dir: Vector2) -> void:
-	if abs(input_dir.x) > abs(input_dir.y):
-		last_dir = "right" if input_dir.x > 0 else "left"
-		return
-	last_dir = "down" if input_dir.y > 0 else "up"
+	last_dir = _get_8_dir_string(input_dir)
+
+func _get_8_dir_string(dir: Vector2) -> String:
+	var angle = dir.angle()
+	if angle < 0:
+		angle += 2 * PI
+	var sector = int(round(angle / (PI / 4.0))) % 8
+	match sector:
+		0: return "right"
+		1: return "down_right"
+		2: return "down"
+		3: return "down_left"
+		4: return "left"
+		5: return "up_left"
+		6: return "up"
+		7: return "up_right"
+	return "down"
+
 
 func handle_shooting() -> void:
 	if not can_shoot: return
@@ -433,20 +459,61 @@ func update_glock() -> void:
 	_update_primary_weapon_pivot(mouse_pos, dir, orbit_radius)
 	_update_secondary_weapon_pivot(mouse_pos, dir, orbit_radius)
 
-func _update_primary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, orbit_radius: float) -> void:
-	if not active_weapon: return
-	active_weapon.look_at(mouse_pos)
-	active_weapon.position = dir * orbit_radius
-	_flip_weapon(active_weapon, dir)
-
-func _update_secondary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, orbit_radius: float) -> void:
-	if not second_weapon: return
-	if second_weapon.has_method("is_attacking") and second_weapon.is_attacking():
-		second_weapon.position = dir * orbit_radius
+func _update_primary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radius: float) -> void:
+	if not active_weapon:
 		return
+	var base_pos = _get_weapon_base_position(dir)
+	active_weapon.look_at(mouse_pos)
+	active_weapon.position = base_pos
+	_flip_weapon(active_weapon, dir)
+	active_weapon.show_behind_parent = dir.y < 0
+
+func _update_secondary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radius: float) -> void:
+	if not second_weapon:
+		return
+	var base_pos = _get_weapon_base_position(dir)
 	second_weapon.look_at(mouse_pos)
-	second_weapon.position = dir * orbit_radius
+	second_weapon.position = base_pos
 	_flip_weapon(second_weapon, dir)
+	second_weapon.show_behind_parent = dir.y < 0
+
+func _get_weapon_base_position(dir: Vector2) -> Vector2:
+	var base_pos = _get_static_weapon_mark_position(dir)
+	var anim_offset = _get_animation_offset()
+	var final_offset = _apply_flip_to_offset(anim_offset, dir.x < 0)
+	return base_pos + final_offset
+
+func _get_static_weapon_mark_position(dir: Vector2) -> Vector2:
+	var mark_node = get_node_or_null("Weapon_mark")
+	if not mark_node:
+		return Vector2.ZERO
+	return _apply_flip_to_offset(mark_node.position, dir.x < 0)
+
+func _get_animation_offset() -> Vector2:
+	if not anim_sprite:
+		return Vector2.ZERO
+	return _calculate_frame_offset(anim_sprite.animation, anim_sprite.frame)
+
+func _calculate_frame_offset(anim_name: String, frame_idx: int) -> Vector2:
+	var offsets = _get_offsets_for_animation(anim_name)
+	if offsets.is_empty():
+		return Vector2.ZERO
+	if frame_idx < 0 or frame_idx >= offsets.size():
+		return Vector2.ZERO
+	return offsets[frame_idx]
+
+func _get_offsets_for_animation(anim_name: String) -> Array:
+	if animation_frame_offsets.has(anim_name):
+		return animation_frame_offsets[anim_name]
+	if anim_name.begins_with("idle") and animation_frame_offsets.has("idle_default"):
+		return animation_frame_offsets["idle_default"]
+	return []
+
+func _apply_flip_to_offset(offset: Vector2, should_flip: bool) -> Vector2:
+	if should_flip:
+		return Vector2(-offset.x, offset.y)
+	return offset
+
 
 func _flip_weapon(weapon: Node2D, dir: Vector2) -> void:
 	var base_scale = abs(weapon.scale.x)
@@ -456,21 +523,55 @@ func _flip_weapon(weapon: Node2D, dir: Vector2) -> void:
 	weapon.scale.y = base_scale
 
 func update_animation() -> void:
-	if not anim_sprite: return
-	if is_dashing:
-		anim_sprite.play("run_" + last_dir)
+	_update_facing_direction()
+	if not anim_sprite:
 		return
-	if velocity.length() > 50:
-		anim_sprite.play("run_" + last_dir)
+	_play_player_sprite_animation()
+
+func _update_facing_direction() -> void:
+	var mouse_dir = (get_global_mouse_position() - global_position).normalized()
+	if mouse_dir != Vector2.ZERO:
+		last_dir = _get_8_dir_string(mouse_dir)
+
+
+func _play_player_sprite_animation() -> void:
+	if is_dashing or velocity.length() > 50:
+		_play_run_animation()
+		return
+	_play_idle_animation()
+
+func _play_run_animation() -> void:
+	var run_dir = _get_run_dir(last_dir)
+	anim_sprite.play("run_" + run_dir)
+
+func _play_idle_animation() -> void:
+	if _is_diagonal(last_dir):
+		anim_sprite.play("idle_diagonal_" + last_dir)
 		return
 	anim_sprite.play("idle_" + last_dir)
+
+func _is_diagonal(dir_str: String) -> bool:
+	return dir_str in ["up_left", "up_right", "down_left", "down_right"]
+
+func _get_run_dir(dir_str: String) -> String:
+	if dir_str == "up_left" or dir_str == "down_left":
+		return "left"
+	if dir_str == "up_right" or dir_str == "down_right":
+		return "right"
+	return dir_str
+
 
 func _get_dir_vector(dir_str: String) -> Vector2:
 	if dir_str == "up": return Vector2.UP
 	if dir_str == "down": return Vector2.DOWN
 	if dir_str == "right": return Vector2.RIGHT
 	if dir_str == "left": return Vector2.LEFT
+	if dir_str == "up_right": return Vector2(1, -1).normalized()
+	if dir_str == "up_left": return Vector2(-1, -1).normalized()
+	if dir_str == "down_right": return Vector2(1, 1).normalized()
+	if dir_str == "down_left": return Vector2(-1, 1).normalized()
 	return Vector2.DOWN
+
 
 func _on_shoot_timer_timeout() -> void:
 	can_shoot = true

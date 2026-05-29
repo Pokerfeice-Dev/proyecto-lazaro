@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fpgw4se5ai12"
-path="res://.godot/imported/unknown.png-b07cad9f63bd8fcd69bb70c6718fa6d6.ctex"
+uid="uid://keah3bw6ykyl"
+path="res://.godot/imported/turret1.png-57e0f7b2aac6b710683e5ba71c0f530d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Weapons/Melee/unknown.png"
-dest_files=["res://.godot/imported/unknown.png-b07cad9f63bd8fcd69bb70c6718fa6d6.ctex"]
+source_file="res://Art/Enemy_turret/turret1.png"
+dest_files=["res://.godot/imported/turret1.png-57e0f7b2aac6b710683e5ba71c0f530d.ctex"]
 
 [params]
 

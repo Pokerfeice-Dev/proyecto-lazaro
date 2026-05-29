@@ -32,6 +32,7 @@ func _ready() -> void:
 	_setup_player()
 	_setup_spawn_points()
 	_setup_spawn_timer()
+	_unlock_level_codex_entry()
 	
 	if teleport_area:
 		_setup_teleport()
@@ -40,6 +41,16 @@ func _ready() -> void:
 	var start_area = get_node_or_null("Area_entered")
 	if start_area:
 		start_area.body_entered.connect(_on_start_area_entered)
+
+func _unlock_level_codex_entry() -> void:
+	if not GameData.has_method("unlock_codex_entry"): return
+	var room = GameData.current_run_room
+	if room >= 1:
+		GameData.unlock_codex_entry("levels", "level_1")
+	if room >= 4:
+		GameData.unlock_codex_entry("levels", "room_4")
+	if room >= 7:
+		GameData.unlock_codex_entry("levels", "room_7")
 
 func _apply_difficulty_settings() -> void:
 	var config: Dictionary = GameData.get_room_config()
@@ -53,6 +64,7 @@ func _build_enemy_pool(allowed: Array) -> void:
 	_add_follower_if_allowed(allowed, new_pool)
 	_add_shooter_if_allowed(allowed, new_pool)
 	_add_tank_if_allowed(allowed, new_pool)
+	_add_turret_if_allowed(allowed, new_pool)
 	
 	if new_pool.is_empty(): return
 	enemy_pool = new_pool
@@ -68,6 +80,10 @@ func _add_shooter_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 func _add_tank_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 	if not allowed.has("tank"): return
 	pool.append(preload("res://Scenes/Enemies/EnemyTank.tscn"))
+
+func _add_turret_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
+	if not allowed.has("turret"): return
+	pool.append(preload("res://Scenes/Enemies/EnemyTurret.tscn"))
 
 func _setup_player() -> void:
 	var p_spawn = get_node_or_null("player_spawn")
