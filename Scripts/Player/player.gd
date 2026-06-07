@@ -541,8 +541,10 @@ func _play_player_sprite_animation() -> void:
 	_play_idle_animation()
 
 func _play_run_animation() -> void:
-	var run_dir = _get_run_dir(last_dir)
-	anim_sprite.play("run_" + run_dir)
+	if _is_diagonal(last_dir):
+		anim_sprite.play("run_diagonal_" + last_dir)
+		return
+	anim_sprite.play("run_" + last_dir)
 
 func _play_idle_animation() -> void:
 	if _is_diagonal(last_dir):
@@ -552,13 +554,6 @@ func _play_idle_animation() -> void:
 
 func _is_diagonal(dir_str: String) -> bool:
 	return dir_str in ["up_left", "up_right", "down_left", "down_right"]
-
-func _get_run_dir(dir_str: String) -> String:
-	if dir_str == "up_left" or dir_str == "down_left":
-		return "left"
-	if dir_str == "up_right" or dir_str == "down_right":
-		return "right"
-	return dir_str
 
 
 func _get_dir_vector(dir_str: String) -> Vector2:

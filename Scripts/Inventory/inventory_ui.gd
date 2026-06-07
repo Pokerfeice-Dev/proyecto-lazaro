@@ -15,6 +15,8 @@ var inventory_slots: Array[UISlot] = []
 var current_tab: String = "INVENTORY" # "INVENTORY" or "CODEX"
 var current_filter: String = "ALL" # "ALL", "WEAPON", "BODY"
 var is_sorted_recent: bool = false
+var _is_animating: bool = false
+var _default_margin_pos_y: float = 80.0
 var selected_codex_category: String = "enemies" # "enemies", "weapons", "items", "npcs", "levels"
 
 # Codex Panel UI container
@@ -31,20 +33,70 @@ var tooltip_desc: RichTextLabel
 var tooltip_stats: RichTextLabel
 var tooltip_action: Label
 
-func _process(_delta: float) -> void:
-	check_toggle_input()
-
-func check_toggle_input() -> void:
-	if not Input.is_action_just_pressed("toggle_inventory"):
-		return
-	toggle_visibility()
+# Process method removed to handle all inputs via _input function.
 
 func toggle_visibility() -> void:
-	visible = !visible
-	get_tree().paused = visible
-	update_if_visible()
-	if not visible:
-		_hide_tooltip()
+	if _is_animating:
+		return
+	_toggle_state()
+
+func _toggle_state() -> void:
+	if visible:
+		_animate_close()
+	else:
+		_animate_open()
+
+func _animate_open() -> void:
+	_is_animating = true
+	visible = true
+	get_tree().paused = true
+	update_ui()
+	_start_open_tweens()
+
+func _start_open_tweens() -> void:
+	var start_y = get_viewport_rect().size.y
+	$MarginContainer.position.y = start_y
+	$Background.modulate.a = 0.0
+	
+	var slide_tween = create_tween()
+	slide_tween.tween_property($MarginContainer, "position:y", _default_margin_pos_y, 0.4)\
+		.set_trans(Tween.TRANS_BACK)\
+		.set_ease(Tween.EASE_OUT)
+	
+	var fade_tween = create_tween()
+	fade_tween.tween_property($Background, "modulate:a", 1.0, 0.3)\
+		.set_trans(Tween.TRANS_SINE)\
+		.set_ease(Tween.EASE_OUT)
+		
+	slide_tween.tween_callback(_on_open_animation_finished)
+
+func _on_open_animation_finished() -> void:
+	_is_animating = false
+
+func _animate_close() -> void:
+	_is_animating = true
+	_hide_tooltip()
+	_start_close_tweens()
+
+func _start_close_tweens() -> void:
+	var target_y = get_viewport_rect().size.y
+	
+	var slide_tween = create_tween()
+	slide_tween.tween_property($MarginContainer, "position:y", target_y, 0.45)\
+		.set_trans(Tween.TRANS_BACK)\
+		.set_ease(Tween.EASE_IN)
+	
+	var fade_tween = create_tween()
+	fade_tween.tween_property($Background, "modulate:a", 0.0, 0.35)\
+		.set_trans(Tween.TRANS_SINE)\
+		.set_ease(Tween.EASE_OUT)
+		
+	slide_tween.tween_callback(_on_close_animation_finished)
+
+func _on_close_animation_finished() -> void:
+	visible = false
+	get_tree().paused = false
+	_is_animating = false
 
 func update_if_visible() -> void:
 	if not visible:
@@ -61,6 +113,12 @@ func update_ui() -> void:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_auto_fetch_player_nodes()
+	_init_default_margin_position()
+
+func _init_default_margin_position() -> void:
+	var margin_node = get_node_or_null("MarginContainer")
+	if margin_node:
+		_default_margin_pos_y = margin_node.position.y
 	
 	# Wrap UI in tabs hierarchy
 	_build_tabs_hierarchy()
@@ -75,17 +133,39 @@ func _ready() -> void:
 	_setup_slots()
 
 func _input(event: InputEvent) -> void:
-	if not visible: return
-	if event.is_action_pressed("ui_cancel"):
-		toggle_visibility()
+	_handle_toggle_input(event)
+	_handle_menu_input(event)
+
+func _handle_toggle_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("toggle_inventory"):
+		return
+	toggle_visibility()
+	get_viewport().set_input_as_handled()
+
+func _handle_menu_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	_handle_cancel_input(event)
+	_handle_key_input(event)
+
+func _handle_cancel_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("ui_cancel"):
+		return
+	toggle_visibility()
+	get_viewport().set_input_as_handled()
+
+func _handle_key_input(event: InputEvent) -> void:
+	var key_event = event as InputEventKey
+	if not key_event:
+		return
+	if not key_event.pressed:
+		return
+	_process_menu_key(key_event.keycode)
+
+func _process_menu_key(keycode: int) -> void:
+	if keycode == KEY_F:
+		_toggle_sort_recent()
 		get_viewport().set_input_as_handled()
-	elif event is InputEventKey and event.pressed:
-		if event.keycode == KEY_I:
-			toggle_visibility()
-			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_F:
-			_toggle_sort_recent()
-			get_viewport().set_input_as_handled()
 
 func _toggle_sort_recent() -> void:
 	is_sorted_recent = !is_sorted_recent
