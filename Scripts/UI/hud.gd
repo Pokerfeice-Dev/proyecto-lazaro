@@ -109,12 +109,16 @@ func _initialize_health() -> void:
 
 func _setup_dash_cooldown() -> void:
 	if dash_cd_bar:
-		_assign_fallback_textures(dash_cd_bar)
+		_configure_existing_dash_bar(dash_cd_bar)
 		return
 	if _find_dash_bar_node():
-		_assign_fallback_textures(dash_cd_bar)
+		_configure_existing_dash_bar(dash_cd_bar)
 		return
 	_create_dash_bar_fallback()
+
+func _configure_existing_dash_bar(bar: TextureProgressBar) -> void:
+	if not bar.texture_under and not bar.texture_progress:
+		_assign_fallback_textures(bar)
 
 func _assign_fallback_textures(bar: TextureProgressBar) -> void:
 	if not bar.texture_under:
@@ -176,11 +180,13 @@ func _create_dash_label() -> Label:
 
 func _process(_delta: float) -> void:
 	var players = get_tree().get_nodes_in_group("player")
-	if players.is_empty(): return
+	if players.is_empty():
+		return
 	var p = players[0]
 	if "dash_cd_timer" in p and p.dash_cd_timer:
 		var time_left = 0.0 if p.dash_cd_timer.is_stopped() else p.dash_cd_timer.time_left
-		update_dash_cooldown(time_left, 5.0)
+		var max_time = p.dash_cd_timer.wait_time
+		update_dash_cooldown(time_left, max_time)
 	_update_weapons_hud(p)
 
 func _update_weapons_hud(p: Node2D) -> void:
@@ -246,18 +252,18 @@ func _create_dash_ready_tween() -> void:
 
 
 func update_health(new_health: int, max_health: int):
+	_update_health_bar_values(new_health, max_health)
+	_update_health_label_text(new_health, max_health)
+	_update_health_particles(new_health, max_health)
+
+func _update_health_bar_values(new_health: int, max_health: int) -> void:
 	if health_bar:
 		health_bar.max_value = max_health
 		health_bar.value = new_health
-		# Escalar la barra visualmente en base a la vida (100 = escala 1.0)
-		var target_scale = float(max_health) / 100.0
-		health_bar.scale.x = target_scale
-		
+
+func _update_health_label_text(new_health: int, max_health: int) -> void:
 	if health_label:
 		health_label.text = "%d / %d" % [new_health, max_health]
-
-		
-	_update_health_particles(new_health, max_health)
 
 func update_scrap(amount: int):
 	if scrap_label:

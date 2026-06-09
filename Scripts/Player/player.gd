@@ -535,10 +535,28 @@ func _update_facing_direction() -> void:
 
 
 func _play_player_sprite_animation() -> void:
-	if is_dashing or velocity.length() > 50:
+	if is_dashing:
+		_play_dash_animation()
+		return
+	if velocity.length() > 50:
 		_play_run_animation()
 		return
 	_play_idle_animation()
+
+func _play_dash_animation() -> void:
+	var suffix = _get_dash_dir_suffix(last_dir)
+	anim_sprite.play("Dash_" + suffix)
+
+func _get_dash_dir_suffix(dir_str: String) -> String:
+	if dir_str == "down_left":
+		return "left_down"
+	if dir_str == "up_left":
+		return "left_up"
+	if dir_str == "down_right":
+		return "right_down"
+	if dir_str == "up_right":
+		return "right_up"
+	return dir_str
 
 func _play_run_animation() -> void:
 	if _is_diagonal(last_dir):
