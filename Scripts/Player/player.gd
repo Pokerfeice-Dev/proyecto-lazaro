@@ -54,6 +54,7 @@ var weapon_hide_timer: Timer
 
 var active_weapon
 var second_weapon
+var _last_active_synergy_state: String = ""
 
 func _ready() -> void:
 	_init_timers()
@@ -82,6 +83,31 @@ func _update_player_stats() -> void:
 	var bonus_speed_percent = _get_equip_stat("move_speed_percent", false)
 	var flat_speed = _get_equip_stat("move_speed", false)
 	stats.move_speed = (stats.base_move_speed + flat_speed) * (1.0 + bonus_speed_percent)
+	
+	_apply_synergy_weapon_override()
+
+func _apply_synergy_weapon_override() -> void:
+	if not active_weapon:
+		return
+	if not active_weapon.has_method("apply_synergy_weapon_override"):
+		return
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_ranged_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	var override_path = SynergyManager.get_synergies_weapon_override(active_syns)
+	_print_synergy_debug_status(active_syns, override_path)
+	active_weapon.apply_synergy_weapon_override(override_path)
+
+func _print_synergy_debug_status(active_syns: Array[String], override_path: String) -> void:
+	var state_str = ",".join(active_syns) + ":" + override_path
+	if _last_active_synergy_state == state_str:
+		return
+	_last_active_synergy_state = state_str
+	
+	if active_syns.is_empty():
+		print("[SYNERGY DEBUG] No active synergies. Reverting to base weapon.")
+		return
+	print("[SYNERGY DEBUG] Active Synergies: ", active_syns, " | Weapon Override: ", override_path)
 
 func _init_timers() -> void:
 	_create_shoot_timer()
@@ -159,10 +185,10 @@ func _apply_game_data_upgrades() -> void:
 func _physics_process(delta: float) -> void:
 	_check_dash_input()
 	_process_movement(delta)
+	update_glock()
 	_process_actions()
 	move_and_slide()
 	update_animation()
-	update_glock()
 
 func _check_dash_input() -> void:
 	if not Input.is_action_just_pressed("dash"): return
@@ -276,18 +302,44 @@ func handle_shooting() -> void:
 
 func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 	var equip = get_node_or_null("Equipment")
-	if not equip: return 0.0
+	if not equip:
+		return 0.0
 	var bonus = 0.0
 	var char_stats = equip.get_character_stats()
-	if char_stats.has(stat_name): bonus += float(char_stats[stat_name])
+	if char_stats.has(stat_name):
+		bonus += float(char_stats[stat_name])
 	
 	if is_main:
 		var w_stats = equip.get_main_weapon_stats()
-		if w_stats.has(stat_name): bonus += float(w_stats[stat_name])
+		if w_stats.has(stat_name):
+			bonus += float(w_stats[stat_name])
 	else:
 		var w_stats = equip.get_secondary_weapon_stats()
-		if w_stats.has(stat_name): bonus += float(w_stats[stat_name])
+		if w_stats.has(stat_name):
+			bonus += float(w_stats[stat_name])
+			
+	var active_weapon_id = get_active_ranged_weapon_id() if is_main else get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	bonus += SynergyManager.get_synergies_stat_modifier(active_syns, stat_name)
 	return bonus
+
+func get_active_ranged_weapon_id() -> String:
+	if not active_weapon:
+		return ""
+	if active_weapon.has_method("get_base_weapon_id"):
+		return active_weapon.get_base_weapon_id()
+	var cur = active_weapon.get("current_weapon")
+	if not cur:
+		return ""
+	return cur.get("id") if "id" in cur else ""
+
+func get_active_melee_weapon_id() -> String:
+	if not second_weapon:
+		return ""
+	var cur = second_weapon.get("current_weapon")
+	if not cur:
+		return ""
+	return cur.get("id") if "id" in cur else ""
 
 func fire_projectile(dir: Vector2) -> void:
 	_show_primary_weapon()
@@ -323,7 +375,15 @@ func fire_projectile(dir: Vector2) -> void:
 		_play_weapon_effects()
 		fire_point = _get_weapon_mark(fire_point)
 
-	if not p_scene: return
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_ranged_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	var override_scene = SynergyManager.get_synergies_projectile_override(active_syns)
+	if override_scene:
+		p_scene = override_scene
+
+	if not p_scene:
+		return
 	shoot_timer.start(final_fire_rate)
 	_spawn_bullets(p_scene, bullets, spread, dir, dmg, p_speed, fire_point, piercing, crit_chance, crit_damage, lifetime)
 	apply_camera_shake()
@@ -433,6 +493,51 @@ func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle:
 	if "speed" in proj: proj.speed = p_speed
 	if "piercing" in proj: proj.piercing = piercing
 	if "lifetime" in proj: proj.lifetime = lifetime
+	_assign_homing_target_if_supported(proj)
+
+func _assign_homing_target_if_supported(proj: Node2D) -> void:
+	if not proj.has_method("set_homing_target"):
+		return
+	var target = _get_cone_target_enemy()
+	if target:
+		proj.set_homing_target(target)
+
+func _get_cone_target_enemy() -> Node2D:
+	if not active_weapon:
+		return null
+	var cur = active_weapon.get("current_weapon")
+	if not cur:
+		return null
+	var cone_aim = _get_cone_aim_node(cur)
+	if not cone_aim:
+		return null
+		
+	# Programmatic safety configuration
+	cone_aim.monitoring = true
+	cone_aim.collision_mask = 2 # Detect enemies (layer 2)
+	
+	var bodies = cone_aim.get_overlapping_bodies()
+	var target = _find_closest_enemy_in_list(bodies)
+	print("[CONE AIM DEBUG] Overlapping bodies: ", bodies.size(), " | Selected Homing Target: ", target.name if target else "None")
+	return target
+
+func _get_cone_aim_node(cur: Node) -> Area2D:
+	var node = cur.get_node_or_null("Cone_Aim")
+	if not node:
+		node = cur.get_node_or_null("cone_aim")
+	return node as Area2D
+
+func _find_closest_enemy_in_list(bodies: Array) -> Node2D:
+	var closest: Node2D = null
+	var min_dist = INF
+	for body in bodies:
+		if not body.is_in_group("enemy"):
+			continue
+		var dist = global_position.distance_to(body.global_position)
+		if dist < min_dist:
+			min_dist = dist
+			closest = body
+	return closest
 
 func apply_camera_shake() -> void:
 	var camera = get_viewport().get_camera_2d()
@@ -780,3 +885,47 @@ func _setup_hide_death_animation(t: Tween, bg: ColorRect, lbl: Label, sub: Label
 func _on_death_animation_finished(canvas: CanvasLayer) -> void:
 	canvas.queue_free()
 	SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
+
+func _unhandled_input(event: InputEvent) -> void:
+	_handle_debug_cheats(event)
+
+func _handle_debug_cheats(event: InputEvent) -> void:
+	if not event is InputEventKey:
+		return
+	if not event.pressed:
+		return
+	_process_debug_keycode(event.keycode)
+
+func _process_debug_keycode(keycode: int) -> void:
+	if keycode == KEY_F1:
+		_cheat_synergy_items()
+	if keycode == KEY_F2:
+		_cheat_roadkill_items()
+
+func _cheat_synergy_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var colmena = load("res://Art/Items/Weapons/Item7_Colmena.tres") as ItemData
+	var cerebro = load("res://Art/Items/Weapons/Item3.tres") as ItemData
+	var cabeza = load("res://Art/Items/Weapons/Item8_CabezaHumana.tres") as ItemData
+	_add_item_if_valid(inventory_node, colmena)
+	_add_item_if_valid(inventory_node, cerebro)
+	_add_item_if_valid(inventory_node, cabeza)
+	print("Cheated items added to inventory!")
+
+func _cheat_roadkill_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var moto = load("res://Art/Items/Weapons/Item6.tres") as ItemData
+	var pulmones = load("res://Art/Items/Weapons/Item5.tres") as ItemData
+	var sierra = load("res://Art/Items/Weapons/Item9_SierraCircular.tres") as ItemData
+	_add_item_if_valid(inventory_node, moto)
+	_add_item_if_valid(inventory_node, pulmones)
+	_add_item_if_valid(inventory_node, sierra)
+	print("Roadkill cheated items added to inventory!")
+
+func _add_item_if_valid(inventory_node: Node, item: ItemData) -> void:
+	if item:
+		inventory_node.add_item(item)

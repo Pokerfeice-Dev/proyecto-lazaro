@@ -40,6 +40,7 @@ animation = &"idle"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722064]
 stream = ExtResource("3_7vofb")
+pitch_scale = 1.4
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1778873977]
 position = Vector2(16, -2)

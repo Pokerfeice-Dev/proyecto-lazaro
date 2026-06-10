@@ -6,6 +6,8 @@ extends Node2D
 @export var shotgun_scene: PackedScene = preload("res://Scenes/Weapon/shotgun.tscn")
 
 var current_weapon: Node2D = null
+var _base_weapon_scene: PackedScene = null
+var _current_override_path: String = ""
 
 const PISTOL_BASE: Dictionary = {
 	"damage": 10.0,
@@ -100,12 +102,57 @@ func _load_default_weapon() -> void:
 func switch_weapon(new_weapon_scene: PackedScene) -> void:
 	if not new_weapon_scene:
 		return
+	_base_weapon_scene = new_weapon_scene
+	_current_override_path = ""
 	_unlock_weapon_codex(new_weapon_scene)
 	_remove_current_weapon()
 	_instantiate_and_add_weapon(new_weapon_scene)
 	_align_weapon_mark()
 	_cache_base_stats()
 	_apply_current_upgrades_to_weapon()
+	_check_and_apply_initial_synergy_override()
+
+func _check_and_apply_initial_synergy_override() -> void:
+	var player = get_parent()
+	if not player:
+		return
+	var equip = player.get_node_or_null("Equipment")
+	if not equip:
+		return
+	var active_weapon_id = player.get_active_ranged_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	var override_path = SynergyManager.get_synergies_weapon_override(active_syns)
+	if override_path != "":
+		apply_synergy_weapon_override(override_path)
+
+func apply_synergy_weapon_override(override_path: String) -> void:
+	if _current_override_path == override_path:
+		return
+	_current_override_path = override_path
+	_apply_synergy_weapon_override_scene(override_path)
+
+func _apply_synergy_weapon_override_scene(override_path: String) -> void:
+	if override_path != "":
+		_instantiate_override(override_path)
+		return
+	_restore_base_weapon()
+
+func _instantiate_override(override_path: String) -> void:
+	var override_scene = load(override_path) as PackedScene
+	if override_scene:
+		_remove_current_weapon()
+		_instantiate_and_add_weapon(override_scene)
+		_align_weapon_mark()
+		_cache_base_stats()
+		_apply_current_upgrades_to_weapon()
+
+func _restore_base_weapon() -> void:
+	if _base_weapon_scene:
+		_remove_current_weapon()
+		_instantiate_and_add_weapon(_base_weapon_scene)
+		_align_weapon_mark()
+		_cache_base_stats()
+		_apply_current_upgrades_to_weapon()
 
 func _unlock_weapon_codex(scene: PackedScene) -> void:
 	if not GameData.has_method("unlock_codex_entry"): return
@@ -270,3 +317,16 @@ func _shift_child_node(child: Node, offset: Vector2) -> void:
 	var node_2d = child as Node2D
 	if node_2d:
 		node_2d.position -= offset
+
+func get_base_weapon_id() -> String:
+	if _base_weapon_scene:
+		var path = _base_weapon_scene.resource_path.to_lower()
+		if "pistol" in path:
+			return "pistol"
+		if "uzi" in path:
+			return "uzi"
+		if "shotgun" in path:
+			return "shotgun"
+	if current_weapon and "id" in current_weapon:
+		return current_weapon.id
+	return ""

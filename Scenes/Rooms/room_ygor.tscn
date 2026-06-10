@@ -1,4 +1,4 @@
-[gd_scene format=4 uid="uid://deihqw1g74ixp"]
+[gd_scene format=4 uid="uid://b7xm40486xpqo"]
 
 [ext_resource type="Script" uid="uid://dw3bw0fbbmatu" path="res://Scripts/World/ygor_room.gd" id="1_45ixe"]
 [ext_resource type="TileSet" uid="uid://crs88nnfgs0gw" path="res://Scenes/Rooms/Floor.tres" id="1_aqwc8"]

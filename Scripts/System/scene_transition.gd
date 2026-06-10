@@ -82,12 +82,12 @@ func _handle_scene_music(path: String) -> void:
 	if "mainmenu" in scene_name or "newgame" in scene_name:
 		play_main_music()
 		stop_combat_music()
+	elif "ygor" in scene_name or "lab_room" in scene_name:
+		stop_main_music()
+		stop_combat_music()
 	elif "level1_room" in scene_name:
 		play_combat_music()
 		stop_main_music()
-	elif "lab_room" in scene_name or "room_ygor" in scene_name:
-		stop_main_music()
-		stop_combat_music()
 
 func change_scene(path: String) -> void:
 	if is_transitioning:

@@ -17,14 +17,21 @@ func setup(dir: Vector2, dmg: float, target: String, crit: bool = false):
 	is_crit = crit
 	rotation = direction.angle()
 
-func _ready():
+func _ready() -> void:
+	body_entered.connect(_on_body_entered)
+	_start_lifetime_timer()
+
+func _start_lifetime_timer() -> void:
+	await get_tree().physics_frame
+	_create_and_start_timer()
+
+func _create_and_start_timer() -> void:
 	var timer = Timer.new()
 	timer.one_shot = true
 	timer.timeout.connect(queue_free)
 	add_child(timer)
 	timer.start(lifetime)
-	
-	body_entered.connect(_on_body_entered)
+
 
 func _physics_process(delta):
 	global_position += direction * speed * delta

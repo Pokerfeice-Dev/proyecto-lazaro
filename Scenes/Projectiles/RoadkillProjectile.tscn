@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://d3dg7sikr420q"]
+
+[ext_resource type="Script" uid="uid://bdx4gwoaeaap" path="res://Scripts/Projectiles/roadkill_projectile.gd" id="1_road"]
+[ext_resource type="Texture2D" uid="uid://dkrbe1n1ijdy7" path="res://Art/Items/Weapons/Item9_SierraCircular.png" id="3_7pk8s"]
+[ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="3_vku8s"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
+radius = 2.0
+
+[node name="Projectile" type="Area2D" unique_id=1955768555]
+texture_filter = 1
+collision_layer = 8
+collision_mask = 7
+script = ExtResource("1_road")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1783107775]
+color = Color(0.3137255, 0.5686275, 1, 1)
+energy = 0.3
+shadow_color = Color(0, 0, 0, 0.69803923)
+shadow_filter_smooth = 2.5
+texture = ExtResource("3_vku8s")
+texture_scale = 0.4
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2208952]
+modulate = Color(1, 0.14117648, 0, 1)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("3_7pk8s")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=186395578]
+scale = Vector2(3.3643477, 3.3643477)
+shape = SubResource("CircleShape2D_proj")

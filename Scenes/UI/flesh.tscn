@@ -107,11 +107,11 @@ script = ExtResource("1_bhe41")
 
 [node name="flesh_sprite" type="Sprite2D" parent="." unique_id=1764180436]
 texture_filter = 1
-scale = Vector2(0.15, 0.15)
+scale = Vector2(2, 2)
 texture = ExtResource("2_bhe41")
 
 [node name="PointLight2D" type="PointLight2D" parent="flesh_sprite" unique_id=373406519]
-position = Vector2(0, 44.44444)
+position = Vector2(0, 3.8146973e-06)
 scale = Vector2(6.6666675, 6.6666675)
 color = Color(1, 0, 0, 1)
 energy = 0.5

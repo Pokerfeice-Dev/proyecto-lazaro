@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://bmla14hf5edko"]
+
+[ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_weapn"]
+[ext_resource type="Texture2D" uid="uid://b22s0vvo81u6d" path="res://Art/Weapons/Distance/Pistol/Roadkill/synergy_roadkill_sprite.png" id="2_aw5dr"]
+[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="2_sstvh"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_mkhcp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_aw5dr")
+}],
+"loop": false,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_aw5dr")
+}],
+"loop": false,
+"name": &"shoot",
+"speed": 24.0
+}]
+
+[node name="RoadkillPistol" type="Node2D" unique_id=1627227962]
+script = ExtResource("1_weapn")
+id = "roadkill_pistol"
+projectile_speed = 550.0
+
+[node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=341135823]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_mkhcp")
+animation = &"idle"
+
+[node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=1249833405]
+stream = ExtResource("2_sstvh")
+
+[node name="Weapon_mark" type="Marker2D" parent="." unique_id=832653662]
+position = Vector2(-11, 10)
+
+[node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=990737132]
+position = Vector2(17, 2)
+
+[node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=641237464]
+position = Vector2(-19, 2)

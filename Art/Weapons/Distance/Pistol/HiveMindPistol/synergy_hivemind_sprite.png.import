@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vtlosvww8q0n"
-path="res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"
+uid="uid://8ihw4vsg24vr"
+path="res://.godot/imported/synergy_hivemind_sprite.png-1221a48fa276d99f0e7ae5ca565b9978.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Lights/White_light.png"
-dest_files=["res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"]
+source_file="res://Art/Weapons/Distance/Pistol/HiveMindPistol/synergy_hivemind_sprite.png"
+dest_files=["res://.godot/imported/synergy_hivemind_sprite.png-1221a48fa276d99f0e7ae5ca565b9978.ctex"]
 
 [params]
 

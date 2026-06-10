@@ -29,7 +29,7 @@ const DATA = {
 	},
 	"weapons": {
 		"pistol": {
-			"name": "Pistola Glock-18",
+			"name": "Pistola",
 			"lore": "Arma corta estándar y confiable del personal táctico. Versátil y ligera.",
 			"stats": "Daño: 10 | APS: 1.0 | Precisión: Alta",
 			"icon": preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
@@ -125,6 +125,24 @@ const DATA = {
 			"lore": "Micro-motor de combustión adaptado para forzar la potencia del armamento.",
 			"stats": "Potente aumento al daño y empuje general.",
 			"icon": preload("res://Art/Items/Weapons/Item6_Motocicleta.png")
+		},
+		"colmena": {
+			"name": "Colmena Bio-Mecánica",
+			"lore": "Un enjambre artificial encapsulado capaz de liberar micro-drones defensivos.",
+			"stats": "Aumenta la probabilidad de impacto crítico.",
+			"icon": preload("res://Art/Items/Weapons/Item7_Colmena.png")
+		},
+		"cabeza_humana": {
+			"name": "Cabeza Humana Preservada",
+			"lore": "Un cerebro intacto suspendido en solución de nutrientes, optimizando la concentración táctica.",
+			"stats": "Aumenta el conteo de proyectiles y el daño general.",
+			"icon": preload("res://Art/Items/Weapons/Item8_CabezaHumana.png")
+		},
+		"sierra_circular": {
+			"name": "Sierra Circular",
+			"lore": "Un disco de acero dentado de alta velocidad para cortar metal y carne.",
+			"stats": "Aumenta el daño y el daño crítico.",
+			"icon": preload("res://Art/Items/Weapons/Item9_SierraCircular.png")
 		}
 	},
 	"npcs": {

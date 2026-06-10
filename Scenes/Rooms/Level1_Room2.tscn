@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://dbumaob13vcye" path="res://Art/Teleport/pipo-mapeffect022_480.png" id="5_a7fd0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
-size = Vector2(370, 412)
+size = Vector2(370, 416.01263)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_h7aqu"]
 atlas = ExtResource("5_a7fd0")
@@ -206,7 +206,7 @@ position = Vector2(16, 103.00001)
 scale = Vector2(3.0042567, 3.0042567)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area_entered" unique_id=224920988]
-position = Vector2(-31, -16)
+position = Vector2(-31, -18.00632)
 shape = SubResource("RectangleShape2D_476il")
 
 [node name="Teleport_run" type="AnimatedSprite2D" parent="." unique_id=630333646]

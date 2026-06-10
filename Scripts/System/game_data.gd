@@ -98,7 +98,7 @@ func check_for_ygor_room() -> String:
 func roll_for_ygor_room() -> String:
 	var roll: float = randf()
 	if roll < 0.5:
-		return "res://Scenes/Rooms/room_ygor.tscn"
+		return "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"
 	return get_random_room_from_pool()
 
 func get_random_room_from_pool() -> String:

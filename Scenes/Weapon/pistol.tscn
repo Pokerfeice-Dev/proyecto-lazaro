@@ -82,10 +82,10 @@ frame_progress = 1.0
 stream = ExtResource("2_sstvh")
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1844449701]
-position = Vector2(-21, -2)
+position = Vector2(17, -3)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=1604435276]
-position = Vector2(21, -2)
+position = Vector2(-19, -3)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=832653660]
 position = Vector2(-9, 4)

@@ -7,6 +7,7 @@ class_name MeleeWeaponBase
 @export var attack_fx: AnimatedSprite2D
 
 @export_category("Melee Stats")
+@export var id: String = ""
 @export var damage: int = 15
 @export var attack_speed: float = 1.0
 @export var attack_range: float = 1.0
@@ -28,10 +29,25 @@ var attack_sounds: Array[AudioStream] = [
 var audio_player: AudioStreamPlayer2D
 
 func _ready() -> void:
+	_initialize_id()
 	_init_audio_player()
 	_init_collision()
 	_init_attack_fx()
 	rotation = deg_to_rad(sprite_rotation_offset)
+
+func _initialize_id() -> void:
+	if id == "":
+		id = _get_id_from_name()
+
+func _get_id_from_name() -> String:
+	var lower_name = name.to_lower()
+	if "daga" in lower_name or "dagger" in lower_name:
+		return "daga"
+	if "maze" in lower_name or "mace" in lower_name:
+		return "maze"
+	if "hacha" in lower_name or "axe" in lower_name:
+		return "hacha"
+	return lower_name
 
 func _init_audio_player() -> void:
 	audio_player = AudioStreamPlayer2D.new()

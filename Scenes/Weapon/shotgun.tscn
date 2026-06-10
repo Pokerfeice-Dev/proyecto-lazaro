@@ -40,6 +40,7 @@ animation = &"shoot"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722064]
 stream = ExtResource("3_c65gu")
+pitch_scale = 0.7
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=759694844]
 position = Vector2(18, -2)

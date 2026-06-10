@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c2w02wij8ne2x"]
 
 [ext_resource type="Script" uid="uid://dyvd64rix26ac" path="res://Scripts/Projectiles/projectile.gd" id="1_proj"]
-[ext_resource type="Texture2D" uid="uid://bamg82d46j1if" path="res://Art/Weapons/Distance/Glock - P80/Casing & Bullet.png" id="2_qupxw"]
+[ext_resource type="Texture2D" uid="uid://cmjgf07ct5v5r" path="res://Art/Weapons/Distance/Pistol/normalprojectile16x6.png" id="3_76vf1"]
 [ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="3_vku8s"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
@@ -22,9 +22,7 @@ texture = ExtResource("3_vku8s")
 texture_scale = 0.4
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2208951]
-modulate = Color(1, 0.34657717, 0.2800086, 1)
-scale = Vector2(2, 2)
-texture = ExtResource("2_qupxw")
+texture = ExtResource("3_76vf1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=186395577]
 scale = Vector2(3.3643477, 3.3643477)

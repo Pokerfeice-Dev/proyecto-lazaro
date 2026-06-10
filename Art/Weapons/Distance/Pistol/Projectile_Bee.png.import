@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vtlosvww8q0n"
-path="res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"
+uid="uid://dlrxejag7y3es"
+path="res://.godot/imported/Projectile_Bee.png-b15dabd55b93a8fd0167059b269336b3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Lights/White_light.png"
-dest_files=["res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"]
+source_file="res://Art/Weapons/Distance/Pistol/Projectile_Bee.png"
+dest_files=["res://.godot/imported/Projectile_Bee.png-b15dabd55b93a8fd0167059b269336b3.ctex"]
 
 [params]
 

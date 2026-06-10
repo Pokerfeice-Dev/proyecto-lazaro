@@ -7,6 +7,7 @@ class_name WeaponBase
 @export var bullet_mark: Node2D
 
 @export_category("Weapon Stats")
+@export var id: String = ""
 @export var projectile_scene: PackedScene = preload("res://Scenes/Projectiles/Projectile.tscn")
 @export var damage: float = 10.0
 @export var projectile_speed: float = 600.0
@@ -65,3 +66,17 @@ func get_bullet_spawn_pos(fallback: Vector2) -> Vector2:
 	if bullet_mark:
 		return bullet_mark.global_position
 	return fallback
+
+func _ready() -> void:
+	if id == "":
+		id = _get_id_from_name()
+
+func _get_id_from_name() -> String:
+	var lower_name = name.to_lower()
+	if "pistol" in lower_name:
+		return "pistol"
+	if "uzi" in lower_name:
+		return "uzi"
+	if "shotgun" in lower_name:
+		return "shotgun"
+	return lower_name

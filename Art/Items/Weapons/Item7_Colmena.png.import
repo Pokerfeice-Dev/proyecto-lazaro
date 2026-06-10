@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vtlosvww8q0n"
-path="res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"
+uid="uid://duchctiup3qy"
+path="res://.godot/imported/Item7_Colmena.png-3bc40def5aabcd4254b6e0c07d3a19da.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Lights/White_light.png"
-dest_files=["res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"]
+source_file="res://Art/Items/Weapons/Item7_Colmena.png"
+dest_files=["res://.godot/imported/Item7_Colmena.png-3bc40def5aabcd4254b6e0c07d3a19da.ctex"]
 
 [params]
 

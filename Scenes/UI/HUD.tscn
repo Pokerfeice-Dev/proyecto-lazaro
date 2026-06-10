@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://mpouyawdwg70"]
 
 [ext_resource type="Script" uid="uid://4fd7xw83wlms" path="res://Scripts/UI/hud.gd" id="1_hud"]
-[ext_resource type="Texture2D" uid="uid://cgccjwr5cwj41" path="res://Art/Scrap/Scrap_icon.png" id="4_4bm6u"]
+[ext_resource type="Texture2D" uid="uid://c60eaa82nh8jw" path="res://Art/Scrap/scrap_icon.png" id="4_i4i0y"]
 [ext_resource type="LabelSettings" uid="uid://dbjmlonrgm51f" path="res://Art/Fonts/Base_exo2.tres" id="5_1ree7"]
 [ext_resource type="Texture2D" uid="uid://ctxno55xakxhw" path="res://Art/HUD/hudbg.png" id="5_i4i0y"]
 [ext_resource type="PackedScene" uid="uid://iwiggne1g58n" path="res://Scenes/UI/inventory_ui.tscn" id="5_ykvyr"]
@@ -84,7 +84,7 @@ horizontal_alignment = 2
 [node name="Scrap_icon" type="TextureRect" parent="Control/CurrencyContainer/Scrap_container" unique_id=612468089]
 texture_filter = 1
 layout_mode = 2
-texture = ExtResource("4_4bm6u")
+texture = ExtResource("4_i4i0y")
 expand_mode = 2
 
 [node name="WeaponHUD" type="Control" parent="Control" unique_id=-1294967296]
@@ -178,6 +178,7 @@ value = 5.0
 texture_progress = ExtResource("8_eebq5")
 
 [node name="HealthParticles" type="CPUParticles2D" parent="." unique_id=481555703]
+visible = false
 position = Vector2(129, 78.00001)
 scale = Vector2(1.3, 1.3)
 amount = 40
