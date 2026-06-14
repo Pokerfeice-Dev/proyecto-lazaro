@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://7l31lhldop1n"]
+
+[ext_resource type="Script" uid="uid://dtngvvfiesiq5" path="res://Scripts/Enemies/boss1.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://sao67yc6i46k" path="res://Art/Enemy_Boss_1/Boss_sprite.png" id="2_sprite"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kcty2"]
+size = Vector2(132, 137)
+
+[node name="Boss" type="CharacterBody2D" unique_id=75827422]
+collision_layer = 2
+collision_mask = 7
+script = ExtResource("1_script")
+boss_damage = 30
+projectile_ring_count = 60
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2135203738]
+scale = Vector2(3, 3)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1177821933]
+position = Vector2(1, -4.5)
+shape = SubResource("RectangleShape2D_kcty2")
+debug_color = Color(0.92156863, 0, 0, 0.41960785)
+
+[node name="Muzzle_left" type="Marker2D" parent="." unique_id=326610499]
+position = Vector2(-23, -15)
+
+[node name="Muzzle_right" type="Marker2D" parent="." unique_id=2082111614]
+position = Vector2(23, -15)
+
+[node name="Muzzle_center" type="Marker2D" parent="." unique_id=1589241701]
+position = Vector2(0, 20)

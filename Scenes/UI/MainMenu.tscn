@@ -1,12 +1,11 @@
 [gd_scene format=3 uid="uid://cc1lqc7wlyhbn"]
 
 [ext_resource type="Script" uid="uid://c0xixgojs3dqw" path="res://Scripts/UI/main_menu.gd" id="1_mm"]
-[ext_resource type="Texture2D" uid="uid://bhq4mfk3luea5" path="res://Art/Menu/Imagen fondo.png" id="2_jex3y"]
 [ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://Art/Menu/Logo lazaro.png" id="3_744d7"]
+[ext_resource type="Texture2D" uid="uid://duywrj8qr6s4u" path="res://Art/Menu/Wall.jpg" id="3_jex3y"]
 [ext_resource type="AudioStream" uid="uid://e3bms8u37ppr" path="res://Audio/Sfx/Fantasy_UI (8).wav" id="4_t6w0q"]
 [ext_resource type="AudioStream" uid="uid://bnlysd01ewdpi" path="res://Audio/Sfx/Piano_Ui (2).wav" id="6_kl3t2"]
-[ext_resource type="Theme" path="res://Art/Ui/game_theme.tres" id="7_theme"]
-
+[ext_resource type="Theme" uid="uid://vjygo4dmal04" path="res://Art/Ui/game_theme.tres" id="7_theme"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_rain"]
 particle_flag_align_y = true
@@ -52,7 +51,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("2_jex3y")
+texture = ExtResource("3_jex3y")
 
 [node name="RainParticles" type="GPUParticles2D" parent="." unique_id=2024042601]
 position = Vector2(960, -50)
@@ -70,6 +69,7 @@ preprocess = 10.0
 process_material = SubResource("ParticleProcessMaterial_snow")
 
 [node name="Logo" type="TextureRect" parent="." unique_id=1034622863]
+visible = false
 layout_mode = 0
 offset_left = -106.0
 offset_top = 18.0

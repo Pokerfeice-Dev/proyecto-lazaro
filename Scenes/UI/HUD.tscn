@@ -9,6 +9,53 @@
 [ext_resource type="Texture2D" uid="uid://c2vm16gvoykkt" path="res://Art/HUD/hudhealthbar.png" id="7_pydgx"]
 [ext_resource type="Texture2D" uid="uid://3igxvpgfyfeo" path="res://Art/HUD/hudstaminabar.png" id="8_eebq5"]
 [ext_resource type="Texture2D" uid="uid://b06510pa6633t" path="res://Art/Flesh/Flesh_icon.png" id="9_flesh_icon"]
+[ext_resource type="FontFile" uid="uid://cxpt1p2k7cuah" path="res://Art/Fonts/Dekatron-SemiBold.otf" id="9_yenib"]
+
+[sub_resource type="Animation" id="Animation_pydgx"]
+resource_name = "Intro_room"
+length = 3.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Name_room:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.7, 1.3, 2, 2.7, 3),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-700, 528.5), Vector2(900, 528.5), Vector2(940, 528.5), Vector2(980, 528.5), Vector2(1926, 528.5)]
+}
+
+[sub_resource type="Animation" id="Animation_eebq5"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Name_room:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-432, 528.5)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_18ujm"]
+_data = {
+&"Intro_room": SubResource("Animation_pydgx"),
+&"RESET": SubResource("Animation_eebq5")
+}
+
+[sub_resource type="LabelSettings" id="LabelSettings_jt2rc"]
+font = ExtResource("9_yenib")
+font_size = 72
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 8
+shadow_color = Color(0, 0, 0, 0.64705884)
+shadow_offset = Vector2(4, 4)
 
 [node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label", "flesh_label", "dash_cd_bar", "health_label", "health_particles", "primary_weapon_rect", "secondary_weapon_rect")]
 script = ExtResource("1_hud")
@@ -176,6 +223,37 @@ max_value = 5.0
 step = 0.05
 value = 5.0
 texture_progress = ExtResource("8_eebq5")
+
+[node name="Intro_room" type="Control" parent="Control" unique_id=838477063]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Control/Intro_room" unique_id=1329000709]
+libraries/ = SubResource("AnimationLibrary_18ujm")
+autoplay = &"Intro_room"
+
+[node name="Name_room" type="Label" parent="Control/Intro_room" unique_id=816338210]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1392.0
+offset_top = -11.5
+offset_right = -743.99994
+offset_bottom = 63.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Ciudad Asphodel"
+label_settings = SubResource("LabelSettings_jt2rc")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 1
 
 [node name="HealthParticles" type="CPUParticles2D" parent="." unique_id=481555703]
 visible = false

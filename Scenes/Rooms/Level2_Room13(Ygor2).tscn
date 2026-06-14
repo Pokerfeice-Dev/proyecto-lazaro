@@ -159,7 +159,7 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3rs20"]
 
-[node name="Room_3" type="Node2D" unique_id=836593513]
+[node name="Room_13" type="Node2D" unique_id=836593513]
 script = ExtResource("1_bnc0w")
 
 [node name="Floor" type="TileMapLayer" parent="." unique_id=259221729]

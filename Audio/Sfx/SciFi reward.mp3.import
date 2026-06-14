@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bcivbw5brok5l"
+path="res://.godot/imported/SciFi reward.mp3-2526e09f559c2bff0695af819c9a505f.mp3str"
+
+[deps]
+
+source_file="res://Audio/Sfx/SciFi reward.mp3"
+dest_files=["res://.godot/imported/SciFi reward.mp3-2526e09f559c2bff0695af819c9a505f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

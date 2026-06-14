@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://dm0bpe3uij4d7"]
+
+[ext_resource type="Script" path="res://Scripts/NPC/treasure_hologram.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b4j1qy7wlaw1o" path="res://Art/Ygor/Ygor_hologram_item.png" id="2_pedestal"]
+[ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="3_font"]
+[ext_resource type="AudioStream" uid="uid://dnsadsf7qssny" path="res://Audio/Sfx/Interact_reward.mp3" id="4_sfx"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_treasure"]
+radius = 35.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_treasure"]
+font = ExtResource("3_font")
+font_size = 10
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+shadow_color = Color(0, 0, 0, 0.64705884)
+
+[node name="TreasureHologram" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_pedestal")
+
+[node name="Item_sprite" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -26)
+
+[node name="item_marker" type="Marker2D" parent="."]
+position = Vector2(0, -10)
+
+[node name="InteractArea" type="Area2D" parent="."]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+shape = SubResource("CircleShape2D_treasure")
+
+[node name="Label" type="Label" parent="."]
+texture_filter = 1
+offset_left = -100.0
+offset_top = -62.0
+offset_right = 100.0
+offset_bottom = -39.0
+theme_override_font_sizes/font_size = 11
+text = "Vida
+Recompensa"
+label_settings = SubResource("LabelSettings_treasure")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Interact" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_sfx")

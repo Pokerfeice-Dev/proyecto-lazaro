@@ -201,6 +201,7 @@ func _start_dash() -> void:
 	dash_timer.start(dash_duration)
 	dash_cd_timer.start(5.0)
 	_set_dash_direction()
+	_play_dash_sound()
 
 func _set_dash_direction() -> void:
 	if velocity == Vector2.ZERO:
@@ -790,7 +791,16 @@ func _on_died() -> void:
 	process_mode = Node.PROCESS_MODE_DISABLED
 	hide()
 	GameData.clear_items()
+	_play_death_sound()
 	_show_death_screen()
+
+func _play_death_sound() -> void:
+	var sfx_player = AudioStreamPlayer.new()
+	sfx_player.stream = load("res://Audio/Sfx/death_5_sean.wav")
+	sfx_player.bus = "Master"
+	get_tree().root.add_child(sfx_player)
+	sfx_player.play()
+	sfx_player.finished.connect(sfx_player.queue_free)
 
 func _show_death_screen() -> void:
 	var overlay = _build_death_overlay()
@@ -929,3 +939,9 @@ func _cheat_roadkill_items() -> void:
 func _add_item_if_valid(inventory_node: Node, item: ItemData) -> void:
 	if item:
 		inventory_node.add_item(item)
+
+func _play_dash_sound() -> void:
+	var dash_sound = get_node_or_null("Dash")
+	if not dash_sound: return
+	if not dash_sound.has_method("play"): return
+	dash_sound.play()

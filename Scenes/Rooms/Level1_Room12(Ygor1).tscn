@@ -5,9 +5,8 @@
 [ext_resource type="PackedScene" uid="uid://ceio6dbqyn8vp" path="res://Scenes/Rooms/Block/door_block.tscn" id="3_sgn2u"]
 [ext_resource type="Texture2D" uid="uid://dbumaob13vcye" path="res://Art/Teleport/pipo-mapeffect022_480.png" id="4_ipnfo"]
 [ext_resource type="PackedScene" uid="uid://c0l1odf8nhvug" path="res://Scenes/Ygor/ygor.tscn" id="5_rb3g3"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
-size = Vector2(105.1841, 146.45886)
+[ext_resource type="PackedScene" uid="uid://b2pe8uij4d7me" path="res://Scenes/Ygor/hologram_ygor_store.tscn" id="6_sgn2u"]
+[ext_resource type="AudioStream" uid="uid://d3to3j5tgxj5x" path="res://Audio/Music/Shadow Selection.mp3" id="7_ipnfo"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_h7aqu"]
 atlas = ExtResource("4_ipnfo")
@@ -186,14 +185,6 @@ position = Vector2(-308, 337)
 [node name="player_spawn" type="Marker2D" parent="." unique_id=710814380]
 position = Vector2(686, -332)
 
-[node name="Area_entered" type="Area2D" parent="." unique_id=1434913802]
-position = Vector2(395, -359)
-scale = Vector2(3.0042567, 3.0042567)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area_entered" unique_id=415079304]
-position = Vector2(31.954662, -22.967415)
-shape = SubResource("RectangleShape2D_476il")
-
 [node name="Teleport_run" type="AnimatedSprite2D" parent="." unique_id=182830254]
 position = Vector2(187, -351.00003)
 scale = Vector2(0.24583334, 0.24583334)
@@ -207,4 +198,19 @@ scale = Vector2(20.675964, 20.675964)
 shape = SubResource("RectangleShape2D_3rs20")
 
 [node name="Ygor" parent="." unique_id=1238236140 instance=ExtResource("5_rb3g3")]
-position = Vector2(474, -495)
+position = Vector2(370, -539)
+
+[node name="Hologram_Ygor_Store" parent="." unique_id=1938933035 instance=ExtResource("6_sgn2u")]
+position = Vector2(465, -523)
+
+[node name="Hologram_Ygor_Store2" parent="." unique_id=262316691 instance=ExtResource("6_sgn2u")]
+position = Vector2(559, -523)
+
+[node name="Hologram_Ygor_Store3" parent="." unique_id=1779426002 instance=ExtResource("6_sgn2u")]
+position = Vector2(655, -523)
+
+[node name="Ygor_music" type="AudioStreamPlayer" parent="." unique_id=1577821942]
+stream = ExtResource("7_ipnfo")
+volume_db = -3.0
+autoplay = true
+parameters/looping = true

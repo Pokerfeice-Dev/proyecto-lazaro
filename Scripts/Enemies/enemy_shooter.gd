@@ -20,6 +20,8 @@ var shoot_timer: Timer
 var player_in_shoot_range: bool = false
 var player_in_detect_range: bool = false
 
+@onready var attack_sound: AudioStreamPlayer2D = $Attack_sound
+
 func _ready() -> void:
 	super._ready()
 	move_speed = 120.0
@@ -27,6 +29,12 @@ func _ready() -> void:
 	_setup_shoot_timer()
 	current_state = State.WANDER
 	_pick_new_wander_direction()
+
+func _play_attack_sound() -> void:
+	if attack_sound:
+		attack_sound.play()
+
+
 
 func _setup_shoot_timer() -> void:
 	shoot_timer = Timer.new()
@@ -136,3 +144,4 @@ func shoot_at_target() -> void:
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = global_position
 	proj.setup(dir, damage, "player")
+	_play_attack_sound()

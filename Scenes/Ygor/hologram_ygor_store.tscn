@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://b2pe8uij4d7me"]
+
+[ext_resource type="Texture2D" uid="uid://b4j1qy7wlaw1o" path="res://Art/Ygor/Ygor_hologram_item.png" id="1_68pat"]
+[ext_resource type="Script" uid="uid://bprcgdn2xrjgd" path="res://Scripts/NPC/hologram_ygor_store.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="2_ukfwd"]
+[ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="3_ukfwd"]
+[ext_resource type="AudioStream" uid="uid://dnsadsf7qssny" path="res://Audio/Sfx/Interact_reward.mp3" id="5_i1sji"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_shop"]
+radius = 35.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_064yt"]
+font = ExtResource("3_ukfwd")
+font_size = 10
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+shadow_color = Color(0, 0, 0, 0.64705884)
+
+[node name="Hologram_Ygor_Store" type="Node2D" unique_id=1938933035]
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1165140877]
+texture = ExtResource("1_68pat")
+
+[node name="Item_sprite" type="Sprite2D" parent="." unique_id=1165140878]
+texture_filter = 1
+position = Vector2(0, -26)
+
+[node name="PointLight2D" type="PointLight2D" parent="Item_sprite" unique_id=235145494]
+position = Vector2(0, 26)
+energy = 0.5
+texture = ExtResource("2_ukfwd")
+texture_scale = 0.5
+
+[node name="item_marker" type="Marker2D" parent="." unique_id=1660547831]
+position = Vector2(0, -10)
+
+[node name="InteractArea" type="Area2D" parent="." unique_id=1165140879]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=1165140880]
+shape = SubResource("CircleShape2D_shop")
+
+[node name="Label" type="Label" parent="." unique_id=1165140881]
+texture_filter = 1
+offset_left = -100.0
+offset_top = -62.0
+offset_right = 100.0
+offset_bottom = -39.0
+theme_override_font_sizes/font_size = 11
+text = "Vida
+20 Flesh"
+label_settings = SubResource("LabelSettings_064yt")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Interact" type="AudioStreamPlayer2D" parent="." unique_id=454659998]
+stream = ExtResource("5_i1sji")

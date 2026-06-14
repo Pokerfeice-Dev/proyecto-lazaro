@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="14_rqgaj"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="15_jtnus"]
 [ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="16_po6uv"]
+[ext_resource type="AudioStream" uid="uid://d1xqc1066qerx" path="res://Audio/Enemy_snd/Enemy_tank.mp3" id="17_yosx3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ciq8k"]
 atlas = ExtResource("2_rs3yy")
@@ -285,6 +286,11 @@ scale = Vector2(0.88871574, 0.9029864)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Detect_area" unique_id=321170097]
 scale = Vector2(32.68228, 32.522236)
 shape = SubResource("CircleShape2D_u7fip")
+
+[node name="Attack_sound" type="AudioStreamPlayer2D" parent="." unique_id=1107753512]
+stream = ExtResource("17_yosx3")
+volume_db = -3.0
+pitch_scale = 1.5
 
 [connection signal="frame_changed" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_frame_changed"]
 [connection signal="body_entered" from="Area_attack" to="." method="_on_area_attack_body_entered"]

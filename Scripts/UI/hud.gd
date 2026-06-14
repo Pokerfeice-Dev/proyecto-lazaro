@@ -50,6 +50,7 @@ func _ready():
 	update_scrap(GameData.scrap)
 	update_flesh(GameData.flesh)
 	_initialize_health()
+	_play_intro_room_animation()
 
 func _setup_weapon_hud() -> void:
 	var circle_bg = _create_filled_circle_texture(Color(0.05, 0.05, 0.1, 0.7), Color(0.2, 0.8, 1.0, 0.8))
@@ -315,3 +316,47 @@ func _set_particles_state(color: Color, speed: float, vel_min: float, vel_max: f
 	health_particles.initial_velocity_min = vel_min
 	health_particles.initial_velocity_max = vel_max
 	health_particles.lifetime = lifetime
+
+func _play_intro_room_animation() -> void:
+	var intro_node = get_node_or_null("Control/Intro_room")
+	if not intro_node: return
+	
+	var label = intro_node.get_node_or_null("Name_room") as Label
+	if label:
+		var scene_path = get_tree().current_scene.scene_file_path if get_tree().current_scene else ""
+		label.text = _get_pretty_room_name(scene_path)
+		
+	var anim_player = intro_node.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if anim_player:
+		anim_player.play("Intro_room")
+
+func _get_pretty_room_name(path: String) -> String:
+	var filename = path.get_file().to_lower()
+	if "ygor" in filename:
+		return "TIENDA DE YGOR"
+	if "treasure" in filename:
+		return "SALA DEL TESORO"
+	if "lab_room" in filename:
+		return "LABORATORIO"
+	if filename.begins_with("level"):
+		return _get_formatted_level_room_name(filename)
+	return "CIUDAD ASPHODEL"
+
+func _get_formatted_level_room_name(filename: String) -> String:
+	var parts = filename.split("_")
+	if parts.size() >= 2:
+		var lvl_part = parts[0]
+		var room_part = parts[1]
+		var lvl_num = _get_digits(lvl_part)
+		var room_num = _get_digits(room_part)
+		if lvl_num != "" and room_num != "":
+			return "NIVEL %s - SALA %s" % [lvl_num, room_num]
+	return "CIUDAD ASPHODEL"
+
+func _get_digits(text: String) -> String:
+	var digits = ""
+	for i in range(text.length()):
+		var c = text[i]
+		if c >= "0" and c <= "9":
+			digits += c
+	return digits

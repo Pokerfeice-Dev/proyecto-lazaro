@@ -23,6 +23,8 @@ var attack_timer: Timer
 var has_damaged_this_attack: bool = false
 @export var attack_range: float = 70.0
 
+@onready var attack_sound: AudioStreamPlayer2D = $Attack_sound
+
 func _ready() -> void:
 	super._ready()
 	move_speed = 70.0
@@ -31,6 +33,11 @@ func _ready() -> void:
 	_setup_attack_timer()
 	current_state = State.WANDER
 	_pick_new_wander_direction()
+
+func _play_attack_sound() -> void:
+	if attack_sound:
+		attack_sound.play()
+
 
 func _setup_attack_timer() -> void:
 	attack_timer = Timer.new()
@@ -67,6 +74,7 @@ func perform_attack() -> void:
 	
 	anim_sprite.speed_scale = attack_speed
 	play_animation("attack")
+	_play_attack_sound()
 	velocity = Vector2.ZERO
 	
 	var duration = _get_anim_duration("attack") / attack_speed

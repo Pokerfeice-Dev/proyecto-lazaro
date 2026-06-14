@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="12_ut240"]
 [ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="13_ophyw"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_ij6qg"]
+[ext_resource type="AudioStream" uid="uid://dweeue74eh7sp" path="res://Audio/Enemy_snd/Enemy_turret.mp3" id="15_jy7vw"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_af2qg"]
 size = Vector2(18.5, 39)
@@ -178,6 +179,11 @@ scale = Vector2(1.1702187, 1.1890095)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Shoot_area" unique_id=458113997]
 scale = Vector2(32.866203, 32.866203)
 shape = SubResource("CircleShape2D_10tr6")
+
+[node name="Attack_sound" type="AudioStreamPlayer2D" parent="." unique_id=1296832516]
+stream = ExtResource("15_jy7vw")
+volume_db = -6.0
+pitch_scale = 1.5
 
 [connection signal="body_entered" from="Shoot_area" to="." method="_on_shoot_area_body_entered"]
 [connection signal="body_exited" from="Shoot_area" to="." method="_on_shoot_area_body_exited"]

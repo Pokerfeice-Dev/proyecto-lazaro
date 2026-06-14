@@ -1,52 +1,14 @@
 [gd_scene format=3 uid="uid://c0l1odf8nhvug"]
 
-[ext_resource type="Texture2D" uid="uid://dr2a5jguvas6t" path="res://ProjectFrankenstein/Art/Ygor/Idle.png" id="1_nfqla"]
-[ext_resource type="Script" path="res://Scripts/NPC/ygor.gd" id="2_ygor"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_r3ptd"]
-atlas = ExtResource("1_nfqla")
-region = Rect2(0, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_hv4jp"]
-atlas = ExtResource("1_nfqla")
-region = Rect2(128, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3t22i"]
-atlas = ExtResource("1_nfqla")
-region = Rect2(256, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_hjs2o"]
-atlas = ExtResource("1_nfqla")
-region = Rect2(384, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_recpy"]
-atlas = ExtResource("1_nfqla")
-region = Rect2(512, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_31f0s"]
-atlas = ExtResource("1_nfqla")
-region = Rect2(640, 0, 128, 128)
+[ext_resource type="LabelSettings" uid="uid://dbjmlonrgm51f" path="res://Art/Fonts/Base_exo2.tres" id="2_hv4jp"]
+[ext_resource type="Texture2D" uid="uid://cbwbm4dgorjtm" path="res://Scenes/Ygor/Ygor-removebg-preview.png" id="2_r3ptd"]
+[ext_resource type="Script" uid="uid://bvejbc4db2n6m" path="res://Scripts/NPC/ygor.gd" id="2_ygor"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_karrt"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_r3ptd")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hv4jp")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_3t22i")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hjs2o")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_recpy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_31f0s")
+"texture": ExtResource("2_r3ptd")
 }],
 "loop": true,
 "name": &"idle",
@@ -59,13 +21,20 @@ radius = 11.920819
 [node name="Ygor" type="Node2D" unique_id=664869340]
 script = ExtResource("2_ygor")
 
+[node name="Label" type="Label" parent="." unique_id=1374608127]
+offset_left = -19.0
+offset_top = -81.0
+offset_right = 21.0
+offset_bottom = -58.0
+label_settings = ExtResource("2_hv4jp")
+
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=800178558]
-position = Vector2(0.99999994, -30)
-scale = Vector2(0.8, 0.8)
+position = Vector2(0.99999994, -7)
+scale = Vector2(0.15, 0.15)
 sprite_frames = SubResource("SpriteFrames_karrt")
 animation = &"idle"
 autoplay = "idle"
-frame_progress = 0.48776653
+frame_progress = 0.924197
 
 [node name="Interact_area" type="Area2D" parent="." unique_id=1427726166]
 

@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://dedle52fnokqn"]
+
+[ext_resource type="Texture2D" uid="uid://c2vm16gvoykkt" path="res://Art/HUD/hudhealthbar.png" id="1_p5fb1"]
+[ext_resource type="FontFile" uid="uid://cxpt1p2k7cuah" path="res://Art/Fonts/Dekatron-SemiBold.otf" id="2_pte6s"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_3gv8v"]
+font = ExtResource("2_pte6s")
+font_size = 48
+
+[sub_resource type="Animation" id="Animation_c37f8"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Control/TextureProgressBar:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(934.5, -83)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Control/NameBoss:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-864, 140)]
+}
+
+[sub_resource type="Animation" id="Animation_s3hxx"]
+resource_name = "Start_Fight"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Control/TextureProgressBar:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(934.5, -83), Vector2(934.5, 89.999985)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Control/NameBoss:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.5, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-864, 140), Vector2(680, 140)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tmpaw"]
+_data = {
+&"RESET": SubResource("Animation_c37f8"),
+&"Start_Fight": SubResource("Animation_s3hxx")
+}
+
+[node name="Boss_HealthBar" type="CanvasLayer" unique_id=415507643]
+
+[node name="Control" type="Control" parent="." unique_id=960663986]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="Control" unique_id=1835257139]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -25.5
+offset_top = -83.0
+offset_right = 25.5
+offset_bottom = -80.0
+grow_horizontal = 2
+scale = Vector2(10, 10)
+pivot_offset = Vector2(24.749992, 1.3999999)
+step = 0.1
+value = 100.0
+texture_progress = ExtResource("1_p5fb1")
+
+[node name="NameBoss" type="Label" parent="Control" unique_id=314346186]
+layout_mode = 0
+offset_left = -864.0
+offset_top = 140.0
+offset_right = -259.0
+offset_bottom = 191.0
+pivot_offset = Vector2(57.24994, 24)
+label_settings = SubResource("LabelSettings_3gv8v")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=982409191]
+libraries/ = SubResource("AnimationLibrary_tmpaw")

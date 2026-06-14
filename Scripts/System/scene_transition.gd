@@ -85,6 +85,9 @@ func _handle_scene_music(path: String) -> void:
 	elif "ygor" in scene_name or "lab_room" in scene_name:
 		stop_main_music()
 		stop_combat_music()
+	elif "bossfight" in scene_name or "boss_fight" in scene_name:
+		stop_main_music()
+		stop_combat_music()
 	elif "level1_room" in scene_name:
 		play_combat_music()
 		stop_main_music()

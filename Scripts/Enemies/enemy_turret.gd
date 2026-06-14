@@ -12,8 +12,12 @@ class_name EnemyTurret
 var player_in_shoot_range: bool = false
 var shoot_cooldown: float = 0.0
 
-func _ready() -> void:
-	super._ready()
+@onready var attack_sound: AudioStreamPlayer2D = $Attack_sound
+
+func _play_attack_sound() -> void:
+	if attack_sound:
+		attack_sound.play()
+
 
 func apply_knockback(_force: float, _direction: Vector2) -> void:
 	pass # Fixed turret does not receive knockback
@@ -55,6 +59,7 @@ func _shoot_projectile() -> void:
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = spawn_pos
 	proj.setup(shoot_dir, damage, "player")
+	_play_attack_sound()
 
 # --- Señales conectadas desde el Inspector/Escena ---
 
