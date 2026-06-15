@@ -50,5 +50,5 @@ autoplay = true
 parameters/looping = true
 
 [node name="Door" parent="." unique_id=503075203 instance=ExtResource("new_door_1")]
-position = Vector2(-308, 337)
+position = Vector2(190, -358)
 start_locked = false

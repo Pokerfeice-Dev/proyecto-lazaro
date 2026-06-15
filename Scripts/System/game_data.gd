@@ -162,10 +162,15 @@ func _set_room_n_config(config: Dictionary, room: int) -> void:
 	
 	config.allowed_enemies = ["follower", "shooter", "tank"]
 	_add_turret_to_allowed_enemies_if_level_4(config, room)
+	_add_summoner_to_allowed_enemies_if_level_5(config, room)
 
 func _add_turret_to_allowed_enemies_if_level_4(config: Dictionary, room: int) -> void:
 	if room < 4: return
 	config.allowed_enemies.append("turret")
+
+func _add_summoner_to_allowed_enemies_if_level_5(config: Dictionary, room: int) -> void:
+	if room < 5: return
+	config.allowed_enemies.append("summoner")
 
 # ── Weapon upgrades ─────────────────────────────────────────────────────────
 var weapon_damage: float = 10.0

@@ -1,0 +1,143 @@
+[gd_scene format=3 uid="uid://c6f3oo3fi52k3"]
+
+[ext_resource type="Script" path="res://Scripts/Enemies/enemy_bee_summon.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dlrxejag7y3es" path="res://Art/Weapons/Distance/Pistol/Projectile_Bee.png" id="2_bee"]
+[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="3_fx1"]
+[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="4_fx2"]
+[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="5_fx3"]
+[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="6_fx4"]
+[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="7_fx5"]
+[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="8_fx6"]
+[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="9_fx7"]
+[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="10_fx8"]
+[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="11_fx9"]
+[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="12_fx10"]
+[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="13_sound"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0rgy"]
+atlas = ExtResource("2_bee")
+region = Rect2(0, 0, 12, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_len3v"]
+atlas = ExtResource("2_bee")
+region = Rect2(0, 0, 12, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5lx2d"]
+atlas = ExtResource("2_bee")
+region = Rect2(0, 0, 12, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_75xv6"]
+atlas = ExtResource("2_bee")
+region = Rect2(12, 0, 12, 10)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kam38"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0rgy")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_len3v")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5lx2d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_75xv6")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 12.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 12.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_e7l14"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_fx1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_fx2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_fx3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_fx4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_fx5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_fx6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_fx7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_fx8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_fx9")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_fx10")
+}, {
+"duration": 1.0,
+"texture": null
+}],
+"loop": false,
+"name": &"death",
+"speed": 30.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 16.0
+
+[node name="EnemyBeeSummon" type="CharacterBody2D" unique_id=987234671 groups=["enemy"]]
+collision_layer = 2
+collision_mask = 7
+script = ExtResource("1_script")
+flesh_drop_chance = 0.05
+item_drop_chance = 0.0
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=987234672]
+texture_filter = 1
+scale = Vector2(3, 3)
+modulate = Color(1, 0.7, 0.7, 1)
+sprite_frames = SubResource("SpriteFrames_kam38")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=987234673]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=987234674]
+scale = Vector2(0.6, 0.6)
+sprite_frames = SubResource("SpriteFrames_e7l14")
+animation = &"death"
+frame = 10
+frame_progress = 1.0
+
+[node name="Death_sound" type="AudioStreamPlayer2D" parent="." unique_id=987234675]
+stream = ExtResource("13_sound")
+pitch_scale = 2.5
+
+[node name="AttackArea" type="Area2D" parent="." unique_id=987234676]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea" unique_id=987234677]
+shape = SubResource("CircleShape2D_attack")
+debug_color = Color(0.9, 0.1, 0.1, 0.3)

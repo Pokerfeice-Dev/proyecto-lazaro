@@ -70,6 +70,7 @@ func _build_enemy_pool(allowed: Array) -> void:
 	_add_shooter_if_allowed(allowed, new_pool)
 	_add_tank_if_allowed(allowed, new_pool)
 	_add_turret_if_allowed(allowed, new_pool)
+	_add_summoner_if_allowed(allowed, new_pool)
 	
 	if new_pool.is_empty(): return
 	enemy_pool = new_pool
@@ -89,6 +90,10 @@ func _add_tank_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 func _add_turret_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 	if not allowed.has("turret"): return
 	pool.append(preload("res://Scenes/Enemies/EnemyTurret.tscn"))
+
+func _add_summoner_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
+	if not allowed.has("summoner"): return
+	pool.append(preload("res://Scenes/Enemies/EnemySummoner.tscn"))
 
 func _setup_player() -> void:
 	var p_spawn = get_node_or_null("player_spawn")
