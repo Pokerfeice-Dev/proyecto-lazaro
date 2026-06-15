@@ -18,6 +18,9 @@ class_name Boss1
 @onready var muzzle_left: Marker2D = $Muzzle_left
 @onready var muzzle_right: Marker2D = $Muzzle_right
 @onready var muzzle_center: Marker2D = $Muzzle_center
+@onready var roar_invoc: AudioStreamPlayer2D = get_node_or_null("Roar_invoc")
+@onready var bullet_sound: AudioStreamPlayer2D = get_node_or_null("Bullet_sound")
+@onready var laser_sound: AudioStreamPlayer2D = get_node_or_null("Laser_sound")
 
 # Laser nodes
 var left_raycast: RayCast2D
@@ -36,6 +39,8 @@ var laser_damage_cooldown: float = 0.0
 var healthbar_instance: Node = null
 var boss_health_bar_node: Range = null
 var is_phase_two: bool = false
+var pattern_execute_count: int = 0
+var roar_player: AudioStreamPlayer2D = null
 
 func _ready() -> void:
 	super._ready()
@@ -177,13 +182,17 @@ func _check_laser_damage(collider: Object, delta: float) -> void:
 func _on_pattern_timeout() -> void:
 	if is_dying: return
 	_toggle_attack_pattern()
+	_update_spawn_counter()
 
 func _toggle_attack_pattern() -> void:
 	is_laser_active = not is_laser_active
+	_update_laser_audio_state()
 	if not is_laser_active:
 		_fire_ring_pattern()
 
 func _fire_ring_pattern() -> void:
+	if bullet_sound:
+		bullet_sound.play()
 	var bullet_count = projectile_ring_count
 	var angle_step = (2 * PI) / bullet_count
 	for i in range(bullet_count):
@@ -260,6 +269,7 @@ func _update_hud_health() -> void:
 func die() -> void:
 	super.die()
 	_hide_hud_health()
+	_stop_all_boss_sounds()
 
 func _hide_hud_health() -> void:
 	if healthbar_instance:
@@ -308,3 +318,124 @@ func _load_healthbar_scene() -> PackedScene:
 		if ResourceLoader.exists(path):
 			return load(path)
 	return null
+
+func _update_spawn_counter() -> void:
+	pattern_execute_count += 1
+	if pattern_execute_count >= 3:
+		pattern_execute_count = 0
+		_spawn_minions()
+
+func _spawn_minions() -> void:
+	var spawn1 = _find_spawn_node("spawn1")
+	var spawn2 = _find_spawn_node("spawn2")
+	
+	if spawn1:
+		_spawn_mutation_at(spawn1.global_position)
+	if spawn2:
+		_spawn_mutation_at(spawn2.global_position)
+		
+	if not spawn1 and not spawn2:
+		# Fallback: spawn relative to boss position if nodes aren't found on parent
+		_spawn_mutation_at(global_position + Vector2(-150, 200))
+		_spawn_mutation_at(global_position + Vector2(150, 200))
+		
+	_play_spawn_roar()
+
+func _find_spawn_node(node_name: String) -> Node2D:
+	var parent = get_parent()
+	if not parent: return null
+	
+	var base_num = "1" if "1" in node_name else "2"
+	var variations = [
+		"Spawn" + base_num,
+		"Spawn " + base_num,
+		"Spawn_" + base_num,
+		"spawn" + base_num,
+		"spawn " + base_num,
+		"spawn_" + base_num,
+		"SPAWN" + base_num,
+		"SPAWN " + base_num,
+		"SPAWN_" + base_num
+	]
+	
+	for name_var in variations:
+		# Search recursively from parent
+		var found = parent.find_child(name_var, true, false)
+		if found and found is Node2D:
+			return found
+			
+		# Search recursively from self
+		found = find_child(name_var, true, false)
+		if found and found is Node2D:
+			return found
+			
+	return null
+
+func _spawn_mutation_at(pos: Vector2) -> void:
+	var scene = load("res://Scenes/Enemies/EnemyFollower.tscn")
+	if not scene:
+		printerr("Boss1: No se pudo cargar EnemyFollower.tscn para spawneo.")
+		return
+	var inst = scene.instantiate()
+	get_parent().add_child(inst)
+	inst.global_position = pos
+
+func _play_spawn_roar() -> void:
+	if roar_invoc:
+		roar_invoc.play()
+	elif roar_player:
+		roar_player.play()
+	else:
+		# Fallback: create dynamic player if not present in scene
+		roar_player = AudioStreamPlayer2D.new()
+		var stream = load("res://Audio/Enemy_snd/Boss1/Retro Roar LoFi 08.wav")
+		if stream:
+			roar_player.stream = stream
+		roar_player.volume_db = 0.0
+		add_child(roar_player)
+		roar_player.play()
+
+func _update_laser_audio_state() -> void:
+	if not laser_sound: return
+	if is_laser_active:
+		if not laser_sound.playing:
+			laser_sound.play()
+	else:
+		if laser_sound.playing:
+			laser_sound.stop()
+
+func _stop_all_boss_sounds() -> void:
+	if laser_sound and laser_sound.playing:
+		laser_sound.stop()
+
+func _play_death_sound() -> void:
+	var ds = get_node_or_null("death_sound")
+	if not ds: ds = get_node_or_null("Death_sound")
+	if not ds: ds = get_node_or_null("DeathSound")
+	if ds and ds.has_method("play"):
+		ds.play()
+	else:
+		super._play_death_sound()
+
+func _play_death_fx() -> void:
+	var anim_player = get_node_or_null("AnimationPlayer")
+	if anim_player and anim_player is AnimationPlayer and anim_player.has_animation("death"):
+		anim_player.play("death")
+		if not anim_player.animation_finished.is_connected(_on_custom_death_finished):
+			anim_player.animation_finished.connect(_on_custom_death_finished)
+		return
+		
+	var sprite = get_node_or_null("AnimatedSprite2D")
+	if sprite and sprite is AnimatedSprite2D and sprite.sprite_frames.has_animation("death"):
+		sprite.play("death")
+		if not sprite.animation_finished.is_connected(_on_custom_sprite_death_finished):
+			sprite.animation_finished.connect(_on_custom_sprite_death_finished)
+		return
+		
+	super._play_death_fx()
+
+func _on_custom_death_finished(_anim_name: StringName = &"") -> void:
+	queue_free()
+
+func _on_custom_sprite_death_finished() -> void:
+	queue_free()

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d3htfk6d460xf"
-path="res://.godot/imported/Veins_shadow2_3.png-43add5c59e37f0ade4ad010234db5a4a.ctex"
+uid="uid://d4mktwpsxdm4w"
+path="res://.godot/imported/door_spritesheet.png-468381bdefed75ec8854ad2a181e1359.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Block/Veins_shadow2_3.png"
-dest_files=["res://.godot/imported/Veins_shadow2_3.png-43add5c59e37f0ade4ad010234db5a4a.ctex"]
+source_file="res://Art/Tileset/door_spritesheet.png"
+dest_files=["res://.godot/imported/door_spritesheet.png-468381bdefed75ec8854ad2a181e1359.ctex"]
 
 [params]
 

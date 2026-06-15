@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c60eaa82nh8jw"
-path="res://.godot/imported/Scrap_icon.png-691c4c5d7f2d290b42a9083bba312efd.ctex"
+uid="uid://dr8tubfbu1oq6"
+path="res://.godot/imported/frame0006.png-d516642b002521b60ccd2d638301ea53.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Scrap/Scrap_icon.png"
-dest_files=["res://.godot/imported/Scrap_icon.png-691c4c5d7f2d290b42a9083bba312efd.ctex"]
+source_file="res://Art/Enemy_Boss_1/Fx/frame0006.png"
+dest_files=["res://.godot/imported/frame0006.png-d516642b002521b60ccd2d638301ea53.ctex"]
 
 [params]
 

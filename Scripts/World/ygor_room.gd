@@ -1,16 +1,8 @@
 extends Node2D
 
 @export var player_scene: PackedScene = preload("res://Scenes/Player/Player.tscn")
-@onready var teleport_area: Area2D = $Teleport_run/Area2D
-@onready var teleport_sprite: AnimatedSprite2D = $Teleport_run
-
-var can_teleport: bool = false
-var interaction_label: Label
-
 func _ready() -> void:
 	_spawn_or_reposition_player()
-	_setup_teleport()
-	_setup_interaction_label()
 	_setup_music_loop()
 
 func _setup_music_loop() -> void:
@@ -46,43 +38,3 @@ func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 		player.show()
 	if player.has_method("_apply_game_data_upgrades"):
 		player._apply_game_data_upgrades()
-
-
-func _setup_teleport() -> void:
-	teleport_area.body_entered.connect(_on_teleport_body_entered)
-	teleport_area.body_exited.connect(_on_teleport_body_exited)
-
-func _setup_interaction_label() -> void:
-	interaction_label = Label.new()
-	interaction_label.text = "Presiona E"
-	interaction_label.visible = false
-	interaction_label.position = teleport_sprite.position + Vector2(-40, -60)
-	add_child(interaction_label)
-
-func _input(event: InputEvent) -> void:
-	if not can_teleport: return
-	if not event is InputEventKey: return
-	if event.physical_keycode != KEY_E: return
-	if not event.pressed: return
-	if event.echo: return
-	
-	_handle_teleport()
-
-func _handle_teleport() -> void:
-	var next_scene: String = GameData.get_next_room()
-	SceneTransition.play_teleport_sound()
-	SceneTransition.change_scene(next_scene)
-
-func _on_teleport_body_entered(body: Node2D) -> void:
-	if not body.is_in_group("player"):
-		return
-	can_teleport = true
-	if interaction_label:
-		interaction_label.visible = true
-
-func _on_teleport_body_exited(body: Node2D) -> void:
-	if not body.is_in_group("player"):
-		return
-	can_teleport = false
-	if interaction_label:
-		interaction_label.visible = false

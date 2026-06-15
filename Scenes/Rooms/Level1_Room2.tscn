@@ -2,162 +2,11 @@
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_quyhl"]
 [ext_resource type="TileSet" uid="uid://crs88nnfgs0gw" path="res://Scenes/Rooms/Floor.tres" id="2_n7ha0"]
-[ext_resource type="PackedScene" uid="uid://ceio6dbqyn8vp" path="res://Scenes/Rooms/Block/door_block.tscn" id="3_mpawn"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="4_45ak3"]
-[ext_resource type="Texture2D" uid="uid://dbumaob13vcye" path="res://Art/Teleport/pipo-mapeffect022_480.png" id="5_a7fd0"]
+[ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
 size = Vector2(370, 416.01263)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_h7aqu"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(0, 0, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fk30j"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(480, 0, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yufhn"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(960, 0, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_cwij8"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1440, 0, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_hdhdi"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1920, 0, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_07awv"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(0, 480, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_4wq7d"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(480, 480, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0jaia"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(960, 480, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2rncj"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1440, 480, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_xsj32"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1920, 480, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0idae"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(0, 960, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_l67k8"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(480, 960, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_mf33h"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(960, 960, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_geb7a"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1440, 960, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_u70t1"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1920, 960, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_4grqa"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(0, 1440, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fl2rg"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(480, 1440, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8mj1s"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(960, 1440, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1imqv"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1440, 1440, 480, 480)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_pqpvu"]
-atlas = ExtResource("5_a7fd0")
-region = Rect2(1920, 1440, 480, 480)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_ba2wq"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_h7aqu")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fk30j")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yufhn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_cwij8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hdhdi")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_07awv")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_4wq7d")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_0jaia")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2rncj")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_xsj32")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_0idae")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_l67k8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mf33h")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_geb7a")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_u70t1")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_4grqa")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fl2rg")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_8mj1s")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1imqv")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_pqpvu")
-}],
-"loop": true,
-"name": &"default",
-"speed": 12.0
-}]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3rs20"]
 
 [node name="Room_2" type="Node2D" unique_id=1265789073]
 script = ExtResource("1_quyhl")
@@ -169,10 +18,6 @@ tile_set = ExtResource("2_n7ha0")
 [node name="Walls" type="TileMapLayer" parent="." unique_id=428340735]
 tile_map_data = PackedByteArray("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AAD1/xQAAAAFAAoAAAD0/xQAAAAFAAoAAADz/xQAAAAFAAoAAADy/xQAAAAFAAoAAADx/xQAAAAFAAoAAADw/xQAAAAFAAoAAADv/xQAAAAFAAoAAADu/xQAAAAFAAoAAADt/xQAAAAFAAoAAADs/xQAAAACAAoAAADs/xMAAAABAAgAAADs/xIAAAABAAgAAADs/xEAAAABAAgAAADs/xAAAAABAAgAAADs/w8AAAABAAgAAADs/w4AAAABAAgAAADs/w0AAAABAAgAAADs/wwAAAABAAgAAADs/wsAAAABAAgAAADs/woAAAABAAgAAADs/wkAAAABAAgAAADs/wgAAAABAAgAAADs/wcAAAABAAgAAADs/wYAAAABAAgAAADs/wUAAAABAAgAAADs/wQAAAABAAgAAADs/wMAAAABAAgAAADs/wIAAAABAAgAAADs//r/AAABAAgAAADs//n/AAABAAgAAADs//j/AAABAAgAAADs//f/AAABAAgAAADs//b/AAABAAgAAADs//X/AAABAAgAAADs//T/AAABAAgAAADs//P/AAABAAgAAADs//L/AAABAAgAAADs//H/AAABAAgAAADs//D/AAABAAgAAADs/+//AAABAAgAAADs/+7/AAABAAgAAADs/+3/AAABAAgAAADs/+z/AAABAAgAAADw//P/AAACAAAAAADx//P/AAAFAAAAAADy//b/AAAFAAoAAADw//b/AAAFAAoAAADx//b/AAAFAAoAAAD4//b/AAAEAAIAAAD7//b/AAAGAAIAAAD4//P/AAAEAAgAAAD7//P/AAAGAAgAAAD5//b/AAAFAAoAAAD6//b/AAAFAAoAAAD5//P/AAAFAAAAAAD6//P/AAAFAAAAAAD7//T/AAAJAAIAAAD7//X/AAAJAAIAAAD4//T/AAABAAIAAAD4//X/AAABAAIAAADz//X/AAAJAAIAAADz//T/AAAJAAIAAADz//P/AAAIAAAAAADy//P/AAAFAAAAAADw//T/AAABAAIAAADw//X/AAABAAIAAADz//b/AAAIAAoAAAAJAAAAAAAFAAAAAAAKAAAAAAAFAAAAAAALAAAAAAAFAAAAAAAMAAAAAAAFAAAAAAAIAAAAAAAEAAAAAAANAAAAAAAIAAAAAAANAAEAAAAJAAIAAAANAAIAAAAJAAIAAAANAAMAAAAJAAIAAAANAAQAAAAJAAIAAAANAAUAAAAJAAIAAAANAAYAAAAJAAIAAAANAAcAAAAJAAIAAAANAAgAAAAJAAIAAAANAAkAAAAJAAIAAAANAAoAAAAIAAoAAAAMAAoAAAAFAAoAAAALAAoAAAAFAAoAAAAKAAoAAAAFAAoAAAAJAAoAAAAFAAoAAAAIAAoAAAACAAoAAAAIAAkAAAABAAgAAAAIAAgAAAABAAgAAAAIAAcAAAABAAgAAAAIAAYAAAABAAgAAAAIAAUAAAABAAgAAAAIAAQAAAABAAgAAAAIAAMAAAABAAgAAAAIAAIAAAABAAgAAAAIAAEAAAABAAgAAAD1/+v/AAAFAAAAAAD2/+v/AAAFAAAAAAAUAAkAAAAJAAIAAAAUAAoAAAAJAAIAAADs//v/AAABAAgAAADs//z/AAACAAEAAADs/wEAAAABAAgAAADr//z/AAAFAAAAAADq//z/AAACAAAAAADq//3/AAABAAIAAADq//7/AAABAAIAAADq////AAABAAIAAADq/wAAAAABAAIAAADq/wEAAAABAAkAAADr/wEAAAAFAAoAAAA=")
 tile_set = ExtResource("4_45ak3")
-
-[node name="Door_block" parent="." unique_id=804001413 instance=ExtResource("3_mpawn")]
-position = Vector2(-616, -26)
-scale = Vector2(1.5599952, 1.5599952)
 
 [node name="Spawn1" type="Marker2D" parent="." unique_id=106740552]
 position = Vector2(287, 499)
@@ -202,6 +47,7 @@ position = Vector2(-152, 600)
 position = Vector2(592, 267)
 
 [node name="Area_entered" type="Area2D" parent="." unique_id=331012564]
+visible = false
 position = Vector2(16, 103.00001)
 scale = Vector2(3.0042567, 3.0042567)
 
@@ -209,14 +55,5 @@ scale = Vector2(3.0042567, 3.0042567)
 position = Vector2(-31, -18.00632)
 shape = SubResource("RectangleShape2D_476il")
 
-[node name="Teleport_run" type="AnimatedSprite2D" parent="." unique_id=630333646]
-position = Vector2(-664.00006, -37)
-scale = Vector2(0.21239355, 0.21239355)
-sprite_frames = SubResource("SpriteFrames_ba2wq")
-autoplay = "default"
-
-[node name="Area2D" type="Area2D" parent="Teleport_run" unique_id=270438493]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Teleport_run/Area2D" unique_id=318937830]
-scale = Vector2(20.675964, 20.675964)
-shape = SubResource("RectangleShape2D_3rs20")
+[node name="Door" parent="." unique_id=911333348 instance=ExtResource("new_door_1")]
+position = Vector2(-616, -26)
