@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c5fkhy7g2v21k"
-path="res://.godot/imported/Veins_shadow2_4.png-fcfdf489578e1813ff63a8b8e375d832.ctex"
+uid="uid://drye8g36l2tja"
+path="res://.godot/imported/frame0008.png-abac7264f1ffce351141d2547bca2bbb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Block/Veins_shadow2_4.png"
-dest_files=["res://.godot/imported/Veins_shadow2_4.png-fcfdf489578e1813ff63a8b8e375d832.ctex"]
+source_file="res://Art/Enemy_Boss_1/Fx/frame0008.png"
+dest_files=["res://.godot/imported/frame0008.png-abac7264f1ffce351141d2547bca2bbb.ctex"]
 
 [params]
 

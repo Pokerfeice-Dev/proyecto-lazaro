@@ -1,0 +1,237 @@
+[gd_scene format=3 uid="uid://dxcw56b40o665"]
+
+[ext_resource type="Script" uid="uid://dhsv3yrtxkg7d" path="res://Scripts/Enemies/enemy_shooter.gd" id="1_8nw21"]
+[ext_resource type="Texture2D" uid="uid://dlrxejag7y3es" path="res://Art/Weapons/Distance/Pistol/Projectile_Bee.png" id="2_8nw21"]
+[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="3_len3v"]
+[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="4_5lx2d"]
+[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="5_75xv6"]
+[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="6_8nwnc"]
+[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="7_541gb"]
+[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="8_xjiyy"]
+[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="9_f8nas"]
+[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="10_8fins"]
+[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="11_yjxll"]
+[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="12_b0m8m"]
+[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="13_upyui"]
+[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_s0n60"]
+[ext_resource type="AudioStream" uid="uid://da1s21bkob4dy" path="res://Audio/Enemy_snd/Enemy_range_shoot.mp3" id="15_len3v"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0rgy"]
+atlas = ExtResource("2_8nw21")
+region = Rect2(0, 0, 12, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_len3v"]
+atlas = ExtResource("2_8nw21")
+region = Rect2(0, 0, 12, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5lx2d"]
+atlas = ExtResource("2_8nw21")
+region = Rect2(0, 0, 12, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_75xv6"]
+atlas = ExtResource("2_8nw21")
+region = Rect2(12, 0, 12, 10)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kam38"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0rgy")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_len3v")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5lx2d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_75xv6")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 12.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_af2qg"]
+size = Vector2(18.5, 17.5)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_e7l14"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_len3v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_5lx2d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_75xv6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_8nwnc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_541gb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_xjiyy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_f8nas")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_8fins")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_yjxll")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_b0m8m")
+}, {
+"duration": 1.0,
+"texture": null
+}],
+"loop": false,
+"name": &"death",
+"speed": 30.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o2jaa"]
+atlas = ExtResource("13_upyui")
+region = Rect2(0, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2l7ve"]
+atlas = ExtResource("13_upyui")
+region = Rect2(64, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7rpbl"]
+atlas = ExtResource("13_upyui")
+region = Rect2(128, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jbpaa"]
+atlas = ExtResource("13_upyui")
+region = Rect2(192, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_631ej"]
+atlas = ExtResource("13_upyui")
+region = Rect2(256, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_76jir"]
+atlas = ExtResource("13_upyui")
+region = Rect2(320, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_guj8s"]
+atlas = ExtResource("13_upyui")
+region = Rect2(384, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_htgoa"]
+atlas = ExtResource("13_upyui")
+region = Rect2(448, 128, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_r07o6"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o2jaa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2l7ve")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7rpbl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jbpaa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_631ej")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_76jir")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_guj8s")
+}, {
+"duration": 0.4,
+"texture": SubResource("AtlasTexture_htgoa")
+}],
+"loop": false,
+"name": &"summon",
+"speed": 12.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_10tr6"]
+radius = 9.586417
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_asxnl"]
+radius = 10.560988
+
+[node name="EnemyShooter" type="CharacterBody2D" unique_id=1213135006 groups=["enemy"]]
+collision_layer = 2
+collision_mask = 7
+script = ExtResource("1_8nw21")
+flesh_drop_chance = 0.1
+item_drop_chance = 0.9
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=76769354]
+texture_filter = 1
+scale = Vector2(5, 5)
+sprite_frames = SubResource("SpriteFrames_kam38")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=749432307]
+position = Vector2(2, 4)
+shape = SubResource("RectangleShape2D_af2qg")
+
+[node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=1713860462]
+scale = Vector2(0.8, 0.8)
+sprite_frames = SubResource("SpriteFrames_e7l14")
+animation = &"death"
+frame = 10
+frame_progress = 1.0
+
+[node name="Summon_anim" type="AnimatedSprite2D" parent="." unique_id=1910675046]
+modulate = Color(1, 1, 1, 0.92156863)
+position = Vector2(0, 8)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_r07o6")
+animation = &"summon"
+
+[node name="Death_sound" type="AudioStreamPlayer2D" parent="." unique_id=1595089151]
+stream = ExtResource("14_s0n60")
+pitch_scale = 2.0
+
+[node name="Shoot_area" type="Area2D" parent="." unique_id=311211318]
+scale = Vector2(0.88871574, 0.9029864)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shoot_area" unique_id=458113997]
+scale = Vector2(32.866203, 32.866203)
+shape = SubResource("CircleShape2D_10tr6")
+
+[node name="Detect_area" type="Area2D" parent="." unique_id=2068610382]
+scale = Vector2(1.0022186, 1.0183119)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Detect_area" unique_id=1604441276]
+scale = Vector2(35.05152, 35.05152)
+shape = SubResource("CircleShape2D_asxnl")
+
+[node name="Attack_sound" type="AudioStreamPlayer2D" parent="." unique_id=1937985153]
+stream = ExtResource("15_len3v")
+volume_db = -9.0
+pitch_scale = 1.1
+
+[connection signal="body_entered" from="Shoot_area" to="." method="_on_shoot_area_body_entered"]
+[connection signal="body_exited" from="Shoot_area" to="." method="_on_shoot_area_body_exited"]
+[connection signal="body_entered" from="Detect_area" to="." method="_on_detect_area_body_entered"]
+[connection signal="body_exited" from="Detect_area" to="." method="_on_detect_area_body_exited"]

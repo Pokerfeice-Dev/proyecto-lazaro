@@ -22,25 +22,30 @@ var room_cleared: bool = false
 var spawn_timer: Timer
 var spawn_points: Array[Node] = []
 
-@onready var teleport_area: Area2D = get_node_or_null("Teleport_run/Area2D")
-@onready var teleport_sprite: AnimatedSprite2D = get_node_or_null("Teleport_run")
-var interaction_label: Label
-var can_teleport: bool = false
-
 func _ready() -> void:
 	_apply_difficulty_settings()
 	_setup_player()
 	_setup_spawn_points()
 	_setup_spawn_timer()
 	_unlock_level_codex_entry()
-	
-	if teleport_area:
-		_setup_teleport()
-		_setup_interaction_label()
+	_detect_preplaced_enemies()
 		
 	var start_area = get_node_or_null("Area_entered")
 	if start_area:
 		start_area.body_entered.connect(_on_start_area_entered)
+
+func _detect_preplaced_enemies() -> void:
+	var preplaced_enemies = get_tree().get_nodes_in_group("enemy")
+	var has_preplaced: bool = false
+	for enemy in preplaced_enemies:
+		if is_ancestor_of(enemy) and enemy.has_signal("enemy_died"):
+			if not enemy.enemy_died.is_connected(_on_enemy_died):
+				enemy.enemy_died.connect(_on_enemy_died)
+				active_enemies += 1
+				has_preplaced = true
+	
+	if has_preplaced:
+		_close_door()
 
 func _unlock_level_codex_entry() -> void:
 	if not GameData.has_method("unlock_codex_entry"): return
@@ -154,8 +159,13 @@ func _spawn_single_enemy() -> void:
 
 func _on_enemy_died(_enemy) -> void:
 	active_enemies -= 1
-	if enemies_spawned_so_far >= total_enemies_to_spawn and active_enemies <= 0:
-		_clear_room()
+	var start_area = get_node_or_null("Area_entered")
+	if start_area:
+		if enemies_spawned_so_far >= total_enemies_to_spawn and active_enemies <= 0:
+			_clear_room()
+	else:
+		if active_enemies <= 0:
+			_clear_room()
 
 func _clear_room() -> void:
 	room_cleared = true
@@ -221,25 +231,16 @@ func _set_flash_intensity(val: float, mat: ShaderMaterial) -> void:
 	mat.set_shader_parameter("intensity", val)
 
 func _close_door() -> void:
-	var door = get_node_or_null("Door_block")
-	if door:
-		# Si necesitas activar colisiones de una puerta que se cierra
-		pass
+	var doors = get_tree().get_nodes_in_group("door")
+	for door in doors:
+		if door.has_method("lock_door"):
+			door.lock_door()
 
 func _open_door() -> void:
-	var door = get_node_or_null("Door_block")
-	if door:
-		if door is CollisionObject2D:
-			door.collision_layer = 0
-			door.collision_mask = 0
-			
-		for child in door.find_children("*", "CollisionShape2D", true, false):
-			child.set_deferred("disabled", true)
-		
-		var t = create_tween()
-		t.tween_property(door, "modulate:a", 0.0, 0.5)
-		await t.finished
-		door.queue_free()
+	var doors = get_tree().get_nodes_in_group("door")
+	for door in doors:
+		if door.has_method("unlock_door"):
+			door.unlock_door()
 
 func _spawn_reward() -> void:
 	if not room_reward_scene: return
@@ -248,41 +249,3 @@ func _spawn_reward() -> void:
 	if center:
 		reward.global_position = center.global_position
 	get_tree().current_scene.call_deferred("add_child", reward)
-
-# --- TELEPORT LOGIC ---
-func _setup_teleport() -> void:
-	teleport_area.body_entered.connect(_on_teleport_body_entered)
-	teleport_area.body_exited.connect(_on_teleport_body_exited)
-
-func _setup_interaction_label() -> void:
-	interaction_label = Label.new()
-	interaction_label.text = "Presiona E"
-	interaction_label.visible = false
-	interaction_label.position = teleport_sprite.position + Vector2(-40, -60)
-	add_child(interaction_label)
-
-func _input(event: InputEvent) -> void:
-	if not can_teleport: return
-	if not event is InputEventKey: return
-	if event.physical_keycode != KEY_E: return
-	if not event.pressed: return
-	if event.echo: return
-	
-	_handle_teleport()
-
-func _handle_teleport() -> void:
-	var next_scene: String = GameData.get_next_room()
-	SceneTransition.play_teleport_sound()
-	SceneTransition.change_scene(next_scene)
-
-func _on_teleport_body_entered(body: Node2D) -> void:
-	if not body.is_in_group("player"): return
-	can_teleport = true
-	if interaction_label:
-		interaction_label.visible = true
-
-func _on_teleport_body_exited(body: Node2D) -> void:
-	if not body.is_in_group("player"): return
-	can_teleport = false
-	if interaction_label:
-		interaction_label.visible = false

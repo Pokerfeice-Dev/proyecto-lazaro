@@ -54,6 +54,7 @@ func _process(delta: float) -> void:
 var current_run_room: int = 0
 var rooms_pool: Array[String] = []
 var last_room_path: String = ""
+var rooms_before_boss: int = 7
 
 func _load_level1_rooms() -> void:
 	var path: String = "res://Scenes/Rooms/"
@@ -70,10 +71,12 @@ func _add_room_if_valid(file_name: String, path: String) -> void:
 	if not file_name.begins_with("Level1_Room"): return
 	var clean_name = file_name.trim_suffix(".remap")
 	if not clean_name.ends_with(".tscn"): return
+	if "bossfight" in clean_name.to_lower() or "ygor" in clean_name.to_lower(): return
 	rooms_pool.append(path + clean_name)
 
 func start_new_run() -> String:
 	current_run_room = 1
+	rooms_before_boss = randi_range(7, 10)
 	return get_random_room_from_pool()
 
 func get_next_room() -> String:
@@ -81,13 +84,12 @@ func get_next_room() -> String:
 	return determine_next_room()
 
 func determine_next_room() -> String:
-	if current_run_room >= 8:
+	if current_run_room > rooms_before_boss:
 		return get_boss_room()
 	return check_for_ygor_room()
 
 func get_boss_room() -> String:
-	print("Llegaste a la sala del jefe, pero no está lista. Volviendo al laboratorio.")
-	return "res://Scenes/Rooms/lab_room.tscn"
+	return "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"
 
 func check_for_ygor_room() -> String:
 	var is_multiple_of_three: bool = (current_run_room % 3 == 0)
