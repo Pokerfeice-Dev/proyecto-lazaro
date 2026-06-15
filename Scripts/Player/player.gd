@@ -93,7 +93,7 @@ func _apply_synergy_weapon_override() -> void:
 		return
 	var equip = get_node_or_null("Equipment")
 	var active_weapon_id = get_active_ranged_weapon_id()
-	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
 	var override_path = SynergyManager.get_synergies_weapon_override(active_syns)
 	_print_synergy_debug_status(active_syns, override_path)
 	active_weapon.apply_synergy_weapon_override(override_path)
@@ -320,7 +320,7 @@ func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 			bonus += float(w_stats[stat_name])
 			
 	var active_weapon_id = get_active_ranged_weapon_id() if is_main else get_active_melee_weapon_id()
-	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, is_main)
 	bonus += SynergyManager.get_synergies_stat_modifier(active_syns, stat_name)
 	return bonus
 
@@ -378,7 +378,7 @@ func fire_projectile(dir: Vector2) -> void:
 
 	var equip = get_node_or_null("Equipment")
 	var active_weapon_id = get_active_ranged_weapon_id()
-	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
 	var override_scene = SynergyManager.get_synergies_projectile_override(active_syns)
 	if override_scene:
 		p_scene = override_scene

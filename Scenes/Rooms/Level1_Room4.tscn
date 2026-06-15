@@ -54,7 +54,7 @@ position = Vector2(-192, -146)
 scale = Vector2(3.0042567, 3.0042567)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area_entered" unique_id=245062643]
-position = Vector2(61.835648, -21.802399)
+position = Vector2(59.582127, -13.980165)
 shape = SubResource("RectangleShape2D_476il")
 
 [node name="Door" parent="." unique_id=1782219733 instance=ExtResource("new_door_1")]

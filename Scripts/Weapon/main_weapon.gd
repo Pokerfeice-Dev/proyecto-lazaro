@@ -120,7 +120,7 @@ func _check_and_apply_initial_synergy_override() -> void:
 	if not equip:
 		return
 	var active_weapon_id = player.get_active_ranged_weapon_id()
-	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id)
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
 	var override_path = SynergyManager.get_synergies_weapon_override(active_syns)
 	if override_path != "":
 		apply_synergy_weapon_override(override_path)

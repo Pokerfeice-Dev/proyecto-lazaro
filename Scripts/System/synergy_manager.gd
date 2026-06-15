@@ -32,25 +32,25 @@ const SYNERGIES = {
 	}
 }
 
-func get_active_synergies(equipment: Object, active_weapon_id: String) -> Array[String]:
+func get_active_synergies(equipment: Object, active_weapon_id: String, is_main: bool = true) -> Array[String]:
 	var active: Array[String] = []
 	for syn_id in SYNERGIES.keys():
-		_check_and_add_synergy(active, syn_id, equipment, active_weapon_id)
+		_check_and_add_synergy(active, syn_id, equipment, active_weapon_id, is_main)
 	return active
 
-func _check_and_add_synergy(active: Array[String], syn_id: String, equipment: Object, active_weapon_id: String) -> void:
+func _check_and_add_synergy(active: Array[String], syn_id: String, equipment: Object, active_weapon_id: String, is_main: bool = true) -> void:
 	var def = SYNERGIES[syn_id]
 	var weapon_sat = _is_weapon_satisfied(def, active_weapon_id)
-	var items_sat = _are_items_satisfied(def, equipment)
+	var items_sat = _are_items_satisfied(def, equipment, is_main)
 	print("[SynergyManager] Checking: ", syn_id, " | Active Weapon: '", active_weapon_id, "' (Sat: ", weapon_sat, ") | Items (Sat: ", items_sat, ")")
 	if weapon_sat and items_sat:
 		active.append(syn_id)
 
-func _is_synergy_active(syn_id: String, equipment: Object, active_weapon_id: String) -> bool:
+func _is_synergy_active(syn_id: String, equipment: Object, active_weapon_id: String, is_main: bool = true) -> bool:
 	var def = SYNERGIES[syn_id]
 	if not _is_weapon_satisfied(def, active_weapon_id):
 		return false
-	if not _are_items_satisfied(def, equipment):
+	if not _are_items_satisfied(def, equipment, is_main):
 		return false
 	return true
 
@@ -60,19 +60,23 @@ func _is_weapon_satisfied(def: Dictionary, active_weapon_id: String) -> bool:
 		return true
 	return req_weapon.to_lower() == active_weapon_id.to_lower()
 
-func _are_items_satisfied(def: Dictionary, equipment: Object) -> bool:
+func _are_items_satisfied(def: Dictionary, equipment: Object, is_main: bool = true) -> bool:
 	var req_items = def.get("required_items", [])
 	for req_item_id in req_items:
-		var is_eq = _is_item_equipped(equipment, req_item_id)
+		var is_eq = _is_item_equipped(equipment, req_item_id, is_main)
 		print("  - Checking item: ", req_item_id, " | Equipped: ", is_eq)
 		if not is_eq:
 			return false
 	return true
 
-func _is_item_equipped(equipment: Object, item_id: String) -> bool:
+func _is_item_equipped(equipment: Object, item_id: String, is_main: bool = true) -> bool:
 	if not equipment:
 		return false
 	for slot in equipment.slots.keys():
+		if is_main and (slot == ItemData.ItemSlot.SEC_W1 or slot == ItemData.ItemSlot.SEC_W2 or slot == ItemData.ItemSlot.SEC_W3):
+			continue
+		if not is_main and (slot == ItemData.ItemSlot.MAIN_W1 or slot == ItemData.ItemSlot.MAIN_W2 or slot == ItemData.ItemSlot.MAIN_W3):
+			continue
 		if _check_item_id_in_slot(equipment, slot, item_id):
 			return true
 	return false
