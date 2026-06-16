@@ -885,6 +885,7 @@ func _on_dash_timer_timeout() -> void:
 	is_dashing = false
 
 func take_damage(amount: int) -> void:
+	if GameData.debug_god_mode: return
 	if is_invulnerable: return
 	is_invulnerable = true
 	
@@ -1105,6 +1106,27 @@ func _process_debug_keycode(keycode: int) -> void:
 		_cheat_bestia_items()
 	if keycode == KEY_F4:
 		_cheat_trituradora_items()
+	if keycode == KEY_F5:
+		_toggle_debug_scene()
+
+func _toggle_debug_scene() -> void:
+	var current_scene_path = get_tree().current_scene.scene_file_path
+	if current_scene_path == "res://Scenes/Rooms/debug_scene.tscn":
+		_return_to_previous_scene()
+		return
+	
+	_enter_debug_scene(current_scene_path)
+
+func _return_to_previous_scene() -> void:
+	var target = GameData.previous_scene_path
+	if target == "" or target == "res://Scenes/Rooms/debug_scene.tscn":
+		target = "res://Scenes/Rooms/lab_room.tscn"
+	SceneTransition.change_scene(target)
+
+func _enter_debug_scene(current_path: String) -> void:
+	GameData.previous_scene_path = current_path
+	SceneTransition.change_scene("res://Scenes/Rooms/debug_scene.tscn")
+
 
 func _cheat_synergy_items() -> void:
 	var inventory_node = get_node_or_null("Inventory")

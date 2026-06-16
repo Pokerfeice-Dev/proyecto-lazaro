@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c6f3oo3fi52k3"]
 
-[ext_resource type="Script" path="res://Scripts/Enemies/enemy_bee_summon.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://h5v124rqyfby" path="res://Scripts/Enemies/enemy_bee_summon.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dlrxejag7y3es" path="res://Art/Weapons/Distance/Pistol/Projectile_Bee.png" id="2_bee"]
 [ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="3_fx1"]
 [ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="4_fx2"]
@@ -14,19 +14,23 @@
 [ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="12_fx10"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="13_sound"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_p0rgy"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_3i41f"]
 atlas = ExtResource("2_bee")
 region = Rect2(0, 0, 12, 10)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_len3v"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_ilxe0"]
+atlas = ExtResource("2_bee")
+region = Rect2(12, 0, 12, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7exoc"]
 atlas = ExtResource("2_bee")
 region = Rect2(0, 0, 12, 10)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_5lx2d"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_ohscd"]
 atlas = ExtResource("2_bee")
 region = Rect2(0, 0, 12, 10)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_75xv6"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_iqime"]
 atlas = ExtResource("2_bee")
 region = Rect2(12, 0, 12, 10)
 
@@ -34,7 +38,10 @@ region = Rect2(12, 0, 12, 10)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0rgy")
+"texture": SubResource("AtlasTexture_3i41f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ilxe0")
 }],
 "loop": false,
 "name": &"attack",
@@ -42,7 +49,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_len3v")
+"texture": SubResource("AtlasTexture_7exoc")
 }],
 "loop": true,
 "name": &"idle",
@@ -50,14 +57,14 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_5lx2d")
+"texture": SubResource("AtlasTexture_ohscd")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_75xv6")
+"texture": SubResource("AtlasTexture_iqime")
 }],
 "loop": true,
 "name": &"walk",
-"speed": 12.0
+"speed": 8.0
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
@@ -111,15 +118,15 @@ radius = 16.0
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_script")
+charge_speed = 400.0
+charge_duration = 0.7
 flesh_drop_chance = 0.05
 item_drop_chance = 0.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=987234672]
 texture_filter = 1
-scale = Vector2(3, 3)
-modulate = Color(1, 0.7, 0.7, 1)
 sprite_frames = SubResource("SpriteFrames_kam38")
-animation = &"idle"
+animation = &"walk"
 autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=987234673]

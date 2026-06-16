@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dj4ku4yh5bcm7"]
+
+[ext_resource type="Script" uid="uid://dnbtsd4td1bgq" path="res://Scripts/World/debug_scene.gd" id="1_debug_scene_gd"]
+
+[node name="DebugScene" type="Node2D" unique_id=1142687625]
+script = ExtResource("1_debug_scene_gd")
+
+[node name="FloorBackground" type="ColorRect" parent="." unique_id=339789491]
+offset_left = -2000.0
+offset_top = -2000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+color = Color(0, 0.19850793, 0.32627597, 1)
+
+[node name="player_spawn" type="Marker2D" parent="." unique_id=828695126]
+position = Vector2(960, 540)

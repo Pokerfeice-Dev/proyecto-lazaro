@@ -13,6 +13,9 @@ signal flesh_changed(new_amount: int)
 # ── Metadata ───────────────────────────────────────────────────────────────────
 var play_time: float = 0.0
 var current_slot: int = 1
+var previous_scene_path: String = ""
+var debug_god_mode: bool = false
+
 
 # ── Items & Inventory ────────────────────────────────────────────────────────
 var inventory_items: Array[ItemData] = []
