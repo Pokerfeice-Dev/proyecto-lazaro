@@ -54,6 +54,12 @@ var weapon_hide_timer: Timer
 
 var active_weapon
 var second_weapon
+var left_melee_weapon
+var is_furia_active: bool = false
+var furia_timer: Timer
+var trituradora_energy: float = 0.0
+const TRITURADORA_MAX_ENERGY: float = 600.0
+var trituradora_shockwave_ready: bool = false
 var _last_active_synergy_state: String = ""
 
 func _ready() -> void:
@@ -85,6 +91,28 @@ func _update_player_stats() -> void:
 	stats.move_speed = (stats.base_move_speed + flat_speed) * (1.0 + bonus_speed_percent)
 	
 	_apply_synergy_weapon_override()
+	
+	if _is_bestia_de_caza_active():
+		if not left_melee_weapon:
+			_init_left_melee_weapon()
+		if active_weapon:
+			active_weapon.hide()
+		if second_weapon:
+			second_weapon.show()
+		if left_melee_weapon:
+			left_melee_weapon.show()
+	else:
+		if left_melee_weapon:
+			left_melee_weapon.queue_free()
+			left_melee_weapon = null
+		if active_weapon:
+			active_weapon.show()
+			
+	if not _is_trituradora_active():
+		trituradora_shockwave_ready = false
+		trituradora_energy = 0.0
+		if not is_furia_active:
+			self.modulate = Color(1, 1, 1)
 
 func _apply_synergy_weapon_override() -> void:
 	if not active_weapon:
@@ -114,6 +142,7 @@ func _init_timers() -> void:
 	_create_dash_timer()
 	_create_invuln_timer()
 	_create_weapon_hide_timer()
+	_create_furia_timer()
 
 func _create_shoot_timer() -> void:
 	shoot_timer = Timer.new()
@@ -146,10 +175,20 @@ func _on_weapon_hide_timeout() -> void:
 	pass
 
 func _show_primary_weapon() -> void:
+	if _is_bestia_de_caza_active():
+		if active_weapon: active_weapon.hide()
+		if second_weapon: second_weapon.show()
+		if left_melee_weapon: left_melee_weapon.show()
+		return
 	if active_weapon: active_weapon.show()
 	if second_weapon: second_weapon.hide()
 
 func _show_secondary_weapon() -> void:
+	if _is_bestia_de_caza_active():
+		if active_weapon: active_weapon.hide()
+		if second_weapon: second_weapon.show()
+		if left_melee_weapon: left_melee_weapon.show()
+		return
 	if active_weapon: active_weapon.hide()
 	if second_weapon: second_weapon.show()
 
@@ -199,9 +238,15 @@ func _check_dash_input() -> void:
 func _start_dash() -> void:
 	is_dashing = true
 	dash_timer.start(dash_duration)
-	dash_cd_timer.start(5.0)
+	var bonus_cd_pct = _get_equip_stat("dash_cooldown_percent", false)
+	var final_cd = 5.0 * (1.0 + bonus_cd_pct)
+	dash_cd_timer.start(final_cd)
 	_set_dash_direction()
 	_play_dash_sound()
+	if _is_bestia_de_caza_active():
+		_start_furia()
+	if _is_trituradora_active() and trituradora_shockwave_ready:
+		_trigger_trituradora_shockwave()
 
 func _set_dash_direction() -> void:
 	if velocity == Vector2.ZERO:
@@ -211,9 +256,13 @@ func _set_dash_direction() -> void:
 
 func _process_movement(delta: float) -> void:
 	if is_dashing:
-		velocity = dash_dir * dash_speed
+		var bonus_dash_speed_pct = _get_equip_stat("dash_speed_percent", false)
+		var final_dash_speed = dash_speed * (1.0 + bonus_dash_speed_pct)
+		velocity = dash_dir * final_dash_speed
 		return
 	handle_movement(delta)
+	if not is_dashing:
+		_accumulate_trituradora_energy(delta)
 
 func _process_actions() -> void:
 	if is_dashing: return
@@ -295,6 +344,10 @@ func _get_8_dir_string(dir: Vector2) -> String:
 
 
 func handle_shooting() -> void:
+	if _is_bestia_de_caza_active():
+		if Input.is_action_just_pressed("shoot"):
+			_attack_left_melee()
+		return
 	if not can_shoot: return
 	if not Input.is_action_pressed("shoot"): return
 	var shoot_dir = (get_global_mouse_position() - global_position).normalized()
@@ -322,6 +375,10 @@ func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 	var active_weapon_id = get_active_ranged_weapon_id() if is_main else get_active_melee_weapon_id()
 	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, is_main)
 	bonus += SynergyManager.get_synergies_stat_modifier(active_syns, stat_name)
+	
+	if stat_name == "attack_speed" and is_furia_active:
+		bonus += 0.50
+		
 	return bonus
 
 func get_active_ranged_weapon_id() -> String:
@@ -575,13 +632,17 @@ func _update_primary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radiu
 	active_weapon.show_behind_parent = dir.y < 0
 
 func _update_secondary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radius: float) -> void:
-	if not second_weapon:
-		return
 	var base_pos = _get_weapon_base_position(dir)
-	second_weapon.look_at(mouse_pos)
-	second_weapon.position = base_pos
-	_flip_weapon(second_weapon, dir)
-	second_weapon.show_behind_parent = dir.y < 0
+	if second_weapon:
+		second_weapon.look_at(mouse_pos)
+		second_weapon.position = base_pos
+		_flip_weapon(second_weapon, dir)
+		second_weapon.show_behind_parent = dir.y < 0
+	if left_melee_weapon:
+		left_melee_weapon.look_at(mouse_pos)
+		left_melee_weapon.position = base_pos
+		_flip_weapon(left_melee_weapon, dir)
+		left_melee_weapon.show_behind_parent = dir.y < 0
 
 func _get_weapon_base_position(dir: Vector2) -> Vector2:
 	var base_pos = _get_static_weapon_mark_position(dir)
@@ -692,6 +753,131 @@ func _get_dir_vector(dir_str: String) -> Vector2:
 	return Vector2.DOWN
 
 
+func _on_furia_timeout() -> void:
+	is_furia_active = false
+	if trituradora_shockwave_ready:
+		self.modulate = Color(0.2, 0.8, 1.0)
+	else:
+		self.modulate = Color(1, 1, 1)
+	set_collision_mask_value(2, true)
+
+func _accumulate_trituradora_energy(delta: float) -> void:
+	if not _is_trituradora_active():
+		return
+	if trituradora_shockwave_ready:
+		return
+	var moved_dist = velocity.length() * delta
+	if moved_dist > 0.01:
+		trituradora_energy += moved_dist
+		if trituradora_energy >= TRITURADORA_MAX_ENERGY:
+			trituradora_energy = TRITURADORA_MAX_ENERGY
+			trituradora_shockwave_ready = true
+			_play_shockwave_ready_effect()
+
+func _play_shockwave_ready_effect() -> void:
+	if not is_furia_active:
+		self.modulate = Color(0.2, 0.8, 1.0)
+
+func _is_trituradora_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	if not equip:
+		return false
+	var active_syns = SynergyManager.get_active_synergies(equip, "")
+	return "trituradora_biomecanica" in active_syns
+
+func _trigger_trituradora_shockwave() -> void:
+	trituradora_shockwave_ready = false
+	trituradora_energy = 0.0
+	self.modulate = Color(1, 1, 1)
+	
+	# Invulnerability for 2s
+	is_invulnerable = true
+	invuln_timer.start(2.0)
+	var original_modulate = self.modulate
+	self.modulate = Color(0.2, 0.8, 1.0, 0.6)
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", original_modulate, 2.0)
+	
+	# Damage and knockback area attack
+	var base_dmg = 50.0
+	var dmg_radius = 150.0
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
+			continue
+		if enemy == null or not enemy.has_method("take_damage"):
+			continue
+		var dist = global_position.distance_to(enemy.global_position)
+		if dist < dmg_radius:
+			enemy.take_damage(int(base_dmg))
+			if enemy.has_method("apply_knockback"):
+				var dir = (enemy.global_position - global_position).normalized()
+				if dir == Vector2.ZERO: dir = Vector2.UP
+				enemy.apply_knockback(250.0, dir)
+				
+	# Spawn shockwave visual effect
+	var wave = load("res://Scripts/Effects/furia_shockwave.gd").new()
+	wave.global_position = global_position
+	wave.max_radius = dmg_radius
+	wave.set_meta("color_fill", Color(0.2, 0.8, 1.0, 0.3))
+	wave.set_meta("color_stroke", Color(0.4, 0.9, 1.0, 0.7))
+	get_tree().current_scene.add_child(wave)
+
+func _start_furia() -> void:
+	is_furia_active = true
+	if furia_timer:
+		furia_timer.start(3.0)
+	self.modulate = Color(1.0, 0.2, 0.2)
+	set_collision_mask_value(2, false)
+
+func _apply_thorns_knockback(force: float) -> void:
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
+			continue
+		if not enemy.has_method("apply_knockback"):
+			continue
+		var dist = global_position.distance_to(enemy.global_position)
+		if dist < 80.0:
+			var dir = (enemy.global_position - global_position).normalized()
+			if dir == Vector2.ZERO:
+				dir = Vector2.UP
+			enemy.apply_knockback(force, dir)
+
+func _on_flesh_collected() -> void:
+	var heal_amt = int(_get_equip_stat("heal_on_flesh", false))
+	if heal_amt > 0:
+		stats.heal(heal_amt)
+
+func _is_bestia_de_caza_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	if not equip:
+		return false
+	var active_syns = SynergyManager.get_active_synergies(equip, "")
+	return "bestia_de_caza" in active_syns
+
+func _attack_left_melee() -> void:
+	if not left_melee_weapon:
+		return
+	if not left_melee_weapon.has_method("attack"):
+		return
+	_show_secondary_weapon()
+	left_melee_weapon.attack()
+
+func _init_left_melee_weapon() -> void:
+	if not second_weapon_scene: return
+	left_melee_weapon = second_weapon_scene.instantiate()
+	add_child(left_melee_weapon)
+	GameData.apply_to_melee(left_melee_weapon)
+	if second_weapon and second_weapon.get("active_scene"):
+		left_melee_weapon.switch_weapon(second_weapon.active_scene)
+
+func _create_furia_timer() -> void:
+	furia_timer = Timer.new()
+	furia_timer.one_shot = true
+	add_child(furia_timer)
+	furia_timer.timeout.connect(_on_furia_timeout)
+
 func _on_shoot_timer_timeout() -> void:
 	can_shoot = true
 
@@ -711,6 +897,10 @@ func take_damage(amount: int) -> void:
 	_play_hurt_sound()
 	_animate_damage_vignette()
 	_animate_damage_flash()
+	
+	var thorns_kb = _get_equip_stat("thorns_knockback", false)
+	if thorns_kb > 0.0:
+		_apply_thorns_knockback(thorns_kb)
 
 func _show_damage_text(amount: int) -> void:
 	var label = Label.new()
@@ -911,6 +1101,10 @@ func _process_debug_keycode(keycode: int) -> void:
 		_cheat_synergy_items()
 	if keycode == KEY_F2:
 		_cheat_roadkill_items()
+	if keycode == KEY_F3:
+		_cheat_bestia_items()
+	if keycode == KEY_F4:
+		_cheat_trituradora_items()
 
 func _cheat_synergy_items() -> void:
 	var inventory_node = get_node_or_null("Inventory")
@@ -939,6 +1133,30 @@ func _cheat_roadkill_items() -> void:
 func _add_item_if_valid(inventory_node: Node, item: ItemData) -> void:
 	if item:
 		inventory_node.add_item(item)
+
+func _cheat_bestia_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var caninas = load("res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres") as ItemData
+	var armado = load("res://Art/Items/Player/Arms/Item4_BrazoArmado.tres") as ItemData
+	var ligero = load("res://Art/Items/Player/Body/Item4_TorsoLigero.tres") as ItemData
+	_add_item_if_valid(inventory_node, caninas)
+	_add_item_if_valid(inventory_node, armado)
+	_add_item_if_valid(inventory_node, ligero)
+	print("Bestia de Caza cheated items added to inventory!")
+
+func _cheat_trituradora_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var blindado = load("res://Art/Items/Player/Body/Item2_TorsoBlindado.tres") as ItemData
+	var rodantes = load("res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres") as ItemData
+	var reforzado = load("res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres") as ItemData
+	_add_item_if_valid(inventory_node, blindado)
+	_add_item_if_valid(inventory_node, rodantes)
+	_add_item_if_valid(inventory_node, reforzado)
+	print("Trituradora Biomecanica cheated items added to inventory!")
 
 func _play_dash_sound() -> void:
 	var dash_sound = get_node_or_null("Dash")

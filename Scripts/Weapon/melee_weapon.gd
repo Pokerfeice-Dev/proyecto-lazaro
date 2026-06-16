@@ -92,7 +92,9 @@ func attack() -> void:
 	if equip_owner:
 		var bonus_speed_pct = equip_owner._get_equip_stat("attack_speed", false)
 		final_speed *= (1.0 + bonus_speed_pct)
-		final_range += equip_owner._get_equip_stat("attack_range", false)
+		var flat_range = equip_owner._get_equip_stat("attack_range", false)
+		var pct_range = equip_owner._get_equip_stat("attack_range_percent", false)
+		final_range = (final_range + flat_range) * (1.0 + pct_range)
 		
 	scale = Vector2(final_range, final_range)
 	var safe_speed = maxf(0.1, final_speed)
@@ -162,7 +164,9 @@ func _apply_damage_to_enemy(body: Node2D) -> void:
 	var equip_owner = _find_equip_owner()
 	if equip_owner:
 		final_dmg += int(equip_owner._get_equip_stat("damage", false))
-		final_kb += equip_owner._get_equip_stat("knockback_force", false)
+		var flat_kb = equip_owner._get_equip_stat("knockback_force", false)
+		var pct_kb = equip_owner._get_equip_stat("knockback_percent", false)
+		final_kb = (final_kb + flat_kb) * (1.0 + pct_kb)
 		crit_chance += equip_owner._get_equip_stat("crit_chance", false)
 		crit_damage += equip_owner._get_equip_stat("crit_damage", false)
 		
@@ -172,9 +176,34 @@ func _apply_damage_to_enemy(body: Node2D) -> void:
 		
 	body.take_damage(final_dmg, is_crit)
 	_apply_knockback_to_enemy(body, final_kb)
+	
+	if equip_owner and equip_owner.get("is_furia_active") == true:
+		_trigger_furia_area_attack(body.global_position, final_dmg)
 
 func _apply_knockback_to_enemy(body: Node2D, force: float) -> void:
 	if force <= 0.0: return
 	if not body.has_method("apply_knockback"): return
 	var dir = (body.global_position - global_position).normalized()
 	body.apply_knockback(force, dir)
+
+func _trigger_furia_area_attack(pos: Vector2, base_damage: float) -> void:
+	var area_dmg = int(base_damage * 0.5)
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
+			continue
+		if enemy == null or not enemy.has_method("take_damage"):
+			continue
+		var dist = pos.distance_to(enemy.global_position)
+		if dist > 0.1 and dist < 120.0:
+			enemy.take_damage(area_dmg)
+			if enemy.has_method("apply_knockback"):
+				var dir = (enemy.global_position - pos).normalized()
+				if dir == Vector2.ZERO: dir = Vector2.UP
+				enemy.apply_knockback(100.0, dir)
+	_spawn_furia_spark_fx(pos)
+
+func _spawn_furia_spark_fx(pos: Vector2) -> void:
+	var wave = load("res://Scripts/Effects/furia_shockwave.gd").new()
+	wave.global_position = pos
+	get_tree().current_scene.add_child(wave)

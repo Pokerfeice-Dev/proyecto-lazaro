@@ -90,6 +90,60 @@ const DATA = {
 			"stats": "Incrementa la velocidad de movimiento.",
 			"icon": preload("res://Art/Items/Player/Legs/Item1_Boots.png")
 		},
+		"torso_blindado": {
+			"name": "Torso Blindado",
+			"lore": "Blindaje pesado e impenetrable a costa de agilidad motriz.",
+			"stats": "+25% Vida Max, +2 Defensa, -10% Vel. Movimiento, -15% Vel. Dash",
+			"icon": preload("res://icon.svg")
+		},
+		"torso_espinado": {
+			"name": "Torso Espinado",
+			"lore": "Placa de espinas mecánicas reflectantes de fuerza cinética.",
+			"stats": "+10% Vida Max, +1 Defensa, Refleja empuje al ser dañado",
+			"icon": preload("res://icon.svg")
+		},
+		"torso_ligero": {
+			"name": "Torso Ligero",
+			"lore": "Estructura de fibra de carbono ultra liviana enfocada en la velocidad extrema.",
+			"stats": "+10% Vel. Movimiento, +15% Vel. Dash, -30% CD Dash, -15% Vida Max, -1 Defensa",
+			"icon": preload("res://icon.svg")
+		},
+		"piernas_rodantes": {
+			"name": "Piernas Rodantes",
+			"lore": "Prótesis cibernéticas dotadas de ruedas de alta aceleración.",
+			"stats": "+15% Vel. Movimiento, +15% Vel. Dash, -20% CD Dash, -10% Vida Max",
+			"icon": preload("res://icon.svg")
+		},
+		"piernas_caninas": {
+			"name": "Piernas Caninas",
+			"lore": "Extremidades híbridas canino-cibernéticas diseñadas para reflejos feroces.",
+			"stats": "+10% Vel. Movimiento, +25% Vel. Ataque, +1 Defensa",
+			"icon": preload("res://icon.svg")
+		},
+		"piernas_bionicas": {
+			"name": "Piernas Biónicas",
+			"lore": "Motores servo-asistidos optimizados para la recolección bio-química.",
+			"stats": "+10% Vel. Movimiento, +10% Vel. Dash, +1 Vida al juntar flesh, -15% Vida Max",
+			"icon": preload("res://icon.svg")
+		},
+		"brazo_reforzado": {
+			"name": "Brazo Reforzado",
+			"lore": "Implante cibernético potenciado por pistones de impacto.",
+			"stats": "+10% Empuje Melee, +1 Defensa",
+			"icon": preload("res://icon.svg")
+		},
+		"brazo_ligero": {
+			"name": "Brazo Ligero",
+			"lore": "Servo-brazo delgado calibrado para la alta frecuencia de golpes.",
+			"stats": "+10% Vel. Ataque, -10% Vida Max",
+			"icon": preload("res://icon.svg")
+		},
+		"brazo_armado": {
+			"name": "Brazo Armado",
+			"lore": "Extensión retráctil de hojas afiladas en aleación de titanio.",
+			"stats": "+20% Alcance Melee, +15% Vel. Ataque, -1 Defensa",
+			"icon": preload("res://icon.svg")
+		},
 		"mezcladora": {
 			"name": "Licuadora Mezcladora",
 			"lore": "Dispositivo para procesar tejidos mutados y obtener fluidos estabilizados.",

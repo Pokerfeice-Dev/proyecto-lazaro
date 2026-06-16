@@ -58,7 +58,9 @@ func attack() -> void:
 	if p and p.has_method("_get_equip_stat"):
 		var bonus_speed_pct = p._get_equip_stat("attack_speed", false)
 		final_speed *= (1.0 + bonus_speed_pct)
-		final_range += p._get_equip_stat("attack_range", false)
+		var flat_range = p._get_equip_stat("attack_range", false)
+		var pct_range = p._get_equip_stat("attack_range_percent", false)
+		final_range = (final_range + flat_range) * (1.0 + pct_range)
 		
 	scale = Vector2(final_range, final_range)
 	var safe_speed = maxf(0.1, final_speed)
@@ -101,7 +103,9 @@ func _on_body_entered(body: Node2D) -> void:
 		
 		if p and p.has_method("_get_equip_stat"):
 			final_dmg += int(p._get_equip_stat("damage", false))
-			final_kb += p._get_equip_stat("knockback_force", false)
+			var flat_kb = p._get_equip_stat("knockback_force", false)
+			var pct_kb = p._get_equip_stat("knockback_percent", false)
+			final_kb = (final_kb + flat_kb) * (1.0 + pct_kb)
 			crit_chance += p._get_equip_stat("crit_chance", false)
 			crit_damage += p._get_equip_stat("crit_damage", false)
 			
@@ -113,3 +117,28 @@ func _on_body_entered(body: Node2D) -> void:
 		if final_kb > 0.0 and body.has_method("apply_knockback"):
 			var dir = (body.global_position - global_position).normalized()
 			body.apply_knockback(final_kb, dir)
+			
+		if p and p.get("is_furia_active") == true:
+			_trigger_furia_area_attack(body.global_position, final_dmg)
+
+func _trigger_furia_area_attack(pos: Vector2, base_damage: float) -> void:
+	var area_dmg = int(base_damage * 0.5)
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
+			continue
+		if enemy == null or not enemy.has_method("take_damage"):
+			continue
+		var dist = pos.distance_to(enemy.global_position)
+		if dist > 0.1 and dist < 120.0:
+			enemy.take_damage(area_dmg)
+			if enemy.has_method("apply_knockback"):
+				var dir = (enemy.global_position - pos).normalized()
+				if dir == Vector2.ZERO: dir = Vector2.UP
+				enemy.apply_knockback(100.0, dir)
+	_spawn_furia_spark_fx(pos)
+
+func _spawn_furia_spark_fx(pos: Vector2) -> void:
+	var wave = load("res://Scripts/Effects/furia_shockwave.gd").new()
+	wave.global_position = pos
+	get_tree().current_scene.add_child(wave)

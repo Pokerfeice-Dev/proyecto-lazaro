@@ -29,6 +29,16 @@ const SYNERGIES = {
 		},
 		"projectile_override": "res://Scenes/Projectiles/RoadkillProjectile.tscn",
 		"weapon_scene_override": "res://Scenes/Weapon/RoadkillPistol.tscn"
+	},
+	"bestia_de_caza": {
+		"name": "Bestia de Caza",
+		"description": "Instinto depredador: reemplaza el arma a rango por una segunda arma cuerpo a cuerpo. Dash activa furia por 3s (+50% velocidad de ataque, ataque de área y atraviesa enemigos pequeños).",
+		"required_items": ["piernas_caninas", "brazo_armado", "torso_ligero"]
+	},
+	"trituradora_biomecanica": {
+		"name": "Trituradora Biomecánica",
+		"description": "Carga de Impacto: Acumulás energía al moverte. Al máximo, tu próximo dash genera una onda de choque (daño y empuje en área) y otorga 2s de invulnerabilidad.",
+		"required_items": ["torso_blindado", "piernas_rodantes", "brazo_reforzado"]
 	}
 }
 
@@ -42,7 +52,6 @@ func _check_and_add_synergy(active: Array[String], syn_id: String, equipment: Ob
 	var def = SYNERGIES[syn_id]
 	var weapon_sat = _is_weapon_satisfied(def, active_weapon_id)
 	var items_sat = _are_items_satisfied(def, equipment, is_main)
-	print("[SynergyManager] Checking: ", syn_id, " | Active Weapon: '", active_weapon_id, "' (Sat: ", weapon_sat, ") | Items (Sat: ", items_sat, ")")
 	if weapon_sat and items_sat:
 		active.append(syn_id)
 
@@ -64,7 +73,6 @@ func _are_items_satisfied(def: Dictionary, equipment: Object, is_main: bool = tr
 	var req_items = def.get("required_items", [])
 	for req_item_id in req_items:
 		var is_eq = _is_item_equipped(equipment, req_item_id, is_main)
-		print("  - Checking item: ", req_item_id, " | Equipped: ", is_eq)
 		if not is_eq:
 			return false
 	return true

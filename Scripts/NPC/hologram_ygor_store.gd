@@ -17,7 +17,16 @@ const WEAPON_ITEM_PATHS: Array[String] = [
 const BODY_ITEM_PATHS: Array[String] = [
 	"res://Art/Items/Player/Arms/Item1_Arms.tres",
 	"res://Art/Items/Player/Body/Item1_Chest.tres",
-	"res://Art/Items/Player/Legs/Item1_Boots.tres"
+	"res://Art/Items/Player/Legs/Item1_Boots.tres",
+	"res://Art/Items/Player/Body/Item2_TorsoBlindado.tres",
+	"res://Art/Items/Player/Body/Item3_TorsoEspinado.tres",
+	"res://Art/Items/Player/Body/Item4_TorsoLigero.tres",
+	"res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres",
+	"res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres",
+	"res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres",
+	"res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres",
+	"res://Art/Items/Player/Arms/Item3_BrazoLigero.tres",
+	"res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"
 ]
 
 @onready var item_sprite: Sprite2D = $Item_sprite

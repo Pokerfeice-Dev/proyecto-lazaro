@@ -45,6 +45,8 @@ func _collect() -> void:
 func _add_flesh_to_player() -> void:
 	if not player.stats.has_method("add_flesh"): return
 	player.stats.add_flesh(value)
+	if player.has_method("_on_flesh_collected"):
+		player._on_flesh_collected()
 
 func _play_sound_and_free() -> void:
 	visible = false

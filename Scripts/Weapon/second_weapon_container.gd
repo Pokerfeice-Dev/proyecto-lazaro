@@ -6,6 +6,7 @@ extends Node2D
 @export var axe_scene: PackedScene = preload("res://Scenes/Weapon/axe.tscn")
 
 var current_weapon: Node2D = null
+var active_scene: PackedScene = null
 
 const DEFAULT_BASE: Dictionary = {
 	"damage": 30.0,
@@ -68,6 +69,7 @@ func _load_default_weapon() -> void:
 
 func switch_weapon(new_scene: PackedScene) -> void:
 	if not new_scene: return
+	active_scene = new_scene
 	_unlock_codex(new_scene)
 	_remove_current_weapon()
 	_instantiate_weapon(new_scene)

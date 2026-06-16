@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" uid="uid://drd6p62pd47o4" path="res://icon.svg" id="1_tex"]
+[ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+id = "brazo_reforzado"
+item_name = "Brazo Reforzado"
+icon = ExtResource("1_tex")
+type = 2
+slot = 7
+stats = {
+"armor": 1.0,
+"knockback_percent": 0.1
+}
