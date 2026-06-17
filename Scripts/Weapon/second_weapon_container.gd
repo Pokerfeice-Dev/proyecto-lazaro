@@ -53,7 +53,13 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey: return
 	if not event.pressed: return
-	_handle_melee_switch_keys(event.keycode)
+	
+	var is_debug = false
+	if get_tree().current_scene:
+		is_debug = "debug" in get_tree().current_scene.name.to_lower()
+		
+	if GameData.debug_god_mode or is_debug:
+		_handle_melee_switch_keys(event.keycode)
 
 func _handle_melee_switch_keys(keycode: int) -> void:
 	if keycode == KEY_4:
@@ -64,8 +70,16 @@ func _handle_melee_switch_keys(keycode: int) -> void:
 		switch_weapon(axe_scene)
 
 func _load_default_weapon() -> void:
-	if default_weapon_scene:
-		switch_weapon(default_weapon_scene)
+	var chosen = GameData.chosen_melee_weapon
+	match chosen:
+		"daga", "dagger":
+			switch_weapon(dagger_scene)
+		"mace", "maze":
+			switch_weapon(mace_scene)
+		"axe", "hacha":
+			switch_weapon(axe_scene)
+		_:
+			switch_weapon(dagger_scene)
 
 func switch_weapon(new_scene: PackedScene) -> void:
 	if not new_scene: return

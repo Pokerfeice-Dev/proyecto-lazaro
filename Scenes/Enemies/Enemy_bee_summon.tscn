@@ -120,6 +120,7 @@ collision_mask = 7
 script = ExtResource("1_script")
 charge_speed = 400.0
 charge_duration = 0.7
+damage = 4
 flesh_drop_chance = 0.05
 item_drop_chance = 0.0
 

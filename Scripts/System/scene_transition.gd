@@ -26,7 +26,7 @@ func _ready():
 	add_child(mainmenu_music)
 	
 	combat_music = AudioStreamPlayer.new()
-	combat_music.stream = preload("res://Audio/Music/sn1.ogg")
+	combat_music.stream = preload("res://Audio/Music/Ost-Batalla.ogg")
 	combat_music.volume_db = -5.0
 	combat_music.bus = "Master"
 	add_child(combat_music)

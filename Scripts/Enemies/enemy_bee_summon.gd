@@ -114,7 +114,7 @@ func _check_collision_damage() -> void:
 	var bodies = attack_area.get_overlapping_bodies()
 	for b in bodies:
 		if b.is_in_group("player") and b.has_method("take_damage"):
-			b.take_damage(damage)
+			b.take_damage(damage, "Abeja Mutante")
 			has_hit_player = true
 			break
 

@@ -5,6 +5,7 @@
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="2_otkfy"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="3_yufhn"]
 [ext_resource type="AudioStream" uid="uid://d0krhd3grvu33" path="res://Audio/Music/lab.ogg" id="6_yufhn"]
+[ext_resource type="PackedScene" uid="uid://b340be6qpcdil" path="res://Scenes/Rooms/door_CoreUpgrades.tscn" id="7_cwij8"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [node name="Lab_room" type="Node2D" unique_id=377400053]
@@ -38,3 +39,8 @@ parameters/looping = true
 position = Vector2(-324, 9)
 start_locked = false
 is_start_run_door = true
+
+[node name="Door_CoreUpgrades" parent="." unique_id=201233454 instance=ExtResource("7_cwij8")]
+position = Vector2(-93, -260)
+rotation = 1.5707964
+is_open = true

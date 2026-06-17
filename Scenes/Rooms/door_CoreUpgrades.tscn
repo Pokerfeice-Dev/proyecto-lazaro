@@ -1,0 +1,102 @@
+[gd_scene format=3 uid="uid://b340be6qpcdil"]
+
+[ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="1_2xxa7"]
+[ext_resource type="Texture2D" uid="uid://d4mktwpsxdm4w" path="res://Art/Tileset/door_spritesheet.png" id="2_kqhf3"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b72a7"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(0, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8spo7"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(32, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_14duu"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(64, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qqa5y"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(96, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_esy50"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(128, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wlwbf"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(160, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5bl70"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(192, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2o68x"]
+atlas = ExtResource("2_kqhf3")
+region = Rect2(0, 0, 32, 40)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hoxxl"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b72a7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8spo7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_14duu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qqa5y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_esy50")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wlwbf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5bl70")
+}],
+"loop": false,
+"name": &"Door_Unlock",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2o68x")
+}],
+"loop": true,
+"name": &"Door_lock",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uem52"]
+size = Vector2(21, 27.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b72a7"]
+size = Vector2(61, 80)
+
+[node name="Door_CoreUpgrades" type="StaticBody2D" unique_id=201233454]
+script = ExtResource("1_2xxa7")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2073200993]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_hoxxl")
+animation = &"Door_Unlock"
+frame = 6
+frame_progress = 1.0
+
+[node name="Area2D" type="Area2D" parent="." unique_id=2142995250]
+scale = Vector2(2, 2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=2098442333]
+position = Vector2(5.5, 0)
+scale = Vector2(2, 2)
+shape = SubResource("RectangleShape2D_uem52")
+debug_color = Color(0.75379455, 0.4574384, 0, 0.41960785)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=335506372]
+position = Vector2(0.5, 0)
+shape = SubResource("RectangleShape2D_b72a7")

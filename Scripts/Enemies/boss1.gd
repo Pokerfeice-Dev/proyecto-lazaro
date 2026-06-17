@@ -175,7 +175,7 @@ func _check_laser_damage(collider: Object, delta: float) -> void:
 		
 	if collider and collider.is_in_group("player") and collider.has_method("take_damage"):
 		var tick_damage = maxi(1, int(float(damage) / 3.0))
-		collider.take_damage(tick_damage)
+		collider.take_damage(tick_damage, "Mutante Génesis (Boss)")
 		var base_cooldown = laser_damage_tick_rate
 		laser_damage_cooldown = base_cooldown / 1.5 if is_phase_two else base_cooldown
 
@@ -202,6 +202,7 @@ func _fire_ring_pattern() -> void:
 func _spawn_projectile_at_angle(pos: Vector2, angle: float) -> void:
 	if not projectile_scene: return
 	var proj = projectile_scene.instantiate()
+	proj.source_name = "Mutante Génesis (Boss)"
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = pos
 	var base_dir = Vector2.from_angle(angle)
@@ -270,6 +271,8 @@ func die() -> void:
 	super.die()
 	_hide_hud_health()
 	_stop_all_boss_sounds()
+	if GameData.get_active_protocol() == "reciclaje_instantaneo":
+		GameData.add_scrap(50)
 
 func _hide_hud_health() -> void:
 	if healthbar_instance:

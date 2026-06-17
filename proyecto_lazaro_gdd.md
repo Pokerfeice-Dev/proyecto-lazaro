@@ -14,7 +14,8 @@ This document serves as the complete technical and game design specification (GD
     *   **Dashing**: `Space` key. Invulnerability frames, directional animation states, and stamina/cooldown bar on HUD.
     *   **Weapon Orbit**: Ranged weapons pivot around the player's wrist marker and orbit pointing towards the mouse cursor.
     *   **Inventory Toggle**: `I` key to slide up/down the equipment panel.
-    *   **Debug Menu Warp**: `F5` key to transition to the sandbox test scene.
+    *   **Debug Menu Warp**: `F6` key to transition to the sandbox test scene.
+    *   **Synergy Cheat Hotkeys**: `F1` (Hivemind), `F2` (Roadkill), `F3` (Bestia de Caza), `F4` (Trituradora Biomecánica), `F5` (Minigun).
 
 ---
 
@@ -164,11 +165,11 @@ Calculated via the `SynergyManager` Autoload:
 
 ## 8. Sandbox / Debug Scene (`debug_scene.tscn`)
 
-Activated at any time by pressing **F5** in a build.
-*   **State Persistence**: Saves the exact room and state the player left. Pressing F5 inside the debug scene loads you back into the game smoothly.
+Activated at any time by pressing **F6** in a build.
+*   **State Persistence**: Saves the exact room and state the player left. Pressing F6 inside the debug scene loads you back into the game smoothly.
 *   **Collapsible Panel**: Features a dynamic panel sliding on the right screen edge using Godot Tweens.
 *   **Sandbox Tabs**:
-    1.  **Cheats**: Refill HP, toggle invulnerable God Mode (persists across runs/rooms), add currency, kill all active enemies in the room.
+    1.  **Cheats**: Refill HP, toggle invulnerable God Mode (persists across runs/rooms), add currency, kill all active enemies in the room, cheat Minigun synergy.
     2.  **Weapons**: Instantly spawn and equip any primary ranged or secondary melee weapon.
     3.  **Items**: Add any of the 12 body implants or 9 weapon upgrades to the player inventory (or bulk-add all 21 items).
     4.  **Enemies**: Spawn any of the 7 enemy types at a safe offset from the player.

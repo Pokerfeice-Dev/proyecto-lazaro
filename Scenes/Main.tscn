@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b20sbdsvafnw3"]
 
 [ext_resource type="Script" uid="uid://dlqbx2q4ykky3" path="res://Scripts/Managers/game_manager.gd" id="1_gm"]
-[ext_resource type="AudioStream" uid="uid://dhykqxa081xt8" path="res://Audio/Music/sn1.ogg" id="5_v1gob"]
+[ext_resource type="AudioStream" uid="uid://2qy61bervknp" path="res://Audio/Music/Ost-Batalla.ogg" id="5_v1gob"]
 [ext_resource type="PackedScene" uid="uid://lpsu8nbsyhl5" path="res://Scenes/Rooms/room_1.tscn" id="7_jw32o"]
 
 [node name="Main" type="Node2D" unique_id=607205068]

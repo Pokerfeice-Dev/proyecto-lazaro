@@ -4,7 +4,7 @@
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_rb3g3"]
 [ext_resource type="PackedScene" uid="uid://c0l1odf8nhvug" path="res://Scenes/Ygor/ygor.tscn" id="5_rb3g3"]
 [ext_resource type="PackedScene" uid="uid://b2pe8uij4d7me" path="res://Scenes/Ygor/hologram_ygor_store.tscn" id="6_sgn2u"]
-[ext_resource type="AudioStream" uid="uid://d3to3j5tgxj5x" path="res://Audio/Music/Shadow Selection.mp3" id="7_ipnfo"]
+[ext_resource type="AudioStream" uid="uid://lafa3bjweirl" path="res://Audio/Music/Ygor_Shop.ogg" id="7_ipnfo"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [node name="Room_12" type="Node2D" unique_id=510665634]
@@ -19,7 +19,7 @@ tile_set = ExtResource("2_rb3g3")
 [node name="Tile_Objects" type="TileMapLayer" parent="." unique_id=322753701]
 modulate = Color(0.926511, 0.926511, 0.926511, 1)
 scale = Vector2(2, 2)
-tile_map_data = PackedByteArray("AAAJAO7/AAAMAAMAAAAJAO//AAAMAAQAAAAKAO7/AAANAAMAAAAKAO//AAANAAQAAAAJAPj/AAAMAAQAAAAKAPP/AAAMAAQAAAAKAPj/AAANAAQAAAALAPP/AAANAAQAAAARAPP/AAAMAAQAAAASAPP/AAANAAQAAAASAPj/AAAMAAQAAAATAPj/AAANAAQAAAAJAPf/AAAMAAMAAAAKAPL/AAAMAAMAAAAKAPf/AAANAAMAAAALAPL/AAANAAMAAAARAPL/AAAMAAMAAAASAPL/AAANAAMAAAASAPf/AAAMAAMAAAATAPf/AAANAAMAAAANAPX/AAAIAAUAAAANAPb/AAAIAAYAAAAOAPX/AAAJAAUAAAAOAPb/AAAJAAYAAAAPAPX/AAAKAAUAAAAPAPb/AAAKAAYAAAANAPT/AAAIAAQAAAAOAPT/AAAJAAQAAAAPAPT/AAAKAAQAAAA=")
+tile_map_data = PackedByteArray("AAAJAO7/AAAMAAMAAAAJAO//AAAMAAQAAAAKAO7/AAANAAMAAAAKAO//AAANAAQAAAANAPT/AAAIAAQAAAANAPX/AAAIAAUAAAANAPb/AAAIAAYAAAAOAPT/AAAJAAQAAAAOAPX/AAAJAAUAAAAOAPb/AAAJAAYAAAAPAPT/AAAKAAQAAAAPAPX/AAAKAAUAAAAPAPb/AAAKAAYAAAASAPf/AAAMAAMAAAASAPj/AAAMAAQAAAATAPf/AAANAAMAAAATAPj/AAANAAQAAAARAPL/AAAMAAMAAAARAPP/AAAMAAQAAAASAPL/AAANAAMAAAASAPP/AAANAAQAAAAJAPf/AAAMAAMAAAAJAPj/AAAMAAQAAAAKAPf/AAANAAMAAAAKAPj/AAANAAQAAAAKAPL/AAAMAAMAAAAKAPP/AAAMAAQAAAALAPL/AAANAAMAAAALAPP/AAANAAQAAAA=")
 tile_set = ExtResource("2_rb3g3")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=72330788]

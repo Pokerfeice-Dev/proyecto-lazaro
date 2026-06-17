@@ -62,7 +62,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not event.pressed:
 		return
-	if event.keycode == KEY_F5:
+	if event.keycode == KEY_F6:
 		_return_to_game()
 
 func _spawn_or_reposition_player() -> void:
@@ -261,6 +261,7 @@ func _create_cheats_tab(tabs: TabContainer) -> void:
 	tab.add_child(_create_styled_button("Add 1000 Scrap", func(): _add_scrap(1000)))
 	tab.add_child(_create_styled_button("Add 1000 Flesh", func(): _add_flesh(1000)))
 	tab.add_child(_create_styled_button("Kill All Enemies", _kill_all_enemies))
+	tab.add_child(_create_styled_button("Cheat Minigun Synergy", _cheat_minigun_synergy))
 	
 	# Separation line
 	var sep = ColorRect.new()
@@ -462,3 +463,9 @@ func _return_to_game() -> void:
 	if target == "" or target == "res://Scenes/Rooms/debug_scene.tscn":
 		target = "res://Scenes/Rooms/lab_room.tscn"
 	SceneTransition.change_scene(target)
+
+func _cheat_minigun_synergy() -> void:
+	_equip_ranged("res://Scenes/Weapon/uzi.tscn")
+	_add_item("res://Art/Items/Weapons/Item1.tres")
+	_add_item("res://Art/Items/Weapons/Item6.tres")
+	_add_item("res://Art/Items/Weapons/Item9_SierraCircular.tres")

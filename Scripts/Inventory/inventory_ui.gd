@@ -139,6 +139,10 @@ func _input(event: InputEvent) -> void:
 func _handle_toggle_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("toggle_inventory"):
 		return
+	if not visible:
+		var root = get_tree().root
+		if root.has_node("WeaponSelectionMenu") or root.has_node("UpgradesMenu"):
+			return
 	toggle_visibility()
 	get_viewport().set_input_as_handled()
 

@@ -96,7 +96,7 @@ func _apply_damage_to_area() -> void:
 	var bodies = attack_area.get_overlapping_bodies()
 	for body in bodies:
 		if body.is_in_group("player") and body.has_method("take_damage"):
-			body.take_damage(damage)
+			body.take_damage(damage, "Mutante Seguidor")
 
 func _get_attack_duration() -> float:
 	if not anim_sprite or not anim_sprite.sprite_frames: return 0.6

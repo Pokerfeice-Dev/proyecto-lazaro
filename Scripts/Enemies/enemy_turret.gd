@@ -54,6 +54,7 @@ func _update_shooting() -> void:
 func _shoot_projectile() -> void:
 	if not projectile_scene: return
 	var proj = projectile_scene.instantiate()
+	proj.source_name = "Torreta de Seguridad"
 	var spawn_pos = bullet_mark.global_position
 	var shoot_dir = Vector2.from_angle(sprite_cannon.global_rotation)
 	get_tree().current_scene.add_child(proj)

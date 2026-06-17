@@ -154,6 +154,11 @@ func _spawn_single_enemy() -> void:
 	enemy.global_position = point.global_position
 	enemy.enemy_died.connect(_on_enemy_died)
 	
+	var escaner_lvl = GameData.core_upgrades.get("escaner_objetivos", 0)
+	var elite_chance = 0.05 + (escaner_lvl * 0.01)
+	if randf() <= elite_chance:
+		enemy.is_elite = true
+		
 	get_tree().current_scene.call_deferred("add_child", enemy)
 	
 	if enemy.has_method("spawn_appear"):
@@ -179,6 +184,11 @@ func _clear_room() -> void:
 	_spawn_reward()
 	_play_room_clear_effects()
 	_award_clear_scrap()
+	
+	if GameData.get_active_protocol() == "reparacion_autonoma":
+		var player = get_tree().get_first_node_in_group("player")
+		if player and "stats" in player and player.stats.has_method("heal"):
+			player.stats.heal(1)
 
 func _award_clear_scrap() -> void:
 	GameData.add_scrap(scrap_reward)

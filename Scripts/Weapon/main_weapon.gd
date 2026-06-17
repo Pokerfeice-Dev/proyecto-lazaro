@@ -85,7 +85,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not event.pressed:
 		return
-	_handle_weapon_switch_keys(event.keycode)
+		
+	var is_debug = false
+	if get_tree().current_scene:
+		is_debug = "debug" in get_tree().current_scene.name.to_lower()
+		
+	if GameData.debug_god_mode or is_debug:
+		_handle_weapon_switch_keys(event.keycode)
 
 func _handle_weapon_switch_keys(keycode: int) -> void:
 	if keycode == KEY_1:
@@ -96,8 +102,16 @@ func _handle_weapon_switch_keys(keycode: int) -> void:
 		switch_weapon(shotgun_scene)
 
 func _load_default_weapon() -> void:
-	if default_weapon_scene:
-		switch_weapon(default_weapon_scene)
+	var chosen = GameData.chosen_primary_weapon
+	match chosen:
+		"pistol":
+			switch_weapon(pistol_scene)
+		"uzi":
+			switch_weapon(uzi_scene)
+		"shotgun":
+			switch_weapon(shotgun_scene)
+		_:
+			switch_weapon(pistol_scene)
 
 func switch_weapon(new_weapon_scene: PackedScene) -> void:
 	if not new_weapon_scene:

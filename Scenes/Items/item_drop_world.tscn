@@ -105,6 +105,7 @@ script = ExtResource("1_script")
 item_data = ExtResource("2_ewpb2")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1233195888]
+scale = Vector2(2, 2)
 texture = ExtResource("2_icon")
 
 [node name="Scrap_anim" type="AnimatedSprite2D" parent="." unique_id=1928336874]

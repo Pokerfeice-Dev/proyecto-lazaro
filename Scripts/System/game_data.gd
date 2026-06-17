@@ -17,6 +17,30 @@ var previous_scene_path: String = ""
 var debug_god_mode: bool = false
 
 
+# ── Core Upgrades & Runs ──────────────────────────────────────────────────────
+var core_upgrades: Dictionary = {
+	"integridad_estructural": 0,
+	"servomotores": 0,
+	"blindaje_compuesto": 0,
+	"sistema_ataque": 0,
+	"sinapsis_acelerada": 0,
+	"balistica_predictiva": 0,
+	"compactador": 0,
+	"biomasa_eficiente": 0,
+	"imanes_industriales": 0,
+	"recuperacion_restos": 0,
+	"escaner_objetivos": 0
+}
+
+var unlocked_synergies: Array[String] = []
+var unlocked_protocols: Array[String] = []
+var active_protocol: String = ""
+var has_died_once: bool = false
+var chosen_primary_weapon: String = "pistol"
+var chosen_melee_weapon: String = "daga"
+var temporary_damage_multiplier: float = 1.0
+var vampiric_kills_counter: int = 0
+
 # ── Items & Inventory ────────────────────────────────────────────────────────
 var inventory_items: Array[ItemData] = []
 var equipment_slots: Dictionary = {}
@@ -45,6 +69,7 @@ func _ready() -> void:
 		equipment_slots[slot] = null
 	unlock_codex_entry("levels", "level_1")
 	unlock_codex_entry("weapons", "pistol")
+	unlock_codex_entry("weapons", "daga")
 
 func _process(delta: float) -> void:
 	if get_tree().paused: return
@@ -55,6 +80,23 @@ func _process(delta: float) -> void:
 
 # ── Run Management ────────────────────────────────────────────────────────────
 var current_run_room: int = 0
+var run_enemies_killed: int = 0:
+	set(val):
+		var diff = val - run_enemies_killed
+		run_enemies_killed = val
+		if diff > 0:
+			_on_enemy_killed_protocol_check(diff)
+
+func _on_enemy_killed_protocol_check(diff: int) -> void:
+	if active_protocol == "nucleo_vampirico":
+		vampiric_kills_counter += diff
+		while vampiric_kills_counter >= 25:
+			vampiric_kills_counter -= 25
+			var player = get_tree().get_first_node_in_group("player")
+			if player and "stats" in player and player.stats.has_method("heal"):
+				player.stats.heal(2)
+var run_scrap_collected: int = 0
+var last_killer: String = "Infección Lázaro"
 var rooms_pool: Array[String] = []
 var last_room_path: String = ""
 var rooms_before_boss: int = 7
@@ -80,6 +122,9 @@ func _add_room_if_valid(file_name: String, path: String) -> void:
 func start_new_run() -> String:
 	current_run_room = 1
 	rooms_before_boss = randi_range(7, 10)
+	run_enemies_killed = 0
+	run_scrap_collected = 0
+	last_killer = "Infección Lázaro"
 	return get_random_room_from_pool()
 
 func get_next_room() -> String:
@@ -281,7 +326,11 @@ const UPGRADE_DEFS: Array[Dictionary] = [
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 func add_scrap(amount: int) -> void:
-	scrap += amount
+	var level = core_upgrades.get("compactador", 0)
+	var multiplier = 1.0 + (level * 0.02)
+	var extra_scrap = int(round(amount * multiplier))
+	scrap += extra_scrap
+	run_scrap_collected += extra_scrap
 	scrap_changed.emit(scrap)
 
 func spend_scrap(amount: int) -> bool:
@@ -292,7 +341,10 @@ func spend_scrap(amount: int) -> bool:
 	return true
 
 func add_flesh(amount: int) -> void:
-	flesh += amount
+	var level = core_upgrades.get("biomasa_eficiente", 0)
+	var multiplier = 1.0 + (level * 0.02)
+	var extra_flesh = int(round(amount * multiplier))
+	flesh += extra_flesh
 	flesh_changed.emit(flesh)
 
 func spend_flesh(amount: int) -> bool:
@@ -301,6 +353,14 @@ func spend_flesh(amount: int) -> bool:
 	flesh -= amount
 	flesh_changed.emit(flesh)
 	return true
+
+func get_active_protocol() -> String:
+	return active_protocol
+
+func is_synergy_unlocked(syn_id: String) -> bool:
+	if syn_id == "minigun":
+		return true
+	return unlocked_synergies.has(syn_id)
 
 func get_upgrade_level(key: String) -> float:
 	match key:
@@ -397,7 +457,15 @@ func save_game(slot: int = -1) -> void:
 		"melee_speed": melee_speed,
 		"melee_range": melee_range,
 		"melee_knockback": melee_knockback,
-		"play_time": play_time
+		"play_time": play_time,
+		"core_upgrades": core_upgrades,
+		"unlocked_synergies": unlocked_synergies,
+		"unlocked_protocols": unlocked_protocols,
+		"active_protocol": active_protocol,
+		"has_died_once": has_died_once,
+		"chosen_primary_weapon": chosen_primary_weapon,
+		"chosen_melee_weapon": chosen_melee_weapon,
+		"weapons_unlocked": codex_unlocks["weapons"]
 	}
 	var file = FileAccess.open(get_save_path(slot), FileAccess.WRITE)
 	if file:
@@ -430,6 +498,38 @@ func load_game(slot: int) -> bool:
 	melee_range = float(json.get("melee_range", 1.0))
 	melee_knockback = float(json.get("melee_knockback", 0.0))
 	play_time = float(json.get("play_time", 0.0))
+	
+	core_upgrades = json.get("core_upgrades", {
+		"integridad_estructural": 0,
+		"servomotores": 0,
+		"blindaje_compuesto": 0,
+		"sistema_ataque": 0,
+		"sinapsis_acelerada": 0,
+		"balistica_predictiva": 0,
+		"compactador": 0,
+		"biomasa_eficiente": 0,
+		"imanes_industriales": 0,
+		"recuperacion_restos": 0,
+		"escaner_objetivos": 0
+	})
+	
+	var raw_syns = json.get("unlocked_synergies", [])
+	unlocked_synergies.clear()
+	for s in raw_syns: unlocked_synergies.append(str(s))
+	
+	var raw_protos = json.get("unlocked_protocols", [])
+	unlocked_protocols.clear()
+	for p in raw_protos: unlocked_protocols.append(str(p))
+	
+	active_protocol = str(json.get("active_protocol", ""))
+	has_died_once = bool(json.get("has_died_once", false))
+	chosen_primary_weapon = str(json.get("chosen_primary_weapon", "pistol"))
+	chosen_melee_weapon = str(json.get("chosen_melee_weapon", "daga"))
+	
+	var raw_weapons = json.get("weapons_unlocked", ["pistol", "daga"])
+	codex_unlocks["weapons"].clear()
+	for w in raw_weapons:
+		codex_unlocks["weapons"].append(str(w))
 	
 	scrap_changed.emit(scrap)
 	_save_global_settings(slot)
@@ -481,6 +581,28 @@ func reset_data() -> void:
 	inventory_items.clear()
 	for k in equipment_slots.keys():
 		equipment_slots[k] = null
+	
+	core_upgrades = {
+		"integridad_estructural": 0,
+		"servomotores": 0,
+		"blindaje_compuesto": 0,
+		"sistema_ataque": 0,
+		"sinapsis_acelerada": 0,
+		"balistica_predictiva": 0,
+		"compactador": 0,
+		"biomasa_eficiente": 0,
+		"imanes_industriales": 0,
+		"recuperacion_restos": 0,
+		"escaner_objetivos": 0
+	}
+	unlocked_synergies.clear()
+	unlocked_protocols.clear()
+	active_protocol = ""
+	has_died_once = false
+	chosen_primary_weapon = "pistol"
+	chosen_melee_weapon = "daga"
+	codex_unlocks["weapons"] = ["pistol", "daga"]
+	
 	scrap_changed.emit(scrap)
 	flesh_changed.emit(flesh)
 

@@ -5,7 +5,7 @@ class_name Player
 @export var acceleration: float = 2000.0
 @export var friction: float = 650
 @export var dash_speed: float = 500
-@export var dash_duration: float = 0.2
+@export var dash_duration: float = 0.3
 @export var projectile_scene: PackedScene = preload("res://Scenes/Projectiles/Projectile.tscn")
 @export var weapon_scene: PackedScene = preload("res://Scenes/Weapon/main_weapon.tscn")
 @export var second_weapon_scene: PackedScene = preload("res://Scenes/Weapon/second_weapon.tscn")
@@ -38,6 +38,7 @@ var damage_rect: ColorRect
 @onready var anim_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 var can_shoot: bool = true
+var minigun_hold_time: float = 0.0
 var shoot_timer: Timer
 
 var is_dashing: bool = false
@@ -62,11 +63,17 @@ const TRITURADORA_MAX_ENERGY: float = 600.0
 var trituradora_shockwave_ready: bool = false
 var _last_active_synergy_state: String = ""
 
+var first_hit_taken_in_room: bool = false
+var is_blindaje_reactivo_active: bool = false
+var blindaje_reactivo_timer: Timer = null
+var dash_start_pos: Vector2 = Vector2.ZERO
+
 func _ready() -> void:
 	_init_timers()
 	setup_damage_effect()
 	_init_stats()
 	add_to_group("player")
+	_initialize_protocols()
 	_init_weapon()
 	_apply_game_data_upgrades()
 	_update_hud_health(stats.current_health, stats.max_health)
@@ -82,13 +89,17 @@ func _on_equipment_changed() -> void:
 
 func _update_player_stats() -> void:
 	var bonus_hp_percent = _get_equip_stat("max_health_percent", false)
-	var new_max_hp = int(stats.base_max_health * (1.0 + bonus_hp_percent))
+	var integrity_lvl = GameData.core_upgrades.get("integridad_estructural", 0)
+	var extra_hp = integrity_lvl * 2
+	var new_max_hp = int(stats.base_max_health * (1.0 + bonus_hp_percent)) + extra_hp
 	if new_max_hp != stats.max_health:
 		stats.update_max_health(new_max_hp)
 		
 	var bonus_speed_percent = _get_equip_stat("move_speed_percent", false)
 	var flat_speed = _get_equip_stat("move_speed", false)
-	stats.move_speed = (stats.base_move_speed + flat_speed) * (1.0 + bonus_speed_percent)
+	var servo_lvl = GameData.core_upgrades.get("servomotores", 0)
+	var perm_speed_mult = 1.0 + (servo_lvl * 0.01)
+	stats.move_speed = (stats.base_move_speed + flat_speed) * (1.0 + bonus_speed_percent) * perm_speed_mult
 	
 	_apply_synergy_weapon_override()
 	
@@ -143,6 +154,11 @@ func _init_timers() -> void:
 	_create_invuln_timer()
 	_create_weapon_hide_timer()
 	_create_furia_timer()
+	
+	blindaje_reactivo_timer = Timer.new()
+	blindaje_reactivo_timer.one_shot = true
+	add_child(blindaje_reactivo_timer)
+	blindaje_reactivo_timer.timeout.connect(func(): is_blindaje_reactivo_active = false)
 
 func _create_shoot_timer() -> void:
 	shoot_timer = Timer.new()
@@ -222,6 +238,7 @@ func _apply_game_data_upgrades() -> void:
 	GameData.apply_to_melee(second_weapon)
 
 func _physics_process(delta: float) -> void:
+	_update_minigun_hold_time(delta)
 	_check_dash_input()
 	_process_movement(delta)
 	update_glock()
@@ -237,6 +254,8 @@ func _check_dash_input() -> void:
 
 func _start_dash() -> void:
 	is_dashing = true
+	dash_start_pos = global_position
+	set_collision_mask_value(2, false)
 	dash_timer.start(dash_duration)
 	var bonus_cd_pct = _get_equip_stat("dash_cooldown_percent", false)
 	var final_cd = 5.0 * (1.0 + bonus_cd_pct)
@@ -321,7 +340,20 @@ func _apply_friction(delta: float) -> void:
 	velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 
 func _apply_acceleration(input_dir: Vector2, delta: float) -> void:
-	velocity = velocity.move_toward(input_dir * stats.move_speed, acceleration * delta)
+	var final_speed = stats.move_speed
+	if _is_minigun_active() and Input.is_action_pressed("shoot") and can_shoot:
+		final_speed = _apply_minigun_speed_penalty(final_speed)
+	velocity = velocity.move_toward(input_dir * final_speed, acceleration * delta)
+
+func _apply_minigun_speed_penalty(base_val: float) -> float:
+	var level = _get_minigun_level()
+	if level == 1:
+		return base_val * 0.85
+	if level == 2:
+		return base_val * 0.80
+	if level == 3:
+		return base_val * 0.50
+	return base_val
 
 func _update_last_dir(input_dir: Vector2) -> void:
 	last_dir = _get_8_dir_string(input_dir)
@@ -376,8 +408,14 @@ func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, is_main)
 	bonus += SynergyManager.get_synergies_stat_modifier(active_syns, stat_name)
 	
-	if stat_name == "attack_speed" and is_furia_active:
-		bonus += 0.50
+	if stat_name == "attack_speed":
+		if is_furia_active:
+			bonus += 0.50
+		if GameData.get_active_protocol() == "furia_de_titanio" and stats.current_health <= stats.max_health * 0.3:
+			bonus += 0.25
+		
+	if is_main:
+		bonus += _get_minigun_stat_bonus(stat_name)
 		
 	return bonus
 
@@ -551,6 +589,8 @@ func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle:
 	if "speed" in proj: proj.speed = p_speed
 	if "piercing" in proj: proj.piercing = piercing
 	if "lifetime" in proj: proj.lifetime = lifetime
+	if "fragmentation_chance" in proj:
+		proj.fragmentation_chance = _get_fragmentation_chance()
 	_assign_homing_target_if_supported(proj)
 
 func _assign_homing_target_if_supported(proj: Node2D) -> void:
@@ -883,14 +923,36 @@ func _on_shoot_timer_timeout() -> void:
 
 func _on_dash_timer_timeout() -> void:
 	is_dashing = false
+	if not is_furia_active:
+		set_collision_mask_value(2, true)
+	if GameData.get_active_protocol() == "reflejo_sintetico":
+		_spawn_dash_hologram(dash_start_pos)
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int, source_name: String = "Infección Lázaro") -> void:
 	if GameData.debug_god_mode: return
+	if is_dashing: return
 	if is_invulnerable: return
 	is_invulnerable = true
 	
+	var base_amount = amount
+	if GameData.get_active_protocol() == "circuito_emergencia" and not first_hit_taken_in_room:
+		first_hit_taken_in_room = true
+		base_amount = int(base_amount * 0.7)
+		
+	if GameData.get_active_protocol() == "blindaje_reactivo":
+		is_blindaje_reactivo_active = true
+		if blindaje_reactivo_timer:
+			blindaje_reactivo_timer.start(3.0)
+			
 	var armor = _get_equip_stat("armor", false)
-	var final_amount = maxi(1, amount - int(armor))
+	var perm_armor = GameData.core_upgrades.get("blindaje_compuesto", 0) * 0.2
+	if is_blindaje_reactivo_active:
+		perm_armor += 2.0
+		
+	var final_amount = maxi(1, base_amount - int(armor + perm_armor))
+	
+	if stats.current_health - final_amount <= 0:
+		GameData.last_killer = source_name
 	
 	invuln_timer.start(0.5)
 	stats.take_damage(final_amount)
@@ -981,7 +1043,9 @@ func _update_hud_flesh(amount: int) -> void:
 func _on_died() -> void:
 	process_mode = Node.PROCESS_MODE_DISABLED
 	hide()
+	GameData.has_died_once = true
 	GameData.clear_items()
+	GameData.save_game()
 	_play_death_sound()
 	_show_death_screen()
 
@@ -994,98 +1058,209 @@ func _play_death_sound() -> void:
 	sfx_player.finished.connect(sfx_player.queue_free)
 
 func _show_death_screen() -> void:
-	var overlay = _build_death_overlay()
-	get_tree().root.add_child(overlay)
-	_animate_death_overlay(overlay)
-
-func _build_death_overlay() -> CanvasLayer:
 	var canvas = CanvasLayer.new()
 	canvas.layer = 200
-	var root = _build_death_root()
-	canvas.add_child(root)
-	root.add_child(_build_death_bg())
-	root.add_child(_build_death_label())
-	root.add_child(_build_death_sub_label())
-	return canvas
-
-func _build_death_root() -> Control:
+	get_tree().root.add_child(canvas)
+	
 	var root = Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return root
-
-func _build_death_bg() -> ColorRect:
+	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	canvas.add_child(root)
+	
 	var bg = ColorRect.new()
-	bg.name = "BG"
 	bg.color = Color(0, 0, 0, 0)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return bg
+	root.add_child(bg)
+	
+	var center_box = CenterContainer.new()
+	center_box.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(center_box)
+	
+	var main_vbox = VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 24)
+	main_vbox.modulate.a = 0.0
+	center_box.add_child(main_vbox)
+	
+	var header_vbox = VBoxContainer.new()
+	header_vbox.add_theme_constant_override("separation", 6)
+	main_vbox.add_child(header_vbox)
+	
+	var lbl_title = Label.new()
+	lbl_title.text = "HAS MUERTO"
+	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_title.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	lbl_title.add_theme_font_size_override("font_size", 64)
+	lbl_title.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	lbl_title.add_theme_color_override("font_outline_color", Color(0.6, 0.0, 0.0))
+	lbl_title.add_theme_constant_override("outline_size", 8)
+	header_vbox.add_child(lbl_title)
+	
+	var lbl_sub = Label.new()
+	lbl_sub.text = "VOLVETE MAS FUERTE Y VOLVE A INTENTARLO"
+	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+	lbl_sub.add_theme_font_size_override("font_size", 18)
+	lbl_sub.add_theme_color_override("font_color", Color(0.7, 0.1, 0.1))
+	header_vbox.add_child(lbl_sub)
+	
+	var stats_panel = PanelContainer.new()
+	var flat_box = StyleBoxFlat.new()
+	flat_box.bg_color = Color(0.08, 0.08, 0.08, 0.95)
+	flat_box.border_color = Color(0.25, 0.05, 0.05)
+	flat_box.set_border_width_all(2)
+	flat_box.set_corner_radius_all(6)
+	flat_box.content_margin_left = 24
+	flat_box.content_margin_right = 24
+	flat_box.content_margin_top = 20
+	flat_box.content_margin_bottom = 20
+	stats_panel.add_theme_stylebox_override("panel", flat_box)
+	main_vbox.add_child(stats_panel)
+	
+	var stats_vbox = VBoxContainer.new()
+	stats_vbox.add_theme_constant_override("separation", 16)
+	stats_panel.add_child(stats_vbox)
+	
+	var room_val_lbl = Label.new()
+	room_val_lbl.text = "1 - " + str(GameData.current_run_room)
+	room_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	room_val_lbl.add_theme_font_size_override("font_size", 24)
+	room_val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	var row_rooms = _build_stat_row("SALAS RECORRIDAS", "", room_val_lbl)
+	stats_vbox.add_child(row_rooms)
+	
+	var div1 = ColorRect.new()
+	div1.color = Color(0.2, 0.1, 0.1, 0.5)
+	div1.custom_minimum_size = Vector2(0, 1)
+	stats_vbox.add_child(div1)
+	
+	var kills_val_lbl = Label.new()
+	kills_val_lbl.text = str(GameData.run_enemies_killed)
+	kills_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	kills_val_lbl.add_theme_font_size_override("font_size", 24)
+	kills_val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	var row_kills = _build_stat_row("MATASTE", "ENEMIGOS ELIMINADOS", kills_val_lbl)
+	stats_vbox.add_child(row_kills)
+	
+	var div2 = ColorRect.new()
+	div2.color = Color(0.2, 0.1, 0.1, 0.5)
+	div2.custom_minimum_size = Vector2(0, 1)
+	stats_vbox.add_child(div2)
+	
+	var killer_val_lbl = Label.new()
+	killer_val_lbl.text = GameData.last_killer
+	killer_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	killer_val_lbl.add_theme_font_size_override("font_size", 20)
+	killer_val_lbl.add_theme_color_override("font_color", Color(0.9, 0.2, 0.2))
+	var row_killer = _build_stat_row("TE HA MATADO", "FUENTE DE DAÑO", killer_val_lbl)
+	stats_vbox.add_child(row_killer)
+	
+	var btn = Button.new()
+	btn.custom_minimum_size = Vector2(300, 56)
+	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	
+	var sb_normal = StyleBoxFlat.new()
+	sb_normal.bg_color = Color(0.35, 0.08, 0.08)
+	sb_normal.border_color = Color(0.5, 0.1, 0.1)
+	sb_normal.set_border_width_all(2)
+	sb_normal.set_corner_radius_all(6)
+	
+	var sb_hover = StyleBoxFlat.new()
+	sb_hover.bg_color = Color(0.45, 0.1, 0.1)
+	sb_hover.border_color = Color(0.6, 0.15, 0.15)
+	sb_hover.set_border_width_all(2)
+	sb_hover.set_corner_radius_all(6)
+	
+	var sb_pressed = StyleBoxFlat.new()
+	sb_pressed.bg_color = Color(0.25, 0.05, 0.05)
+	sb_pressed.border_color = Color(0.4, 0.08, 0.08)
+	sb_pressed.set_border_width_all(2)
+	sb_pressed.set_corner_radius_all(6)
+	
+	btn.add_theme_stylebox_override("normal", sb_normal)
+	btn.add_theme_stylebox_override("hover", sb_hover)
+	btn.add_theme_stylebox_override("pressed", sb_pressed)
+	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	
+	var btn_hbox = HBoxContainer.new()
+	btn_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	btn_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(btn_hbox)
+	
+	var btn_lbl = Label.new()
+	btn_lbl.text = "VOLVER AL LABORATORIO"
+	btn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	btn_lbl.add_theme_font_size_override("font_size", 20)
+	btn_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	btn_hbox.add_child(btn_lbl)
+	
+	var btn_aligner = CenterContainer.new()
+	btn_aligner.add_child(btn)
+	main_vbox.add_child(btn_aligner)
+	
+	btn.pressed.connect(_on_return_button_pressed.bind(canvas, bg, main_vbox))
+	
+	var footer_hbox = HBoxContainer.new()
+	footer_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	main_vbox.add_child(footer_hbox)
+	
+	var footer_lbl = Label.new()
+	footer_lbl.text = "CHATARRA OBTENIDA EN ESTA RUN: " + str(GameData.run_scrap_collected)
+	footer_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+	footer_lbl.add_theme_font_size_override("font_size", 16)
+	footer_lbl.add_theme_color_override("font_color", Color(0.65, 0.65, 0.65))
+	footer_hbox.add_child(footer_lbl)
+	
+	var tween = canvas.create_tween().set_parallel(true)
+	tween.tween_property(bg, "color", Color(0, 0, 0, 0.85), 0.6)
+	tween.tween_property(main_vbox, "modulate:a", 1.0, 0.5).set_delay(0.2)
 
-func _build_death_label() -> Label:
-	var lbl = Label.new()
-	lbl.name = "DeathLabel"
-	lbl.text = "MORISTE"
-	lbl.set_anchors_preset(Control.PRESET_CENTER)
-	lbl.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	lbl.grow_vertical = Control.GROW_DIRECTION_BOTH
-	lbl.offset_left = -400.0
-	lbl.offset_right = 400.0
-	lbl.offset_top = -80.0
-	lbl.offset_bottom = 80.0
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 96)
-	lbl.add_theme_color_override("font_color", Color(1, 0.1, 0.1, 0))
-	lbl.add_theme_color_override("font_outline_color", Color(0.6, 0, 0, 0))
-	lbl.add_theme_constant_override("outline_size", 6)
-	return lbl
+func _build_stat_row(title: String, subtitle: String, value_node: Control) -> HBoxContainer:
+	var row = HBoxContainer.new()
+	row.custom_minimum_size = Vector2(450, 48)
+	
+	var left_box = HBoxContainer.new()
+	left_box.alignment = BoxContainer.ALIGNMENT_BEGIN
+	left_box.add_theme_constant_override("separation", 12)
+	row.add_child(left_box)
+	
+	var text_box = VBoxContainer.new()
+	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	text_box.add_theme_constant_override("separation", 0)
+	left_box.add_child(text_box)
+	
+	var lbl_title = Label.new()
+	lbl_title.text = title
+	lbl_title.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+	lbl_title.add_theme_font_size_override("font_size", 16)
+	lbl_title.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	text_box.add_child(lbl_title)
+	
+	if subtitle != "":
+		var lbl_sub = Label.new()
+		lbl_sub.text = subtitle
+		lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+		lbl_sub.add_theme_font_size_override("font_size", 11)
+		lbl_sub.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		text_box.add_child(lbl_sub)
+		
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+	
+	row.add_child(value_node)
+	return row
 
-func _build_death_sub_label() -> Label:
-	var sub = Label.new()
-	sub.name = "SubLabel"
-	sub.text = "Volviendo al laboratorio..."
-	sub.set_anchors_preset(Control.PRESET_CENTER)
-	sub.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	sub.offset_left = -300.0
-	sub.offset_right = 300.0
-	sub.offset_top = 60.0
-	sub.offset_bottom = 110.0
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_size_override("font_size", 28)
-	sub.add_theme_color_override("font_color", Color(1, 1, 1, 0))
-	return sub
-
-func _animate_death_overlay(canvas: CanvasLayer) -> void:
-	var root: Control = canvas.get_child(0)
-	var bg: ColorRect = root.get_node("BG")
-	var lbl: Label = root.get_node("DeathLabel")
-	var sub: Label = root.get_node("SubLabel")
-	var t = canvas.create_tween().set_parallel(false)
-	_setup_show_death_animation(t, bg, lbl, sub)
-	_setup_pulse_death_animation(t, lbl)
-	_setup_hide_death_animation(t, bg, lbl, sub)
-	t.finished.connect(_on_death_animation_finished.bind(canvas))
-
-func _setup_show_death_animation(t: Tween, bg: ColorRect, lbl: Label, _sub: Label) -> void:
-	t.tween_property(bg, "color", Color(0, 0, 0, 0.85), 0.5)
-	t.tween_property(lbl, "theme_override_colors/font_color", Color(1, 0.1, 0.1, 1), 0.3)
-	t.parallel().tween_property(lbl, "theme_override_colors/font_outline_color", Color(0.6, 0, 0, 1), 0.3)
-
-func _setup_pulse_death_animation(t: Tween, lbl: Label) -> void:
-	t.tween_property(lbl, "scale", Vector2(1.08, 1.08), 0.15).set_trans(Tween.TRANS_SINE)
-	t.tween_property(lbl, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_SINE)
-
-func _setup_hide_death_animation(t: Tween, bg: ColorRect, lbl: Label, sub: Label) -> void:
-	t.tween_property(sub, "theme_override_colors/font_color", Color(1, 1, 1, 0.8), 0.4)
-	t.tween_interval(1.4)
-	t.tween_property(bg, "color", Color(0, 0, 0, 0), 0.5)
-	t.parallel().tween_property(lbl, "theme_override_colors/font_color", Color(1, 0.1, 0.1, 0), 0.5)
-	t.parallel().tween_property(sub, "theme_override_colors/font_color", Color(1, 1, 1, 0), 0.5)
-
-func _on_death_animation_finished(canvas: CanvasLayer) -> void:
-	canvas.queue_free()
-	SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
+func _on_return_button_pressed(canvas: CanvasLayer, bg: ColorRect, main_vbox: VBoxContainer) -> void:
+	var tween = canvas.create_tween().set_parallel(true)
+	tween.tween_property(bg, "color", Color(0, 0, 0, 0), 0.5)
+	tween.tween_property(main_vbox, "modulate:a", 0.0, 0.4)
+	tween.chain().tween_callback(func():
+		canvas.queue_free()
+		GameData.clear_items()
+		SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
+	)
 
 func _unhandled_input(event: InputEvent) -> void:
 	_handle_debug_cheats(event)
@@ -1107,6 +1282,8 @@ func _process_debug_keycode(keycode: int) -> void:
 	if keycode == KEY_F4:
 		_cheat_trituradora_items()
 	if keycode == KEY_F5:
+		_cheat_minigun_items()
+	if keycode == KEY_F6:
 		_toggle_debug_scene()
 
 func _toggle_debug_scene() -> void:
@@ -1180,8 +1357,157 @@ func _cheat_trituradora_items() -> void:
 	_add_item_if_valid(inventory_node, reforzado)
 	print("Trituradora Biomecanica cheated items added to inventory!")
 
+func _cheat_minigun_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var mezcladora = load("res://Art/Items/Weapons/Item1.tres") as ItemData
+	var motocicleta = load("res://Art/Items/Weapons/Item6.tres") as ItemData
+	var sierra = load("res://Art/Items/Weapons/Item9_SierraCircular.tres") as ItemData
+	_add_item_if_valid(inventory_node, mezcladora)
+	_add_item_if_valid(inventory_node, motocicleta)
+	_add_item_if_valid(inventory_node, sierra)
+	print("Minigun cheated items added to inventory!")
+
 func _play_dash_sound() -> void:
 	var dash_sound = get_node_or_null("Dash")
 	if not dash_sound: return
 	if not dash_sound.has_method("play"): return
 	dash_sound.play()
+
+func _update_minigun_hold_time(delta: float) -> void:
+	if _is_minigun_active() and Input.is_action_pressed("shoot"):
+		minigun_hold_time += delta
+	else:
+		minigun_hold_time = 0.0
+
+func _is_minigun_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_ranged_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
+	return active_syns.has("minigun")
+
+func _get_minigun_level() -> int:
+	if minigun_hold_time >= 3.0:
+		return 3
+	if minigun_hold_time >= 1.5:
+		return 2
+	if minigun_hold_time > 0.0:
+		return 1
+	return 0
+
+func _get_minigun_stat_bonus(stat_name: String) -> float:
+	if not _is_minigun_active():
+		return 0.0
+	var lvl = _get_minigun_level()
+	if lvl == 0:
+		return 0.0
+	return _calculate_minigun_bonus(stat_name, lvl)
+
+func _calculate_minigun_bonus(stat_name: String, lvl: int) -> float:
+	if stat_name == "damage_multiplier":
+		return _get_minigun_damage_bonus(lvl)
+	if stat_name == "attack_speed":
+		return _get_minigun_speed_bonus(lvl)
+	if stat_name == "crit_chance":
+		return _get_minigun_crit_bonus(lvl)
+	return 0.0
+
+func _get_minigun_damage_bonus(lvl: int) -> float:
+	if lvl == 1:
+		return 0.10
+	if lvl == 2:
+		return 0.25
+	if lvl == 3:
+		return 0.40
+	return 0.0
+
+func _get_minigun_speed_bonus(lvl: int) -> float:
+	if lvl == 1:
+		return 0.10
+	if lvl == 2:
+		return 0.25
+	if lvl == 3:
+		return 0.60
+	return 0.0
+
+func _get_minigun_crit_bonus(lvl: int) -> float:
+	if lvl == 2:
+		return 0.10
+	if lvl == 3:
+		return 0.15
+	return 0.0
+
+func _get_fragmentation_chance() -> float:
+	if _is_minigun_active() and _get_minigun_level() == 3:
+		return 0.20
+	return 0.0
+
+func _initialize_protocols() -> void:
+	first_hit_taken_in_room = false
+	
+	if GameData.get_active_protocol() == "enjambre_residual":
+		_spawn_allied_bee()
+		
+	if GameData.get_active_protocol() == "sobrecarga" and get_tree().current_scene and get_tree().current_scene.has_method("_clear_room"):
+		_activate_sobrecarga()
+
+func _spawn_allied_bee() -> void:
+	var bee_script = load("res://Scripts/Player/allied_bee.gd")
+	if not bee_script:
+		return
+	var bee = CharacterBody2D.new()
+	bee.set_script(bee_script)
+	bee.global_position = global_position + Vector2(-40, -40)
+	get_tree().current_scene.call_deferred("add_child", bee)
+
+func _activate_sobrecarga() -> void:
+	GameData.temporary_damage_multiplier = 1.10
+	_apply_game_data_upgrades()
+	
+	var t = get_tree().create_timer(5.0)
+	t.timeout.connect(func():
+		GameData.temporary_damage_multiplier = 1.0
+		_apply_game_data_upgrades()
+	)
+
+func _spawn_dash_hologram(start_pos: Vector2) -> void:
+	if not anim_sprite:
+		return
+	var holo = Sprite2D.new()
+	if anim_sprite.sprite_frames and anim_sprite.animation:
+		var frame_texture = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame)
+		holo.texture = frame_texture
+	holo.global_position = start_pos
+	holo.modulate = Color(0.0, 0.7, 1.0, 0.7)
+	holo.scale = anim_sprite.scale
+	holo.flip_h = anim_sprite.flip_h
+	get_tree().current_scene.add_child(holo)
+	
+	var targets = get_tree().get_nodes_in_group("enemy")
+	var target_dir = Vector2.RIGHT
+	if not targets.is_empty():
+		var nearest = targets[0]
+		var min_d = start_pos.distance_to(nearest.global_position)
+		for t in targets:
+			var d = start_pos.distance_to(t.global_position)
+			if d < min_d:
+				nearest = t
+				min_d = d
+		target_dir = start_pos.direction_to(nearest.global_position)
+	else:
+		target_dir = dash_dir
+		
+	var p_scene = projectile_scene
+	if active_weapon:
+		p_scene = _get_weapon_proj_scene(p_scene)
+		
+	var dmg = (10.0 + _get_equip_stat("damage")) * (1.0 + _get_equip_stat("damage_multiplier"))
+	if active_weapon:
+		dmg = (_get_weapon_damage() + _get_equip_stat("damage")) * (_get_weapon_damage_multiplier() + _get_equip_stat("damage_multiplier"))
+		
+	_spawn_bullets(p_scene, 1, 0.0, target_dir, dmg, 500.0, start_pos, 0, 0.0, 2.0, 3.0)
+	
+	var tween = create_tween()
+	tween.tween_property(holo, "modulate:a", 0.0, 0.4)
+	tween.chain().tween_callback(holo.queue_free)

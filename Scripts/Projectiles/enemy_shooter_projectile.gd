@@ -6,6 +6,7 @@ extends Area2D
 var direction: Vector2 = Vector2.RIGHT
 var damage: float = 10.0
 var target_group: String = "player"
+var source_name: String = "Infección Lázaro"
 
 @onready var anim_sprite = $AnimatedSprite2D
 
@@ -27,7 +28,7 @@ func _physics_process(delta):
 func _on_body_entered(body: Node2D):
 	if body.is_in_group(target_group):
 		if body.has_method("take_damage"):
-			body.take_damage(int(damage))
+			body.take_damage(int(damage), source_name)
 		_explode()
 	elif not body.is_in_group("enemy"):
 		# Colisión con pared u otro objeto sólido

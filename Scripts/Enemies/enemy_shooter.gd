@@ -141,6 +141,7 @@ func shoot_at_target() -> void:
 	if not target or not projectile_scene: return
 	var dir = (target.global_position - global_position).normalized()
 	var proj = projectile_scene.instantiate()
+	proj.source_name = "Mutante Tirador"
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = global_position
 	proj.setup(dir, damage, "player")

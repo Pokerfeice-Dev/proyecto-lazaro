@@ -64,6 +64,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if is_open:
 			close()
 		else:
+			var root = get_tree().root
+			if root.has_node("WeaponSelectionMenu") or root.has_node("UpgradesMenu"):
+				return
 			open()
 
 func open() -> void:

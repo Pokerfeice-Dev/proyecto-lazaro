@@ -39,6 +39,13 @@ const SYNERGIES = {
 		"name": "Trituradora Biomecánica",
 		"description": "Carga de Impacto: Acumulás energía al moverte. Al máximo, tu próximo dash genera una onda de choque (daño y empuje en área) y otorga 2s de invulnerabilidad.",
 		"required_items": ["torso_blindado", "piernas_rodantes", "brazo_reforzado"]
+	},
+	"minigun": {
+		"name": "Minigun",
+		"description": "La UZI es reemplazada por una ametralladora biomecánica alimentada por chatarra viva. Mantener presionado el disparo aumenta progresivamente las RPM y el daño.",
+		"required_weapon": "uzi",
+		"required_items": ["mezcladora", "motocicleta", "sierra_circular"],
+		"weapon_scene_override": "res://Scenes/Weapon/Minigun.tscn"
 	}
 }
 

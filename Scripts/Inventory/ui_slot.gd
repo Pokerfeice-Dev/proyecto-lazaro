@@ -36,6 +36,7 @@ func _setup_slot_style() -> void:
 func update_slot(new_item: ItemData, qty: int = 1) -> void:
 	item = new_item
 	for c in get_children():
+		remove_child(c)
 		c.queue_free()
 	
 	tooltip_text = ""
@@ -46,6 +47,7 @@ func update_slot(new_item: ItemData, qty: int = 1) -> void:
 			trect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			trect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			trect.set_anchors_preset(Control.PRESET_FULL_RECT)
+			trect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			add_child(trect)
 		else:
 			var lbl = Label.new()
@@ -56,12 +58,14 @@ func update_slot(new_item: ItemData, qty: int = 1) -> void:
 			lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 			lbl.add_theme_font_size_override("font_size", 10)
 			lbl.add_theme_color_override("font_color", Color(1, 1, 1))
+			lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			add_child(lbl)
 		
 		# Mostrar cantidad si es mayor a 1
 		if qty > 1:
 			var helper_control = Control.new()
 			helper_control.set_anchors_preset(Control.PRESET_FULL_RECT)
+			helper_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			add_child(helper_control)
 			
 			var count_lbl = Label.new()
@@ -69,11 +73,17 @@ func update_slot(new_item: ItemData, qty: int = 1) -> void:
 			count_lbl.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 			count_lbl.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 			count_lbl.grow_vertical = Control.GROW_DIRECTION_BEGIN
-			count_lbl.position = Vector2(44, 44)
-			count_lbl.add_theme_font_size_override("font_size", 12)
+			count_lbl.offset_left = -20
+			count_lbl.offset_top = -16
+			count_lbl.offset_right = -4
+			count_lbl.offset_bottom = -2
+			count_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			count_lbl.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+			count_lbl.add_theme_font_size_override("font_size", 10)
 			count_lbl.add_theme_color_override("font_color", Color(0, 1, 0.8)) # Color cian/verde
 			count_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 			count_lbl.add_theme_constant_override("outline_size", 3)
+			count_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			helper_control.add_child(count_lbl)
 	else:
 		var lbl = Label.new()
@@ -84,6 +94,7 @@ func update_slot(new_item: ItemData, qty: int = 1) -> void:
 		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 		lbl.add_theme_font_size_override("font_size", 12)
 		lbl.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(lbl)
 
 func _gui_input(event: InputEvent) -> void:

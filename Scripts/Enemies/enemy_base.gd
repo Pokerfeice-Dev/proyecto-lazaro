@@ -29,12 +29,19 @@ var is_dying: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO
 var hit_stun_timer: float = 0.0
 
+var is_elite: bool = false
 signal enemy_died(enemy: EnemyBase)
 
 func _ready() -> void:
 	current_health = max_health
 	add_to_group("enemy")
 	_find_player()
+	if is_elite:
+		max_health = int(max_health * 1.5)
+		current_health = max_health
+		damage = int(damage * 1.25)
+		scale = Vector2(1.25, 1.25)
+		modulate = Color(1.3, 0.8, 0.8)
 	_setup_health_bar()
 
 
@@ -198,6 +205,7 @@ func _check_death() -> void:
 func die() -> void:
 	if is_dying: return
 	is_dying = true
+	GameData.run_enemies_killed += 1
 	_unlock_bestiary_entry()
 	enemy_died.emit(self)
 	_attempt_drops()
@@ -227,6 +235,16 @@ func _hide_health_bar() -> void:
 func _attempt_drops() -> void:
 	var spawns_flesh = _should_drop_flesh()
 	var spawns_item = _should_drop_item()
+	
+	if is_elite:
+		var extra_scrap = randi_range(5, 10)
+		GameData.add_scrap(extra_scrap)
+		
+		for k in range(3):
+			var offset = Vector2(randf_range(-15, 15), randf_range(-15, 15))
+			_spawn_flesh_at(global_position + offset)
+		_spawn_item_at(global_position)
+		return
 
 	if spawns_flesh and spawns_item:
 		_spawn_flesh_at(global_position + Vector2(-20, 0))
@@ -243,7 +261,8 @@ func _attempt_drops() -> void:
 
 func _should_drop_flesh() -> bool:
 	if not flesh_scene: return false
-	return randf() <= flesh_drop_chance
+	var bonus = GameData.core_upgrades.get("recuperacion_restos", 0) * 0.01
+	return randf() <= (flesh_drop_chance + bonus)
 
 func _should_drop_item() -> bool:
 	if not item_drop_scene:
@@ -251,7 +270,8 @@ func _should_drop_item() -> bool:
 		return false
 	if all_items.is_empty():
 		return false
-	return randf() <= item_drop_chance
+	var bonus = GameData.core_upgrades.get("recuperacion_restos", 0) * 0.01
+	return randf() <= (item_drop_chance + bonus)
 
 func _spawn_flesh_at(pos: Vector2) -> void:
 	var flesh_inst = flesh_scene.instantiate()

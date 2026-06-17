@@ -13,6 +13,13 @@ var is_collected: bool = false
 func _ready() -> void:
 	add_to_group("flesh")
 	_connect_grab_area()
+	_apply_magnet_upgrade()
+
+func _apply_magnet_upgrade() -> void:
+	if not grab_area: return
+	var level = GameData.core_upgrades.get("imanes_industriales", 0)
+	var multiplier = 1.0 + (level * 0.05)
+	grab_area.scale = Vector2(multiplier, multiplier)
 
 func _connect_grab_area() -> void:
 	if not grab_area: return
