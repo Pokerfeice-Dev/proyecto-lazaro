@@ -43,11 +43,21 @@ func _populate_slots() -> void:
 		var info = GameData.get_slot_info(i)
 		if info.exists:
 			var time_str = GameData.format_time(info.play_time)
-			slot_btn.text = "Slot %d - %s\nScrap: %d" % [i, time_str, info.scrap]
+			var last_save = info.get("last_save_time", "")
+			if last_save == "":
+				last_save = "--/--/----"
+			slot_btn.text = "Slot %d - %s\nNivel Máx: %d-%d | Despliegues: %d\nGuardado: (%s)" % [
+				i,
+				time_str,
+				info.get("max_reached_level", 1),
+				info.get("max_reached_room", 1),
+				info.get("total_deployments", 0),
+				last_save
+			]
 		else:
 			slot_btn.text = "Slot %d - Vacío" % i
 			
-		slot_btn.add_theme_font_size_override("font_size", 28)
+		slot_btn.add_theme_font_size_override("font_size", 16)
 		slot_btn.pressed.connect(_on_slot_selected.bind(i, info.exists))
 		hbox.add_child(slot_btn)
 		

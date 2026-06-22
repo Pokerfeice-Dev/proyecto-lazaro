@@ -6,9 +6,9 @@
 [resource]
 script = ExtResource("2_script")
 id = "cabeza_humana"
-item_name = "Cabeza Humana"
+item_name = "Cabeza Humana Preservada"
 icon = ExtResource("1_tex")
 stats = {
 "bullet_count": 1.0,
-"damage_multiplier": 0.2
+"damage_multiplier": -0.15
 }

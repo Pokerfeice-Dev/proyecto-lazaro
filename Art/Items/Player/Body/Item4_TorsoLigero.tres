@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Texture2D" uid="uid://drd6p62pd47o4" path="res://icon.svg" id="1_tex"]
+[ext_resource type="Texture2D" path="res://Art/Items/Player/Body/Item4_TorsoLigero.png" id="1_tex"]
 [ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
 
 [resource]
@@ -12,7 +12,7 @@ type = 1
 slot = 6
 stats = {
 "armor": -1.0,
-"dash_cooldown_percent": -0.3,
+"dash_cooldown_percent": -0.2,
 "dash_speed_percent": 0.15,
 "max_health_percent": -0.15,
 "move_speed_percent": 0.1

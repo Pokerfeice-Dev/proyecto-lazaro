@@ -31,14 +31,36 @@ const SYNERGIES = {
 		"weapon_scene_override": "res://Scenes/Weapon/RoadkillPistol.tscn"
 	},
 	"bestia_de_caza": {
-		"name": "Bestia de Caza",
-		"description": "Instinto depredador: reemplaza el arma a rango por una segunda arma cuerpo a cuerpo. Dash activa furia por 3s (+50% velocidad de ataque, ataque de área y atraviesa enemigos pequeños).",
-		"required_items": ["piernas_caninas", "brazo_armado", "torso_ligero"]
+		"name": "Instinto Canino",
+		"description": "Instinto Salvaje: Reemplaza el arma a rango por una segunda arma cuerpo a cuerpo. Otorga +15% daño, +20% vel. ataque, +20% vel. movimiento, pero reduce la defensa en -2 (más arriesgado). Dash activa furia por 3s.",
+		"required_items": ["torso_espinado", "brazo_armado", "piernas_caninas"],
+		"stat_modifiers": {
+			"damage_multiplier": 0.15,
+			"attack_speed": 0.20,
+			"move_speed_percent": 0.20,
+			"armor": -2.0
+		}
 	},
 	"trituradora_biomecanica": {
-		"name": "Trituradora Biomecánica",
-		"description": "Carga de Impacto: Acumulás energía al moverte. Al máximo, tu próximo dash genera una onda de choque (daño y empuje en área) y otorga 2s de invulnerabilidad.",
-		"required_items": ["torso_blindado", "piernas_rodantes", "brazo_reforzado"]
+		"name": "Impulso Ligero",
+		"description": "Carga Cinética: Acumulás energía al moverte rápidamente. Al máximo, tu próximo dash genera una onda de choque (daño y empuje en área) y otorga 0.5s de invulnerabilidad. Otorga +10% vel. movimiento y -15% cooldown de dash.",
+		"required_items": ["torso_ligero", "piernas_rodantes", "brazo_ligero"],
+		"stat_modifiers": {
+			"move_speed_percent": 0.10,
+			"dash_cooldown_percent": -0.15
+		}
+	},
+	"acorazado_muscular": {
+		"name": "Acorazado Muscular",
+		"description": "Poder Descomunal: Incrementa el daño base en +20%, el empuje en +15%, la vida máxima en +25% y la defensa en +3, a cambio de reducir la velocidad de movimiento en -5%.",
+		"required_items": ["torso_blindado", "brazo_reforzado", "piernas_bionicas"],
+		"stat_modifiers": {
+			"damage_multiplier": 0.20,
+			"knockback_percent": 0.15,
+			"max_health_percent": 0.25,
+			"armor": 3.0,
+			"move_speed_percent": -0.05
+		}
 	},
 	"minigun": {
 		"name": "Minigun",

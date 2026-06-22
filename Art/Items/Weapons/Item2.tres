@@ -9,6 +9,7 @@ id = "aguijon_mecanico"
 item_name = "Aguijón Mecánico"
 icon = ExtResource("1_tex")
 stats = {
+"damage": -1.0,
 "piercing": 1.0,
-"projectile_speed": 100.0
+"projectile_speed": 50.0
 }

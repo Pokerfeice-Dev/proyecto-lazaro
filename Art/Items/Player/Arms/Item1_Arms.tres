@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "arms_hp"
-item_name = "Brazos Reforzados"
+item_name = "Módulo de Brazos (HP)"
 icon = ExtResource("1_tex")
 type = 2
 slot = 7

@@ -75,127 +75,127 @@ const DATA = {
 		"arms_hp": {
 			"name": "Módulo de Brazos (HP)",
 			"lore": "Servo-implante que optimiza la distribución de energía defensiva del agente.",
-			"stats": "Incrementa la salud del agente.",
+			"stats": "+10% Vida Max",
 			"icon": preload("res://Art/Items/Player/Arms/Item1_Arms.png")
 		},
 		"chest_armor": {
 			"name": "Blindaje de Torso",
 			"lore": "Placa reforzada de nano-compuestos absorbentes de impactos cinéticos.",
-			"stats": "Incrementa la armadura global.",
+			"stats": "+2 Defensa, +5% Vida Max",
 			"icon": preload("res://Art/Items/Player/Body/Item1_Chest.png")
 		},
 		"boots_speed": {
 			"name": "Servobotas de Combate",
 			"lore": "Botas equipadas con amortiguadores hidráulicos de alta presión.",
-			"stats": "Incrementa la velocidad de movimiento.",
+			"stats": "+12% Vel. Movimiento",
 			"icon": preload("res://Art/Items/Player/Legs/Item1_Boots.png")
 		},
 		"torso_blindado": {
-			"name": "Torso Blindado",
-			"lore": "Blindaje pesado e impenetrable a costa de agilidad motriz.",
-			"stats": "+25% Vida Max, +2 Defensa, -10% Vel. Movimiento, -15% Vel. Dash",
-			"icon": preload("res://icon.svg")
+			"name": "Torso Musculoso",
+			"lore": "Un torso injertado con tejido muscular denso y placas subdérmicas acorazadas.",
+			"stats": "+25% Vida Max, +2 Defensa, -5% Vel. Movimiento",
+			"icon": preload("res://Art/Items/Player/Body/Item2_TorsoBlindado.png")
 		},
 		"torso_espinado": {
-			"name": "Torso Espinado",
-			"lore": "Placa de espinas mecánicas reflectantes de fuerza cinética.",
+			"name": "Torso Canino",
+			"lore": "Estructura espinada salvaje y placas cinéticas que canalizan instintos primordiales.",
 			"stats": "+10% Vida Max, +1 Defensa, Refleja empuje al ser dañado",
-			"icon": preload("res://icon.svg")
+			"icon": preload("res://Art/Items/Player/Body/Item3_TorsoEspinado.png")
 		},
 		"torso_ligero": {
 			"name": "Torso Ligero",
-			"lore": "Estructura de fibra de carbono ultra liviana enfocada en la velocidad extrema.",
-			"stats": "+10% Vel. Movimiento, +15% Vel. Dash, -30% CD Dash, -15% Vida Max, -1 Defensa",
-			"icon": preload("res://icon.svg")
+			"lore": "Carcasa aerodinámica ultra delgada de fibra de carbono para máxima flexibilidad.",
+			"stats": "+10% Vel. Movimiento, +15% Vel. Dash, -20% CD Dash, -15% Vida Max, -1 Defensa",
+			"icon": preload("res://Art/Items/Player/Body/Item4_TorsoLigero.png")
 		},
 		"piernas_rodantes": {
-			"name": "Piernas Rodantes",
-			"lore": "Prótesis cibernéticas dotadas de ruedas de alta aceleración.",
-			"stats": "+15% Vel. Movimiento, +15% Vel. Dash, -20% CD Dash, -10% Vida Max",
-			"icon": preload("res://icon.svg")
+			"name": "Piernas Ligeras",
+			"lore": "Prótesis cibernéticas dotadas de ruedas de alta aceleración para desplazamiento continuo.",
+			"stats": "+15% Vel. Movimiento, +20% Vel. Dash, -30% CD Dash",
+			"icon": preload("res://Art/Items/Player/Legs/Item2_PiernasRodantes.png")
 		},
 		"piernas_caninas": {
 			"name": "Piernas Caninas",
 			"lore": "Extremidades híbridas canino-cibernéticas diseñadas para reflejos feroces.",
 			"stats": "+10% Vel. Movimiento, +25% Vel. Ataque, +1 Defensa",
-			"icon": preload("res://icon.svg")
+			"icon": preload("res://Art/Items/Player/Legs/Item3_PiernasCaninas.png")
 		},
 		"piernas_bionicas": {
-			"name": "Piernas Biónicas",
-			"lore": "Motores servo-asistidos optimizados para la recolección bio-química.",
-			"stats": "+10% Vel. Movimiento, +10% Vel. Dash, +1 Vida al juntar flesh, -15% Vida Max",
-			"icon": preload("res://icon.svg")
+			"name": "Piernas Musculosas",
+			"lore": "Extremidades inferiores servo-asistidas con núcleos de potencia muscular.",
+			"stats": "+15% Vida Max, +1 Defensa, +1 Vida al juntar flesh, -5% Vel. Movimiento",
+			"icon": preload("res://Art/Items/Player/Legs/Item4_PiernasBionicas.png")
 		},
 		"brazo_reforzado": {
-			"name": "Brazo Reforzado",
-			"lore": "Implante cibernético potenciado por pistones de impacto.",
-			"stats": "+10% Empuje Melee, +1 Defensa",
-			"icon": preload("res://icon.svg")
+			"name": "Brazo Musculoso",
+			"lore": "Implante de brazo potenciado con tendones sintéticos de alta presión y fibras densas.",
+			"stats": "+3 Daño Base, +15% Empuje Melee, +1 Defensa",
+			"icon": preload("res://Art/Items/Player/Arms/Item2_BrazoReforzado.png")
 		},
 		"brazo_ligero": {
 			"name": "Brazo Ligero",
-			"lore": "Servo-brazo delgado calibrado para la alta frecuencia de golpes.",
-			"stats": "+10% Vel. Ataque, -10% Vida Max",
-			"icon": preload("res://icon.svg")
+			"lore": "Brazo estilizado de fibra de carbono optimizado para movimientos veloces.",
+			"stats": "+15% Vel. Ataque, +5% Vel. Movimiento",
+			"icon": preload("res://Art/Items/Player/Arms/Item3_BrazoLigero.png")
 		},
 		"brazo_armado": {
-			"name": "Brazo Armado",
-			"lore": "Extensión retráctil de hojas afiladas en aleación de titanio.",
+			"name": "Brazo Canino",
+			"lore": "Hojas retráctiles afiladas de titanio integradas que imitan garras salvajes.",
 			"stats": "+20% Alcance Melee, +15% Vel. Ataque, -1 Defensa",
-			"icon": preload("res://icon.svg")
+			"icon": preload("res://Art/Items/Player/Arms/Item4_BrazoArmado.png")
 		},
 		"mezcladora": {
 			"name": "Licuadora Mezcladora",
 			"lore": "Dispositivo para procesar tejidos mutados y obtener fluidos estabilizados.",
-			"stats": "+Daño, +Empuje, -Vel. Proyectil",
+			"stats": "+5 Daño, +30 Empuje, -50 Vel. Proyectil",
 			"icon": preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
 		},
 		"aguijon_mecanico": {
 			"name": "Aguijón Mecánico",
 			"lore": "Componente ofensivo que inyecta neurotoxinas desestabilizadoras.",
-			"stats": "Aumenta la cadencia y el daño crítico.",
+			"stats": "+1 Perforación, +50 Vel. Proyectil, -1 Daño",
 			"icon": preload("res://Art/Items/Weapons/Item2_AguijonMecanico.png")
 		},
 		"cerebro": {
 			"name": "Cerebro Sintético",
 			"lore": "Un procesador bio-orgánico que asiste en los algoritmos de disparo del arma.",
-			"stats": "Mejora los cálculos críticos y el daño.",
+			"stats": "-5 Dispersión, +1.0s Tiempo de Vida",
 			"icon": preload("res://Art/Items/Weapons/Item3_Cerebro.png")
 		},
 		"cabeza_de_perro": {
 			"name": "Cabeza de Sabueso Metálica",
 			"lore": "Reliquia de combate cibernética que infunde ferocidad defensiva.",
-			"stats": "Aumenta la armadura y el daño.",
+			"stats": "+1 Proyectiles, +10% Vel. Ataque, +5 Dispersión",
 			"icon": preload("res://Art/Items/Weapons/Item4_CabezaDePerro.png")
 		},
 		"pulmones": {
 			"name": "Pulmones Bio-Asistidos",
 			"lore": "Implante pulmonar artificial que optimiza el flujo de oxígeno bajo estrés de combate.",
-			"stats": "Aumenta la velocidad y el alcance de los proyectiles.",
+			"stats": "+20% Vel. Ataque, +50 Empuje",
 			"icon": preload("res://Art/Items/Weapons/Item5_Pulmones.png")
 		},
 		"motocicleta": {
 			"name": "Núcleo de Motocicleta",
 			"lore": "Micro-motor de combustión adaptado para forzar la potencia del armamento.",
-			"stats": "Potente aumento al daño y empuje general.",
+			"stats": "+30% Vel. Ataque, -2 Daño",
 			"icon": preload("res://Art/Items/Weapons/Item6_Motocicleta.png")
 		},
 		"colmena": {
 			"name": "Colmena Bio-Mecánica",
 			"lore": "Un enjambre artificial encapsulado capaz de liberar micro-drones defensivos.",
-			"stats": "Aumenta la probabilidad de impacto crítico.",
+			"stats": "+10% Prob. Crítico",
 			"icon": preload("res://Art/Items/Weapons/Item7_Colmena.png")
 		},
 		"cabeza_humana": {
 			"name": "Cabeza Humana Preservada",
 			"lore": "Un cerebro intacto suspendido en solución de nutrientes, optimizando la concentración táctica.",
-			"stats": "Aumenta el conteo de proyectiles y el daño general.",
+			"stats": "+1 Proyectiles, -15% Multiplicador de Daño",
 			"icon": preload("res://Art/Items/Weapons/Item8_CabezaHumana.png")
 		},
 		"sierra_circular": {
 			"name": "Sierra Circular",
 			"lore": "Un disco de acero dentado de alta velocidad para cortar metal y carne.",
-			"stats": "Aumenta el daño y el daño crítico.",
+			"stats": "+20% Multiplicador de Daño, +20% Daño Crítico",
 			"icon": preload("res://Art/Items/Weapons/Item9_SierraCircular.png")
 		}
 	},

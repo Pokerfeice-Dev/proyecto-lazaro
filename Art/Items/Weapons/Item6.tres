@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "motocicleta"
-item_name = "Motocicleta"
+item_name = "Núcleo de Motocicleta"
 icon = ExtResource("1_tex")
 stats = {
 "attack_speed": 0.3,

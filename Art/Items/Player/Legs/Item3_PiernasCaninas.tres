@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Texture2D" uid="uid://drd6p62pd47o4" path="res://icon.svg" id="1_tex"]
+[ext_resource type="Texture2D" path="res://Art/Items/Player/Legs/Item3_PiernasCaninas.png" id="1_tex"]
 [ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
 
 [resource]

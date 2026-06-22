@@ -16,6 +16,10 @@ var current_slot: int = 1
 var previous_scene_path: String = ""
 var debug_god_mode: bool = false
 
+var max_reached_level: int = 1
+var max_reached_room: int = 1
+var total_deployments: int = 0
+var last_save_time: String = ""
 
 # ── Core Upgrades & Runs ──────────────────────────────────────────────────────
 var core_upgrades: Dictionary = {
@@ -120,15 +124,22 @@ func _add_room_if_valid(file_name: String, path: String) -> void:
 	rooms_pool.append(path + clean_name)
 
 func start_new_run() -> String:
+	total_deployments += 1
 	current_run_room = 1
+	if current_run_room > max_reached_room:
+		max_reached_room = current_run_room
 	rooms_before_boss = randi_range(7, 10)
 	run_enemies_killed = 0
 	run_scrap_collected = 0
 	last_killer = "Infección Lázaro"
+	save_game()
 	return get_random_room_from_pool()
 
 func get_next_room() -> String:
 	current_run_room += 1
+	if current_run_room > max_reached_room:
+		max_reached_room = current_run_room
+		save_game()
 	return determine_next_room()
 
 func determine_next_room() -> String:
@@ -442,6 +453,7 @@ func get_global_path() -> String:
 
 func save_game(slot: int = -1) -> void:
 	if slot == -1: slot = current_slot
+	last_save_time = get_formatted_system_time()
 	var data = {
 		"scrap": scrap,
 		"weapon_damage": weapon_damage,
@@ -465,7 +477,11 @@ func save_game(slot: int = -1) -> void:
 		"has_died_once": has_died_once,
 		"chosen_primary_weapon": chosen_primary_weapon,
 		"chosen_melee_weapon": chosen_melee_weapon,
-		"weapons_unlocked": codex_unlocks["weapons"]
+		"weapons_unlocked": codex_unlocks["weapons"],
+		"max_reached_level": max_reached_level,
+		"max_reached_room": max_reached_room,
+		"total_deployments": total_deployments,
+		"last_save_time": last_save_time
 	}
 	var file = FileAccess.open(get_save_path(slot), FileAccess.WRITE)
 	if file:
@@ -498,6 +514,11 @@ func load_game(slot: int) -> bool:
 	melee_range = float(json.get("melee_range", 1.0))
 	melee_knockback = float(json.get("melee_knockback", 0.0))
 	play_time = float(json.get("play_time", 0.0))
+	
+	max_reached_level = int(json.get("max_reached_level", 1))
+	max_reached_room = int(json.get("max_reached_room", 1))
+	total_deployments = int(json.get("total_deployments", 0))
+	last_save_time = str(json.get("last_save_time", ""))
 	
 	core_upgrades = json.get("core_upgrades", {
 		"integridad_estructural": 0,
@@ -581,6 +602,10 @@ func reset_data() -> void:
 	inventory_items.clear()
 	for k in equipment_slots.keys():
 		equipment_slots[k] = null
+	max_reached_level = 1
+	max_reached_room = 1
+	total_deployments = 0
+	last_save_time = ""
 	
 	core_upgrades = {
 		"integridad_estructural": 0,
@@ -615,9 +640,31 @@ func get_slot_info(slot: int) -> Dictionary:
 		return {
 			"exists": true,
 			"play_time": float(json.get("play_time", 0.0)),
-			"scrap": int(json.get("scrap", 0))
+			"max_reached_level": int(json.get("max_reached_level", 1)),
+			"max_reached_room": int(json.get("max_reached_room", 1)),
+			"total_deployments": int(json.get("total_deployments", 0)),
+			"last_save_time": str(json.get("last_save_time", ""))
 		}
 	return {"exists": false}
+
+func get_formatted_system_time() -> String:
+	var dt = Time.get_datetime_dict_from_system()
+	var day = dt.get("day", 1)
+	var month = dt.get("month", 1)
+	var year = dt.get("year", 2026)
+	var hour = dt.get("hour", 0)
+	var minute = dt.get("minute", 0)
+	
+	var am_pm = "am"
+	var display_hour = hour
+	if hour >= 12:
+		am_pm = "pm"
+		if hour > 12:
+			display_hour = hour - 12
+	elif hour == 0:
+		display_hour = 12
+		
+	return "%02d/%02d/%04d a las %d:%02d %s" % [day, month, year, display_hour, minute, am_pm]
 
 func format_time(time: float) -> String:
 	var total_secs = int(time)

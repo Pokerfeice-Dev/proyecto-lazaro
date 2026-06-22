@@ -6,10 +6,10 @@
 [resource]
 script = ExtResource("2_script")
 id = "boots_speed"
-item_name = "Botas Veloces"
+item_name = "Servobotas de Combate"
 icon = ExtResource("1_tex")
 type = 3
 slot = 9
 stats = {
-"move_speed_percent": 0.2
+"move_speed_percent": 0.12
 }

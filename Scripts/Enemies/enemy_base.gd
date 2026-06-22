@@ -185,8 +185,12 @@ func _show_damage_text(amount: int, is_crit: bool) -> void:
 	
 	get_tree().current_scene.call_deferred("add_child", floating_node)
 	
+	var dir_x = -1.0 if randf() < 0.5 else 1.0
+	var random_x = dir_x * randf_range(15.0, 40.0)
+	var random_y = randf_range(-45.0, -60.0)
+	
 	var tween = get_tree().create_tween().bind_node(floating_node).set_parallel(true)
-	tween.tween_property(floating_node, "global_position", floating_node.global_position + Vector2(0, -40), 0.6).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	tween.tween_property(floating_node, "global_position", floating_node.global_position + Vector2(random_x, random_y), 0.6).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 	tween.tween_property(label, "modulate:a", 0.0, 0.6).set_delay(0.2)
 	tween.chain().tween_callback(floating_node.queue_free)
 

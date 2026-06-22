@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "colmena"
-item_name = "Colmena"
+item_name = "Colmena Bio-Mecánica"
 icon = ExtResource("1_tex")
 stats = {
 "crit_chance": 0.1

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "chest_armor"
-item_name = "Pecho Blindado"
+item_name = "Blindaje de Torso"
 icon = ExtResource("1_tex")
 type = 1
 slot = 6

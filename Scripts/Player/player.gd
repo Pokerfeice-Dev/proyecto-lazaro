@@ -830,13 +830,13 @@ func _trigger_trituradora_shockwave() -> void:
 	trituradora_energy = 0.0
 	self.modulate = Color(1, 1, 1)
 	
-	# Invulnerability for 2s
+	# Invulnerability for 0.5s
 	is_invulnerable = true
-	invuln_timer.start(2.0)
+	invuln_timer.start(0.5)
 	var original_modulate = self.modulate
 	self.modulate = Color(0.2, 0.8, 1.0, 0.6)
 	var tween = create_tween()
-	tween.tween_property(self, "modulate", original_modulate, 2.0)
+	tween.tween_property(self, "modulate", original_modulate, 0.5)
 	
 	# Damage and knockback area attack
 	var base_dmg = 50.0
@@ -983,8 +983,12 @@ func _show_damage_text(amount: int) -> void:
 	
 	get_tree().current_scene.call_deferred("add_child", floating_node)
 	
+	var dir_x = -1.0 if randf() < 0.5 else 1.0
+	var random_x = dir_x * randf_range(15.0, 40.0)
+	var random_y = randf_range(-45.0, -60.0)
+	
 	var tween = get_tree().create_tween().bind_node(floating_node).set_parallel(true)
-	tween.tween_property(floating_node, "global_position", floating_node.global_position + Vector2(0, -40), 0.6).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	tween.tween_property(floating_node, "global_position", floating_node.global_position + Vector2(random_x, random_y), 0.6).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 	tween.tween_property(label, "modulate:a", 0.0, 0.6).set_delay(0.2)
 	tween.chain().tween_callback(floating_node.queue_free)
 

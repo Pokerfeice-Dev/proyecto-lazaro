@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "pulmones"
-item_name = "Pulmones"
+item_name = "Pulmones Bio-Asistidos"
 icon = ExtResource("1_tex")
 stats = {
 "attack_speed": 0.2,
