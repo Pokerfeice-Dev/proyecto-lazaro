@@ -35,15 +35,19 @@ func _ready() -> void:
 	_setup_interaction_label()
 
 func _setup_interaction_label() -> void:
-	interaction_label = Label.new()
+	interaction_label = get_node_or_null("Label") as Label
+	if not interaction_label:
+		interaction_label = Label.new()
+		interaction_label.name = "Label"
+		add_child(interaction_label)
+		interaction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		interaction_label.custom_minimum_size = Vector2(200, 30)
+		interaction_label.add_theme_color_override("font_color", Color.WHITE)
+		interaction_label.add_theme_color_override("font_outline_color", Color.BLACK)
+		interaction_label.add_theme_constant_override("outline_size", 4)
+		
 	interaction_label.text = "Presiona E"
 	interaction_label.visible = false
-	add_child(interaction_label)
-	interaction_label.position = anim_sprite.position + Vector2(-40, -60)
-	
-	interaction_label.add_theme_color_override("font_color", Color.WHITE)
-	interaction_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	interaction_label.add_theme_constant_override("outline_size", 4)
 
 func lock_door() -> void:
 	is_locked = true

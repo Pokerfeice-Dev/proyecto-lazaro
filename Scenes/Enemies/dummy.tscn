@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://dtc62xovhjm13"]
+
+[ext_resource type="Script" path="res://Scripts/Enemies/mannequin.gd" id="1_mannequin"]
+[ext_resource type="Texture2D" uid="uid://de1kxxsbmnrnh" path="res://Art/Dummy/Dummy.png" id="1_fotkt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ccesc"]
+size = Vector2(20, 45)
+
+[node name="Dummy" type="CharacterBody2D" unique_id=609782938 groups=["enemy"]]
+collision_layer = 2
+collision_mask = 7
+script = ExtResource("1_mannequin")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=999588907]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_ccesc")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=263586188]
+texture = ExtResource("1_fotkt")

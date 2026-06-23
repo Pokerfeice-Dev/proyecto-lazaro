@@ -14,6 +14,19 @@ var shoot_cooldown: float = 0.0
 
 @onready var attack_sound: AudioStreamPlayer2D = $Attack_sound
 
+var _default_base_modulate: Color = Color.WHITE
+var _default_cannon_modulate: Color = Color.WHITE
+var _turret_flash_tween: Tween = null
+
+func _ready() -> void:
+	super._ready()
+	if sprite_base:
+		_default_base_modulate = sprite_base.modulate
+		_default_base_modulate.a = 1.0
+	if sprite_cannon:
+		_default_cannon_modulate = sprite_cannon.modulate
+		_default_cannon_modulate.a = 1.0
+
 func _play_attack_sound() -> void:
 	if attack_sound:
 		attack_sound.play()
@@ -96,12 +109,13 @@ func _hide_sprite() -> void:
 
 func _flash_red() -> void:
 	if not sprite_base or not sprite_cannon: return
-	var orig_base = sprite_base.modulate
-	var orig_cannon = sprite_cannon.modulate
 	
+	if _turret_flash_tween and _turret_flash_tween.is_valid():
+		_turret_flash_tween.kill()
+		
 	sprite_base.modulate = Color.RED
 	sprite_cannon.modulate = Color.RED
 	
-	var tween = create_tween().set_parallel(true)
-	tween.tween_property(sprite_base, "modulate", orig_base, 0.2)
-	tween.tween_property(sprite_cannon, "modulate", orig_cannon, 0.2)
+	_turret_flash_tween = create_tween().set_parallel(true)
+	_turret_flash_tween.tween_property(sprite_base, "modulate", _default_base_modulate, 0.2)
+	_turret_flash_tween.tween_property(sprite_cannon, "modulate", _default_cannon_modulate, 0.2)

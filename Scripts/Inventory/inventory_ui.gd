@@ -588,6 +588,7 @@ func _setup_slots() -> void:
 		slot_ui.is_inventory_slot = true
 		slot_ui.item_dropped.connect(_on_item_dropped)
 		slot_ui.slot_clicked.connect(_on_slot_clicked)
+		slot_ui.slot_double_clicked.connect(_on_slot_double_clicked)
 		slot_ui.slot_hovered.connect(_on_slot_hovered)
 		slot_ui.slot_unhovered.connect(_on_slot_unhovered)
 		inventory_grid.add_child(slot_ui)
@@ -627,6 +628,7 @@ func _create_equip_slot(slot_key: ItemData.ItemSlot, empty_text: String, parent:
 	slot_ui.empty_text = empty_text
 	slot_ui.item_dropped.connect(_on_item_dropped)
 	slot_ui.slot_clicked.connect(_on_slot_clicked)
+	slot_ui.slot_double_clicked.connect(_on_slot_double_clicked)
 	slot_ui.slot_hovered.connect(_on_slot_hovered)
 	slot_ui.slot_unhovered.connect(_on_slot_unhovered)
 	parent.add_child(slot_ui)
@@ -665,6 +667,64 @@ func _on_slot_clicked(item: ItemData) -> void:
 		for k in item.stats.keys():
 			txt += format_stat_string(k, item.stats[k]) + "\n"
 	stats_label.text = txt
+
+func _on_slot_double_clicked(item: ItemData, slot_ui: UISlot) -> void:
+	if slot_ui.is_inventory_slot:
+		_auto_equip_item(item)
+	else:
+		_auto_unequip_item(item, slot_ui.slot_type)
+
+func _auto_equip_item(item: ItemData) -> void:
+	var target_slot_type = _get_available_slot_for_item(item)
+	var old_item = equipment.slots.get(target_slot_type)
+	
+	item.slot = target_slot_type
+	inventory.remove_item(item)
+	
+	if old_item:
+		inventory.add_item(old_item)
+		
+	equipment.equip_item(item)
+	update_ui()
+	_hide_tooltip()
+
+func _auto_unequip_item(item: ItemData, slot_type: ItemData.ItemSlot) -> void:
+	equipment.slots[slot_type] = null
+	equipment.equipment_changed.emit()
+	inventory.add_item(item)
+	update_ui()
+	_hide_tooltip()
+
+func _get_available_slot_for_item(item: ItemData) -> ItemData.ItemSlot:
+	match item.type:
+		ItemData.ItemType.TORSO:
+			return ItemData.ItemSlot.TORSO
+		ItemData.ItemType.ARMS:
+			if equipment.slots.get(ItemData.ItemSlot.ARM_L) == null:
+				return ItemData.ItemSlot.ARM_L
+			if equipment.slots.get(ItemData.ItemSlot.ARM_R) == null:
+				return ItemData.ItemSlot.ARM_R
+			return ItemData.ItemSlot.ARM_L
+		ItemData.ItemType.LEGS:
+			if equipment.slots.get(ItemData.ItemSlot.LEG_L) == null:
+				return ItemData.ItemSlot.LEG_L
+			if equipment.slots.get(ItemData.ItemSlot.LEG_R) == null:
+				return ItemData.ItemSlot.LEG_R
+			return ItemData.ItemSlot.LEG_L
+		ItemData.ItemType.WEAPON:
+			var w_slots = [
+				ItemData.ItemSlot.MAIN_W1,
+				ItemData.ItemSlot.MAIN_W2,
+				ItemData.ItemSlot.MAIN_W3,
+				ItemData.ItemSlot.SEC_W1,
+				ItemData.ItemSlot.SEC_W2,
+				ItemData.ItemSlot.SEC_W3
+			]
+			for slot_key in w_slots:
+				if equipment.slots.get(slot_key) == null:
+					return slot_key
+			return ItemData.ItemSlot.MAIN_W1
+	return ItemData.ItemSlot.TORSO
 
 func format_stat_string(k: String, v: float) -> String:
 	var stat_name = k.capitalize()

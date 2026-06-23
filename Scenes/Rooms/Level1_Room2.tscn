@@ -32,22 +32,22 @@ tile_set = ExtResource("2_wtbdm")
 position = Vector2(-572, 145)
 
 [node name="Spawn2" type="Marker2D" parent="." unique_id=846472731]
-position = Vector2(-183, 295)
+position = Vector2(-346, 219)
 
 [node name="Spawn3" type="Marker2D" parent="." unique_id=1186884550]
-position = Vector2(-429, -209)
+position = Vector2(-378, -170)
 
 [node name="Spawn4" type="Marker2D" parent="." unique_id=222904996]
-position = Vector2(-774, -141)
+position = Vector2(-739, -124)
 
 [node name="Spawn5" type="Marker2D" parent="." unique_id=854583924]
-position = Vector2(-678, -128)
+position = Vector2(-752, 193)
 
 [node name="Spawn6" type="Marker2D" parent="." unique_id=1644309326]
-position = Vector2(-464, -55)
+position = Vector2(-476, -13)
 
 [node name="player_spawn" type="Marker2D" parent="." unique_id=1522395861]
-position = Vector2(-104, 38)
+position = Vector2(-114, 4)
 
 [node name="Area_entered" type="Area2D" parent="." unique_id=331012564]
 visible = false

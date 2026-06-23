@@ -8,6 +8,7 @@ var item: ItemData = null
 
 signal item_dropped(item_data: ItemData, source_slot: UISlot, target_slot: UISlot)
 signal slot_clicked(item_data: ItemData)
+signal slot_double_clicked(item_data: ItemData, slot: UISlot)
 signal slot_hovered(item_data: ItemData, slot_rect: Rect2)
 signal slot_unhovered()
 
@@ -100,7 +101,10 @@ func update_slot(new_item: ItemData, qty: int = 1) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if item:
-			slot_clicked.emit(item)
+			if event.double_click:
+				slot_double_clicked.emit(item, self)
+			else:
+				slot_clicked.emit(item)
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	if not item: return null

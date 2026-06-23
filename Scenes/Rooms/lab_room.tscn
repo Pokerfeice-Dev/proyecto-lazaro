@@ -43,4 +43,3 @@ is_start_run_door = true
 [node name="Door_CoreUpgrades" parent="." unique_id=201233454 instance=ExtResource("7_cwij8")]
 position = Vector2(-93, -260)
 rotation = 1.5707964
-is_open = true

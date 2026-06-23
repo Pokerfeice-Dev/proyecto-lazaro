@@ -72,24 +72,6 @@ const DATA = {
 		}
 	},
 	"items": {
-		"arms_hp": {
-			"name": "Módulo de Brazos (HP)",
-			"lore": "Servo-implante que optimiza la distribución de energía defensiva del agente.",
-			"stats": "+10% Vida Max",
-			"icon": preload("res://Art/Items/Player/Arms/Item1_Arms.png")
-		},
-		"chest_armor": {
-			"name": "Blindaje de Torso",
-			"lore": "Placa reforzada de nano-compuestos absorbentes de impactos cinéticos.",
-			"stats": "+2 Defensa, +5% Vida Max",
-			"icon": preload("res://Art/Items/Player/Body/Item1_Chest.png")
-		},
-		"boots_speed": {
-			"name": "Servobotas de Combate",
-			"lore": "Botas equipadas con amortiguadores hidráulicos de alta presión.",
-			"stats": "+12% Vel. Movimiento",
-			"icon": preload("res://Art/Items/Player/Legs/Item1_Boots.png")
-		},
 		"torso_blindado": {
 			"name": "Torso Musculoso",
 			"lore": "Un torso injertado con tejido muscular denso y placas subdérmicas acorazadas.",

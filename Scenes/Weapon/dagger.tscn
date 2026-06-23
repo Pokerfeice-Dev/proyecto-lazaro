@@ -42,13 +42,12 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
-size = Vector2(27.5, 49)
+size = Vector2(35.892857, 55.71428)
 
 [node name="Dagger" type="Node2D" unique_id=873535165]
 script = ExtResource("2_script")
 damage = 8
-attack_speed = 1.5
-knockback_force = 30.0
+knockback_force = 40.0
 swing_start_angle = -30.0
 swing_end_angle = 130.0
 
@@ -73,7 +72,7 @@ collision_layer = 10
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Slash_attack" unique_id=1119203181]
-position = Vector2(9.5, -2.3841858e-07)
+position = Vector2(12.437499, -0.5)
 scale = Vector2(0.7, 0.7)
 shape = SubResource("RectangleShape2D_d7jkh")
 

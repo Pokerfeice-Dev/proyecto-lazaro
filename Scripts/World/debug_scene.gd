@@ -8,15 +8,12 @@ var toggle_btn: Button = null
 var god_mode_btn: Button = null
 
 const ITEMS: Array[Dictionary] = [
-	{"name": "Arms: Base", "path": "res://Art/Items/Player/Arms/Item1_Arms.tres"},
 	{"name": "Brazo Reforzado", "path": "res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres"},
 	{"name": "Brazo Ligero", "path": "res://Art/Items/Player/Arms/Item3_BrazoLigero.tres"},
 	{"name": "Brazo Armado", "path": "res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"},
-	{"name": "Body: Base", "path": "res://Art/Items/Player/Body/Item1_Chest.tres"},
 	{"name": "Torso Blindado", "path": "res://Art/Items/Player/Body/Item2_TorsoBlindado.tres"},
 	{"name": "Torso Espinado", "path": "res://Art/Items/Player/Body/Item3_TorsoEspinado.tres"},
 	{"name": "Torso Ligero", "path": "res://Art/Items/Player/Body/Item4_TorsoLigero.tres"},
-	{"name": "Legs: Base", "path": "res://Art/Items/Player/Legs/Item1_Boots.tres"},
 	{"name": "Piernas Rodantes", "path": "res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres"},
 	{"name": "Piernas Caninas", "path": "res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres"},
 	{"name": "Piernas Bionicas", "path": "res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres"},

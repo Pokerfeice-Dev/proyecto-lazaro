@@ -488,10 +488,12 @@ func _buy_weapon_unlock(weapon_id: String, cost: int, parent_container: Control)
 
 func _load_sinergias(parent: Control) -> void:
 	var synergies = [
-		{"id": "pistola_mente_colmena", "name": "Pistola Mente Colmena", "desc": "Las balas de la pistola son reemplazadas por abejas teledirigidas.", "cost": 300},
+		{"id": "pistola_mente_colmena", "name": "Mente Colmena", "desc": "Las balas de la pistola son reemplazadas por abejas teledirigidas.", "cost": 300},
 		{"id": "roadkill", "name": "Roadkill", "desc": "Las balas rebotan en las paredes y enemigos.", "cost": 300},
-		{"id": "bestia_de_caza", "name": "Bestia de Caza", "desc": "Dash activa furia, otorga un bonus del 50% de velocidad melee y ataque de área.", "cost": 500},
-		{"id": "trituradora_biomecanica", "name": "Trituradora Biomecánica", "desc": "Acumulas energía de impacto al moverte. Dash genera onda de choque.", "cost": 500}
+		{"id": "minigun", "name": "Minigun", "desc": "La UZI es reemplazada por una ametralladora biomecánica alimentada por chatarra viva.", "cost": 300},
+		{"id": "bestia_de_caza", "name": "Bestia de Caza", "desc": "Reemplaza el arma a rango por una segunda arma melee. Otorga bonos de daño, velocidad y furia al dash.", "cost": 500},
+		{"id": "trituradora_biomecanica", "name": "Trituradora Biomecánica", "desc": "Acumulas energía de impacto al moverte. Dash genera onda de choque.", "cost": 500},
+		{"id": "acorazado_muscular", "name": "Set Musculoso", "desc": "Incrementa daño, empuje, vida máxima y defensa, a cambio de reducir velocidad de movimiento.", "cost": 500}
 	]
 	
 	# Determine if Mente Colmena AND Roadkill are unlocked
@@ -535,7 +537,7 @@ func _load_sinergias(parent: Control) -> void:
 		text_vbox.add_child(desc_lbl)
 		
 		var is_unlocked = GameData.is_synergy_unlocked(s.id)
-		var is_locked_advanced = (s.id in ["bestia_de_caza", "trituradora_biomecanica"]) and not advanced_synergies_available
+		var is_locked_advanced = (s.id in ["bestia_de_caza", "trituradora_biomecanica", "acorazado_muscular"]) and not advanced_synergies_available
 		
 		var btn_vbox = VBoxContainer.new()
 		btn_vbox.alignment = BoxContainer.ALIGNMENT_CENTER

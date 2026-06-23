@@ -68,6 +68,9 @@ var is_blindaje_reactivo_active: bool = false
 var blindaje_reactivo_timer: Timer = null
 var dash_start_pos: Vector2 = Vector2.ZERO
 
+var _default_modulate: Color = Color.WHITE
+var _flash_tween: Tween = null
+
 func _ready() -> void:
 	_init_timers()
 	setup_damage_effect()
@@ -79,6 +82,10 @@ func _ready() -> void:
 	_update_hud_health(stats.current_health, stats.max_health)
 	_update_hud_scrap(GameData.scrap)
 	
+	if anim_sprite:
+		_default_modulate = anim_sprite.modulate
+		_default_modulate.a = 1.0
+		
 	var equip = get_node_or_null("Equipment")
 	if equip:
 		equip.equipment_changed.connect(_on_equipment_changed)
@@ -124,6 +131,43 @@ func _update_player_stats() -> void:
 		trituradora_energy = 0.0
 		if not is_furia_active:
 			self.modulate = Color(1, 1, 1)
+			
+	_check_and_trigger_first_time_synergies()
+
+func _check_and_trigger_first_time_synergies() -> void:
+	var equip = get_node_or_null("Equipment")
+	if not equip:
+		return
+	var active_weapon_id = get_active_ranged_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
+	
+	for syn_id in active_syns:
+		_process_potential_first_time_synergy(syn_id)
+
+func _process_potential_first_time_synergy(syn_id: String) -> void:
+	if GameData.activated_synergies.has(syn_id):
+		return
+	
+	GameData.activated_synergies.append(syn_id)
+	GameData.save_game()
+	
+	_spawn_synergy_popup(syn_id)
+
+func _spawn_synergy_popup(syn_id: String) -> void:
+	var def = SynergyManager.SYNERGIES.get(syn_id, {})
+	var syn_name = def.get("name", syn_id)
+	var syn_desc = def.get("description", "")
+	
+	var popup_script = load("res://Scripts/UI/synergy_popup.gd")
+	if not popup_script:
+		return
+		
+	var popup = Node.new()
+	popup.set_script(popup_script)
+	popup.setup(syn_name, syn_desc)
+	
+	get_tree().paused = true
+	get_tree().root.add_child(popup)
 
 func _apply_synergy_weapon_override() -> void:
 	if not active_weapon:
@@ -242,6 +286,7 @@ func _physics_process(delta: float) -> void:
 	_check_dash_input()
 	_process_movement(delta)
 	update_glock()
+	_update_camera_drift(delta)
 	_process_actions()
 	move_and_slide()
 	update_animation()
@@ -655,6 +700,20 @@ func _start_camera_shake(camera: Camera2D) -> void:
 	shake_tween.tween_property(camera, "offset", random_offset, shake_duration / 2.0).set_trans(Tween.TRANS_SINE)
 	shake_tween.tween_property(camera, "offset", Vector2.ZERO, shake_duration / 2.0).set_trans(Tween.TRANS_SINE)
 
+func _update_camera_drift(delta: float) -> void:
+	var camera = get_node_or_null("Camera2D")
+	if not camera: return
+	
+	var mouse_offset = get_local_mouse_position()
+	var weight = 0.18
+	var target_local_pos = mouse_offset * weight
+	var max_offset = 120.0
+	
+	if target_local_pos.length() > max_offset:
+		target_local_pos = target_local_pos.normalized() * max_offset
+		
+	camera.position = camera.position.lerp(target_local_pos, 1.0 - exp(-7.0 * delta))
+
 func update_glock() -> void:
 	var mouse_pos = get_global_mouse_position()
 	var dir = (mouse_pos - global_position).normalized()
@@ -1012,10 +1071,13 @@ func _tween_damage_intensity(val: float, mat: ShaderMaterial) -> void:
 
 func _animate_damage_flash() -> void:
 	if not anim_sprite: return
-	var original_modulate = anim_sprite.modulate
+	
+	if _flash_tween and _flash_tween.is_valid():
+		_flash_tween.kill()
+		
 	anim_sprite.modulate = Color.RED
-	var tween = create_tween()
-	tween.tween_property(anim_sprite, "modulate", original_modulate, 0.5)
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(anim_sprite, "modulate", _default_modulate, 0.5)
 
 func _on_invuln_timeout() -> void:
 	is_invulnerable = false

@@ -16,12 +16,9 @@ class_name EnemyBase
 	preload("res://Art/Items/Weapons/Item3.tres"),
 	preload("res://Art/Items/Weapons/Item4.tres"),
 	preload("res://Art/Items/Weapons/Item5.tres"),
-	preload("res://Art/Items/Weapons/Item6.tres"),
-	preload("res://Art/Items/Player/Arms/Item1_Arms.tres"),
-	preload("res://Art/Items/Player/Body/Item1_Chest.tres"),
-	preload("res://Art/Items/Player/Legs/Item1_Boots.tres")
+	preload("res://Art/Items/Weapons/Item6.tres")
 ]
-@export var item_drop_chance: float = 0.1
+@export var item_drop_chance: float = 0.05
 
 var target: Node2D = null
 var is_spawning: bool = false
@@ -32,10 +29,19 @@ var hit_stun_timer: float = 0.0
 var is_elite: bool = false
 signal enemy_died(enemy: EnemyBase)
 
+var _default_modulate: Color = Color.WHITE
+var _flash_tween: Tween = null
+
 func _ready() -> void:
 	current_health = max_health
 	add_to_group("enemy")
 	_find_player()
+	
+	var sprite = _get_sprite()
+	if sprite:
+		_default_modulate = sprite.modulate
+		_default_modulate.a = 1.0
+		
 	if is_elite:
 		max_health = int(max_health * 1.5)
 		current_health = max_health
@@ -197,10 +203,13 @@ func _show_damage_text(amount: int, is_crit: bool) -> void:
 func _flash_red() -> void:
 	var sprite = _get_sprite()
 	if not sprite: return
-	var original_modulate = sprite.modulate
+	
+	if _flash_tween and _flash_tween.is_valid():
+		_flash_tween.kill()
+		
 	sprite.modulate = Color.RED
-	var tween = create_tween()
-	tween.tween_property(sprite, "modulate", original_modulate, 0.2)
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(sprite, "modulate", _default_modulate, 0.2)
 
 func _check_death() -> void:
 	if current_health > 0: return
@@ -237,6 +246,10 @@ func _hide_health_bar() -> void:
 	bar.hide()
 
 func _attempt_drops() -> void:
+	var scene_name = get_tree().current_scene.name.to_lower()
+	if "training" in scene_name or "tutorial" in scene_name:
+		return
+		
 	var spawns_flesh = _should_drop_flesh()
 	var spawns_item = _should_drop_item()
 	
@@ -274,8 +287,9 @@ func _should_drop_item() -> bool:
 		return false
 	if all_items.is_empty():
 		return false
+	var chance = 0.1 if is_elite else item_drop_chance
 	var bonus = GameData.core_upgrades.get("recuperacion_restos", 0) * 0.01
-	return randf() <= (item_drop_chance + bonus)
+	return randf() <= (chance + bonus)
 
 func _spawn_flesh_at(pos: Vector2) -> void:
 	var flesh_inst = flesh_scene.instantiate()

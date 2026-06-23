@@ -4,6 +4,7 @@
 [ext_resource type="Resource" uid="uid://dbbao0xxjw8pl" path="res://Art/Items/Weapons/Item1.tres" id="2_ewpb2"]
 [ext_resource type="Texture2D" uid="uid://ljldgfmm5xmf" path="res://Art/Items/Weapons/Item1_Mezcladora.png" id="2_icon"]
 [ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://Art/Scrap/atlas_56a.png" id="3_1i0h4"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="3_kgv6s"]
 [ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://Art/Scrap/Scrap_snd.wav" id="4_4qgmg"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dytfl"]
@@ -104,17 +105,28 @@ animations = [{
 script = ExtResource("1_script")
 item_data = ExtResource("2_ewpb2")
 
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=554808052]
+z_index = -1
+color = Color(0, 0, 0.6431373, 1)
+energy = 0.5
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.54901963)
+shadow_filter_smooth = 1.0
+texture = ExtResource("3_kgv6s")
+texture_scale = 0.5
+
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1233195888]
-scale = Vector2(2, 2)
+scale = Vector2(1.3, 1.3)
 texture = ExtResource("2_icon")
 
 [node name="Scrap_anim" type="AnimatedSprite2D" parent="." unique_id=1928336874]
-modulate = Color(1, 1, 1, 0.24313726)
+modulate = Color(0.67937917, 0.30830932, 0.80434924, 0.32156864)
 texture_filter = 1
 scale = Vector2(0.115, 0.115)
 sprite_frames = SubResource("SpriteFrames_4qgmg")
 animation = &"fx"
 autoplay = "fx"
+frame_progress = 0.7862763
 
 [node name="Scrap_snd" type="AudioStreamPlayer" parent="." unique_id=1048386962]
 stream = ExtResource("4_4qgmg")

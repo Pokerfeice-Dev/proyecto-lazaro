@@ -2,7 +2,7 @@ extends Node
 
 const SYNERGIES = {
 	"pistola_mente_colmena": {
-		"name": "Pistola Mente Colmena",
+		"name": "Mente Colmena",
 		"description": "Balas teledirigidas (abejas mecánicas) que buscan enemigos. Aumenta proyectiles, daño, rango y velocidad de ataque, pero reduce la velocidad de bala.",
 		"required_weapon": "pistol",
 		"required_items": ["colmena", "cerebro", "cabeza_humana"],
@@ -51,7 +51,7 @@ const SYNERGIES = {
 		}
 	},
 	"acorazado_muscular": {
-		"name": "Acorazado Muscular",
+		"name": "Set Musculoso",
 		"description": "Poder Descomunal: Incrementa el daño base en +20%, el empuje en +15%, la vida máxima en +25% y la defensa en +3, a cambio de reducir la velocidad de movimiento en -5%.",
 		"required_items": ["torso_blindado", "brazo_reforzado", "piernas_bionicas"],
 		"stat_modifiers": {
@@ -78,6 +78,8 @@ func get_active_synergies(equipment: Object, active_weapon_id: String, is_main: 
 	return active
 
 func _check_and_add_synergy(active: Array[String], syn_id: String, equipment: Object, active_weapon_id: String, is_main: bool = true) -> void:
+	if not GameData.is_synergy_unlocked(syn_id):
+		return
 	var def = SYNERGIES[syn_id]
 	var weapon_sat = _is_weapon_satisfied(def, active_weapon_id)
 	var items_sat = _are_items_satisfied(def, equipment, is_main)
@@ -85,6 +87,8 @@ func _check_and_add_synergy(active: Array[String], syn_id: String, equipment: Ob
 		active.append(syn_id)
 
 func _is_synergy_active(syn_id: String, equipment: Object, active_weapon_id: String, is_main: bool = true) -> bool:
+	if not GameData.is_synergy_unlocked(syn_id):
+		return false
 	var def = SYNERGIES[syn_id]
 	if not _is_weapon_satisfied(def, active_weapon_id):
 		return false

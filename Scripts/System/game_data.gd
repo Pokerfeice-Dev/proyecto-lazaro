@@ -37,9 +37,11 @@ var core_upgrades: Dictionary = {
 }
 
 var unlocked_synergies: Array[String] = []
+var activated_synergies: Array[String] = []
 var unlocked_protocols: Array[String] = []
 var active_protocol: String = ""
 var has_died_once: bool = false
+var has_shown_inventory_tutorial: bool = false
 var chosen_primary_weapon: String = "pistol"
 var chosen_melee_weapon: String = "daga"
 var temporary_damage_multiplier: float = 1.0
@@ -369,8 +371,6 @@ func get_active_protocol() -> String:
 	return active_protocol
 
 func is_synergy_unlocked(syn_id: String) -> bool:
-	if syn_id == "minigun":
-		return true
 	return unlocked_synergies.has(syn_id)
 
 func get_upgrade_level(key: String) -> float:
@@ -472,9 +472,11 @@ func save_game(slot: int = -1) -> void:
 		"play_time": play_time,
 		"core_upgrades": core_upgrades,
 		"unlocked_synergies": unlocked_synergies,
+		"activated_synergies": activated_synergies,
 		"unlocked_protocols": unlocked_protocols,
 		"active_protocol": active_protocol,
 		"has_died_once": has_died_once,
+		"has_shown_inventory_tutorial": has_shown_inventory_tutorial,
 		"chosen_primary_weapon": chosen_primary_weapon,
 		"chosen_melee_weapon": chosen_melee_weapon,
 		"weapons_unlocked": codex_unlocks["weapons"],
@@ -538,12 +540,17 @@ func load_game(slot: int) -> bool:
 	unlocked_synergies.clear()
 	for s in raw_syns: unlocked_synergies.append(str(s))
 	
+	var raw_act_syns = json.get("activated_synergies", [])
+	activated_synergies.clear()
+	for s in raw_act_syns: activated_synergies.append(str(s))
+	
 	var raw_protos = json.get("unlocked_protocols", [])
 	unlocked_protocols.clear()
 	for p in raw_protos: unlocked_protocols.append(str(p))
 	
 	active_protocol = str(json.get("active_protocol", ""))
 	has_died_once = bool(json.get("has_died_once", false))
+	has_shown_inventory_tutorial = bool(json.get("has_shown_inventory_tutorial", false))
 	chosen_primary_weapon = str(json.get("chosen_primary_weapon", "pistol"))
 	chosen_melee_weapon = str(json.get("chosen_melee_weapon", "daga"))
 	
@@ -621,9 +628,11 @@ func reset_data() -> void:
 		"escaner_objetivos": 0
 	}
 	unlocked_synergies.clear()
+	activated_synergies.clear()
 	unlocked_protocols.clear()
 	active_protocol = ""
 	has_died_once = false
+	has_shown_inventory_tutorial = false
 	chosen_primary_weapon = "pistol"
 	chosen_melee_weapon = "daga"
 	codex_unlocks["weapons"] = ["pistol", "daga"]

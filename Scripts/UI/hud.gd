@@ -342,18 +342,26 @@ func _get_pretty_room_name(path: String) -> String:
 		return "SALA DE DEBUG"
 	if filename.begins_with("level"):
 		return _get_formatted_level_room_name(filename)
-	return "CIUDAD ASPHODEL"
+	return "DISTRITO ASPHODEL"
 
 func _get_formatted_level_room_name(filename: String) -> String:
 	var parts = filename.split("_")
 	if parts.size() >= 2:
 		var lvl_part = parts[0]
-		var room_part = parts[1]
 		var lvl_num = _get_digits(lvl_part)
-		var room_num = _get_digits(room_part)
-		if lvl_num != "" and room_num != "":
-			return "NIVEL %s - SALA %s" % [lvl_num, room_num]
-	return "CIUDAD ASPHODEL"
+		if lvl_num != "":
+			var district_name = ""
+			if lvl_num == "1":
+				district_name = "DISTRITO ASPHODEL"
+			else:
+				district_name = "DISTRITO " + lvl_num
+				
+			var current_room = GameData.current_run_room
+			if current_room <= 0:
+				current_room = 1
+				
+			return "%s\nSALA - %d" % [district_name, current_room]
+	return "DISTRITO ASPHODEL"
 
 func _get_digits(text: String) -> String:
 	var digits = ""
