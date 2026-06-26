@@ -22,21 +22,6 @@ func _setup_lab_upgrades_door() -> void:
 		else:
 			scene_door.lock_door()
 
-	# Instantiate the dynamic door
-	var door_scene = load("res://Scenes/Rooms/door_CoreUpgrades.tscn")
-	if not door_scene: return
-	
-	var door_inst = door_scene.instantiate()
-	door_inst.name = "door_coreupgrades"
-	door_inst.position = Vector2(324, 9)
-	door_inst.custom_next_scene = "res://Scenes/Rooms/Core_Upgrade_Room.tscn"
-	add_child(door_inst)
-	
-	if door_inst.is_open or GameData.has_died_once:
-		door_inst.unlock_door()
-	else:
-		door_inst.lock_door()
-
 func _setup_core_upgrade_room() -> void:
 	var npc = get_node_or_null("Npc_Chatarra")
 	if npc:

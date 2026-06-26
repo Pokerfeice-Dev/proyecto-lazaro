@@ -340,6 +340,8 @@ func _get_pretty_room_name(path: String) -> String:
 		return "LABORATORIO"
 	if "debug_scene" in filename:
 		return "SALA DE DEBUG"
+	if "core_upgrade" in filename:
+		return "O.M.N.I.A."
 	if filename.begins_with("level"):
 		return _get_formatted_level_room_name(filename)
 	return "DISTRITO ASPHODEL"

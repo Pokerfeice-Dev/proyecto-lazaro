@@ -162,7 +162,8 @@ func _spawn_synergy_popup(syn_id: String) -> void:
 	if not popup_script:
 		return
 		
-	var popup = Node.new()
+	var popup = CanvasLayer.new()
+	popup.layer = 250
 	popup.set_script(popup_script)
 	popup.setup(syn_name, syn_desc)
 	
@@ -1344,13 +1345,19 @@ func _process_debug_keycode(keycode: int) -> void:
 	if keycode == KEY_F2:
 		_cheat_roadkill_items()
 	if keycode == KEY_F3:
-		_cheat_bestia_items()
-	if keycode == KEY_F4:
-		_cheat_trituradora_items()
-	if keycode == KEY_F5:
 		_cheat_minigun_items()
+	if keycode == KEY_F4:
+		_cheat_musculoso_items()
+	if keycode == KEY_F5:
+		_cheat_ligero_items()
 	if keycode == KEY_F6:
+		_cheat_canino_items()
+	if keycode == KEY_F9:
 		_toggle_debug_scene()
+	if keycode == KEY_F11:
+		GameData.add_flesh(100)
+	if keycode == KEY_F12:
+		GameData.add_scrap(100)
 
 func _toggle_debug_scene() -> void:
 	var current_scene_path = get_tree().current_scene.scene_file_path
@@ -1399,30 +1406,6 @@ func _add_item_if_valid(inventory_node: Node, item: ItemData) -> void:
 	if item:
 		inventory_node.add_item(item)
 
-func _cheat_bestia_items() -> void:
-	var inventory_node = get_node_or_null("Inventory")
-	if not inventory_node:
-		return
-	var caninas = load("res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres") as ItemData
-	var armado = load("res://Art/Items/Player/Arms/Item4_BrazoArmado.tres") as ItemData
-	var ligero = load("res://Art/Items/Player/Body/Item4_TorsoLigero.tres") as ItemData
-	_add_item_if_valid(inventory_node, caninas)
-	_add_item_if_valid(inventory_node, armado)
-	_add_item_if_valid(inventory_node, ligero)
-	print("Bestia de Caza cheated items added to inventory!")
-
-func _cheat_trituradora_items() -> void:
-	var inventory_node = get_node_or_null("Inventory")
-	if not inventory_node:
-		return
-	var blindado = load("res://Art/Items/Player/Body/Item2_TorsoBlindado.tres") as ItemData
-	var rodantes = load("res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres") as ItemData
-	var reforzado = load("res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres") as ItemData
-	_add_item_if_valid(inventory_node, blindado)
-	_add_item_if_valid(inventory_node, rodantes)
-	_add_item_if_valid(inventory_node, reforzado)
-	print("Trituradora Biomecanica cheated items added to inventory!")
-
 func _cheat_minigun_items() -> void:
 	var inventory_node = get_node_or_null("Inventory")
 	if not inventory_node:
@@ -1434,6 +1417,42 @@ func _cheat_minigun_items() -> void:
 	_add_item_if_valid(inventory_node, motocicleta)
 	_add_item_if_valid(inventory_node, sierra)
 	print("Minigun cheated items added to inventory!")
+
+func _cheat_musculoso_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var torso = load("res://Art/Items/Player/Body/Item2_TorsoBlindado.tres") as ItemData
+	var brazo = load("res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres") as ItemData
+	var piernas = load("res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres") as ItemData
+	_add_item_if_valid(inventory_node, torso)
+	_add_item_if_valid(inventory_node, brazo)
+	_add_item_if_valid(inventory_node, piernas)
+	print("Musculoso cheated items added to inventory!")
+
+func _cheat_ligero_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var torso = load("res://Art/Items/Player/Body/Item4_TorsoLigero.tres") as ItemData
+	var piernas = load("res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres") as ItemData
+	var brazo = load("res://Art/Items/Player/Arms/Item3_BrazoLigero.tres") as ItemData
+	_add_item_if_valid(inventory_node, torso)
+	_add_item_if_valid(inventory_node, piernas)
+	_add_item_if_valid(inventory_node, brazo)
+	print("Ligero cheated items added to inventory!")
+
+func _cheat_canino_items() -> void:
+	var inventory_node = get_node_or_null("Inventory")
+	if not inventory_node:
+		return
+	var torso = load("res://Art/Items/Player/Body/Item3_TorsoEspinado.tres") as ItemData
+	var brazo = load("res://Art/Items/Player/Arms/Item4_BrazoArmado.tres") as ItemData
+	var piernas = load("res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres") as ItemData
+	_add_item_if_valid(inventory_node, torso)
+	_add_item_if_valid(inventory_node, brazo)
+	_add_item_if_valid(inventory_node, piernas)
+	print("Canino cheated items added to inventory!")
 
 func _play_dash_sound() -> void:
 	var dash_sound = get_node_or_null("Dash")

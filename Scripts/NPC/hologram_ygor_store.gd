@@ -1,6 +1,6 @@
 extends Node2D
 
-@export_enum("None", "Heal", "BodyItem", "WeaponItem") var shop_item_type: String = "None"
+@export_enum("None", "Heal", "BodyItem", "WeaponItem", "RandomItem") var shop_item_type: String = "None"
 
 const WEAPON_ITEM_PATHS: Array[String] = [
 	"res://Art/Items/Weapons/Item1.tres",
@@ -64,7 +64,7 @@ func _assign_type_by_name() -> void:
 	elif name == "Hologram_Ygor_Store3":
 		shop_item_type = "WeaponItem"
 	elif name == "Hologram_Ygor_Store4":
-		_disable_and_hide_hologram()
+		shop_item_type = "RandomItem"
 
 func _disable_and_hide_hologram() -> void:
 	shop_item_type = "None"
@@ -76,27 +76,33 @@ func _disable_and_hide_hologram() -> void:
 func _configure_stats_and_visuals() -> void:
 	match shop_item_type:
 		"Heal":
-			cost = 20
+			cost = 10
 			_setup_heal_visuals()
 		"BodyItem":
-			cost = 30
+			cost = 25
 			_setup_random_item(BODY_ITEM_PATHS)
 		"WeaponItem":
-			cost = 40
+			cost = 30
 			_setup_random_item(WEAPON_ITEM_PATHS)
+		"RandomItem":
+			cost = 20
+			_setup_random_item(BODY_ITEM_PATHS + WEAPON_ITEM_PATHS)
+			_setup_random_item_visuals()
 
 func _setup_heal_visuals() -> void:
 	if not item_sprite:
 		return
 	var heart_path = "res://Art/Items/Player/Heart/Heart.png"
+	var tex: Texture2D = null
 	if _is_asset_imported(heart_path):
-		var tex = load(heart_path)
-		if tex:
-			item_sprite.texture = tex
-			item_sprite.modulate = Color.WHITE
-			return
-	item_sprite.texture = preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
-	item_sprite.modulate = Color(1.0, 0.2, 0.2)
+		tex = load(heart_path)
+	if not tex:
+		tex = preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
+		item_sprite.modulate = Color(1.0, 0.2, 0.2)
+	else:
+		item_sprite.modulate = Color.WHITE
+	item_sprite.texture = tex
+	_scale_sprite_to_32x32(tex)
 
 func _setup_random_item(paths: Array[String]) -> void:
 	if chosen_item_data:
@@ -109,12 +115,30 @@ func _apply_item_data_visuals() -> void:
 	if not chosen_item_data or not item_sprite:
 		return
 	var tex = chosen_item_data.icon
+	if not tex:
+		tex = preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
+		item_sprite.modulate = Color(1.0, 0.9, 0.2)
+	else:
+		item_sprite.modulate = Color.WHITE
+	item_sprite.texture = tex
+	_scale_sprite_to_32x32(tex)
+
+func _setup_random_item_visuals() -> void:
+	if not item_sprite:
+		return
+	var icon_path = "res://Art/Miscellaneous/Icon.3_19.png"
+	var tex = load(icon_path)
 	if tex:
 		item_sprite.texture = tex
 		item_sprite.modulate = Color.WHITE
+		_scale_sprite_to_32x32(tex)
+
+func _scale_sprite_to_32x32(tex: Texture2D) -> void:
+	if not item_sprite or not tex:
 		return
-	item_sprite.texture = preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
-	item_sprite.modulate = Color(1.0, 0.9, 0.2)
+	var tex_size = tex.get_size()
+	if tex_size.x > 0 and tex_size.y > 0:
+		item_sprite.scale = Vector2(32.0 / tex_size.x, 32.0 / tex_size.y)
 
 func _apply_levitation(delta: float) -> void:
 	if purchased or shop_item_type == "None" or not item_sprite:
@@ -139,6 +163,8 @@ func _get_item_display_name() -> String:
 	match shop_item_type:
 		"Heal":
 			return "Vida (+25% faltante)"
+		"RandomItem":
+			return "Objeto Aleatorio"
 		_:
 			return _get_custom_item_name()
 

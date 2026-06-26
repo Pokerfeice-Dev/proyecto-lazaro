@@ -10,8 +10,8 @@ radius = 35.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_treasure"]
 font = ExtResource("3_font")
-font_size = 10
-outline_size = 1
+font_size = 24
+outline_size = 3
 outline_color = Color(0, 0, 0, 1)
 shadow_color = Color(0, 0, 0, 0.64705884)
 
@@ -35,12 +35,12 @@ collision_layer = 0
 shape = SubResource("CircleShape2D_treasure")
 
 [node name="Label" type="Label" parent="."]
-texture_filter = 1
 offset_left = -100.0
-offset_top = -62.0
+offset_top = -80.0
 offset_right = 100.0
-offset_bottom = -39.0
-theme_override_font_sizes/font_size = 11
+offset_bottom = -20.0
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(100, 30)
 text = "Vida
 Recompensa"
 label_settings = SubResource("LabelSettings_treasure")

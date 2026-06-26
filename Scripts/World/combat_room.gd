@@ -13,7 +13,7 @@ var enemy_pool: Array[PackedScene] = []
 @export_category("Rewards")
 ## Recompensa que se spawnea al limpiar la habitación (Ej. Cofre, Scrap gigante, etc.)
 @export var room_reward_scene: PackedScene
-@export var scrap_reward: int = 15
+@export var scrap_reward: int = 20
 
 var active_enemies: int = 0
 var enemies_spawned_so_far: int = 0

@@ -16,7 +16,19 @@ class_name EnemyBase
 	preload("res://Art/Items/Weapons/Item3.tres"),
 	preload("res://Art/Items/Weapons/Item4.tres"),
 	preload("res://Art/Items/Weapons/Item5.tres"),
-	preload("res://Art/Items/Weapons/Item6.tres")
+	preload("res://Art/Items/Weapons/Item6.tres"),
+	preload("res://Art/Items/Weapons/Item7_Colmena.tres"),
+	preload("res://Art/Items/Weapons/Item8_CabezaHumana.tres"),
+	preload("res://Art/Items/Weapons/Item9_SierraCircular.tres"),
+	preload("res://Art/Items/Player/Body/Item2_TorsoBlindado.tres"),
+	preload("res://Art/Items/Player/Body/Item3_TorsoEspinado.tres"),
+	preload("res://Art/Items/Player/Body/Item4_TorsoLigero.tres"),
+	preload("res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres"),
+	preload("res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres"),
+	preload("res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres"),
+	preload("res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres"),
+	preload("res://Art/Items/Player/Arms/Item3_BrazoLigero.tres"),
+	preload("res://Art/Items/Player/Arms/Item4_BrazoArmado.tres")
 ]
 @export var item_drop_chance: float = 0.05
 
@@ -250,6 +262,14 @@ func _attempt_drops() -> void:
 	if "training" in scene_name or "tutorial" in scene_name:
 		return
 		
+	var is_boss = get_script().resource_path.to_lower().contains("boss")
+	if is_boss:
+		for k in range(10):
+			var offset = Vector2(randf_range(-25, 25), randf_range(-25, 25))
+			_spawn_flesh_at(global_position + offset)
+		_spawn_item_at(global_position)
+		return
+
 	var spawns_flesh = _should_drop_flesh()
 	var spawns_item = _should_drop_item()
 	
@@ -257,10 +277,12 @@ func _attempt_drops() -> void:
 		var extra_scrap = randi_range(5, 10)
 		GameData.add_scrap(extra_scrap)
 		
-		for k in range(3):
-			var offset = Vector2(randf_range(-15, 15), randf_range(-15, 15))
-			_spawn_flesh_at(global_position + offset)
-		_spawn_item_at(global_position)
+		if spawns_flesh:
+			for k in range(3):
+				var offset = Vector2(randf_range(-15, 15), randf_range(-15, 15))
+				_spawn_flesh_at(global_position + offset)
+		if spawns_item:
+			_spawn_item_at(global_position)
 		return
 
 	if spawns_flesh and spawns_item:

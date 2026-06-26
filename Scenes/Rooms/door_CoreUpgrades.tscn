@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="1_2xxa7"]
 [ext_resource type="Texture2D" uid="uid://d4mktwpsxdm4w" path="res://Art/Tileset/door_spritesheet.png" id="2_kqhf3"]
 [ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="3_kqhf3"]
+[ext_resource type="Texture2D" uid="uid://brkl17en7ptrx" path="res://Art/Miscellaneous/Icons8_03.png" id="4_isqll"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_b72a7"]
 atlas = ExtResource("2_kqhf3")
@@ -116,3 +117,9 @@ offset_right = 26.0
 offset_bottom = 73.0
 rotation = -1.5707964
 label_settings = SubResource("LabelSettings_isqll")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=399748179]
+position = Vector2(-59.999996, -1.4210841e-14)
+rotation = -1.5707964
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("4_isqll")
