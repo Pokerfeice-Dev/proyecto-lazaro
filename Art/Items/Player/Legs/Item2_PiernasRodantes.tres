@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="ItemData" format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bs40b5sqvlcu5"]
 
-[ext_resource type="Texture2D" path="res://Art/Items/Player/Legs/Item2_PiernasRodantes.png" id="1_tex"]
+[ext_resource type="Texture2D" uid="uid://cwmtmxjrj33hn" path="res://Art/Items/Player/Legs/Item2_PiernasRodantes.png" id="1_tex"]
 [ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
 
 [resource]
@@ -11,7 +11,7 @@ icon = ExtResource("1_tex")
 type = 3
 slot = 9
 stats = {
-"move_speed_percent": 0.15,
+"dash_cooldown_percent": -0.3,
 "dash_speed_percent": 0.2,
-"dash_cooldown_percent": -0.3
+"move_speed_percent": 0.15
 }

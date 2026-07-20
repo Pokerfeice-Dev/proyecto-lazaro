@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dm0bpe3uij4d7"]
 
-[ext_resource type="Script" path="res://Scripts/NPC/treasure_hologram.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cjvy66h3mn7c1" path="res://Scripts/NPC/treasure_hologram.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://b4j1qy7wlaw1o" path="res://Art/Ygor/Ygor_hologram_item.png" id="2_pedestal"]
 [ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="3_font"]
 [ext_resource type="AudioStream" uid="uid://dnsadsf7qssny" path="res://Audio/Sfx/Interact_reward.mp3" id="4_sfx"]
@@ -15,26 +15,26 @@ outline_size = 3
 outline_color = Color(0, 0, 0, 1)
 shadow_color = Color(0, 0, 0, 0.64705884)
 
-[node name="TreasureHologram" type="Node2D"]
+[node name="TreasureHologram" type="Node2D" unique_id=2085665194]
 script = ExtResource("1_script")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1708325839]
 texture = ExtResource("2_pedestal")
 
-[node name="Item_sprite" type="Sprite2D" parent="."]
+[node name="Item_sprite" type="Sprite2D" parent="." unique_id=1717928930]
 texture_filter = 1
 position = Vector2(0, -26)
 
-[node name="item_marker" type="Marker2D" parent="."]
+[node name="item_marker" type="Marker2D" parent="." unique_id=1931364840]
 position = Vector2(0, -10)
 
-[node name="InteractArea" type="Area2D" parent="."]
+[node name="InteractArea" type="Area2D" parent="." unique_id=1698877303]
 collision_layer = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=1786739112]
 shape = SubResource("CircleShape2D_treasure")
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=1537237899]
 offset_left = -100.0
 offset_top = -80.0
 offset_right = 100.0
@@ -47,5 +47,5 @@ label_settings = SubResource("LabelSettings_treasure")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Interact" type="AudioStreamPlayer2D" parent="."]
+[node name="Interact" type="AudioStreamPlayer2D" parent="." unique_id=2007737702]
 stream = ExtResource("4_sfx")

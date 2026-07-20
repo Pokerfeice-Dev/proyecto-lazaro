@@ -60,7 +60,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_5bl70")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Door_Unlock",
 "speed": 8.0
 }, {
@@ -68,7 +68,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2o68x")
 }],
-"loop": true,
+"loop": 1,
 "name": &"Door_lock",
 "speed": 5.0
 }]

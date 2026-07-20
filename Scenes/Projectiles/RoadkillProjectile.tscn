@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://d3dg7sikr420q"]
 
 [ext_resource type="Script" uid="uid://bdx4gwoaeaap" path="res://Scripts/Projectiles/roadkill_projectile.gd" id="1_road"]
-[ext_resource type="Texture2D" uid="uid://dkrbe1n1ijdy7" path="res://Art/Items/Weapons/Item9_SierraCircular.png" id="3_7pk8s"]
+[ext_resource type="Texture2D" uid="uid://vpobsasv1vml" path="res://Art/Items/Weapons/Item9_SierraCircular.png" id="3_7pk8s"]
 [ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="3_vku8s"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_proj"]

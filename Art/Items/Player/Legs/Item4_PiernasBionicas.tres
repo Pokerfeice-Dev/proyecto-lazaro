@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="ItemData" format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://brenthr03puxj"]
 
-[ext_resource type="Texture2D" path="res://Art/Items/Player/Legs/Item4_PiernasBionicas.png" id="1_tex"]
+[ext_resource type="Texture2D" uid="uid://0al7wny3wr7v" path="res://Art/Items/Player/Legs/Item4_PiernasBionicas.png" id="1_tex"]
 [ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
 
 [resource]
@@ -11,8 +11,8 @@ icon = ExtResource("1_tex")
 type = 3
 slot = 9
 stats = {
-"max_health_percent": 0.15,
-"move_speed_percent": -0.05,
 "armor": 1.0,
-"heal_on_flesh": 1.0
+"heal_on_flesh": 1.0,
+"max_health_percent": 0.15,
+"move_speed_percent": -0.05
 }

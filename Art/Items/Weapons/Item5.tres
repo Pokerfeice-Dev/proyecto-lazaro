@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ItemData" format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://8p8xy4gsrmpi"]
 
 [ext_resource type="Texture2D" uid="uid://du5jsghwrases" path="res://Art/Items/Weapons/Item5_Pulmones.png" id="1_tex"]
 [ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]

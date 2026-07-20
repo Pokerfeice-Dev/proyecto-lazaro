@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://c280k08fk3ohe"]
 
-[ext_resource type="Script" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png" id="2_mni3a"]
-[ext_resource type="AudioStream" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_7vofb"]
+[ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bypy62hnxs8bg" path="res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png" id="2_mni3a"]
+[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_7vofb"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_q1g7k"]
 animations = [{
@@ -10,7 +10,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("2_mni3a")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 5.0
 }, {
@@ -18,12 +18,12 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("2_mni3a")
 }],
-"loop": false,
+"loop": 0,
 "name": &"shoot",
 "speed": 12.0
 }]
 
-[node name="Minigun" type="Node2D" node_paths=PackedStringArray("sprite_anim", "shoot_sound")]
+[node name="Minigun" type="Node2D" unique_id=1431573810 node_paths=PackedStringArray("sprite_anim", "shoot_sound")]
 script = ExtResource("1_script")
 sprite_anim = NodePath("Weapon_Sprites")
 shoot_sound = NodePath("Bullet_sound")
@@ -32,22 +32,22 @@ projectile_speed = 500.0
 lifetime = 1.5
 attack_speed = 2.0
 
-[node name="Weapon_Sprites" type="AnimatedSprite2D" parent="."]
+[node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=1904578808]
 self_modulate = Color(0.9, 0.4, 0.15, 1)
 texture_filter = 1
 scale = Vector2(1.4, 1.4)
 sprite_frames = SubResource("SpriteFrames_q1g7k")
 animation = &"idle"
 
-[node name="Bullet_sound" type="AudioStreamPlayer2D" parent="."]
+[node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=1238681935]
 stream = ExtResource("3_7vofb")
 pitch_scale = 1.1
 
-[node name="Bullet_mark_right" type="Marker2D" parent="."]
+[node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=806958084]
 position = Vector2(16, -2)
 
-[node name="Bullet_mark_left" type="Marker2D" parent="."]
+[node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=1456459916]
 position = Vector2(-16, -2)
 
-[node name="Weapon_mark" type="Marker2D" parent="."]
+[node name="Weapon_mark" type="Marker2D" parent="." unique_id=1461304139]
 position = Vector2(-6, 3)

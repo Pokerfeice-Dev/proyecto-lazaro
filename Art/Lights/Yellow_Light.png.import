@@ -17,6 +17,7 @@ dest_files=["res://.godot/imported/Yellow_Light.png-f37d0070e59e043bff40fe0a053e
 
 compress/mode=0
 compress/high_quality=false
+compress/high_quality_mode=0
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

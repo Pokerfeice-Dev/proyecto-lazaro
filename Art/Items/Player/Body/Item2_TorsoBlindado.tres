@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="ItemData" format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bsj81qw72rb1e"]
 
-[ext_resource type="Texture2D" path="res://Art/Items/Player/Body/Item2_TorsoBlindado.png" id="1_tex"]
+[ext_resource type="Texture2D" uid="uid://bumdjr756xlcx" path="res://Art/Items/Player/Body/Item2_TorsoBlindado.png" id="1_tex"]
 [ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
 
 [resource]
