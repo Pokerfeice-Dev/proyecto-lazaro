@@ -3,21 +3,20 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c60eaa82nh8jw"
-path="res://.godot/imported/scrap_icon.png-51d17f16a4e6a59a1aba5c9a7fb863cf.ctex"
+path="res://.godot/imported/Scrap_icon.png-691c4c5d7f2d290b42a9083bba312efd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Scrap/scrap_icon.png"
-dest_files=["res://.godot/imported/scrap_icon.png-51d17f16a4e6a59a1aba5c9a7fb863cf.ctex"]
+source_file="res://Art/Scrap/Scrap_icon.png"
+dest_files=["res://.godot/imported/Scrap_icon.png-691c4c5d7f2d290b42a9083bba312efd.ctex"]
 
 [params]
 
 compress/mode=0
 compress/high_quality=false
-compress/high_quality_mode=0
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

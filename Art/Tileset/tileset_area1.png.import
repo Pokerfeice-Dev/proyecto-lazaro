@@ -2,21 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsn853t2avmo3"
-path="res://.godot/imported/Heart.png-eef7531eb0259a928e99add014d58987.ctex"
+uid="uid://b4ju5efwfo867"
+path="res://.godot/imported/tileset_area1.png-dfde9088bbe989b89bb4d2d6ef8dd11d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Items/Player/Heart/Heart.png"
-dest_files=["res://.godot/imported/Heart.png-eef7531eb0259a928e99add014d58987.ctex"]
+source_file="res://Art/Tileset/tileset_area1.png"
+dest_files=["res://.godot/imported/tileset_area1.png-dfde9088bbe989b89bb4d2d6ef8dd11d.ctex"]
 
 [params]
 
 compress/mode=0
 compress/high_quality=false
+compress/high_quality_mode=0
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
