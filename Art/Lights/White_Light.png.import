@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://vtlosvww8q0n"
-path="res://.godot/imported/White_Light.png-d41e2a5f88d05db5086482ce95326050.ctex"
+path="res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Lights/White_Light.png"
-dest_files=["res://.godot/imported/White_Light.png-d41e2a5f88d05db5086482ce95326050.ctex"]
+source_file="res://Art/Lights/White_light.png"
+dest_files=["res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"]
 
 [params]
 
 compress/mode=0
 compress/high_quality=false
+compress/high_quality_mode=0
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
