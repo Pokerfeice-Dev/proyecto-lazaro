@@ -2,6 +2,7 @@ extends EnemyBase
 class_name Boss1
 
 @export var projectile_scene: PackedScene = preload("res://Scenes/Enemies/enemy_shooter_projectile.tscn")
+@export var airstrike_scene: PackedScene = preload("res://Scenes/Enemies/BossAirstrike.tscn")
 
 @export_group("Boss Base Stats")
 @export var boss_max_health: int = 1000
@@ -39,20 +40,211 @@ var laser_damage_cooldown: float = 0.0
 var healthbar_instance: Node = null
 var boss_health_bar_node: Range = null
 var is_phase_two: bool = false
+var is_transitioning_phase: bool = false
+var phase_two_attack_step: int = 0
 var pattern_execute_count: int = 0
+var spawned_minions: Array[Node2D] = []
 var roar_player: AudioStreamPlayer2D = null
 
 func _ready() -> void:
 	super._ready()
-	max_health = boss_max_health
-	current_health = max_health
 	damage = boss_damage
 	move_speed = 0.0 # Stationary boss
 	laser_sweep_speed = laser_sweep_base_speed
 	
+	_init_boss_phase_state()
 	_setup_lasers()
 	_setup_pattern_timer()
 	_connect_to_hud.call_deferred()
+
+func _init_boss_phase_state() -> void:
+	if GameData.boss_fight_phase == 2:
+		is_phase_two = true
+		max_health = GameData.boss_persisted_max_health if GameData.boss_persisted_max_health > 0 else boss_max_health
+		current_health = GameData.boss_persisted_health if GameData.boss_persisted_health > 0 else int(float(max_health) * 0.50)
+		set_physics_process(false)
+		_start_phase_two_cinematic.call_deferred()
+	else:
+		is_phase_two = false
+		max_health = boss_max_health
+		current_health = max_health
+
+func _start_phase_two_cinematic() -> void:
+	var player = get_tree().get_first_node_in_group("player")
+	_freeze_player_completely(player)
+	_ensure_boss_music_playing()
+	
+	var cinema_layer = CanvasLayer.new()
+	cinema_layer.layer = 10
+	get_tree().current_scene.add_child(cinema_layer)
+	
+	var title_container = _create_cinematic_title_container(cinema_layer)
+	var camera = get_viewport().get_camera_2d()
+	
+	_animate_cinematic_entrance(title_container)
+	_run_cinematic_timeline(cinema_layer, title_container, player, camera)
+
+func _freeze_player_completely(player: Node) -> void:
+	if not player or not is_instance_valid(player): return
+	if player.has_method("freeze_player"):
+		player.freeze_player()
+	else:
+		player.set_physics_process(false)
+		player.set_process(false)
+		if "velocity" in player:
+			player.velocity = Vector2.ZERO
+		if "can_shoot" in player:
+			player.can_shoot = false
+
+func _unfreeze_player_completely(player: Node) -> void:
+	if not player or not is_instance_valid(player): return
+	if player.has_method("unfreeze_player"):
+		player.unfreeze_player()
+	else:
+		player.set_physics_process(true)
+		player.set_process(true)
+		if "can_shoot" in player:
+			player.can_shoot = true
+
+func _ensure_boss_music_playing() -> void:
+	var music = get_tree().current_scene.get_node_or_null("Boss_Fight_Music")
+	if music and not music.playing:
+		music.play()
+
+func _create_cinematic_title_container(parent: CanvasLayer) -> VBoxContainer:
+	var container = VBoxContainer.new()
+	container.set_anchors_preset(Control.PRESET_CENTER)
+	container.position = Vector2(960 - 350, 540 - 65)
+	container.custom_minimum_size = Vector2(700, 130)
+	container.modulate.a = 0.0
+	parent.add_child(container)
+	
+	var title_label = Label.new()
+	title_label.text = "CENTINELA GÉNESIS"
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	title_label.add_theme_font_size_override("font_size", 42)
+	title_label.add_theme_color_override("font_color", Color(1.0, 0.25, 0.25))
+	title_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	title_label.add_theme_constant_override("outline_size", 12)
+	container.add_child(title_label)
+	
+	var sub_label = Label.new()
+	sub_label.text = "◆ FASE 2: MODO FURIA ◆\n[ REGENERACIÓN BIOLÓGICA +20% ]"
+	sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub_label.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	sub_label.add_theme_font_size_override("font_size", 20)
+	sub_label.add_theme_color_override("font_color", Color(0.3, 0.9, 1.0))
+	sub_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	sub_label.add_theme_constant_override("outline_size", 8)
+	container.add_child(sub_label)
+	return container
+
+func _animate_cinematic_entrance(title: Control) -> void:
+	var t = create_tween()
+	t.tween_property(title, "modulate:a", 1.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+func _run_cinematic_timeline(cinema_layer: CanvasLayer, title: Control, player: Node, camera: Camera2D) -> void:
+	var t_seq = create_tween()
+	# 1s: Focused start with title fade in
+	t_seq.tween_interval(1.0)
+	
+	# 1s: Camera zooms in to boss
+	t_seq.tween_callback(func(): _zoom_camera_to_boss(camera, 1.0))
+	t_seq.tween_interval(1.0)
+	
+	# 2s: Boss roars, heals +20% HP, healing particles spawn
+	t_seq.tween_callback(func(): _trigger_healing_phase_effects(player))
+	t_seq.tween_interval(2.0)
+	
+	# 1s: Camera zooms back out
+	t_seq.tween_callback(func(): _zoom_camera_to_player(camera, 1.0))
+	t_seq.tween_interval(1.0)
+	
+	# 1s: Title fades out
+	t_seq.tween_callback(func(): _animate_cinematic_exit(title))
+	t_seq.tween_interval(1.0)
+	
+	# Finish & start fight
+	t_seq.tween_callback(func(): _finish_cinematic_and_start_fight(cinema_layer, player))
+
+func _zoom_camera_to_boss(camera: Camera2D, duration: float) -> void:
+	if not camera: return
+	var target_offset = global_position - camera.get_parent().global_position
+	var t = create_tween().set_parallel(true)
+	t.tween_property(camera, "zoom", Vector2(1.35, 1.35), duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	t.tween_property(camera, "position", target_offset, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+func _zoom_camera_to_player(camera: Camera2D, duration: float) -> void:
+	if not camera: return
+	var t = create_tween().set_parallel(true)
+	t.tween_property(camera, "zoom", Vector2(1.0, 1.0), duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(camera, "position", Vector2.ZERO, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+
+func _trigger_healing_phase_effects(player: Node) -> void:
+	_play_spawn_roar()
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(16.0, 2.0)
+	_animate_boss_healing_visuals()
+	var particles = _create_healing_particles()
+	_animate_healthbar_healing(particles)
+
+func _create_healing_particles() -> CPUParticles2D:
+	var particles = CPUParticles2D.new()
+	particles.amount = 40
+	particles.lifetime = 1.6
+	particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
+	particles.emission_sphere_radius = 55.0
+	particles.direction = Vector2(0, -1)
+	particles.spread = 60.0
+	particles.gravity = Vector2(0, -80)
+	particles.initial_velocity_min = 30.0
+	particles.initial_velocity_max = 80.0
+	particles.scale_amount_min = 4.0
+	particles.scale_amount_max = 8.0
+	
+	var gradient = Gradient.new()
+	gradient.set_color(0, Color(0.2, 1.0, 0.5, 0.9))
+	gradient.set_color(1, Color(0.1, 0.8, 1.0, 0.0))
+	particles.color_ramp = gradient
+	
+	add_child(particles)
+	particles.position = Vector2.ZERO
+	return particles
+
+func _animate_boss_healing_visuals() -> void:
+	var sprite_node = get_node_or_null("Sprite2D")
+	if not sprite_node: return
+	var t = create_tween()
+	t.tween_property(sprite_node, "modulate", Color(2.0, 0.3, 0.3), 0.3)
+	t.tween_property(sprite_node, "modulate", Color(0.3, 1.8, 0.6), 0.9)
+	t.tween_property(sprite_node, "modulate", Color(1.0, 1.0, 1.0), 0.8)
+
+func _animate_healthbar_healing(particles: CPUParticles2D) -> void:
+	var start_hp = current_health
+	var target_hp = mini(max_health, current_health + int(float(max_health) * 0.20))
+	
+	var t_heal = create_tween()
+	t_heal.tween_method(_update_healing_step, float(start_hp), float(target_hp), 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	t_heal.tween_interval(0.2)
+	if particles:
+		t_heal.tween_callback(particles.queue_free)
+
+func _update_healing_step(val: float) -> void:
+	current_health = int(val)
+	if boss_health_bar_node:
+		boss_health_bar_node.value = current_health
+
+func _animate_cinematic_exit(title: Control) -> void:
+	var t_out = create_tween()
+	t_out.tween_property(title, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+func _finish_cinematic_and_start_fight(cinema_layer: CanvasLayer, player: Node) -> void:
+	if cinema_layer and is_instance_valid(cinema_layer):
+		cinema_layer.queue_free()
+	_unfreeze_player_completely(player)
+	set_physics_process(true)
+	_apply_phase_two_buffs()
 
 func _setup_lasers() -> void:
 	# Left Laser setup
@@ -96,12 +288,14 @@ func _connect_to_hud() -> void:
 		return
 		
 	healthbar_instance = scene.instantiate()
+	if healthbar_instance is CanvasLayer:
+		healthbar_instance.layer = 100
 	get_tree().current_scene.add_child(healthbar_instance)
 	
 	boss_health_bar_node = _find_progress_bar(healthbar_instance)
 	if boss_health_bar_node:
 		boss_health_bar_node.max_value = max_health
-		boss_health_bar_node.value = max_health
+		boss_health_bar_node.value = current_health
 		
 	var name_label = _find_label(healthbar_instance)
 	if name_label:
@@ -156,7 +350,8 @@ func _update_laser_beam(ray: RayCast2D, line: Line2D, muzzle_local_pos: Vector2,
 	var dir = Vector2.from_angle(angle)
 	ray.position = muzzle_local_pos
 	ray.target_position = dir * 1000.0
-	ray.force_raycast_update()
+	
+	_perform_raycast_shifting(ray, muzzle_local_pos, dir)
 	
 	var local_col_point = muzzle_local_pos + dir * 1000.0
 	if ray.is_colliding():
@@ -164,9 +359,30 @@ func _update_laser_beam(ray: RayCast2D, line: Line2D, muzzle_local_pos: Vector2,
 		local_col_point = to_local(global_col)
 		_check_laser_damage(ray.get_collider(), delta)
 		
+	# Restore raycast state
+	ray.position = muzzle_local_pos
+	ray.target_position = dir * 1000.0
+	
 	line.clear_points()
 	line.add_point(muzzle_local_pos)
 	line.add_point(local_col_point)
+
+func _perform_raycast_shifting(ray: RayCast2D, muzzle_local_pos: Vector2, dir: Vector2) -> void:
+	var max_steps = 10
+	var current_step = 0
+	ray.force_raycast_update()
+	while ray.is_colliding() and current_step < max_steps:
+		var collider = ray.get_collider()
+		if not collider or not collider.is_in_group("projectile_pass"):
+			break
+		
+		# Shift start point past the collision point along direction
+		var col_point = ray.get_collision_point()
+		var local_col = to_local(col_point)
+		ray.position = local_col + dir * 1.0
+		ray.target_position = (muzzle_local_pos + dir * 1000.0) - ray.position
+		ray.force_raycast_update()
+		current_step += 1
 
 func _check_laser_damage(collider: Object, delta: float) -> void:
 	if laser_damage_cooldown > 0.0:
@@ -185,10 +401,33 @@ func _on_pattern_timeout() -> void:
 	_update_spawn_counter()
 
 func _toggle_attack_pattern() -> void:
+	if is_phase_two:
+		_execute_phase_two_pattern()
+	else:
+		_execute_phase_one_pattern()
+
+func _execute_phase_one_pattern() -> void:
 	is_laser_active = not is_laser_active
 	_update_laser_audio_state()
 	if not is_laser_active:
 		_fire_ring_pattern()
+
+func _execute_phase_two_pattern() -> void:
+	phase_two_attack_step = (phase_two_attack_step + 1) % 3
+	
+	if is_laser_active and phase_two_attack_step != 0:
+		is_laser_active = false
+		_update_laser_audio_state()
+		left_laser_line.visible = false
+		right_laser_line.visible = false
+	
+	if phase_two_attack_step == 0:
+		is_laser_active = true
+		_update_laser_audio_state()
+	elif phase_two_attack_step == 1:
+		_fire_ring_pattern()
+	elif phase_two_attack_step == 2:
+		_fire_missile_barrage()
 
 func _fire_ring_pattern() -> void:
 	if bullet_sound:
@@ -198,6 +437,27 @@ func _fire_ring_pattern() -> void:
 	for i in range(bullet_count):
 		var spawn_angle = i * angle_step
 		_spawn_projectile_at_angle(muzzle_center.global_position, spawn_angle)
+
+func _fire_missile_barrage() -> void:
+	if bullet_sound:
+		bullet_sound.play()
+	var missile_count = 3
+	for i in range(missile_count):
+		var delay = i * 0.35
+		get_tree().create_timer(delay).timeout.connect(_spawn_single_missile_strike)
+
+func _spawn_single_missile_strike() -> void:
+	if is_dying: return
+	if not airstrike_scene: return
+	var player = get_tree().get_first_node_in_group("player")
+	var target_pos = global_position + Vector2(randf_range(-200, 200), randf_range(100, 300))
+	if player and is_instance_valid(player):
+		target_pos = player.global_position + Vector2(randf_range(-20, 20), randf_range(-20, 20))
+		
+	var strike = airstrike_scene.instantiate()
+	strike.global_position = target_pos
+	strike.damage = int(float(damage) * 1.2)
+	get_tree().current_scene.add_child(strike)
 
 func _spawn_projectile_at_angle(pos: Vector2, angle: float) -> void:
 	if not projectile_scene: return
@@ -211,6 +471,7 @@ func _spawn_projectile_at_angle(pos: Vector2, angle: float) -> void:
 		proj.speed = proj.speed * 1.25
 
 func take_damage(amount: int, is_crit: bool = false) -> void:
+	if is_transitioning_phase: return
 	super.take_damage(amount, is_crit)
 	_update_hud_health()
 	_check_phase_transition()
@@ -218,19 +479,47 @@ func take_damage(amount: int, is_crit: bool = false) -> void:
 func _check_phase_transition() -> void:
 	if is_phase_two: return
 	if is_dying: return
+	if is_transitioning_phase: return
 	
-	var threshold = float(max_health) * 0.25
+	var threshold = float(max_health) * 0.50
 	if float(current_health) <= threshold:
-		_activate_phase_two()
+		_trigger_phase_two_teleport()
 
-func _activate_phase_two() -> void:
-	is_phase_two = true
+func _trigger_phase_two_teleport() -> void:
+	is_transitioning_phase = true
+	set_physics_process(false)
+	if pattern_timer:
+		pattern_timer.stop()
+	if is_laser_active:
+		is_laser_active = false
+		_update_laser_audio_state()
+		left_laser_line.visible = false
+		right_laser_line.visible = false
+	
+	GameData.boss_fight_phase = 2
+	GameData.boss_persisted_max_health = max_health
+	GameData.boss_persisted_health = current_health
+	
+	_play_rage_effects()
 	_show_phase_two_message()
-	_apply_phase_two_buffs()
+	
+	var t = create_tween()
+	t.tween_interval(1.4)
+	t.tween_callback(_change_to_phase_two_room)
+
+func _play_rage_effects() -> void:
+	_play_spawn_roar()
+	SceneTransition.play_teleport_sound()
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(20.0, 1.4)
+
+func _change_to_phase_two_room() -> void:
+	SceneTransition.change_scene("res://Scenes/Rooms/Level1_Room16-BossFight.tscn")
 
 func _show_phase_two_message() -> void:
 	var label = Label.new()
-	label.text = "FASE 2: FURIA"
+	label.text = "FASE 2: MODO FURIA"
 	label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))
 	label.add_theme_font_size_override("font_size", 48)
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -269,6 +558,7 @@ func _update_hud_health() -> void:
 
 func die() -> void:
 	super.die()
+	GameData.reset_boss_state()
 	_hide_hud_health()
 	_stop_all_boss_sounds()
 	if GameData.get_active_protocol() == "reciclaje_instantaneo":
@@ -328,7 +618,28 @@ func _update_spawn_counter() -> void:
 		pattern_execute_count = 0
 		_spawn_minions()
 
+func _has_living_minions() -> bool:
+	_cleanup_dead_minions()
+	return spawned_minions.size() > 0
+
+func _cleanup_dead_minions() -> void:
+	var alive: Array[Node2D] = []
+	for minion in spawned_minions:
+		if is_instance_valid(minion) and not _is_minion_dead(minion):
+			alive.append(minion)
+	spawned_minions = alive
+
+func _is_minion_dead(minion: Node2D) -> bool:
+	if "is_dying" in minion and minion.is_dying:
+		return true
+	if "current_health" in minion and minion.current_health <= 0:
+		return true
+	return false
+
 func _spawn_minions() -> void:
+	if _has_living_minions():
+		return
+		
 	var spawn1 = _find_spawn_node("spawn1")
 	var spawn2 = _find_spawn_node("spawn2")
 	
@@ -338,7 +649,6 @@ func _spawn_minions() -> void:
 		_spawn_mutation_at(spawn2.global_position)
 		
 	if not spawn1 and not spawn2:
-		# Fallback: spawn relative to boss position if nodes aren't found on parent
 		_spawn_mutation_at(global_position + Vector2(-150, 200))
 		_spawn_mutation_at(global_position + Vector2(150, 200))
 		
@@ -362,12 +672,10 @@ func _find_spawn_node(node_name: String) -> Node2D:
 	]
 	
 	for name_var in variations:
-		# Search recursively from parent
 		var found = parent.find_child(name_var, true, false)
 		if found and found is Node2D:
 			return found
 			
-		# Search recursively from self
 		found = find_child(name_var, true, false)
 		if found and found is Node2D:
 			return found
@@ -380,21 +688,29 @@ func _spawn_mutation_at(pos: Vector2) -> void:
 		printerr("Boss1: No se pudo cargar EnemyFollower.tscn para spawneo.")
 		return
 	var inst = scene.instantiate()
+	if is_phase_two and "is_elite" in inst:
+		inst.is_elite = true
+		inst.modulate = Color(1.3, 0.4, 0.4)
 	get_parent().add_child(inst)
 	inst.global_position = pos
+	spawned_minions.append(inst)
 
 func _play_spawn_roar() -> void:
 	if roar_invoc:
+		roar_invoc.pitch_scale = 0.85
+		roar_invoc.volume_db = 4.0
 		roar_invoc.play()
 	elif roar_player:
+		roar_player.pitch_scale = 0.85
+		roar_player.volume_db = 4.0
 		roar_player.play()
 	else:
-		# Fallback: create dynamic player if not present in scene
 		roar_player = AudioStreamPlayer2D.new()
 		var stream = load("res://Audio/Enemy_snd/Boss1/Retro Roar LoFi 08.wav")
 		if stream:
 			roar_player.stream = stream
-		roar_player.volume_db = 0.0
+		roar_player.pitch_scale = 0.85
+		roar_player.volume_db = 4.0
 		add_child(roar_player)
 		roar_player.play()
 

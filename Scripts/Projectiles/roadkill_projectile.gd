@@ -20,7 +20,7 @@ func _decrement_piercing_or_free() -> void:
 	queue_free()
 
 func _handle_other_collision(body: Node2D) -> void:
-	if body.is_in_group("player") or body.is_in_group("enemy"):
+	if body.is_in_group("player") or body.is_in_group("enemy") or body.is_in_group("projectile_pass"):
 		return
 	_handle_wall_bounce()
 

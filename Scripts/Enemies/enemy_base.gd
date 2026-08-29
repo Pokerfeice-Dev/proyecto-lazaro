@@ -212,6 +212,29 @@ func _show_damage_text(amount: int, is_crit: bool) -> void:
 	tween.tween_property(label, "modulate:a", 0.0, 0.6).set_delay(0.2)
 	tween.chain().tween_callback(floating_node.queue_free)
 
+var is_frozen_by_ice: bool = false
+
+func freeze_enemy(duration: float = 5.0) -> void:
+	if is_dying: return
+	is_frozen_by_ice = true
+	set_physics_process(false)
+	set_process(false)
+	
+	var sprite = _get_sprite()
+	if sprite:
+		sprite.modulate = Color(0.3, 0.85, 1.8, 1.0)
+		
+	var timer = get_tree().create_timer(duration)
+	timer.timeout.connect(func(): _unfreeze_enemy(sprite))
+
+func _unfreeze_enemy(sprite: Node) -> void:
+	if not is_instance_valid(self) or is_dying: return
+	is_frozen_by_ice = false
+	if sprite and is_instance_valid(sprite):
+		sprite.modulate = _default_modulate
+	set_physics_process(true)
+	set_process(true)
+
 func _flash_red() -> void:
 	var sprite = _get_sprite()
 	if not sprite: return
@@ -219,9 +242,10 @@ func _flash_red() -> void:
 	if _flash_tween and _flash_tween.is_valid():
 		_flash_tween.kill()
 		
+	var target_col = Color(0.3, 0.85, 1.8, 1.0) if is_frozen_by_ice else _default_modulate
 	sprite.modulate = Color.RED
 	_flash_tween = create_tween()
-	_flash_tween.tween_property(sprite, "modulate", _default_modulate, 0.2)
+	_flash_tween.tween_property(sprite, "modulate", target_col, 0.2)
 
 func _check_death() -> void:
 	if current_health > 0: return

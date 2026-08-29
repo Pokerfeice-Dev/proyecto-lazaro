@@ -39,16 +39,16 @@ func _physics_process(delta):
 	global_position += direction * speed * delta
 
 func _on_body_entered(body: Node2D):
-	if target_group != "" and body.is_in_group(target_group):
-		if body.has_method("take_damage"):
-			body.take_damage(damage, is_crit)
+	if body.is_in_group("player") or body.is_in_group("projectile_pass"):
+		return
 		
-		if piercing > 0:
+	if body.has_method("take_damage"):
+		body.take_damage(damage, is_crit)
+		if piercing > 0 and body.is_in_group("enemy"):
 			piercing -= 1
 		else:
 			_destroy_projectile()
-	elif not body.is_in_group("player") and not body.is_in_group("enemy"):
-		# Hit a wall
+	else:
 		_destroy_projectile()
 
 func _destroy_projectile() -> void:

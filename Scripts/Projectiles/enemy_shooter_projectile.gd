@@ -30,7 +30,7 @@ func _on_body_entered(body: Node2D):
 		if body.has_method("take_damage"):
 			body.take_damage(int(damage), source_name)
 		_explode()
-	elif not body.is_in_group("enemy"):
+	elif not body.is_in_group("enemy") and not body.is_in_group("projectile_pass"):
 		# Colisión con pared u otro objeto sólido
 		_explode()
 
