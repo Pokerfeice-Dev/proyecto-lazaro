@@ -341,6 +341,7 @@ func _play_death_sound() -> void:
 	if not death_sound: death_sound = get_node_or_null("DeathSound")
 	if not death_sound: return
 	if not death_sound.has_method("play"): return
+	death_sound.bus = "SFX"
 	death_sound.play()
 
 func _play_death_fx() -> void:

@@ -14,6 +14,7 @@ func _ready() -> void:
 	add_to_group("scrap")
 	_connect_grab_area()
 	_apply_magnet_upgrade()
+	if scrap_snd: scrap_snd.bus = "SFX"
 
 func _apply_magnet_upgrade() -> void:
 	if not grab_area: return

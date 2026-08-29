@@ -155,8 +155,28 @@ func _handle_menu_input(event: InputEvent) -> void:
 func _handle_cancel_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
 		return
+	# sonido al cancelar/cerrar el inventario
+	_play_cancel_sound()
 	toggle_visibility()
 	get_viewport().set_input_as_handled()
+
+# sonido al cancelar/cerrar el inventario
+func _play_cancel_sound() -> void:
+	var sfx_player = AudioStreamPlayer.new()
+	sfx_player.stream = load("res://Audio/Sfx/UI_cancelar.wav")
+	sfx_player.bus = "SFX"
+	get_tree().root.add_child(sfx_player)
+	sfx_player.play()
+	sfx_player.finished.connect(sfx_player.queue_free)
+
+# sonido al equipar un ítem desde el inventario
+func _play_equip_sound() -> void:
+	var sfx_player = AudioStreamPlayer.new()
+	sfx_player.stream = load("res://Audio/Sfx/Equipar_items.wav")
+	sfx_player.bus = "SFX"
+	get_tree().root.add_child(sfx_player)
+	sfx_player.play()
+	sfx_player.finished.connect(sfx_player.queue_free)
 
 func _handle_key_input(event: InputEvent) -> void:
 	var key_event = event as InputEventKey
@@ -639,22 +659,24 @@ func _on_item_dropped(drag_item: ItemData, source_slot: UISlot, target_slot: UIS
 		var old_item = equipment.slots.get(target_slot.slot_type)
 		drag_item.slot = target_slot.slot_type
 		inventory.remove_item(drag_item)
-		if old_item:
-			inventory.add_item(old_item)
+		if old_item and not equipment.is_body_part(old_item):
+			inventory.add_item(old_item) # las armas se guardan; las piezas de cuerpo se rompen al reemplazarlas
 		equipment.equip_item(drag_item)
-		
+		_play_equip_sound()
+
 	elif not source_slot.is_inventory_slot and target_slot.is_inventory_slot:
 		equipment.slots[source_slot.slot_type] = null
 		equipment.equipment_changed.emit()
 		inventory.add_item(drag_item)
-		
+
 	elif not source_slot.is_inventory_slot and not target_slot.is_inventory_slot:
 		var old_item = equipment.slots.get(target_slot.slot_type)
 		equipment.slots[source_slot.slot_type] = old_item
 		if old_item:
 			old_item.slot = source_slot.slot_type
 		drag_item.slot = target_slot.slot_type
-		equipment.equip_item(drag_item)
+		equipment.equip_item(drag_item, false) # reacomodo entre slots ya equipados, no es una pieza nueva
+		_play_equip_sound()
 	else:
 		update_ui()
 	_hide_tooltip()
@@ -680,11 +702,12 @@ func _auto_equip_item(item: ItemData) -> void:
 	
 	item.slot = target_slot_type
 	inventory.remove_item(item)
-	
-	if old_item:
-		inventory.add_item(old_item)
-		
+
+	if old_item and not equipment.is_body_part(old_item):
+		inventory.add_item(old_item) # las armas se guardan; las piezas de cuerpo se rompen al reemplazarlas
+
 	equipment.equip_item(item)
+	_play_equip_sound()
 	update_ui()
 	_hide_tooltip()
 

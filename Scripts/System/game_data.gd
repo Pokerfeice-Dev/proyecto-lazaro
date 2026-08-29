@@ -59,23 +59,51 @@ var codex_unlocks: Dictionary = {
 	"levels": []
 }
 
-func unlock_codex_entry(category: String, entry_id: String) -> void:
+# show_toast=false para los desbloqueos iniciales (no tiene sentido un popup al arrancar el juego)
+func unlock_codex_entry(category: String, entry_id: String, show_toast: bool = true) -> void:
 	if not codex_unlocks.has(category): return
 	if not codex_unlocks[category].has(entry_id):
 		codex_unlocks[category].append(entry_id)
 		print("Codex unlocked: ", category, " -> ", entry_id)
+		if show_toast:
+			_queue_codex_toast(category, entry_id)
 
 func is_codex_unlocked(category: String, entry_id: String) -> bool:
 	if not codex_unlocks.has(category): return false
 	return codex_unlocks[category].has(entry_id)
 
+# ── Codex Toast (aviso de descubrimiento estilo logro) ───────────────────────
+# cola para que dos desbloqueos casi simultáneos no se pisen entre sí
+var _codex_toast_queue: Array = []
+var _codex_toast_active: bool = false
+
+func _queue_codex_toast(category: String, entry_id: String) -> void:
+	_codex_toast_queue.append({"category": category, "entry_id": entry_id})
+	if not _codex_toast_active:
+		_show_next_codex_toast()
+
+func _show_next_codex_toast() -> void:
+	if _codex_toast_queue.is_empty():
+		_codex_toast_active = false
+		return
+	_codex_toast_active = true
+	var entry: Dictionary = _codex_toast_queue.pop_front()
+	var toast: CodexToast = CodexToast.new()
+	toast.category = entry["category"]
+	toast.entry_id = entry["entry_id"]
+	toast.finished.connect(_on_codex_toast_finished)
+	add_child(toast)
+
+func _on_codex_toast_finished() -> void:
+	_show_next_codex_toast()
+
 func _ready() -> void:
 	_load_level1_rooms()
 	for slot in ItemData.ItemSlot.values():
 		equipment_slots[slot] = null
-	unlock_codex_entry("levels", "level_1")
-	unlock_codex_entry("weapons", "pistol")
-	unlock_codex_entry("weapons", "daga")
+	unlock_codex_entry("levels", "level_1", false)
+	unlock_codex_entry("weapons", "pistol", false)
+	unlock_codex_entry("weapons", "daga", false)
 
 func _process(delta: float) -> void:
 	if get_tree().paused: return
@@ -86,6 +114,7 @@ func _process(delta: float) -> void:
 
 # ── Run Management ────────────────────────────────────────────────────────────
 var current_run_room: int = 0
+var run_start_time_msec: int = 0 # para calcular el tiempo sobrevivido en la pantalla de muerte
 var run_enemies_killed: int = 0:
 	set(val):
 		var diff = val - run_enemies_killed
@@ -133,6 +162,7 @@ func start_new_run() -> String:
 	rooms_before_boss = randi_range(7, 10)
 	run_enemies_killed = 0
 	run_scrap_collected = 0
+	run_start_time_msec = Time.get_ticks_msec()
 	last_killer = "Infección Lázaro"
 	save_game()
 	return get_random_room_from_pool()
@@ -501,6 +531,7 @@ func load_game(slot: int) -> bool:
 	if typeof(json) != TYPE_DICTIONARY: return false
 	
 	current_slot = slot
+	run_start_time_msec = Time.get_ticks_msec() # arranca a contar desde que se retoma la partida
 	scrap = int(json.get("scrap", 0))
 	weapon_damage = float(json.get("weapon_damage", 10.0))
 	weapon_fire_rate = float(json.get("weapon_fire_rate", 1.0))
@@ -674,6 +705,10 @@ func get_formatted_system_time() -> String:
 		display_hour = 12
 		
 	return "%02d/%02d/%04d a las %d:%02d %s" % [day, month, year, display_hour, minute, am_pm]
+
+# segundos transcurridos desde que arrancó la run actual, para el resumen de muerte
+func get_run_elapsed_seconds() -> float:
+	return (Time.get_ticks_msec() - run_start_time_msec) / 1000.0
 
 func format_time(time: float) -> String:
 	var total_secs = int(time)

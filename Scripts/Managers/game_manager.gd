@@ -13,6 +13,7 @@ func _setup_music_loop() -> void:
 	var music_node = get_node_or_null("Main_music")
 	if not music_node:
 		return
+	music_node.bus = "Music" # separa la música del bus de efectos
 	if not music_node.stream:
 		return
 	music_node.stream.loop = true

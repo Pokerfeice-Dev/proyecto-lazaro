@@ -61,10 +61,19 @@ theme_override_constants/separation = 15
 
 [node name="VolumeLabel" type="Label" parent="MenuControl/VBoxContainer" unique_id=1217287022]
 layout_mode = 2
-text = "Volumen"
+text = "Música"
 horizontal_alignment = 1
 
 [node name="VolumeSlider" type="HSlider" parent="MenuControl/VBoxContainer" unique_id=1416529500]
+layout_mode = 2
+value = 100.0
+
+[node name="SfxLabel" type="Label" parent="MenuControl/VBoxContainer"]
+layout_mode = 2
+text = "Efectos"
+horizontal_alignment = 1
+
+[node name="SfxSlider" type="HSlider" parent="MenuControl/VBoxContainer"]
 layout_mode = 2
 value = 100.0
 

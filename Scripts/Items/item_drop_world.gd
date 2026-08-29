@@ -82,6 +82,7 @@ func _play_sound_and_free() -> void:
 	if not snd:
 		queue_free()
 		return
+	snd.bus = "SFX"
 	snd.finished.connect(queue_free)
 	snd.play()
 

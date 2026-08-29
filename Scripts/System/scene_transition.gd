@@ -22,18 +22,18 @@ func _ready():
 	mainmenu_music = AudioStreamPlayer.new()
 	mainmenu_music.stream = preload("res://Audio/Music/sn2.ogg")
 	mainmenu_music.volume_db = -3.0
-	mainmenu_music.bus = "Master"
+	mainmenu_music.bus = "Music" # esta es la música que realmente suena en el menú, tenía que ir en su propio bus
 	add_child(mainmenu_music)
-	
+
 	combat_music = AudioStreamPlayer.new()
 	combat_music.stream = preload("res://Audio/Music/Ost-Batalla.ogg")
 	combat_music.volume_db = -5.0
-	combat_music.bus = "Master"
+	combat_music.bus = "Music"
 	add_child(combat_music)
-	
+
 	teleport_sfx = AudioStreamPlayer.new()
 	teleport_sfx.stream = preload("res://Audio/Sfx/Teleport/Teleport.wav")
-	teleport_sfx.bus = "Master"
+	teleport_sfx.bus = "SFX"
 	add_child(teleport_sfx)
 	
 	_setup_loops()

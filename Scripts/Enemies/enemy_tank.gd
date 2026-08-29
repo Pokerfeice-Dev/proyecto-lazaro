@@ -93,7 +93,7 @@ func _apply_damage_to_area() -> void:
 	var bodies = attack_area.get_overlapping_bodies()
 	for body in bodies:
 		if body.is_in_group("player") and body.has_method("take_damage"):
-			body.take_damage(damage, "Mutante Coloso (Tank)")
+			body.take_damage(damage, "Mutante Coloso (Tank)", global_position)
 
 func _finish_attack() -> void:
 	if is_dying: return

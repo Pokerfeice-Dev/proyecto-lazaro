@@ -29,6 +29,7 @@ func _ready() -> void:
 	_setup_shoot_timer()
 	current_state = State.WANDER
 	_pick_new_wander_direction()
+	if attack_sound: attack_sound.bus = "SFX"
 
 func _play_attack_sound() -> void:
 	if attack_sound:

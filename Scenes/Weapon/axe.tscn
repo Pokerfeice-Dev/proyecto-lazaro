@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://blmn6o6vbyub4" path="res://Art/Weapons/Melee/Axe/Weapon_Axe.png" id="1_hacha"]
 [ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
-[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_sound"]
+[ext_resource type="AudioStream" uid="uid://dp1yxm7gucqdt" path="res://Audio/Sfx/Melee/07_human_atk_sword_2.wav" id="3_sound"]
 [ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]

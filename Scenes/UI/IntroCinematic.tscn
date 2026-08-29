@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dygafopwa25c7"]
+
+[ext_resource type="Script" uid="uid://dx2x7bsx30oj8" path="res://Scripts/UI/intro_cinematic.gd" id="1_tbs3d"]
+
+[node name="IntroCinematic" type="Control" unique_id=923570576]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_tbs3d")
+
+[node name="VideoPlayer" type="VideoStreamPlayer" parent="." unique_id=2091343581]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+expand = true
+
+[node name="LoadingBar" type="ProgressBar" parent="." unique_id=943296266]
+modulate = Color(0.2, 0.8, 1, 1)
+layout_mode = 0
+offset_left = 40.0
+offset_top = 1034.0
+offset_right = 230.0
+offset_bottom = 1041.0
+show_percentage = false
+
+[node name="LoadingLabel" type="Label" parent="." unique_id=1336025362]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 1014.0
+offset_right = 230.0
+offset_bottom = 1037.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 12
+text = "CARGANDO..."
+
+[node name="SkipLabel" type="Label" parent="." unique_id=494209684]
+layout_mode = 0
+offset_left = 1500.0
+offset_top = 1020.0
+offset_right = 1880.0
+offset_bottom = 1060.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "Click o presioná una tecla para saltar"
+horizontal_alignment = 2
+
+[node name="SkipArea" type="Button" parent="." unique_id=878351172]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+focus_mode = 0
+flat = true

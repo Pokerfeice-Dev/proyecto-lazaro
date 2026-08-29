@@ -26,6 +26,7 @@ func _ready() -> void:
 	if sprite_cannon:
 		_default_cannon_modulate = sprite_cannon.modulate
 		_default_cannon_modulate.a = 1.0
+	if attack_sound: attack_sound.bus = "SFX"
 
 func _play_attack_sound() -> void:
 	if attack_sound:

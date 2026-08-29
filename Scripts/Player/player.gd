@@ -32,8 +32,16 @@ var shake_tween: Tween
 @export_category("Damage Effect")
 @export var damage_border_color: Color = Color(1.0, 0.0, 0.0, 1.0)
 @export var damage_border_intensity: float = 0.9
+@export var low_health_threshold: float = 0.3 # % de vida a partir del cual empieza a latir la pantalla
+@export var low_health_pulse_interval: float = 1.0 # segundos entre cada latido
+@export var body_part_heal_ratio: float = 0.03 # % de vida máxima que regenera al instalar una pieza de cuerpo nueva
 var damage_canvas: CanvasLayer
 var damage_rect: ColorRect
+var damage_indicator_layer: CanvasLayer # capa para las flechas de daño direccional
+var low_health_rect: ColorRect # vignette propio para el latido de vida baja, separado del de golpe recibido
+var low_health_sound: AudioStreamPlayer
+var low_health_pulse_timer: Timer
+var is_low_health: bool = false
 
 @onready var anim_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -46,10 +54,17 @@ var dash_timer: Timer
 var dash_cd_timer: Timer
 var dash_dir: Vector2 = Vector2.DOWN
 
+# sonido de pasos al caminar
+const FOOTSTEP_INTERVAL: float = 0.35
+var footstep_timer: Timer
+
 var last_dir: String = "down"
 
 var is_invulnerable: bool = false
 var invuln_timer: Timer
+
+# parpadeo del sprite mientras dura la invulnerabilidad tras recibir daño
+var _invuln_blink_timer: Timer
 
 var weapon_hide_timer: Timer
 
@@ -89,10 +104,19 @@ func _ready() -> void:
 	var equip = get_node_or_null("Equipment")
 	if equip:
 		equip.equipment_changed.connect(_on_equipment_changed)
+		equip.body_part_equipped.connect(_on_body_part_equipped)
 	_update_player_stats()
 
 func _on_equipment_changed() -> void:
 	_update_player_stats()
+
+# regeneración de vida al instalar una pieza de cuerpo nueva (torso/brazo/pierna)
+func _on_body_part_equipped(_item: ItemData) -> void:
+	var heal_amount = int(round(stats.max_health * body_part_heal_ratio))
+	if heal_amount <= 0: return
+	stats.heal(heal_amount)
+	_show_heal_text(heal_amount)
+	_animate_heal_flash()
 
 func _update_player_stats() -> void:
 	var bonus_hp_percent = _get_equip_stat("max_health_percent", false)
@@ -199,7 +223,9 @@ func _init_timers() -> void:
 	_create_invuln_timer()
 	_create_weapon_hide_timer()
 	_create_furia_timer()
-	
+	_create_footstep_timer()
+	_create_low_health_timer()
+
 	blindaje_reactivo_timer = Timer.new()
 	blindaje_reactivo_timer.one_shot = true
 	add_child(blindaje_reactivo_timer)
@@ -226,6 +252,32 @@ func _create_invuln_timer() -> void:
 	invuln_timer.one_shot = true
 	add_child(invuln_timer)
 	invuln_timer.timeout.connect(_on_invuln_timeout)
+	_create_invuln_blink_timer()
+
+# timer que va togueleando la visibilidad del sprite durante la invulnerabilidad
+func _create_invuln_blink_timer() -> void:
+	_invuln_blink_timer = Timer.new()
+	_invuln_blink_timer.wait_time = 0.06
+	add_child(_invuln_blink_timer)
+	_invuln_blink_timer.timeout.connect(_toggle_invuln_blink)
+
+func _toggle_invuln_blink() -> void:
+	if not anim_sprite: return
+	anim_sprite.visible = not anim_sprite.visible
+
+# timer de cooldown para no repetir el sonido de pasos en cada frame
+func _create_footstep_timer() -> void:
+	footstep_timer = Timer.new()
+	footstep_timer.one_shot = true
+	add_child(footstep_timer)
+
+# timer que repite el latido (visual + sonido) mientras la vida está baja
+func _create_low_health_timer() -> void:
+	low_health_pulse_timer = Timer.new()
+	low_health_pulse_timer.wait_time = low_health_pulse_interval
+	low_health_pulse_timer.one_shot = false
+	add_child(low_health_pulse_timer)
+	low_health_pulse_timer.timeout.connect(_on_low_health_pulse)
 
 func _create_weapon_hide_timer() -> void:
 	weapon_hide_timer = Timer.new()
@@ -349,6 +401,11 @@ func setup_damage_effect() -> void:
 	damage_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	damage_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_apply_damage_material()
+	# capa aparte para las flechas de daño direccional
+	damage_indicator_layer = CanvasLayer.new()
+	damage_indicator_layer.layer = 100
+	add_child(damage_indicator_layer)
+	_setup_low_health_effect()
 
 func _apply_damage_material() -> void:
 	var mat = ShaderMaterial.new()
@@ -359,6 +416,28 @@ func _apply_damage_material() -> void:
 	mat.set_shader_parameter("intensity", 0.0)
 	damage_rect.material = mat
 	damage_canvas.add_child(damage_rect)
+
+# vignette propio para el latido de vida baja, con su propio material para no
+# pisar la animación del golpe recibido, más el sonido del latido
+func _setup_low_health_effect() -> void:
+	low_health_rect = ColorRect.new()
+	low_health_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	low_health_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mat = ShaderMaterial.new()
+	var shader = Shader.new()
+	shader.code = _get_damage_shader_code()
+	mat.shader = shader
+	mat.set_shader_parameter("border_color", damage_border_color)
+	mat.set_shader_parameter("intensity", 0.0)
+	low_health_rect.material = mat
+	damage_canvas.add_child(low_health_rect)
+
+	low_health_sound = AudioStreamPlayer.new()
+	var heartbeat_path = "res://Audio/Sfx/Low_health_heartbeat.wav"
+	if ResourceLoader.exists(heartbeat_path):
+		low_health_sound.stream = load(heartbeat_path)
+	low_health_sound.bus = "SFX"
+	add_child(low_health_sound)
 
 func _get_damage_shader_code() -> String:
 	return """
@@ -380,6 +459,19 @@ func handle_movement(delta: float) -> void:
 		_apply_friction(delta)
 		return
 	_apply_acceleration(input_dir, delta)
+	_play_footstep_sound()
+
+# sonido de pasos, con cooldown para que no suene en cada frame
+func _play_footstep_sound() -> void:
+	if not footstep_timer.is_stopped(): return
+	footstep_timer.start(FOOTSTEP_INTERVAL)
+	var sfx_player = AudioStreamPlayer.new()
+	sfx_player.stream = load("res://Audio/Sfx/Pasos.wav")
+	sfx_player.bus = "SFX"
+	sfx_player.volume_db = -8.0
+	get_tree().root.add_child(sfx_player)
+	sfx_player.play()
+	sfx_player.finished.connect(sfx_player.queue_free)
 
 
 func _apply_friction(delta: float) -> void:
@@ -588,6 +680,7 @@ func _play_weapon_effects() -> void:
 		
 	var w_sound = active_weapon.get_node_or_null("Bullet_sound")
 	if w_sound and w_sound.has_method("play"):
+		w_sound.bus = "SFX"
 		w_sound.play()
 
 func _get_weapon_mark(fallback: Vector2) -> Vector2:
@@ -893,6 +986,7 @@ func _trigger_trituradora_shockwave() -> void:
 	# Invulnerability for 0.5s
 	is_invulnerable = true
 	invuln_timer.start(0.5)
+	_invuln_blink_timer.start()
 	var original_modulate = self.modulate
 	self.modulate = Color(0.2, 0.8, 1.0, 0.6)
 	var tween = create_tween()
@@ -988,7 +1082,7 @@ func _on_dash_timer_timeout() -> void:
 	if GameData.get_active_protocol() == "reflejo_sintetico":
 		_spawn_dash_hologram(dash_start_pos)
 
-func take_damage(amount: int, source_name: String = "Infección Lázaro") -> void:
+func take_damage(amount: int, source_name: String = "Infección Lázaro", source_position: Vector2 = Vector2.INF) -> void:
 	if GameData.debug_god_mode: return
 	if is_dashing: return
 	if is_invulnerable: return
@@ -1015,12 +1109,15 @@ func take_damage(amount: int, source_name: String = "Infección Lázaro") -> voi
 		GameData.last_killer = source_name
 	
 	invuln_timer.start(0.5)
+	_invuln_blink_timer.start()
 	stats.take_damage(final_amount)
 	_show_damage_text(final_amount)
 	_play_hurt_sound()
 	_animate_damage_vignette()
 	_animate_damage_flash()
-	
+	if source_position != Vector2.INF:
+		_show_damage_direction_indicator(source_position)
+
 	var thorns_kb = _get_equip_stat("thorns_knockback", false)
 	if thorns_kb > 0.0:
 		_apply_thorns_knockback(thorns_kb)
@@ -1052,11 +1149,68 @@ func _show_damage_text(amount: int) -> void:
 	tween.tween_property(label, "modulate:a", 0.0, 0.6).set_delay(0.2)
 	tween.chain().tween_callback(floating_node.queue_free)
 
+# número verde flotante que indica la vida regenerada al instalar una pieza nueva
+func _show_heal_text(amount: int) -> void:
+	var label = Label.new()
+	label.text = "+%d" % amount
+	label.add_theme_color_override("font_color", Color(0.35, 1.0, 0.45))
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_outline_color", Color(1.0, 1.0, 1.0))
+	label.add_theme_constant_override("outline_size", 4)
+
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.custom_minimum_size = Vector2(100, 30)
+	label.position = Vector2(-50, -15)
+
+	var floating_node = Node2D.new()
+	floating_node.global_position = global_position + Vector2(randf_range(-10.0, 10.0), -40.0)
+	floating_node.add_child(label)
+
+	get_tree().current_scene.call_deferred("add_child", floating_node)
+
+	# sube derecho y despacio, más calmo que el número de daño
+	var tween = get_tree().create_tween().bind_node(floating_node).set_parallel(true)
+	tween.tween_property(floating_node, "global_position", floating_node.global_position + Vector2(0, -50.0), 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.7).set_delay(0.3)
+	tween.chain().tween_callback(floating_node.queue_free)
+
+# destello verde suave sobre el sprite, para que se note que hubo regeneración
+func _animate_heal_flash() -> void:
+	if not anim_sprite: return
+
+	if _flash_tween and _flash_tween.is_valid():
+		_flash_tween.kill()
+
+	anim_sprite.modulate = Color(0.5, 1.4, 0.6)
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(anim_sprite, "modulate", _default_modulate, 0.4)
+
+# flecha en el borde de pantalla apuntando hacia el origen del golpe recibido
+func _show_damage_direction_indicator(source_position: Vector2) -> void:
+	if not damage_indicator_layer: return
+	var dir = source_position - global_position
+	if dir.length() < 1.0: return
+
+	var indicator := DamageDirectionIndicator.new()
+	indicator.setup(dir.normalized(), get_viewport().get_visible_rect().size)
+	damage_indicator_layer.add_child(indicator)
+
+# variantes de sonido de golpe recibido, para no repetir siempre el mismo
+var hurt_sounds: Array[AudioStream] = [
+	preload("res://Audio/Sfx/damage_4_meghan.wav"),
+	preload("res://Audio/Sfx/damage_4_meghan_2.wav"),
+	preload("res://Audio/Sfx/damage_4_meghan_3.wav"),
+]
+
 func _play_hurt_sound() -> void:
 	var hurt_sound = get_node_or_null("Hurt_sound")
 	if not hurt_sound: hurt_sound = get_node_or_null("HurtSound")
 	if not hurt_sound: return
 	if not hurt_sound.has_method("play"): return
+	hurt_sound.bus = "SFX"
+	# elige al azar entre las variantes en vez de tocar siempre el mismo sonido
+	if hurt_sounds.size() > 0:
+		hurt_sound.stream = hurt_sounds.pick_random()
 	hurt_sound.play()
 
 func _animate_damage_vignette() -> void:
@@ -1082,14 +1236,45 @@ func _animate_damage_flash() -> void:
 
 func _on_invuln_timeout() -> void:
 	is_invulnerable = false
+	# corta el parpadeo y deja el sprite visible al terminar la invulnerabilidad
+	_invuln_blink_timer.stop()
+	if anim_sprite: anim_sprite.visible = true
 
 func _on_health_changed(new_health: int, max_health: int) -> void:
 	_update_hud_health(new_health, max_health)
+	_update_low_health_state(new_health, max_health)
 
 func _update_hud_health(new_health: int, max_health: int) -> void:
 	var huds = get_tree().get_nodes_in_group("hud")
 	if huds.is_empty(): return
 	huds[0].update_health(new_health, max_health)
+
+# prende o apaga el latido de pantalla según si la vida cruzó el umbral de "vida baja"
+func _update_low_health_state(new_health: int, max_health: int) -> void:
+	if max_health <= 0: return
+	var ratio = float(new_health) / float(max_health)
+	var should_pulse = new_health > 0 and ratio <= low_health_threshold
+
+	if should_pulse == is_low_health: return
+	is_low_health = should_pulse
+
+	if is_low_health:
+		low_health_pulse_timer.start()
+		_on_low_health_pulse()
+	else:
+		low_health_pulse_timer.stop()
+		if low_health_rect and low_health_rect.material:
+			_tween_damage_intensity(0.0, low_health_rect.material)
+
+# un "latido" completo: brillo rojo tenue que sube y baja, más el sonido
+func _on_low_health_pulse() -> void:
+	if not low_health_rect or not low_health_rect.material: return
+	var mat = low_health_rect.material as ShaderMaterial
+	var t = create_tween()
+	t.tween_method(_tween_damage_intensity.bind(mat), 0.0, 0.5, 0.22).set_trans(Tween.TRANS_SINE)
+	t.tween_method(_tween_damage_intensity.bind(mat), 0.5, 0.0, 0.5).set_trans(Tween.TRANS_SINE)
+	if low_health_sound:
+		low_health_sound.play()
 
 func _on_scrap_changed(amount: int) -> void:
 	_update_hud_scrap(amount)
@@ -1119,7 +1304,7 @@ func _on_died() -> void:
 func _play_death_sound() -> void:
 	var sfx_player = AudioStreamPlayer.new()
 	sfx_player.stream = load("res://Audio/Sfx/death_5_sean.wav")
-	sfx_player.bus = "Master"
+	sfx_player.bus = "SFX"
 	get_tree().root.add_child(sfx_player)
 	sfx_player.play()
 	sfx_player.finished.connect(sfx_player.queue_free)
@@ -1188,6 +1373,20 @@ func _show_death_screen() -> void:
 	stats_vbox.add_theme_constant_override("separation", 16)
 	stats_panel.add_child(stats_vbox)
 	
+	# resumen de la run: tiempo sobrevivido, arriba de todo
+	var time_val_lbl = Label.new()
+	time_val_lbl.text = GameData.format_time(GameData.get_run_elapsed_seconds())
+	time_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	time_val_lbl.add_theme_font_size_override("font_size", 24)
+	time_val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	var row_time = _build_stat_row("TIEMPO SOBREVIVIDO", "", time_val_lbl)
+	stats_vbox.add_child(row_time)
+
+	var div0 = ColorRect.new()
+	div0.color = Color(0.2, 0.1, 0.1, 0.5)
+	div0.custom_minimum_size = Vector2(0, 1)
+	stats_vbox.add_child(div0)
+
 	var room_val_lbl = Label.new()
 	room_val_lbl.text = "1 - " + str(GameData.current_run_room)
 	room_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
@@ -1195,7 +1394,7 @@ func _show_death_screen() -> void:
 	room_val_lbl.add_theme_color_override("font_color", Color.WHITE)
 	var row_rooms = _build_stat_row("SALAS RECORRIDAS", "", room_val_lbl)
 	stats_vbox.add_child(row_rooms)
-	
+
 	var div1 = ColorRect.new()
 	div1.color = Color(0.2, 0.1, 0.1, 0.5)
 	div1.custom_minimum_size = Vector2(0, 1)
@@ -1458,6 +1657,7 @@ func _play_dash_sound() -> void:
 	var dash_sound = get_node_or_null("Dash")
 	if not dash_sound: return
 	if not dash_sound.has_method("play"): return
+	dash_sound.bus = "SFX"
 	dash_sound.play()
 
 func _update_minigun_hold_time(delta: float) -> void:

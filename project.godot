@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Proyecto Lázaro"
-run/main_scene="uid://cc1lqc7wlyhbn"
+run/main_scene="res://Scenes/UI/IntroCinematic.tscn"
 config/features=PackedStringArray("4.8", "GL Compatibility")
 config/icon="uid://duywrj8qr6s4u"
 
@@ -21,6 +21,11 @@ SceneTransition="*res://Scripts/System/scene_transition.gd"
 GameData="*res://Scripts/System/game_data.gd"
 OptionsMenu="*res://Scenes/UI/options_menu.tscn"
 SynergyManager="*res://Scripts/System/synergy_manager.gd"
+MCPRuntimeProbe="*res://addons/godot_mcp/runtime/mcp_runtime_probe.gd"
+
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
 
 [display]
 
@@ -28,6 +33,14 @@ window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/mode=3
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
+
+[global]
+
+mcp=false
 
 [input]
 

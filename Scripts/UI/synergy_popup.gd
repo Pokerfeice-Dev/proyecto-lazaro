@@ -195,7 +195,7 @@ func _play_activation_sound() -> void:
 	if ResourceLoader.exists(UI_SOUND_PATH):
 		var sfx = AudioStreamPlayer.new()
 		sfx.stream = load(UI_SOUND_PATH)
-		sfx.bus = "Master"
+		sfx.bus = "SFX"
 		sfx.process_mode = Node.PROCESS_MODE_ALWAYS
 		add_child(sfx)
 		sfx.play()

@@ -5,6 +5,7 @@ extends Control
 func _ready() -> void:
 	_setup_ui()
 	_populate_slots()
+	_play_intro_animation() # [IA] Entrada prolija, en línea con el resto de los menús.
 
 func _setup_ui() -> void:
 	container.set_anchors_preset(Control.PRESET_CENTER)
@@ -18,7 +19,7 @@ func _setup_ui() -> void:
 	back_btn.text = "Volver"
 	back_btn.add_theme_font_size_override("font_size", 32)
 	back_btn.custom_minimum_size = Vector2(300, 60)
-	back_btn.pressed.connect(func(): SceneTransition.change_scene("res://Scenes/UI/MainMenu.tscn"))
+	back_btn.pressed.connect(func(): _play_exit_animation(func(): SceneTransition.change_scene("res://Scenes/UI/MainMenu.tscn")))
 	
 	var bottom_box = MarginContainer.new()
 	bottom_box.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
@@ -27,6 +28,22 @@ func _setup_ui() -> void:
 	center.add_child(back_btn)
 	bottom_box.add_child(center)
 	add_child(bottom_box)
+
+# [IA] Animación de aparición: fade + leve escala desde el centro del bloque de slots.
+func _play_intro_animation() -> void:
+	await get_tree().process_frame
+	container.pivot_offset = container.size / 2.0
+	container.modulate.a = 0.0
+	container.scale = Vector2(0.92, 0.92)
+	var tween = create_tween().set_parallel(true)
+	tween.tween_property(container, "modulate:a", 1.0, 0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(container, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+# [IA] Animación de salida antes de cambiar de escena, para que no corte seco.
+func _play_exit_animation(on_finished: Callable) -> void:
+	var tween = create_tween().set_parallel(true)
+	tween.tween_property(self, "modulate:a", 0.0, 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(on_finished)
 
 func _populate_slots() -> void:
 	for child in container.get_children():
@@ -79,7 +96,7 @@ func _on_delete_slot(slot: int) -> void:
 func _on_slot_selected(slot: int, exists: bool) -> void:
 	if exists:
 		GameData.load_game(slot)
-		SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
+		_play_exit_animation(func(): SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn"))
 	else:
 		_show_tutorial_prompt(slot)
 
@@ -204,7 +221,7 @@ func _show_tutorial_prompt(slot: int) -> void:
 		GameData.current_slot = slot
 		GameData.save_game(slot)
 		popup.queue_free()
-		SceneTransition.change_scene("res://Scenes/Rooms/training_room.tscn")
+		_play_exit_animation(func(): SceneTransition.change_scene("res://Scenes/Rooms/training_room.tscn"))
 	)
 	
 	no_btn.pressed.connect(func():
@@ -212,7 +229,7 @@ func _show_tutorial_prompt(slot: int) -> void:
 		GameData.current_slot = slot
 		GameData.save_game(slot)
 		popup.queue_free()
-		SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
+		_play_exit_animation(func(): SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn"))
 	)
 	
 	hbox.add_child(yes_btn)

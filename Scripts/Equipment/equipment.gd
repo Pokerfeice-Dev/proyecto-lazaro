@@ -2,16 +2,25 @@ class_name Equipment
 extends Node
 
 signal equipment_changed
+signal body_part_equipped(item: ItemData) # se instaló una pieza de cuerpo nueva (torso/brazo/pierna)
+
+const BODY_PART_TYPES: Array = [ItemData.ItemType.TORSO, ItemData.ItemType.ARMS, ItemData.ItemType.LEGS]
 
 var slots: Dictionary = {}
 
 func _ready() -> void:
 	slots = GameData.equipment_slots
 
-func equip_item(item: ItemData) -> void:
+func is_body_part(item: ItemData) -> bool:
+	return item != null and item.type in BODY_PART_TYPES
+
+# is_new_equip = false cuando es solo un reacomodo entre slots ya equipados (no cuenta como "pieza nueva")
+func equip_item(item: ItemData, is_new_equip: bool = true) -> void:
 	remove_old_item(item.slot)
 	slots[item.slot] = item
 	equipment_changed.emit()
+	if is_new_equip and is_body_part(item):
+		body_part_equipped.emit(item)
 
 func remove_old_item(slot: ItemData.ItemSlot) -> void:
 	var old_item: ItemData = slots[slot]

@@ -53,6 +53,13 @@ func _ready() -> void:
 	_setup_lasers()
 	_setup_pattern_timer()
 	_connect_to_hud.call_deferred()
+	_assign_sfx_bus()
+
+# manda todos los sonidos del boss al bus de efectos
+func _assign_sfx_bus() -> void:
+	if roar_invoc: roar_invoc.bus = "SFX"
+	if bullet_sound: bullet_sound.bus = "SFX"
+	if laser_sound: laser_sound.bus = "SFX"
 
 func _setup_lasers() -> void:
 	# Left Laser setup
@@ -175,7 +182,7 @@ func _check_laser_damage(collider: Object, delta: float) -> void:
 		
 	if collider and collider.is_in_group("player") and collider.has_method("take_damage"):
 		var tick_damage = maxi(1, int(float(damage) / 3.0))
-		collider.take_damage(tick_damage, "Mutante Génesis (Boss)")
+		collider.take_damage(tick_damage, "Mutante Génesis (Boss)", global_position)
 		var base_cooldown = laser_damage_tick_rate
 		laser_damage_cooldown = base_cooldown / 1.5 if is_phase_two else base_cooldown
 
@@ -395,6 +402,7 @@ func _play_spawn_roar() -> void:
 		if stream:
 			roar_player.stream = stream
 		roar_player.volume_db = 0.0
+		roar_player.bus = "SFX"
 		add_child(roar_player)
 		roar_player.play()
 
@@ -416,6 +424,7 @@ func _play_death_sound() -> void:
 	if not ds: ds = get_node_or_null("Death_sound")
 	if not ds: ds = get_node_or_null("DeathSound")
 	if ds and ds.has_method("play"):
+		ds.bus = "SFX"
 		ds.play()
 	else:
 		super._play_death_sound()

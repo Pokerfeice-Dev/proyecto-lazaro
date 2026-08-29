@@ -70,6 +70,7 @@ func get_bullet_spawn_pos(fallback: Vector2) -> Vector2:
 func _ready() -> void:
 	if id == "":
 		id = _get_id_from_name()
+	if shoot_sound: shoot_sound.bus = "SFX"
 
 func _get_id_from_name() -> String:
 	var lower_name = name.to_lower()

@@ -2,6 +2,7 @@ extends CanvasLayer
 
 @onready var menu_control: Control = $MenuControl
 @onready var volume_slider: HSlider = $MenuControl/VBoxContainer/VolumeSlider
+@onready var sfx_slider: HSlider = $MenuControl/VBoxContainer/SfxSlider
 @onready var close_btn: Button = $MenuControl/VBoxContainer/CloseButton
 @onready var menu_btn: Button = $MenuControl/VBoxContainer/MenuButton
 @onready var quit_btn: Button = $MenuControl/VBoxContainer/QuitButton
@@ -25,7 +26,8 @@ func _ready() -> void:
 	save_btn.text = "Guardar partida"
 	save_btn.pressed.connect(_on_save_pressed)
 	$MenuControl/VBoxContainer.add_child(save_btn)
-	$MenuControl/VBoxContainer.move_child(save_btn, 3) # After CloseButton
+	# se calcula el índice en vez de un número fijo, para no depender del orden de los demás nodos
+	$MenuControl/VBoxContainer.move_child(save_btn, close_btn.get_index() + 1)
 	
 	_bind_buttons(get_tree().root)
 	
@@ -34,11 +36,12 @@ func _ready() -> void:
 func _init_audio() -> void:
 	hover_audio = AudioStreamPlayer.new()
 	hover_audio.stream = hover_stream
-	hover_audio.bus = "Master"
+	hover_audio.bus = "SFX"
 	add_child(hover_audio)
 
 func _connect_signals() -> void:
 	volume_slider.value_changed.connect(_on_volume_changed)
+	sfx_slider.value_changed.connect(_on_sfx_volume_changed)
 	close_btn.pressed.connect(close)
 	menu_btn.pressed.connect(_on_menu_pressed)
 	quit_btn.pressed.connect(_on_quit_pressed)
@@ -82,14 +85,17 @@ func open() -> void:
 	
 	menu_control.pivot_offset = menu_control.get_viewport_rect().size / 2.0
 	menu_control.scale = Vector2.ZERO
-	var tween = create_tween()
+	menu_control.modulate.a = 0.0 # Fade sumado al scale existente, entrada más prolija.
+	var tween = create_tween().set_parallel(true)
 	tween.tween_property(menu_control, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(menu_control, "modulate:a", 1.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func close() -> void:
 	if not is_open: return
 	is_open = false
-	var tween = create_tween()
+	var tween = create_tween().set_parallel(true) # Fade + scale de salida en paralelo.
 	tween.tween_property(menu_control, "scale", Vector2.ZERO, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.tween_property(menu_control, "modulate:a", 0.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.finished.connect(_on_close_finished)
 
 func _on_close_finished() -> void:
@@ -115,11 +121,20 @@ func _on_save_pressed() -> void:
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 
+# ahora controla el bus de música en vez del Master general
 func _on_volume_changed(value: float) -> void:
-	var bus_index = AudioServer.get_bus_index("Master")
+	_apply_bus_volume("Music", value)
+
+# slider nuevo para el volumen de efectos, en su propio bus
+func _on_sfx_volume_changed(value: float) -> void:
+	_apply_bus_volume("SFX", value)
+
+func _apply_bus_volume(bus_name: String, value: float) -> void:
+	var bus_index = AudioServer.get_bus_index(bus_name)
+	if bus_index == -1: return
 	if value <= 0:
 		AudioServer.set_bus_mute(bus_index, true)
 		return
-	
+
 	AudioServer.set_bus_mute(bus_index, false)
 	AudioServer.set_bus_volume_db(bus_index, linear_to_db(value / 100.0))

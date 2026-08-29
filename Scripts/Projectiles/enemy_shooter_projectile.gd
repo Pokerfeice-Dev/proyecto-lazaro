@@ -28,7 +28,9 @@ func _physics_process(delta):
 func _on_body_entered(body: Node2D):
 	if body.is_in_group(target_group):
 		if body.has_method("take_damage"):
-			body.take_damage(int(damage), source_name)
+			# la flecha apunta en contra de la dirección de vuelo del proyectil (de donde vino el disparo)
+			var source_position = global_position - direction * 9999.0
+			body.take_damage(int(damage), source_name, source_position)
 		_explode()
 	elif not body.is_in_group("enemy"):
 		# Colisión con pared u otro objeto sólido

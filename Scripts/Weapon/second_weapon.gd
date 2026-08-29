@@ -21,6 +21,7 @@ var audio_player: AudioStreamPlayer2D
 
 func _ready() -> void:
 	audio_player = AudioStreamPlayer2D.new()
+	audio_player.bus = "SFX"
 	add_child(audio_player)
 	scale = Vector2(attack_range, attack_range)
 	if slash_attack:

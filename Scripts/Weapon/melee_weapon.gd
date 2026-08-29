@@ -51,6 +51,7 @@ func _get_id_from_name() -> String:
 
 func _init_audio_player() -> void:
 	audio_player = AudioStreamPlayer2D.new()
+	audio_player.bus = "SFX"
 	add_child(audio_player)
 	scale = Vector2(attack_range, attack_range)
 
@@ -121,6 +122,7 @@ func _find_equip_owner() -> Node:
 func _play_attack_sound() -> void:
 	var custom_snd = get_node_or_null("Snd_mele1")
 	if custom_snd and custom_snd.has_method("play"):
+		custom_snd.bus = "SFX"
 		custom_snd.play()
 		return
 	if audio_player and attack_sounds.size() > 0:
