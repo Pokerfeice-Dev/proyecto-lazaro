@@ -32,7 +32,7 @@ func _on_body_entered(body: Node2D):
 			var source_position = global_position - direction * 9999.0
 			body.take_damage(int(damage), source_name, source_position)
 		_explode()
-	elif not body.is_in_group("enemy"):
+	elif not body.is_in_group("enemy") and not body.is_in_group("projectile_pass"):
 		# Colisión con pared u otro objeto sólido
 		_explode()
 

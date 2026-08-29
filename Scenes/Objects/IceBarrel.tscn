@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://c8icebarrel002"]
+
+[ext_resource type="Script" path="res://Scripts/Objects/ice_barrel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b00g7q3f3k002" path="res://Art/Scenario_objects/icebarrel_sprite.png" id="2_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_icebarrel"]
+size = Vector2(24, 30)
+
+[node name="IceBarrel" type="StaticBody2D" unique_id=74839204]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=74839205]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=74839206]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_icebarrel")

@@ -92,7 +92,7 @@ func is_attacking() -> bool:
 func _on_body_entered(body: Node2D) -> void:
 	if not _is_attacking: return
 	if body in hit_enemies: return
-	if body.is_in_group("enemy") and body.has_method("take_damage"):
+	if body.has_method("take_damage") and not body.is_in_group("player"):
 		hit_enemies.append(body)
 		
 		var p = get_parent()

@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://c8firebarrel001"]
+
+[ext_resource type="Script" path="res://Scripts/Objects/fire_barrel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b00g7q3f3k001" path="res://Art/Scenario_objects/firebarrel_sprite.png" id="2_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_firebarrel"]
+size = Vector2(24, 30)
+
+[node name="FireBarrel" type="StaticBody2D" unique_id=74839201]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=74839202]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=74839203]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_firebarrel")

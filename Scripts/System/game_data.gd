@@ -47,6 +47,16 @@ var chosen_melee_weapon: String = "daga"
 var temporary_damage_multiplier: float = 1.0
 var vampiric_kills_counter: int = 0
 
+# ── Boss Fight State ─────────────────────────────────────────────────────────
+var boss_fight_phase: int = 1
+var boss_persisted_health: int = 0
+var boss_persisted_max_health: int = 1000
+
+func reset_boss_state() -> void:
+	boss_fight_phase = 1
+	boss_persisted_health = 0
+	boss_persisted_max_health = 1000
+
 # ── Items & Inventory ────────────────────────────────────────────────────────
 var inventory_items: Array[ItemData] = []
 var equipment_slots: Dictionary = {}
@@ -164,6 +174,7 @@ func start_new_run() -> String:
 	run_scrap_collected = 0
 	run_start_time_msec = Time.get_ticks_msec()
 	last_killer = "Infección Lázaro"
+	reset_boss_state()
 	save_game()
 	return get_random_room_from_pool()
 
@@ -716,3 +727,28 @@ func format_time(time: float) -> String:
 	var minutes = int((total_secs % 3600) / 60.0)
 	var seconds = total_secs % 60
 	return "%02d:%02d:%02d" % [hours, minutes, seconds]
+
+func unlock_all_omnia() -> void:
+	has_died_once = true
+	scrap += 10000
+	flesh += 10000
+	
+	for key in core_upgrades.keys():
+		core_upgrades[key] = 5
+		
+	var all_syns = ["minigun", "bestia_de_caza", "trituradora_biomecanica"]
+	for s in all_syns:
+		if not unlocked_synergies.has(s):
+			unlocked_synergies.append(s)
+			
+	var all_protos = ["sobrecarga", "reciclaje_instantaneo", "enjambre_residual", "escudo_reactivo", "sangre_acida"]
+	for p in all_protos:
+		if not unlocked_protocols.has(p):
+			unlocked_protocols.append(p)
+			
+	codex_unlocks["weapons"] = ["pistol", "uzi", "shotgun", "daga", "maze", "hacha"]
+	codex_unlocks["levels"] = ["level_1", "room_4", "room_7"]
+	
+	scrap_changed.emit(scrap)
+	flesh_changed.emit(flesh)
+	save_game()

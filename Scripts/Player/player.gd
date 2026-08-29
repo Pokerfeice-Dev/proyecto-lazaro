@@ -48,6 +48,7 @@ var is_low_health: bool = false
 var can_shoot: bool = true
 var minigun_hold_time: float = 0.0
 var shoot_timer: Timer
+var cheat_op_weapon_mode: bool = false
 
 var is_dashing: bool = false
 var dash_timer: Timer
@@ -334,7 +335,25 @@ func _apply_game_data_upgrades() -> void:
 		GameData.apply_to_weapon(active_weapon)
 	GameData.apply_to_melee(second_weapon)
 
+var is_cutscene_frozen: bool = false
+
+func freeze_player() -> void:
+	is_cutscene_frozen = true
+	velocity = Vector2.ZERO
+	can_shoot = false
+	set_physics_process(false)
+	set_process(false)
+
+func unfreeze_player() -> void:
+	is_cutscene_frozen = false
+	can_shoot = true
+	set_physics_process(true)
+	set_process(true)
+
 func _physics_process(delta: float) -> void:
+	if is_cutscene_frozen:
+		velocity = Vector2.ZERO
+		return
 	_update_minigun_hold_time(delta)
 	_check_dash_input()
 	_process_movement(delta)
@@ -360,6 +379,7 @@ func _start_dash() -> void:
 	dash_cd_timer.start(final_cd)
 	_set_dash_direction()
 	_play_dash_sound()
+	_spawn_dash_dust()
 	if _is_bestia_de_caza_active():
 		_start_furia()
 	if _is_trituradora_active() and trituradora_shockwave_ready:
@@ -370,6 +390,35 @@ func _set_dash_direction() -> void:
 		dash_dir = _get_dir_vector(last_dir)
 		return
 	dash_dir = velocity.normalized()
+
+func _spawn_dash_dust() -> void:
+	var dust = CPUParticles2D.new()
+	dust.z_as_relative = false
+	dust.z_index = 100
+	dust.global_position = global_position + Vector2(0, 10)
+	dust.emitting = false
+	dust.one_shot = true
+	dust.explosiveness = 0.9
+	dust.lifetime = 0.45
+	dust.amount = 14
+	dust.direction = -dash_dir
+	dust.spread = 50.0
+	dust.gravity = Vector2(0, -20)
+	dust.initial_velocity_min = 80.0
+	dust.initial_velocity_max = 160.0
+	dust.damping_min = 100.0
+	dust.damping_max = 140.0
+	dust.scale_amount_min = 5.0
+	dust.scale_amount_max = 9.0
+	
+	var gradient = Gradient.new()
+	gradient.set_color(0, Color(0.92, 0.88, 0.82, 0.95))
+	gradient.set_color(1, Color(0.85, 0.82, 0.78, 0.0))
+	dust.color_ramp = gradient
+	
+	get_tree().current_scene.add_child(dust)
+	dust.emitting = true
+	dust.finished.connect(dust.queue_free)
 
 func _process_movement(delta: float) -> void:
 	if is_dashing:
@@ -486,11 +535,15 @@ func _apply_acceleration(input_dir: Vector2, delta: float) -> void:
 func _apply_minigun_speed_penalty(base_val: float) -> float:
 	var level = _get_minigun_level()
 	if level == 1:
-		return base_val * 0.85
+		return base_val * 0.97
 	if level == 2:
-		return base_val * 0.80
+		return base_val * 0.94
 	if level == 3:
-		return base_val * 0.50
+		return base_val * 0.91
+	if level == 4:
+		return base_val * 0.88
+	if level == 5:
+		return base_val * 0.85
 	return base_val
 
 func _update_last_dir(input_dir: Vector2) -> void:
@@ -618,6 +671,9 @@ func fire_projectile(dir: Vector2) -> void:
 
 	if not p_scene:
 		return
+	if cheat_op_weapon_mode:
+		dmg = 50.0
+		final_fire_rate = 0.05
 	shoot_timer.start(final_fire_rate)
 	_spawn_bullets(p_scene, bullets, spread, dir, dmg, p_speed, fire_point, piercing, crit_chance, crit_damage, lifetime)
 	apply_camera_shake()
@@ -782,6 +838,12 @@ func apply_camera_shake() -> void:
 	_reset_camera_shake(camera)
 	_start_camera_shake(camera)
 
+func apply_custom_camera_shake(intensity: float = 16.0, duration: float = 1.0) -> void:
+	var camera = get_viewport().get_camera_2d()
+	if not camera: return
+	_reset_camera_shake(camera)
+	_start_custom_camera_shake(camera, intensity, duration)
+
 func _reset_camera_shake(camera: Camera2D) -> void:
 	if not shake_tween: return
 	if not shake_tween.is_valid(): return
@@ -793,6 +855,16 @@ func _start_camera_shake(camera: Camera2D) -> void:
 	var random_offset = Vector2(randf_range(-shake_intensity, shake_intensity), randf_range(-shake_intensity, shake_intensity))
 	shake_tween.tween_property(camera, "offset", random_offset, shake_duration / 2.0).set_trans(Tween.TRANS_SINE)
 	shake_tween.tween_property(camera, "offset", Vector2.ZERO, shake_duration / 2.0).set_trans(Tween.TRANS_SINE)
+
+func _start_custom_camera_shake(camera: Camera2D, intensity: float, duration: float) -> void:
+	shake_tween = create_tween()
+	var steps = int(duration / 0.05)
+	for i in range(steps):
+		var decay = 1.0 - (float(i) / float(steps))
+		var current_intensity = intensity * decay
+		var random_offset = Vector2(randf_range(-current_intensity, current_intensity), randf_range(-current_intensity, current_intensity))
+		shake_tween.tween_property(camera, "offset", random_offset, 0.05).set_trans(Tween.TRANS_SINE)
+	shake_tween.tween_property(camera, "offset", Vector2.ZERO, 0.05).set_trans(Tween.TRANS_SINE)
 
 func _update_camera_drift(delta: float) -> void:
 	var camera = get_node_or_null("Camera2D")
@@ -1556,7 +1628,12 @@ func _process_debug_keycode(keycode: int) -> void:
 	if keycode == KEY_F11:
 		GameData.add_flesh(100)
 	if keycode == KEY_F12:
-		GameData.add_scrap(100)
+		_toggle_cheat_weapon()
+
+func _toggle_cheat_weapon() -> void:
+	cheat_op_weapon_mode = not cheat_op_weapon_mode
+	var msg = "MODO CHEAT ARMA: ACTIVADO (Daño 50 | Cadencia Ultra Rápida)" if cheat_op_weapon_mode else "MODO CHEAT ARMA: DESACTIVADO"
+	print(msg)
 
 func _toggle_debug_scene() -> void:
 	var current_scene_path = get_tree().current_scene.scene_file_path
@@ -1673,9 +1750,13 @@ func _is_minigun_active() -> bool:
 	return active_syns.has("minigun")
 
 func _get_minigun_level() -> int:
+	if minigun_hold_time >= 4.0:
+		return 5
 	if minigun_hold_time >= 3.0:
+		return 4
+	if minigun_hold_time >= 2.0:
 		return 3
-	if minigun_hold_time >= 1.5:
+	if minigun_hold_time >= 1.0:
 		return 2
 	if minigun_hold_time > 0.0:
 		return 1
@@ -1702,30 +1783,42 @@ func _get_minigun_damage_bonus(lvl: int) -> float:
 	if lvl == 1:
 		return 0.10
 	if lvl == 2:
-		return 0.25
+		return 0.20
 	if lvl == 3:
+		return 0.30
+	if lvl == 4:
 		return 0.40
+	if lvl == 5:
+		return 0.50
 	return 0.0
 
 func _get_minigun_speed_bonus(lvl: int) -> float:
 	if lvl == 1:
 		return 0.10
 	if lvl == 2:
-		return 0.25
+		return 0.20
 	if lvl == 3:
-		return 0.60
+		return 0.35
+	if lvl == 4:
+		return 0.50
+	if lvl == 5:
+		return 0.65
 	return 0.0
 
 func _get_minigun_crit_bonus(lvl: int) -> float:
 	if lvl == 2:
-		return 0.10
+		return 0.05
 	if lvl == 3:
+		return 0.10
+	if lvl == 4:
 		return 0.15
+	if lvl == 5:
+		return 0.20
 	return 0.0
 
 func _get_fragmentation_chance() -> float:
-	if _is_minigun_active() and _get_minigun_level() == 3:
-		return 0.20
+	if _is_minigun_active() and _get_minigun_level() == 5:
+		return 0.25
 	return 0.0
 
 func _initialize_protocols() -> void:

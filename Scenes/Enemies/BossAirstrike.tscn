@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dob5ynw0icqdg"]
+
+[ext_resource type="Script" path="res://Scripts/Enemies/boss_airstrike.gd" id="1_script"]
+
+[node name="BossAirstrike" type="Node2D" unique_id=503836828]
+script = ExtResource("1_script")
+damage = 16

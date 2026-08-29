@@ -259,6 +259,7 @@ func _create_cheats_tab(tabs: TabContainer) -> void:
 	tab.add_child(_create_styled_button("Add 1000 Flesh", func(): _add_flesh(1000)))
 	tab.add_child(_create_styled_button("Kill All Enemies", _kill_all_enemies))
 	tab.add_child(_create_styled_button("Cheat Minigun Synergy", _cheat_minigun_synergy))
+	tab.add_child(_create_styled_button("Unlock Everything in Omnia", _unlock_everything_in_omnia))
 	
 	# Separation line
 	var sep = ColorRect.new()
@@ -466,3 +467,8 @@ func _cheat_minigun_synergy() -> void:
 	_add_item("res://Art/Items/Weapons/Item1.tres")
 	_add_item("res://Art/Items/Weapons/Item6.tres")
 	_add_item("res://Art/Items/Weapons/Item9_SierraCircular.tres")
+
+func _unlock_everything_in_omnia() -> void:
+	if GameData.has_method("unlock_all_omnia"):
+		GameData.unlock_all_omnia()
+		print("DEBUG: ¡Todo en Omnia desbloqueado con éxito!")
