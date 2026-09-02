@@ -4,6 +4,7 @@ var color_rect: ColorRect
 var is_transitioning: bool = false
 var mainmenu_music: AudioStreamPlayer
 var combat_music: AudioStreamPlayer
+var level2_music: AudioStreamPlayer
 var teleport_sfx: AudioStreamPlayer
 
 func _ready():
@@ -31,6 +32,14 @@ func _ready():
 	combat_music.bus = "Music"
 	add_child(combat_music)
 
+	# Placeholder pedido por Marcos: la zona 2 (Level2_Room*) usa por ahora la musica
+	# de la fase 2 del boss, hasta que tengamos un tema propio para esa zona.
+	level2_music = AudioStreamPlayer.new()
+	level2_music.stream = preload("res://Audio/Music/BossFight2.ogg")
+	level2_music.volume_db = -5.0
+	level2_music.bus = "Music"
+	add_child(level2_music)
+
 	teleport_sfx = AudioStreamPlayer.new()
 	teleport_sfx.stream = preload("res://Audio/Sfx/Teleport/Teleport.wav")
 	teleport_sfx.bus = "SFX"
@@ -44,6 +53,7 @@ func _ready():
 func _setup_loops() -> void:
 	_set_stream_loop(mainmenu_music)
 	_set_stream_loop(combat_music)
+	_set_stream_loop(level2_music)
 
 func _set_stream_loop(player: AudioStreamPlayer) -> void:
 	if not player:
@@ -76,21 +86,40 @@ func stop_combat_music() -> void:
 	if combat_music.playing:
 		combat_music.stop()
 
+func play_level2_music() -> void:
+	if mainmenu_music.playing:
+		mainmenu_music.stop()
+	if combat_music.playing:
+		combat_music.stop()
+	if not level2_music.playing:
+		level2_music.play()
+
+func stop_level2_music() -> void:
+	if level2_music.playing:
+		level2_music.stop()
+
 func _handle_scene_music(path: String) -> void:
 	var scene_name = path.get_file().to_lower()
 	
 	if "mainmenu" in scene_name or "newgame" in scene_name:
 		play_main_music()
 		stop_combat_music()
+		stop_level2_music()
 	elif "ygor" in scene_name or "lab_room" in scene_name or "debug_scene" in scene_name:
 		stop_main_music()
 		stop_combat_music()
+		stop_level2_music()
 	elif "bossfight" in scene_name or "boss_fight" in scene_name:
 		stop_main_music()
 		stop_combat_music()
+		stop_level2_music()
+	elif "level2_room" in scene_name:
+		play_level2_music()
+		stop_main_music()
 	elif "level1_room" in scene_name:
 		play_combat_music()
 		stop_main_music()
+		stop_level2_music()
 
 func change_scene(path: String) -> void:
 	if is_transitioning:

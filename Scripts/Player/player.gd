@@ -1600,6 +1600,184 @@ func _on_return_button_pressed(canvas: CanvasLayer, bg: ColorRect, main_vbox: VB
 		SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
 	)
 
+func show_win_screen(next_scene: String) -> void:
+	freeze_player()
+	_play_win_sound()
+	_build_win_screen(next_scene)
+
+func _play_win_sound() -> void:
+	var stream_path = "res://Audio/Sfx/Room_clear/Room_clear.wav"
+	if not ResourceLoader.exists(stream_path): return
+	var sfx_player = AudioStreamPlayer.new()
+	sfx_player.stream = load(stream_path)
+	sfx_player.bus = "SFX"
+	get_tree().root.add_child(sfx_player)
+	sfx_player.play()
+	sfx_player.finished.connect(sfx_player.queue_free)
+
+func _build_win_screen(next_scene: String) -> void:
+	# Por si queda el juego pausado de algun popup anterior (ej. sinergia desbloqueada) que no
+	# se haya des-pauseado a tiempo, forzamos despausar y hacemos que este cartel sea inmune
+	# a la pausa, para que "Volver al laboratorio" siempre responda al click.
+	get_tree().paused = false
+	var canvas = CanvasLayer.new()
+	canvas.layer = 200
+	canvas.process_mode = Node.PROCESS_MODE_ALWAYS
+	get_tree().root.add_child(canvas)
+	
+	var root = Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	canvas.add_child(root)
+	
+	var bg = ColorRect.new()
+	bg.color = Color(0, 0, 0, 0)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(bg)
+	
+	var center_box = CenterContainer.new()
+	center_box.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(center_box)
+	
+	var main_vbox = VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 24)
+	main_vbox.modulate.a = 0.0
+	center_box.add_child(main_vbox)
+	
+	var header_vbox = VBoxContainer.new()
+	header_vbox.add_theme_constant_override("separation", 6)
+	main_vbox.add_child(header_vbox)
+	
+	var lbl_title = Label.new()
+	lbl_title.text = "¡HAS GANADO!"
+	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_title.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	lbl_title.add_theme_font_size_override("font_size", 64)
+	lbl_title.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	lbl_title.add_theme_color_override("font_outline_color", Color(0.1, 0.6, 0.2))
+	lbl_title.add_theme_constant_override("outline_size", 8)
+	header_vbox.add_child(lbl_title)
+	
+	var lbl_sub = Label.new()
+	lbl_sub.text = "COMPLETASTE LA RUN. VOLVE AL LABORATORIO A SEGUIR MEJORANDO"
+	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+	lbl_sub.add_theme_font_size_override("font_size", 18)
+	lbl_sub.add_theme_color_override("font_color", Color(0.2, 0.8, 0.3))
+	header_vbox.add_child(lbl_sub)
+	
+	var stats_panel = PanelContainer.new()
+	var flat_box = StyleBoxFlat.new()
+	flat_box.bg_color = Color(0.08, 0.08, 0.08, 0.95)
+	flat_box.border_color = Color(0.1, 0.25, 0.1)
+	flat_box.set_border_width_all(2)
+	flat_box.set_corner_radius_all(6)
+	flat_box.content_margin_left = 24
+	flat_box.content_margin_right = 24
+	flat_box.content_margin_top = 20
+	flat_box.content_margin_bottom = 20
+	stats_panel.add_theme_stylebox_override("panel", flat_box)
+	main_vbox.add_child(stats_panel)
+	
+	var stats_vbox = VBoxContainer.new()
+	stats_vbox.add_theme_constant_override("separation", 16)
+	stats_panel.add_child(stats_vbox)
+	
+	var time_val_lbl = Label.new()
+	time_val_lbl.text = GameData.format_time(GameData.get_run_elapsed_seconds())
+	time_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	time_val_lbl.add_theme_font_size_override("font_size", 24)
+	time_val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	var row_time = _build_stat_row("TIEMPO DE LA RUN", "", time_val_lbl)
+	stats_vbox.add_child(row_time)
+	
+	var div0 = ColorRect.new()
+	div0.color = Color(0.1, 0.2, 0.1, 0.5)
+	div0.custom_minimum_size = Vector2(0, 1)
+	stats_vbox.add_child(div0)
+	
+	var kills_val_lbl = Label.new()
+	kills_val_lbl.text = str(GameData.run_enemies_killed)
+	kills_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	kills_val_lbl.add_theme_font_size_override("font_size", 24)
+	kills_val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	var row_kills = _build_stat_row("MATASTE", "ENEMIGOS ELIMINADOS", kills_val_lbl)
+	stats_vbox.add_child(row_kills)
+	
+	var div1 = ColorRect.new()
+	div1.color = Color(0.1, 0.2, 0.1, 0.5)
+	div1.custom_minimum_size = Vector2(0, 1)
+	stats_vbox.add_child(div1)
+	
+	var scrap_val_lbl = Label.new()
+	scrap_val_lbl.text = str(GameData.run_scrap_collected)
+	scrap_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	scrap_val_lbl.add_theme_font_size_override("font_size", 24)
+	scrap_val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	var row_scrap = _build_stat_row("CHATARRA OBTENIDA", "EN ESTA RUN", scrap_val_lbl)
+	stats_vbox.add_child(row_scrap)
+	
+	var btn = Button.new()
+	btn.custom_minimum_size = Vector2(300, 56)
+	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	
+	var sb_normal = StyleBoxFlat.new()
+	sb_normal.bg_color = Color(0.08, 0.3, 0.1)
+	sb_normal.border_color = Color(0.1, 0.45, 0.15)
+	sb_normal.set_border_width_all(2)
+	sb_normal.set_corner_radius_all(6)
+	
+	var sb_hover = StyleBoxFlat.new()
+	sb_hover.bg_color = Color(0.1, 0.4, 0.15)
+	sb_hover.border_color = Color(0.15, 0.55, 0.2)
+	sb_hover.set_border_width_all(2)
+	sb_hover.set_corner_radius_all(6)
+	
+	var sb_pressed = StyleBoxFlat.new()
+	sb_pressed.bg_color = Color(0.05, 0.2, 0.08)
+	sb_pressed.border_color = Color(0.08, 0.3, 0.1)
+	sb_pressed.set_border_width_all(2)
+	sb_pressed.set_corner_radius_all(6)
+	
+	btn.add_theme_stylebox_override("normal", sb_normal)
+	btn.add_theme_stylebox_override("hover", sb_hover)
+	btn.add_theme_stylebox_override("pressed", sb_pressed)
+	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	
+	var btn_hbox = HBoxContainer.new()
+	btn_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	btn_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(btn_hbox)
+	
+	var btn_lbl = Label.new()
+	btn_lbl.text = "VOLVER AL LABORATORIO"
+	btn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
+	btn_lbl.add_theme_font_size_override("font_size", 20)
+	btn_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	btn_hbox.add_child(btn_lbl)
+	
+	var btn_aligner = CenterContainer.new()
+	btn_aligner.add_child(btn)
+	main_vbox.add_child(btn_aligner)
+	
+	btn.pressed.connect(_on_win_return_button_pressed.bind(canvas, bg, main_vbox, next_scene))
+	
+	var tween = canvas.create_tween().set_parallel(true)
+	tween.tween_property(bg, "color", Color(0, 0, 0, 0.85), 0.6)
+	tween.tween_property(main_vbox, "modulate:a", 1.0, 0.5).set_delay(0.2)
+
+func _on_win_return_button_pressed(canvas: CanvasLayer, bg: ColorRect, main_vbox: VBoxContainer, next_scene: String) -> void:
+	var tween = canvas.create_tween().set_parallel(true)
+	tween.tween_property(bg, "color", Color(0, 0, 0, 0), 0.5)
+	tween.tween_property(main_vbox, "modulate:a", 0.0, 0.4)
+	tween.chain().tween_callback(func():
+		canvas.queue_free()
+		unfreeze_player()
+		SceneTransition.change_scene(next_scene)
+	)
+
 func _unhandled_input(event: InputEvent) -> void:
 	_handle_debug_cheats(event)
 
@@ -1608,7 +1786,25 @@ func _handle_debug_cheats(event: InputEvent) -> void:
 		return
 	if not event.pressed:
 		return
+	# Cheat de testeo (tecla "ç", sin asignar): mata a todos los enemigos de la sala
+	# actual y fuerza la puerta a destrabarse, para poder recorrer salas rapido.
+	# Se chequea por el caracter tipeado (event.unicode), no por keycode, para que
+	# funcione sin importar el layout de teclado.
+	if not event.echo and (event.unicode == 231 or event.unicode == 199): # ç / Ç
+		_cheat_clear_room()
+		return
 	_process_debug_keycode(event.keycode)
+
+func _cheat_clear_room() -> void:
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for enemy in enemies:
+		if is_instance_valid(enemy) and enemy.has_method("die"):
+			enemy.die()
+	var doors = get_tree().get_nodes_in_group("door")
+	for door in doors:
+		if door.has_method("unlock_door"):
+			door.unlock_door()
+	print("[CHEAT] Sala limpiada: ", enemies.size(), " enemigos eliminados, puertas destrabadas.")
 
 func _process_debug_keycode(keycode: int) -> void:
 	if keycode == KEY_F1:

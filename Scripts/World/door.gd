@@ -5,6 +5,9 @@ class_name Door
 @export var is_start_run_door: bool = false
 @export var custom_next_scene: String = ""
 @export var is_open: bool = false
+## Puerta de salida tras vencer al boss: en vez de ir siempre al mismo custom_next_scene,
+## le pregunta a GameData a donde corresponde ir (siguiente nivel, o Lab si ya se gano la run).
+@export var is_boss_exit_door: bool = false
 
 @onready var anim_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var area_2d: Area2D = $Area2D
@@ -92,12 +95,30 @@ func _transition_room() -> void:
 		_show_weapon_selection_popup()
 		return
 		
+	if is_boss_exit_door:
+		_handle_boss_exit()
+		return
+		
 	var next_scene: String
 	if custom_next_scene != "":
 		next_scene = custom_next_scene
 	else:
 		next_scene = GameData.get_next_room()
 	GameData.last_room_name = get_tree().current_scene.name
+	SceneTransition.play_teleport_sound()
+	SceneTransition.change_scene(next_scene)
+
+func _handle_boss_exit() -> void:
+	var next_scene = GameData.get_post_boss_scene()
+	GameData.last_room_name = get_tree().current_scene.name
+	
+	if GameData.just_won_run:
+		GameData.just_won_run = false
+		var player = get_tree().get_first_node_in_group("player")
+		if player and player.has_method("show_win_screen"):
+			player.show_win_screen(next_scene)
+			return
+		
 	SceneTransition.play_teleport_sound()
 	SceneTransition.change_scene(next_scene)
 

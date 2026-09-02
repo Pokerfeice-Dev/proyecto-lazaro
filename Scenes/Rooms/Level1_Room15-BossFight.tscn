@@ -34,6 +34,7 @@ position = Vector2(-2, 29)
 position = Vector2(5, -355)
 rotation = 1.5707964
 custom_next_scene = "res://Scenes/Rooms/lab_room.tscn"
+is_boss_exit_door = true
 
 [node name="Boss" parent="." unique_id=1266905629 instance=ExtResource("4_fssmm")]
 position = Vector2(0, -330)

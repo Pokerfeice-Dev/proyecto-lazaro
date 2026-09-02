@@ -48,6 +48,11 @@ var chosen_melee_weapon: String = "daga"
 var temporary_damage_multiplier: float = 1.0
 var vampiric_kills_counter: int = 0
 
+# ── Level Progression (placeholder: nivel 2 reutiliza el boss 1 hasta que tengamos un boss propio) ──
+const MAX_LEVEL_FOR_NOW: int = 2
+var current_level: int = 1
+var just_won_run: bool = false
+
 # ── Boss Fight State ─────────────────────────────────────────────────────────
 var boss_fight_phase: int = 1
 var boss_persisted_health: int = 0
@@ -144,29 +149,37 @@ func _on_enemy_killed_protocol_check(diff: int) -> void:
 var run_scrap_collected: int = 0
 var last_killer: String = "Infección Lázaro"
 var rooms_pool: Array[String] = []
+var rooms_pool_level2: Array[String] = []
 var last_room_path: String = ""
 var rooms_before_boss: int = 7
 
 func _load_level1_rooms() -> void:
+	rooms_pool = _scan_rooms_with_prefix("Level1_Room")
+	rooms_pool_level2 = _scan_rooms_with_prefix("Level2_Room")
+
+func _scan_rooms_with_prefix(prefix: String) -> Array[String]:
+	var result: Array[String] = []
 	var path: String = "res://Scenes/Rooms/"
 	var dir = DirAccess.open(path)
-	if not dir: return
+	if not dir: return result
 	
 	dir.list_dir_begin()
 	var file_name: String = dir.get_next()
 	while file_name != "":
-		_add_room_if_valid(file_name, path)
+		_add_room_if_valid(file_name, path, prefix, result)
 		file_name = dir.get_next()
+	return result
 
-func _add_room_if_valid(file_name: String, path: String) -> void:
-	if not file_name.begins_with("Level1_Room"): return
+func _add_room_if_valid(file_name: String, path: String, prefix: String, result: Array[String]) -> void:
+	if not file_name.begins_with(prefix): return
 	var clean_name = file_name.trim_suffix(".remap")
 	if not clean_name.ends_with(".tscn"): return
 	if "bossfight" in clean_name.to_lower() or "ygor" in clean_name.to_lower(): return
-	rooms_pool.append(path + clean_name)
+	result.append(path + clean_name)
 
 func start_new_run() -> String:
 	total_deployments += 1
+	current_level = 1
 	current_run_room = 1
 	if current_run_room > max_reached_room:
 		max_reached_room = current_run_room
@@ -192,7 +205,24 @@ func determine_next_room() -> String:
 	return check_for_ygor_room()
 
 func get_boss_room() -> String:
+	# Placeholder: por ahora el nivel 2 reutiliza la pelea del boss 1 (Marcos pidio esto "por ahora")
 	return "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"
+
+# Se llama cuando el jugador cruza la puerta de salida del boss.
+# 1° vez (nivel 1 completo) -> arranca el nivel 2. 2° vez (nivel 2 completo) -> gana la run y vuelve al Lab.
+func get_post_boss_scene() -> String:
+	if current_level < MAX_LEVEL_FOR_NOW:
+		current_level += 1
+		current_run_room = 1
+		rooms_before_boss = randi_range(7, 10)
+		last_room_path = ""
+		if current_level > max_reached_level:
+			max_reached_level = current_level
+		save_game()
+		return get_random_room_from_pool()
+	just_won_run = true
+	save_game()
+	return "res://Scenes/Rooms/lab_room.tscn"
 
 func check_for_ygor_room() -> String:
 	var is_multiple_of_three: bool = (current_run_room % 3 == 0)
@@ -203,20 +233,26 @@ func check_for_ygor_room() -> String:
 func roll_for_ygor_room() -> String:
 	var roll: float = randf()
 	if roll < 0.5:
-		return "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"
+		return get_ygor_room_for_current_level()
 	return get_random_room_from_pool()
 
+func get_ygor_room_for_current_level() -> String:
+	if current_level == 2:
+		return "res://Scenes/Rooms/Level2_Room13(Ygor1).tscn"
+	return "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"
+
 func get_random_room_from_pool() -> String:
-	if rooms_pool.is_empty():
+	var pool: Array[String] = rooms_pool_level2 if current_level == 2 else rooms_pool
+	if pool.is_empty():
 		return "res://Scenes/Rooms/lab_room.tscn"
 	
-	if rooms_pool.size() == 1:
-		last_room_path = rooms_pool[0]
-		return rooms_pool[0]
+	if pool.size() == 1:
+		last_room_path = pool[0]
+		return pool[0]
 		
-	var next_room = rooms_pool.pick_random()
+	var next_room = pool.pick_random()
 	while next_room == last_room_path:
-		next_room = rooms_pool.pick_random()
+		next_room = pool.pick_random()
 		
 	last_room_path = next_room
 	return next_room
@@ -263,9 +299,16 @@ func _set_room_n_config(config: Dictionary, room: int) -> void:
 	var new_interval = 1.1 - (extra_rooms * 0.05)
 	config.spawn_interval = maxf(0.3, new_interval)
 	
-	config.allowed_enemies = ["follower", "shooter", "tank"]
+	config.allowed_enemies = ["follower", "shooter"]
+	_add_tank_to_allowed_enemies_if_not_level_1(config)
 	_add_turret_to_allowed_enemies_if_level_4(config, room)
 	_add_summoner_to_allowed_enemies_if_level_5(config, room)
+
+# El tank ("Mecha Constructor") por ahora solo aparece a partir del nivel 2, para que
+# el nivel 1 se quede solo con perro/carpintero/torreta/apicultora (pedido de Marcos).
+func _add_tank_to_allowed_enemies_if_not_level_1(config: Dictionary) -> void:
+	if current_level < 2: return
+	config.allowed_enemies.append("tank")
 
 func _add_turret_to_allowed_enemies_if_level_4(config: Dictionary, room: int) -> void:
 	if room < 4: return
