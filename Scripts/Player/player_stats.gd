@@ -4,6 +4,7 @@ class_name PlayerStats
 @export var base_max_health: int = 100
 @export var max_health: int = 100
 @export var current_health: int = 100
+var min_health_floor: int = 0 # usado en salas especiales (ej: tutorial de combate) para que el jugador no pueda morir
 @export var base_move_speed: float = 150
 @export var move_speed: float = 150
 
@@ -25,7 +26,7 @@ func _init() -> void:
 func take_damage(amount: int) -> void:
 	if current_health <= 0:
 		return
-	current_health = clampi(current_health - amount, 0, max_health)
+	current_health = clampi(current_health - amount, min_health_floor, max_health)
 	health_changed.emit(current_health, max_health)
 	if current_health <= 0:
 		player_died.emit()

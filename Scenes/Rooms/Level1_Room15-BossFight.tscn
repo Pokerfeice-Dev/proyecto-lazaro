@@ -1,4 +1,4 @@
-[gd_scene format=4 uid="uid://1u1k3mblqfmp"]
+[gd_scene format=4 uid="uid://b8fvnm43ditag"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_dssug"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_fssmm"]

@@ -129,7 +129,7 @@ func _create_content_labels() -> void:
 	_vbox.add_child(_title_lbl)
 	
 	_desc_lbl = Label.new()
-	_desc_lbl.text = "Abri el inventario con la tecla I, podes equipar items"
+	_desc_lbl.text = "Abrí el inventario con la tecla I, podés equipar ítems"
 	_desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_desc_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))

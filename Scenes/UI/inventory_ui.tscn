@@ -97,12 +97,12 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 6
 
-[node name="EquipmentPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=1973329205]
+[node name="CharacterPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=1973329205]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panels")
 
-[node name="CardBackground" type="NinePatchRect" parent="MarginContainer/HBoxContainer/EquipmentPanel" unique_id=1989102270]
+[node name="CardBackground" type="NinePatchRect" parent="MarginContainer/HBoxContainer/CharacterPanel" unique_id=1989102270]
 layout_mode = 2
 texture = ExtResource("3_card")
 region_rect = Rect2(60, 5, 290, 830)
@@ -111,7 +111,7 @@ patch_margin_top = 24
 patch_margin_right = 24
 patch_margin_bottom = 24
 
-[node name="PanelBorder" type="NinePatchRect" parent="MarginContainer/HBoxContainer/EquipmentPanel" unique_id=1048089066]
+[node name="PanelBorder" type="NinePatchRect" parent="MarginContainer/HBoxContainer/CharacterPanel" unique_id=1048089066]
 layout_mode = 2
 texture = ExtResource("4_border")
 region_rect = Rect2(10, 10, 260, 100)
@@ -120,46 +120,42 @@ patch_margin_top = 24
 patch_margin_right = 24
 patch_margin_bottom = 24
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel" unique_id=1747915522]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/CharacterPanel" unique_id=1747915522]
 layout_mode = 2
 theme_override_constants/margin_left = 32
 theme_override_constants/margin_top = 32
 theme_override_constants/margin_right = 32
 theme_override_constants/margin_bottom = 32
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel/MarginContainer" unique_id=1297213183]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer" unique_id=1297213183]
 layout_mode = 2
+theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="MarginContainer/HBoxContainer/EquipmentPanel/MarginContainer/VBoxContainer" unique_id=1790140326]
+[node name="Title" type="Label" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer" unique_id=1790140326]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
 theme_override_font_sizes/font_size = 28
-text = "EQUIPAMIENTO"
+text = "PERSONAJE"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/EquipmentPanel/MarginContainer/VBoxContainer" unique_id=136383054]
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer" unique_id=136383054]
 layout_mode = 2
 
-[node name="SlotsList" type="VBoxContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel/MarginContainer/VBoxContainer" unique_id=1635861517]
+[node name="BodyHBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 24
 
-[node name="StatsPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer" unique_id=1817231679]
+[node name="PaperdollColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxEmpty_panels")
+size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="CardBackground" type="NinePatchRect" parent="MarginContainer/HBoxContainer/StatsPanel" unique_id=971221810]
+[node name="PortraitFrame" type="NinePatchRect" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn"]
+custom_minimum_size = Vector2(0, 108)
 layout_mode = 2
-texture = ExtResource("3_card")
-region_rect = Rect2(60, 5, 290, 830)
-patch_margin_left = 24
-patch_margin_top = 24
-patch_margin_right = 24
-patch_margin_bottom = 24
-
-[node name="PanelBorder" type="NinePatchRect" parent="MarginContainer/HBoxContainer/StatsPanel" unique_id=1622557113]
-layout_mode = 2
+size_flags_horizontal = 1
 texture = ExtResource("4_border")
 region_rect = Rect2(10, 10, 260, 100)
 patch_margin_left = 24
@@ -167,27 +163,28 @@ patch_margin_top = 24
 patch_margin_right = 24
 patch_margin_bottom = 24
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/StatsPanel" unique_id=1120019888]
-layout_mode = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 32
+[node name="PortraitTexture" type="TextureRect" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/StatsPanel/MarginContainer" unique_id=153846861]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="MarginContainer/HBoxContainer/StatsPanel/MarginContainer/VBoxContainer" unique_id=240115219]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 1, 0.6, 1)
-theme_override_font_sizes/font_size = 28
-text = "ESTADÍSTICAS"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/StatsPanel/MarginContainer/VBoxContainer" unique_id=1809149038]
-layout_mode = 2
-
-[node name="StatsLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/StatsPanel/MarginContainer/VBoxContainer" unique_id=399768408]
+[node name="SlotsList" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn" unique_id=1635861517]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="StatsColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="StatsLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/StatsColumn" unique_id=399768408]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 17
 text = "- Selecciona un item para ver las mejoras aplicadas al personaje -"

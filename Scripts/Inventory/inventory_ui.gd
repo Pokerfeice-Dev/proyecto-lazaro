@@ -3,13 +3,15 @@ extends Control
 
 @export var inventory: Inventory
 @export var equipment: Equipment
+var player_sprite: AnimatedSprite2D
 
 var ui_slots: Array[UISlot] = []
 var inventory_slots: Array[UISlot] = []
 
-@onready var stats_label: RichTextLabel = $MarginContainer/HBoxContainer/StatsPanel/MarginContainer/VBoxContainer/StatsLabel
-@onready var equip_container: VBoxContainer = $MarginContainer/HBoxContainer/EquipmentPanel/MarginContainer/VBoxContainer/SlotsList
+@onready var stats_label: RichTextLabel = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/StatsColumn/StatsLabel
+@onready var equip_container: VBoxContainer = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/SlotsList
 @onready var inventory_grid: GridContainer = $MarginContainer/HBoxContainer/InventoryPanel/MarginContainer/VBoxContainer/InventoryGrid
+@onready var portrait_rect: TextureRect = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame/PortraitTexture
 
 # Tab and layout variables
 var current_tab: String = "INVENTORY" # "INVENTORY" or "CODEX"
@@ -23,8 +25,11 @@ var selected_codex_category: String = "enemies" # "enemies", "weapons", "items",
 var codex_panel: ScrollContainer
 var main_hbox: HBoxContainer
 var codex_grid: GridContainer
+var codex_category_buttons: Dictionary = {} # category -> Button
+var codex_progress_label: Label
 
 # Tooltip UI components
+var _tooltip_hide_request_id: int = 0
 var tooltip_panel: PanelContainer
 var tooltip_name: Label
 var tooltip_rarity: Label
@@ -57,17 +62,17 @@ func _start_open_tweens() -> void:
 	var start_y = get_viewport_rect().size.y
 	$MarginContainer.position.y = start_y
 	$Background.modulate.a = 0.0
-	
+
 	var slide_tween = create_tween()
 	slide_tween.tween_property($MarginContainer, "position:y", _default_margin_pos_y, 0.4)\
 		.set_trans(Tween.TRANS_BACK)\
 		.set_ease(Tween.EASE_OUT)
-	
+
 	var fade_tween = create_tween()
 	fade_tween.tween_property($Background, "modulate:a", 1.0, 0.3)\
 		.set_trans(Tween.TRANS_SINE)\
 		.set_ease(Tween.EASE_OUT)
-		
+
 	slide_tween.tween_callback(_on_open_animation_finished)
 
 func _on_open_animation_finished() -> void:
@@ -80,17 +85,17 @@ func _animate_close() -> void:
 
 func _start_close_tweens() -> void:
 	var target_y = get_viewport_rect().size.y
-	
+
 	var slide_tween = create_tween()
 	slide_tween.tween_property($MarginContainer, "position:y", target_y, 0.45)\
 		.set_trans(Tween.TRANS_BACK)\
 		.set_ease(Tween.EASE_IN)
-	
+
 	var fade_tween = create_tween()
 	fade_tween.tween_property($Background, "modulate:a", 0.0, 0.35)\
 		.set_trans(Tween.TRANS_SINE)\
 		.set_ease(Tween.EASE_OUT)
-		
+
 	slide_tween.tween_callback(_on_close_animation_finished)
 
 func _on_close_animation_finished() -> void:
@@ -104,6 +109,7 @@ func update_if_visible() -> void:
 	update_ui()
 
 func update_ui() -> void:
+	_update_portrait()
 	update_items_list()
 	update_equipment_display()
 	update_stats_display()
@@ -119,14 +125,14 @@ func _init_default_margin_position() -> void:
 	var margin_node = get_node_or_null("MarginContainer")
 	if margin_node:
 		_default_margin_pos_y = margin_node.position.y
-	
+
 	# Wrap UI in tabs hierarchy
 	_build_tabs_hierarchy()
 	_create_tooltip_panel()
 	_setup_codex()
-	
+
 	if not equipment or not inventory: return
-	
+
 	inventory.inventory_updated.connect(update_items_list)
 	equipment.equipment_changed.connect(update_ui)
 	stats_label.bbcode_enabled = true
@@ -196,11 +202,30 @@ func _toggle_sort_recent() -> void:
 	update_items_list()
 
 func _auto_fetch_player_nodes() -> void:
-	if inventory and equipment: return
+	if inventory and equipment and player_sprite: return
 	var players = get_tree().get_nodes_in_group("player")
 	if players.size() == 0: return
-	inventory = players[0].get_node_or_null("Inventory")
-	equipment = players[0].get_node_or_null("Equipment")
+	if not inventory:
+		inventory = players[0].get_node_or_null("Inventory")
+	if not equipment:
+		equipment = players[0].get_node_or_null("Equipment")
+	if not player_sprite:
+		player_sprite = players[0].get_node_or_null("AnimatedSprite2D")
+
+# Retrato de Lázaro: usa un frame estático de su animación de idle (no la
+# animación completa corriendo en loop, para no arriesgarnos a que se vea
+# raro encogido en un marco chico) tomado directo de su AnimatedSprite2D, asi
+# que siempre es el arte real del personaje y no un ícono generico.
+func _update_portrait() -> void:
+	if not portrait_rect:
+		return
+	_auto_fetch_player_nodes()
+	if not player_sprite or not player_sprite.sprite_frames:
+		return
+	var anim = &"idle_down"
+	if not player_sprite.sprite_frames.has_animation(anim):
+		return
+	portrait_rect.texture = player_sprite.sprite_frames.get_frame_texture(anim, 0)
 
 # ── Header & Tabs Re-wrapping ───────────────────────────────────────────────
 
@@ -208,32 +233,32 @@ func _build_tabs_hierarchy() -> void:
 	main_hbox = $MarginContainer/HBoxContainer
 	var margin_container = $MarginContainer
 	margin_container.remove_child(main_hbox)
-	
+
 	var main_vbox = VBoxContainer.new()
 	main_vbox.name = "MainVBox"
 	main_vbox.add_theme_constant_override("separation", 20)
 	margin_container.add_child(main_vbox)
-	
+
 	# Create top tab buttons bar
 	var header_tabs = HBoxContainer.new()
 	header_tabs.alignment = FlowContainer.ALIGNMENT_CENTER
 	header_tabs.add_theme_constant_override("separation", 48)
 	main_vbox.add_child(header_tabs)
-	
+
 	var btn_inventory = Button.new()
 	btn_inventory.text = "INVENTARIO"
 	btn_inventory.custom_minimum_size = Vector2(160, 40)
 	btn_inventory.pressed.connect(_on_inventory_tab_pressed)
 	header_tabs.add_child(btn_inventory)
-	
+
 	var btn_codex = Button.new()
 	btn_codex.text = "CÓDICE"
 	btn_codex.custom_minimum_size = Vector2(160, 40)
 	btn_codex.pressed.connect(_on_codex_tab_pressed)
 	header_tabs.add_child(btn_codex)
-	
+
 	main_vbox.add_child(main_hbox)
-	
+
 	# Add filter buttons to the inventory panel VBox dynamically
 	var inv_vbox = $MarginContainer/MainVBox/HBoxContainer/InventoryPanel/MarginContainer/VBoxContainer
 	var filter_hbox = HBoxContainer.new()
@@ -241,17 +266,17 @@ func _build_tabs_hierarchy() -> void:
 	filter_hbox.add_theme_constant_override("separation", 12)
 	inv_vbox.add_child(filter_hbox)
 	inv_vbox.move_child(filter_hbox, inv_vbox.get_node("InventoryGrid").get_index())
-	
+
 	var btn_all = Button.new()
 	btn_all.text = "TODOS"
 	btn_all.pressed.connect(_on_filter_pressed.bind("ALL"))
 	filter_hbox.add_child(btn_all)
-	
+
 	var btn_wpns = Button.new()
 	btn_wpns.text = "ARMAS"
 	btn_wpns.pressed.connect(_on_filter_pressed.bind("WEAPON"))
 	filter_hbox.add_child(btn_wpns)
-	
+
 	var btn_body = Button.new()
 	btn_body.text = "CUERPO"
 	btn_body.pressed.connect(_on_filter_pressed.bind("BODY"))
@@ -280,10 +305,13 @@ func _on_filter_pressed(filter_type: String) -> void:
 func _create_tooltip_panel() -> void:
 	tooltip_panel = PanelContainer.new()
 	tooltip_panel.visible = false
-	tooltip_panel.custom_minimum_size = Vector2(280, 200)
+	tooltip_panel.custom_minimum_size = Vector2(320, 220)
 	tooltip_panel.z_index = 100
+	tooltip_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	tooltip_panel.mouse_entered.connect(_on_tooltip_panel_mouse_entered)
+	tooltip_panel.mouse_exited.connect(_on_tooltip_panel_mouse_exited)
 	add_child(tooltip_panel)
-	
+
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.015, 0.05, 0.05, 0.95)
 	style.border_width_left = 2
@@ -300,47 +328,47 @@ func _create_tooltip_panel() -> void:
 	style.content_margin_right = 14
 	style.content_margin_bottom = 14
 	tooltip_panel.add_theme_stylebox_override("panel", style)
-	
+
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 8)
 	tooltip_panel.add_child(vbox)
-	
+
 	var header = HBoxContainer.new()
 	vbox.add_child(header)
-	
+
 	tooltip_name = Label.new()
-	tooltip_name.add_theme_font_size_override("font_size", 16)
+	tooltip_name.add_theme_font_size_override("font_size", 20)
 	tooltip_name.add_theme_color_override("font_color", Color(1, 1, 1))
 	tooltip_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(tooltip_name)
-	
+
 	tooltip_rarity = Label.new()
-	tooltip_rarity.add_theme_font_size_override("font_size", 12)
+	tooltip_rarity.add_theme_font_size_override("font_size", 14)
 	header.add_child(tooltip_rarity)
-	
+
 	tooltip_type = Label.new()
-	tooltip_type.add_theme_font_size_override("font_size", 12)
+	tooltip_type.add_theme_font_size_override("font_size", 14)
 	tooltip_type.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	vbox.add_child(tooltip_type)
-	
+
 	var sep = HSeparator.new()
 	vbox.add_child(sep)
-	
+
 	tooltip_desc = RichTextLabel.new()
 	tooltip_desc.fit_content = true
 	tooltip_desc.bbcode_enabled = true
-	tooltip_desc.add_theme_font_size_override("font_size", 12)
+	tooltip_desc.add_theme_font_size_override("font_size", 14)
 	vbox.add_child(tooltip_desc)
-	
+
 	tooltip_stats = RichTextLabel.new()
 	tooltip_stats.fit_content = true
 	tooltip_stats.bbcode_enabled = true
-	tooltip_stats.add_theme_font_size_override("font_size", 12)
+	tooltip_stats.add_theme_font_size_override("font_size", 16)
 	vbox.add_child(tooltip_stats)
-	
+
 	tooltip_action = Label.new()
 	tooltip_action.text = "🖱 Clic para seleccionar"
-	tooltip_action.add_theme_font_size_override("font_size", 11)
+	tooltip_action.add_theme_font_size_override("font_size", 13)
 	tooltip_action.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8, 0.7))
 	vbox.add_child(tooltip_action)
 
@@ -349,25 +377,25 @@ func _get_category_for_item_id(entry_id: String) -> String:
 
 func _show_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 	if not tooltip_panel: return
-	
+
 	var codex_cat = _get_category_for_item_id(item_data.id)
 	if codex_cat != "":
 		_show_codex_tooltip(item_data.id, codex_cat, slot_rect)
 		return
-		
+
 	_show_inventory_tooltip(item_data, slot_rect)
 
 func _show_codex_tooltip(entry_id: String, category: String, slot_rect: Rect2) -> void:
 	var entry = CodexData.DATA[category][entry_id]
 	var is_unlocked = GameData.is_codex_unlocked(category, entry_id)
-	
+
 	if not is_unlocked:
 		tooltip_name.text = "???"
 		tooltip_rarity.text = "BLOQUEADO"
 		tooltip_rarity.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-		
+
 		var category_names = {
-			"enemies": "BESTIARIO", "weapons": "ARMAMENTO", 
+			"enemies": "BESTIARIO", "weapons": "ARMAMENTO",
 			"items": "OBJETO RECOGIDO", "npcs": "CONTACTO", "levels": "ZONA DE COMBATE"
 		}
 		tooltip_type.text = category_names.get(category, category.to_upper())
@@ -379,22 +407,25 @@ func _show_codex_tooltip(entry_id: String, category: String, slot_rect: Rect2) -
 		tooltip_name.text = entry.name.to_upper()
 		tooltip_rarity.text = "DESBLOQUEADO"
 		tooltip_rarity.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
-		
+
 		var category_names = {
-			"enemies": "BESTIARIO", "weapons": "ARMAMENTO", 
+			"enemies": "BESTIARIO", "weapons": "ARMAMENTO",
 			"items": "OBJETO RECOGIDO", "npcs": "CONTACTO", "levels": "ZONA DE COMBATE"
 		}
 		tooltip_type.text = category_names.get(category, category.to_upper())
 		tooltip_desc.text = entry.lore
-		tooltip_stats.text = "[color=yellow]" + entry.stats + "[/color]"
+		var stats_display = entry.stats
+		if category == "items" or category == "weapons":
+			stats_display = _iconify_stat_text(stats_display)
+		tooltip_stats.text = stats_display
 		tooltip_action.text = "🔓 Registrado"
 		tooltip_action.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8, 0.7))
-		
+
 	_display_tooltip_at_position(slot_rect)
 
 func _show_inventory_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 	tooltip_name.text = item_data.item_name.to_upper()
-	
+
 	var rarity_text = "COMÚN"
 	var rarity_color = Color(0.7, 0.7, 0.7)
 	if item_data.stats.size() >= 3:
@@ -406,10 +437,10 @@ func _show_inventory_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 	elif item_data.stats.size() >= 1:
 		rarity_text = "MEJORADO"
 		rarity_color = Color(0.2, 1.0, 0.4)
-		
+
 	tooltip_rarity.text = rarity_text
 	tooltip_rarity.add_theme_color_override("font_color", rarity_color)
-	
+
 	var type_text = ""
 	match item_data.type:
 		ItemData.ItemType.WEAPON:
@@ -417,12 +448,12 @@ func _show_inventory_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 		ItemData.ItemType.TORSO: type_text = "ARMADURA DE TORSO"
 		ItemData.ItemType.ARMS: type_text = "ACCESORIO DE BRAZO"
 		ItemData.ItemType.LEGS: type_text = "PIERNAS"
-		
+
 	if item_data.item_name.to_lower().contains("vara") or item_data.item_name.to_lower().contains("espada") or item_data.item_name.to_lower().contains("bastón"):
 		type_text = "ARMA CUERPO A CUERPO"
-		
+
 	tooltip_type.text = type_text
-	
+
 	var desc_text = "Dispositivo de combate avanzado para el agente táctico."
 	if item_data.id.contains("Arms") or item_data.id.contains("Arm"):
 		desc_text = "Guantes reforzados que mejoran la velocidad del usuario."
@@ -430,17 +461,17 @@ func _show_inventory_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 		desc_text = "Coraza blindada ligera que disipa la energía del impacto."
 	elif item_data.id.contains("Boots") or item_data.id.contains("Leg"):
 		desc_text = "Botas servoasistidas para optimizar la movilidad en combate."
-		
+
 	tooltip_desc.text = desc_text
-	
+
 	var stats_text = ""
 	for k in item_data.stats.keys():
 		stats_text += _format_tooltip_stat(k, item_data.stats[k]) + "\n"
 	tooltip_stats.text = stats_text
-	
+
 	tooltip_action.text = "🖱 Clic para seleccionar / Arrastrar para equipar"
 	tooltip_action.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8, 0.7))
-	
+
 	_display_tooltip_at_position(slot_rect)
 
 func _display_tooltip_at_position(slot_rect: Rect2) -> void:
@@ -450,134 +481,277 @@ func _display_tooltip_at_position(slot_rect: Rect2) -> void:
 	tooltip_panel.global_position = tooltip_pos
 	tooltip_panel.show()
 
+# ── Iconos minimalistas para stats: reemplazan el texto, sin colores ──────
+const STAT_ICONS: Dictionary = {
+	"max_health_percent": "❤️",
+	"move_speed_percent": "💨",
+	"armor": "🛡️",
+	"damage": "💥",
+	"projectile_speed": "🚀",
+	"bullet_count": "🔫",
+	"cone_spread_angle": "📐",
+	"piercing": "➡️",
+	"crit_chance": "🎯",
+	"crit_damage": "☠️",
+	"attack_speed": "⚡",
+	"damage_multiplier": "✖️",
+	"knockback_force": "👊",
+}
+
+# Iconos para las stats en texto libre del Códice (CodexData); orden de mas
+# especifico a mas generico para que las frases largas no se pisen con las
+# cortas (ej "Daño Crítico" tiene que procesarse antes que "Daño" solo).
+const STAT_LABELS: Dictionary = {
+	"max_health_percent": "Vida Máxima",
+	"move_speed_percent": "Velocidad de Movimiento",
+	"armor": "Armadura",
+	"damage": "Daño",
+	"projectile_speed": "Velocidad de Proyectil",
+	"bullet_count": "Cantidad de Proyectiles",
+	"cone_spread_angle": "Dispersión",
+	"piercing": "Perforación",
+	"crit_chance": "Probabilidad de Crítico",
+	"crit_damage": "Daño Crítico",
+	"attack_speed": "Velocidad de Ataque",
+	"damage_multiplier": "Multiplicador de Daño",
+	"knockback_force": "Empuje",
+}
+
+const STAT_PHRASE_ICONS: Array = [
+	["Daño Crítico", "☠️"],
+	["Daño Base", "💥"],
+	["Multiplicador de Daño", "✖️"],
+	["Empuje Melee", "👊"],
+	["Alcance Melee", "📏"],
+	["Vel. Movimiento", "💨"],
+	["Vel. Dash", "🌀"],
+	["CD Dash", "⏱️"],
+	["Vel. Ataque", "⚡"],
+	["Vel. Proyectil", "🚀"],
+	["Prob. Crítico", "🎯"],
+	["Tiempo de Vida", "⏳"],
+	["Vida Max", "❤️"],
+	["Defensa", "🛡️"],
+	["Perforación", "➡️"],
+	["Dispersión", "📐"],
+	["Proyectiles", "🔫"],
+	["Empuje", "👊"],
+	["Daño", "💥"],
+]
+
+# Iconos para los nombres ya traducidos que usa display_stats() (panel
+# ESTADÍSTICAS).
+const STAT_NAME_ICONS: Dictionary = {
+	"Vida Máxima": "❤️",
+	"Vel. Movimiento": "💨",
+	"Armadura": "🛡️",
+	"Daño Total": "💥",
+	"Velocidad de Ataque": "⚡",
+	"Proyectiles": "🔫",
+	"Prob. Crítico": "🎯",
+	"Daño Crítico": "☠️",
+	"Daño": "💥",
+	"Velocidad Ataque": "⚡",
+	"Empuje": "👊",
+	"Vel. Proyectil": "🚀",
+	"Dispersión": "📐",
+	"Perforación": "➡️",
+}
+
+func _iconify_stat_text(text: String) -> String:
+	# Pasada unica caracter por caracter (no result.replace() encadenado): una
+	# vez que insertamos un [hint=Daño Crítico]...[/hint], ese texto adentro del
+	# tag contiene igual la palabra "Daño" suelta, y un replace() posterior de
+	# la frase generica "Daño" la volveria a pisar. Escaneando una sola vez y
+	# saltando el cursor por sobre lo ya reemplazado evitamos ese problema.
+	var result = ""
+	var i = 0
+	while i < text.length():
+		var matched = false
+		for pair in STAT_PHRASE_ICONS:
+			var phrase: String = pair[0]
+			if text.substr(i, phrase.length()) == phrase:
+				result += "[hint=%s][font_size=22]%s[/font_size][/hint]" % [phrase, pair[1]]
+				i += phrase.length()
+				matched = true
+				break
+		if not matched:
+			result += text[i]
+			i += 1
+	return result
+
 func _format_tooltip_stat(k: String, v: float) -> String:
-	var stat_name = k.capitalize()
 	var is_percent = false
 	match k:
-		"max_health_percent": stat_name = "Vida Máxima"; is_percent = true
-		"move_speed_percent": stat_name = "Vel. Movimiento"; is_percent = true
-		"armor": stat_name = "Armadura"
-		"damage": stat_name = "Daño"
-		"projectile_speed": stat_name = "Vel. Proyectil"
-		"bullet_count": stat_name = "Proyectiles"
-		"cone_spread_angle": stat_name = "Dispersión"
-		"piercing": stat_name = "Perforación"
-		"crit_chance": stat_name = "Prob. Crítico"; is_percent = true
-		"crit_damage": stat_name = "Daño Crítico"
-		"attack_speed": stat_name = "Vel. Ataque"; is_percent = true
-		"damage_multiplier": stat_name = "Multiplicador de Daño"; is_percent = true
-		"knockback_force": stat_name = "Empuje"
-		
+		"max_health_percent", "move_speed_percent", "crit_chance", "attack_speed":
+			is_percent = true
+
+	var icon = STAT_ICONS.get(k, "▪")
+	var hint_label = STAT_LABELS.get(k, k.capitalize())
 	var sign_str = "+" if v > 0 else ""
 	var val_str = str(round(v * 100)) + "%" if is_percent else str(v)
-	return "%s: [color=yellow]%s%s[/color]" % [stat_name, sign_str, val_str]
+	return "[hint=%s][font_size=24]%s[/font_size][/hint] [font_size=18]%s%s[/font_size]" % [hint_label, icon, sign_str, val_str]
 
 func _hide_tooltip() -> void:
 	if tooltip_panel:
 		tooltip_panel.hide()
 
+# El tooltip antes se cerraba apenas el cursor salia del slot, lo cual hacia
+# imposible mover el mouse hasta el tooltip para pasar por arriba de un icono
+# y leer su [hint]. Ahora el cierre real se pide con un pequeño delay que se
+# cancela si el cursor entra al slot de nuevo O al panel del tooltip mismo.
+func _request_hide_tooltip() -> void:
+	_tooltip_hide_request_id += 1
+	var my_id = _tooltip_hide_request_id
+	await get_tree().create_timer(0.15).timeout
+	if my_id == _tooltip_hide_request_id:
+		_hide_tooltip()
+
+func _on_tooltip_panel_mouse_entered() -> void:
+	_tooltip_hide_request_id += 1 # cancela cualquier cierre pendiente
+
+func _on_tooltip_panel_mouse_exited() -> void:
+	_request_hide_tooltip()
+
 func _on_slot_hovered(item_data: ItemData, slot_rect: Rect2) -> void:
+	_tooltip_hide_request_id += 1 # cancela cualquier cierre pendiente
 	_show_tooltip(item_data, slot_rect)
 
 func _on_slot_unhovered() -> void:
-	_hide_tooltip()
+	_request_hide_tooltip()
 
 # ── Codex Panel Definition ──────────────────────────────────────────────────
 
 func _setup_codex() -> void:
 	var main_vbox = $MarginContainer/MainVBox
-	
+
 	codex_panel = ScrollContainer.new()
 	codex_panel.name = "CodexPanel"
 	codex_panel.visible = false
 	codex_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	main_vbox.add_child(codex_panel)
-	
+
 	var codex_vbox = VBoxContainer.new()
 	codex_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	codex_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	codex_vbox.add_theme_constant_override("separation", 16)
 	codex_panel.add_child(codex_vbox)
-	
+
 	var title = Label.new()
 	title.text = "CÓDICE DE COMPONENTES E HISTORIAL"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 22)
 	title.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
 	codex_vbox.add_child(title)
-	
+
 	# Codex sub-tabs bar
 	var sub_tabs_hbox = HBoxContainer.new()
 	sub_tabs_hbox.alignment = FlowContainer.ALIGNMENT_CENTER
 	sub_tabs_hbox.add_theme_constant_override("separation", 16)
 	codex_vbox.add_child(sub_tabs_hbox)
-	
-	var btn_bestiario = Button.new()
-	btn_bestiario.text = "BESTIARIO"
-	btn_bestiario.pressed.connect(_on_codex_category_pressed.bind("enemies"))
-	sub_tabs_hbox.add_child(btn_bestiario)
-	
-	var btn_armamento = Button.new()
-	btn_armamento.text = "ARMAMENTO"
-	btn_armamento.pressed.connect(_on_codex_category_pressed.bind("weapons"))
-	sub_tabs_hbox.add_child(btn_armamento)
-	
-	var btn_objetos = Button.new()
-	btn_objetos.text = "ITEMS"
-	btn_objetos.pressed.connect(_on_codex_category_pressed.bind("items"))
-	sub_tabs_hbox.add_child(btn_objetos)
-	
-	var btn_npcs = Button.new()
-	btn_npcs.text = "NPCs"
-	btn_npcs.pressed.connect(_on_codex_category_pressed.bind("npcs"))
-	sub_tabs_hbox.add_child(btn_npcs)
-	
-	var btn_zonas = Button.new()
-	btn_zonas.text = "ZONAS"
-	btn_zonas.pressed.connect(_on_codex_category_pressed.bind("levels"))
-	sub_tabs_hbox.add_child(btn_zonas)
-	
+
+	codex_category_buttons.clear()
+	_add_codex_category_button(sub_tabs_hbox, "BESTIARIO", "enemies")
+	_add_codex_category_button(sub_tabs_hbox, "ARMAMENTO", "weapons")
+	_add_codex_category_button(sub_tabs_hbox, "ITEMS", "items")
+	_add_codex_category_button(sub_tabs_hbox, "NPCs", "npcs")
+	_add_codex_category_button(sub_tabs_hbox, "ZONAS", "levels")
+
+	# Progress readout ("X/Y descubiertos")
+	codex_progress_label = Label.new()
+	codex_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	codex_progress_label.add_theme_font_size_override("font_size", 13)
+	codex_progress_label.add_theme_color_override("font_color", Color(0.55, 0.85, 0.8))
+	codex_vbox.add_child(codex_progress_label)
+
+	# Styled frame around the grid, matching the tooltip's cyan/dark theme
+	var grid_frame = PanelContainer.new()
+	grid_frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var frame_style = StyleBoxFlat.new()
+	frame_style.bg_color = Color(0.015, 0.045, 0.045, 0.7)
+	frame_style.border_width_left = 2
+	frame_style.border_width_top = 2
+	frame_style.border_width_right = 2
+	frame_style.border_width_bottom = 2
+	frame_style.border_color = Color(0.0, 1.0, 0.8, 0.35)
+	frame_style.corner_radius_top_left = 10
+	frame_style.corner_radius_top_right = 10
+	frame_style.corner_radius_bottom_left = 10
+	frame_style.corner_radius_bottom_right = 10
+	frame_style.content_margin_left = 20
+	frame_style.content_margin_top = 20
+	frame_style.content_margin_right = 20
+	frame_style.content_margin_bottom = 20
+	grid_frame.add_theme_stylebox_override("panel", frame_style)
+	codex_vbox.add_child(grid_frame)
+
 	var scroll_grid_container = CenterContainer.new()
 	scroll_grid_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	codex_vbox.add_child(scroll_grid_container)
-	
+	grid_frame.add_child(scroll_grid_container)
+
 	codex_grid = GridContainer.new()
 	codex_grid.columns = 6
 	codex_grid.add_theme_constant_override("h_separation", 16)
 	codex_grid.add_theme_constant_override("v_separation", 16)
 	scroll_grid_container.add_child(codex_grid)
-	
+
+	_update_codex_tab_highlight()
 	_refresh_codex_grid()
+
+func _add_codex_category_button(parent: Control, label_text: String, category: String) -> void:
+	var btn = Button.new()
+	btn.text = label_text
+	btn.custom_minimum_size = Vector2(120, 36)
+	btn.pressed.connect(_on_codex_category_pressed.bind(category))
+	parent.add_child(btn)
+	codex_category_buttons[category] = btn
+
+func _update_codex_tab_highlight() -> void:
+	for category in codex_category_buttons.keys():
+		var btn: Button = codex_category_buttons[category]
+		if category == selected_codex_category:
+			btn.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
+			btn.modulate = Color(1.15, 1.15, 1.15)
+		else:
+			btn.remove_theme_color_override("font_color")
+			btn.modulate = Color(1, 1, 1)
 
 func _on_codex_category_pressed(category: String) -> void:
 	selected_codex_category = category
 	_hide_tooltip()
+	_update_codex_tab_highlight()
 	_refresh_codex_grid()
 
 func _refresh_codex_grid() -> void:
 	if not codex_grid: return
 	for c in codex_grid.get_children(): c.queue_free()
-	
+
 	var category_data = CodexData.DATA.get(selected_codex_category, {})
+	var discovered_count = 0
 	for entry_id in category_data.keys():
 		var entry = category_data[entry_id]
 		var is_unlocked = GameData.is_codex_unlocked(selected_codex_category, entry_id)
-		
+		if is_unlocked:
+			discovered_count += 1
+
 		var fake_item = ItemData.new()
 		fake_item.id = entry_id
-		
+
 		if is_unlocked:
 			fake_item.item_name = entry.name
 			fake_item.icon = entry.icon
 		else:
 			fake_item.item_name = "???"
 			fake_item.icon = load("res://Art/Ui/Cell.png")
-			
+
 		var slot = UISlot.new()
 		slot.update_slot(fake_item)
 		slot.slot_hovered.connect(_on_slot_hovered)
 		slot.slot_unhovered.connect(_on_slot_unhovered)
 		codex_grid.add_child(slot)
+
+	if codex_progress_label:
+		codex_progress_label.text = "%d / %d registrados" % [discovered_count, category_data.size()]
 
 # ── Slot Setup and Centered Grids Layout ─────────────────────────────────────
 
@@ -585,7 +759,7 @@ func _setup_slots() -> void:
 	# Clear old slots in Equipment Panel
 	for c in equip_container.get_children(): c.queue_free()
 	ui_slots.clear()
-	
+
 	var body_grid = _create_centered_grid(3)
 	equip_container.add_child(body_grid)
 	_add_body_grid_slots(body_grid)
@@ -593,15 +767,15 @@ func _setup_slots() -> void:
 	var sep = HSeparator.new()
 	sep.custom_minimum_size.y = 16
 	equip_container.add_child(sep)
-	
+
 	var wpns_grid = _create_centered_grid(3)
 	equip_container.add_child(wpns_grid)
 	_add_weapon_grid_slots(wpns_grid)
-	
+
 	# Clear old children in Inventory Grid
 	for c in inventory_grid.get_children(): c.queue_free()
 	inventory_slots.clear()
-	
+
 	# Build Inventory Grid (24 slots)
 	for i in range(24):
 		var slot_ui = UISlot.new()
@@ -627,7 +801,7 @@ func _add_body_grid_slots(grid: GridContainer) -> void:
 	_create_equip_slot(ItemData.ItemSlot.ARM_L, "Brazo I", grid)
 	_create_equip_slot(ItemData.ItemSlot.TORSO, "Torso", grid)
 	_create_equip_slot(ItemData.ItemSlot.ARM_R, "Brazo D", grid)
-	
+
 	# Row 2: Pierna Izq, Spacer, Pierna Der
 	_create_equip_slot(ItemData.ItemSlot.LEG_L, "Pierna I", grid)
 	grid.add_child(Control.new())
@@ -637,7 +811,7 @@ func _add_weapon_grid_slots(grid: GridContainer) -> void:
 	_create_equip_slot(ItemData.ItemSlot.MAIN_W1, "Arma 1", grid)
 	_create_equip_slot(ItemData.ItemSlot.MAIN_W2, "Arma 2", grid)
 	_create_equip_slot(ItemData.ItemSlot.MAIN_W3, "Arma 3", grid)
-	
+
 	_create_equip_slot(ItemData.ItemSlot.SEC_W1, "Sec 1", grid)
 	_create_equip_slot(ItemData.ItemSlot.SEC_W2, "Sec 2", grid)
 	_create_equip_slot(ItemData.ItemSlot.SEC_W3, "Sec 3", grid)
@@ -699,7 +873,7 @@ func _on_slot_double_clicked(item: ItemData, slot_ui: UISlot) -> void:
 func _auto_equip_item(item: ItemData) -> void:
 	var target_slot_type = _get_available_slot_for_item(item)
 	var old_item = equipment.slots.get(target_slot_type)
-	
+
 	item.slot = target_slot_type
 	inventory.remove_item(item)
 
@@ -750,32 +924,22 @@ func _get_available_slot_for_item(item: ItemData) -> ItemData.ItemSlot:
 	return ItemData.ItemSlot.TORSO
 
 func format_stat_string(k: String, v: float) -> String:
-	var stat_name = k.capitalize()
 	var is_percent = false
 	match k:
-		"max_health_percent": stat_name = "Vida Máxima"; is_percent = true
-		"move_speed_percent": stat_name = "Vel. Movimiento"; is_percent = true
-		"armor": stat_name = "Armadura"
-		"damage": stat_name = "Daño"
-		"projectile_speed": stat_name = "Vel. Proyectil"
-		"bullet_count": stat_name = "Proyectiles"
-		"cone_spread_angle": stat_name = "Dispersión"
-		"piercing": stat_name = "Perforación"
-		"crit_chance": stat_name = "Prob. Crítico"; is_percent = true
-		"crit_damage": stat_name = "Daño Crítico"
-		"attack_speed": stat_name = "Vel. Ataque"; is_percent = true
-		"damage_multiplier": stat_name = "Multiplicador de Daño"
-		"knockback_force": stat_name = "Empuje"
-		
+		"max_health_percent", "move_speed_percent", "crit_chance", "attack_speed":
+			is_percent = true
+
+	var icon = STAT_ICONS.get(k, "▪")
+	var hint_label = STAT_LABELS.get(k, k.capitalize())
 	var prefix = "+" if v > 0 else ""
 	var display_val = str(round(v * 100)) + "%" if is_percent else str(v)
-	return "%s: [color=yellow]%s%s[/color]" % [stat_name, prefix, display_val]
+	return "[hint=%s][font_size=22]%s[/font_size][/hint] [font_size=17]%s%s[/font_size]" % [hint_label, icon, prefix, display_val]
 
 # ── Stacking, Sorting and Populating Lists ───────────────────────────────────
 
 func update_items_list() -> void:
 	if inventory == null: return
-	
+
 	# 1. Group / Stack identical items
 	var grouped = []
 	for item_data in inventory.items:
@@ -787,10 +951,10 @@ func update_items_list() -> void:
 				break
 		if not found:
 			grouped.append({ "item": item_data, "count": 1 })
-			
+
 	if is_sorted_recent:
 		grouped.reverse()
-		
+
 	# 2. Filter items
 	var filtered = []
 	for entry in grouped:
@@ -800,7 +964,7 @@ func update_items_list() -> void:
 			filtered.append(entry)
 		elif current_filter == "BODY" and entry.item.type in [ItemData.ItemType.TORSO, ItemData.ItemType.ARMS, ItemData.ItemType.LEGS]:
 			filtered.append(entry)
-			
+
 	# 3. Populate slots
 	for i in range(inventory_slots.size()):
 		if i < filtered.size():
@@ -823,69 +987,83 @@ func update_stats_display() -> void:
 	display_stats(main_stats, sec_stats)
 
 func display_stats(_main_stats: Dictionary, _sec_stats: Dictionary) -> void:
-	var txt = "[b]─ ESTADÍSTICAS GLOBALES ─[/b]\n"
-	
+	var txt = "[font_size=15][color=#7fa89f]GLOBAL[/color][/font_size]\n"
+
 	var players = get_tree().get_nodes_in_group("player")
 	if players.is_empty(): return
 	var p = players[0]
 	var p_stats = p.stats
-	
+
 	# 1. Vida Máxima
 	var base_hp = p_stats.base_max_health
 	var current_hp = p_stats.max_health
 	txt += format_stat_diff("Vida Máxima", base_hp, current_hp) + "\n"
-	
+
 	# 2. Vel. Movimiento
 	var base_speed = p_stats.base_move_speed
 	var current_speed = p_stats.move_speed
 	txt += format_stat_diff("Vel. Movimiento", base_speed, current_speed) + "\n"
-	
+
 	# 3. Armadura
 	var base_armor = 0.0
 	var current_armor = p._get_equip_stat("armor", false)
 	txt += format_stat_diff("Armadura", base_armor, current_armor) + "\n"
-	
-	txt += "\n[b]─ ARMA PRINCIPAL ─[/b]\n"
+
+	txt += "\n[font_size=15][color=#7fa89f]ARMA PRINCIPAL[/color][/font_size]\n"
 	var base_dmg_val = GameData.weapon_damage * GameData.weapon_damage_multiplier
 	var base_aps = GameData.weapon_fire_rate
 	var base_bullets = GameData.weapon_bullet_count
 	var base_crit_c = GameData.weapon_crit_chance
 	var base_crit_d = GameData.weapon_crit_damage
-	
+	var base_proj_speed = GameData.weapon_bullet_speed
+	var base_spread = GameData.weapon_spread
+	var base_piercing = GameData.weapon_piercing
+
 	if p.active_weapon:
 		base_dmg_val = p._get_weapon_damage() * p._get_weapon_damage_multiplier()
 		base_aps = p._get_weapon_attack_speed()
 		base_bullets = p._get_weapon_bullets()
 		base_crit_c = p._get_weapon_crit_chance()
 		base_crit_d = p._get_weapon_crit_damage()
-		
+		base_proj_speed = p._get_weapon_proj_speed()
+		base_spread = p._get_weapon_spread()
+		base_piercing = p._get_weapon_piercing()
+
 	var bonus_aps_pct = p._get_equip_stat("attack_speed")
-	
+
 	var current_dmg = ((p._get_weapon_damage() if p.active_weapon else GameData.weapon_damage) + p._get_equip_stat("damage", true)) * ((p._get_weapon_damage_multiplier() if p.active_weapon else GameData.weapon_damage_multiplier) + p._get_equip_stat("damage_multiplier", true))
 	var current_aps = base_aps * (1.0 + bonus_aps_pct)
 	var current_bullets = base_bullets + int(p._get_equip_stat("bullet_count", true))
 	var current_crit_c = base_crit_c + p._get_equip_stat("crit_chance", true)
 	var current_crit_d = base_crit_d + p._get_equip_stat("crit_damage", true)
-	
+	var current_proj_speed = base_proj_speed + p._get_equip_stat("projectile_speed", true)
+	# el bonus de dispersión resta (menos dispersión = más precisión), igual que
+	# en la formula real de disparo (_get_weapon_spread() - equip bonus)
+	var current_spread = maxf(0.0, base_spread - p._get_equip_stat("cone_spread_angle", true))
+	var current_piercing = base_piercing + int(p._get_equip_stat("piercing", true))
+
 	txt += format_stat_diff("Daño Total", base_dmg_val, current_dmg) + "\n"
 	txt += format_stat_diff("Velocidad de Ataque", base_aps, current_aps) + "\n"
 	txt += format_stat_diff("Proyectiles", base_bullets, current_bullets) + "\n"
 	txt += format_stat_diff("Prob. Crítico", base_crit_c, current_crit_c, true) + "\n"
 	txt += format_stat_diff("Daño Crítico", base_crit_d, current_crit_d, false, true) + "\n"
-	
-	txt += "\n[b]─ CUERPO A CUERPO ─[/b]\n"
+	txt += format_stat_diff("Vel. Proyectil", base_proj_speed, current_proj_speed) + "\n"
+	txt += format_stat_diff("Dispersión", base_spread, current_spread) + "\n"
+	txt += format_stat_diff("Perforación", base_piercing, current_piercing) + "\n"
+
+	txt += "\n[font_size=15][color=#7fa89f]CUERPO A CUERPO[/color][/font_size]\n"
 	var base_m_dmg = GameData.melee_damage
 	var base_m_spd = GameData.melee_speed
 	var base_m_knock = GameData.melee_knockback
-	
+
 	var current_m_dmg = GameData.melee_damage + p._get_equip_stat("damage", false)
 	var current_m_spd = GameData.melee_speed * (1.0 + p._get_equip_stat("attack_speed", false))
 	var current_m_knock = GameData.melee_knockback + p._get_equip_stat("knockback_force", false)
-	
+
 	txt += format_stat_diff("Daño", base_m_dmg, current_m_dmg) + "\n"
 	txt += format_stat_diff("Velocidad Ataque", base_m_spd, current_m_spd) + "\n"
 	txt += format_stat_diff("Empuje", base_m_knock, current_m_knock) + "\n"
-	
+
 	stats_label.text = txt
 
 func format_stat_diff(stat_name: String, base: float, current: float, is_percent: bool = false, is_multiplier: bool = false) -> String:
@@ -893,7 +1071,7 @@ func format_stat_diff(stat_name: String, base: float, current: float, is_percent
 	var base_str = ""
 	var current_str = ""
 	var diff_str = ""
-	
+
 	if is_percent:
 		base_str = str(round(base * 100)) + "%"
 		current_str = str(round(current * 100)) + "%"
@@ -911,10 +1089,12 @@ func format_stat_diff(stat_name: String, base: float, current: float, is_percent
 			base_str = "%.2f" % base
 			current_str = "%.2f" % current
 			diff_str = "%+.2f" % diff
-			
+
+	var icon = STAT_NAME_ICONS.get(stat_name, "▪")
+	var icon_hint = "[hint=%s][font_size=22]%s[/font_size][/hint]" % [stat_name, icon]
 	if diff > 0.001:
-		return "%s: %s > [color=#00ff80]%s (+%s)[/color]" % [stat_name, base_str, current_str, diff_str.replace("+", "")]
+		return "%s %s → %s (▲%s)" % [icon_hint, base_str, current_str, diff_str.replace("+", "")]
 	elif diff < -0.001:
-		return "%s: %s > [color=#ff4040]%s (%s)[/color]" % [stat_name, base_str, current_str, diff_str]
+		return "%s %s → %s (▼%s)" % [icon_hint, base_str, current_str, diff_str.replace("-", "")]
 	else:
-		return "%s: %s > %s [color=gray](-)[/color]" % [stat_name, base_str, current_str]
+		return "%s %s" % [icon_hint, current_str]

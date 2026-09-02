@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_rq3pj"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_wf8d5"]
-[ext_resource type="PackedScene" uid="uid://dm0bpe3uij4d7" path="res://Scenes/Ygor/treasure_hologram.tscn" id="3_2b7n8"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="4_0fvqa"]
+[ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_rq3pj"]
 
 [node name="Room_11" type="Node2D" unique_id=708789417]
 script = ExtResource("1_rq3pj")
@@ -28,9 +28,9 @@ tile_set = ExtResource("2_wf8d5")
 [node name="player_spawn" type="Marker2D" parent="." unique_id=85825618]
 position = Vector2(833, -423)
 
-[node name="TreasureHologram" parent="." unique_id=635402434 instance=ExtResource("3_2b7n8")]
-position = Vector2(511, -423)
-
 [node name="Door" parent="." unique_id=1922391837 instance=ExtResource("4_0fvqa")]
 position = Vector2(125, -416)
 start_locked = false
+
+[node name="Chest_Normal" parent="." unique_id=931336585 instance=ExtResource("4_rq3pj")]
+position = Vector2(527, -415)

@@ -275,6 +275,12 @@ func _unlock_bestiary_entry() -> void:
 		GameData.unlock_codex_entry("enemies", "tank")
 	elif "turret" in script_path:
 		GameData.unlock_codex_entry("enemies", "turret")
+	elif "bee_summon" in script_path:
+		GameData.unlock_codex_entry("enemies", "charger")
+	elif "summoner" in script_path:
+		GameData.unlock_codex_entry("enemies", "spawner")
+	elif "boss" in script_path:
+		GameData.unlock_codex_entry("enemies", "boss")
 
 func _hide_health_bar() -> void:
 	var bar = get_node_or_null("HealthBar")

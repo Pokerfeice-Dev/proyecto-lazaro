@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://0oh8iu5g3wr0"]
+
+[ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="1_chest"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_caption"]
+font_size = 18
+font_color = Color(1, 1, 1, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+
+[node name="Chest_Showcase" type="Node2D"]
+
+[node name="Note" type="Label" parent="."]
+offset_left = -260.0
+offset_top = -140.0
+offset_right = 660.0
+offset_bottom = -90.0
+text = "Sala de muestra: copiá (Ctrl+C) el nodo Chest que necesites y pegalo (Ctrl+V) en tu sala nueva. El tipo se elige en el Inspector -> chest_type."
+autowrap_mode = 2
+
+[node name="Chest_Normal" parent="." instance=ExtResource("1_chest")]
+position = Vector2(-200, 0)
+chest_type = "normal"
+
+[node name="Label_Normal" type="Label" parent="."]
+offset_left = -260.0
+offset_top = 40.0
+offset_right = -140.0
+offset_bottom = 66.0
+text = "NORMAL"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_caption")
+
+[node name="Chest_Trap" parent="." instance=ExtResource("1_chest")]
+position = Vector2(0, 0)
+chest_type = "trap"
+
+[node name="Label_Trap" type="Label" parent="."]
+offset_left = -60.0
+offset_top = 40.0
+offset_right = 60.0
+offset_bottom = 66.0
+text = "TRAMPA"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_caption")
+
+[node name="Chest_Locked" parent="." instance=ExtResource("1_chest")]
+position = Vector2(200, 0)
+chest_type = "locked"
+
+[node name="Label_Locked" type="Label" parent="."]
+offset_left = 140.0
+offset_top = 40.0
+offset_right = 260.0
+offset_bottom = 66.0
+text = "BLOQUEADO"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_caption")

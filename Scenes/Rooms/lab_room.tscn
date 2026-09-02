@@ -7,6 +7,7 @@
 [ext_resource type="AudioStream" uid="uid://d0krhd3grvu33" path="res://Audio/Music/lab.ogg" id="6_yufhn"]
 [ext_resource type="PackedScene" uid="uid://b340be6qpcdil" path="res://Scenes/Rooms/door_CoreUpgrades.tscn" id="7_cwij8"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
+[ext_resource type="PackedScene" path="res://Scenes/World/InfoSign.tscn" id="20_infosign"]
 
 [node name="Lab_room" type="Node2D" unique_id=377400053]
 script = ExtResource("1_lab_room_gd")
@@ -30,9 +31,18 @@ tile_set = ExtResource("2_otkfy")
 [node name="player_spawn" type="Marker2D" parent="." unique_id=807711299]
 position = Vector2(-162, 8)
 
+[node name="player_spawn_omnia" type="Marker2D" parent="."]
+position = Vector2(428, -232)
+
+[node name="InfoSign_Omnia" parent="." instance=ExtResource("20_infosign")]
+position = Vector2(381, -213)
+sign_title = "O.M.N.I.A."
+sign_body = "[b]Optimización y Mantenimiento de Núcleos Individuales Adaptativos[/b]\n\nEste terminal administra el PROTOCOLO LÁZARO: convertí la chatarra que recuperes en el campo en mejoras permanentes para tu chasis, tus armas y tus sistemas de soporte.\n\nLas mejoras que compres acá se mantienen entre cada despliegue, incluso si caés en combate. Volvé cuando quieras para seguir invirtiendo tu chatarra."
+
 [node name="Audio_lab" type="AudioStreamPlayer" parent="." unique_id=1955253072]
 stream = ExtResource("6_yufhn")
 autoplay = true
+bus = &"Music"
 parameters/looping = true
 
 [node name="Door" parent="." unique_id=1038942087 instance=ExtResource("new_door_1")]

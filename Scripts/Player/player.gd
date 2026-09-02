@@ -1421,7 +1421,7 @@ func _show_death_screen() -> void:
 	header_vbox.add_child(lbl_title)
 	
 	var lbl_sub = Label.new()
-	lbl_sub.text = "VOLVETE MAS FUERTE Y VOLVE A INTENTARLO"
+	lbl_sub.text = "VOLVETE MÁS FUERTE Y VOLVÉ A INTENTARLO"
 	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
 	lbl_sub.add_theme_font_size_override("font_size", 18)

@@ -45,7 +45,13 @@ func _setup_interaction_label() -> void:
 		interaction_label.add_theme_color_override("font_color", Color.WHITE)
 		interaction_label.add_theme_color_override("font_outline_color", Color.BLACK)
 		interaction_label.add_theme_constant_override("outline_size", 4)
-		
+	
+	# top_level hace que el Label ignore la rotación/escala del Door padre,
+	# asi el texto siempre se muestra recto y legible sin importar la orientación de la puerta
+	interaction_label.top_level = true
+	interaction_label.rotation = 0.0
+	interaction_label.scale = Vector2.ONE
+	interaction_label.position = global_position + Vector2(-100, -70)
 	interaction_label.text = "Presiona E"
 	interaction_label.visible = false
 
@@ -91,6 +97,7 @@ func _transition_room() -> void:
 		next_scene = custom_next_scene
 	else:
 		next_scene = GameData.get_next_room()
+	GameData.last_room_name = get_tree().current_scene.name
 	SceneTransition.play_teleport_sound()
 	SceneTransition.change_scene(next_scene)
 

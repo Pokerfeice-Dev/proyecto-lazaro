@@ -97,6 +97,7 @@ func _spawn_fresh_player(spawn_pos: Vector2) -> void:
 	p_inst.ready.connect(func():
 		var s = p_inst.stats
 		s.current_health = s.max_health
+		s.min_health_floor = 10 # en el tutorial de combate el jugador no puede morir
 		s.health_changed.emit(s.current_health, s.max_health)
 	)
 
@@ -108,6 +109,7 @@ func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 	if "stats" in player:
 		var s = player.stats
 		s.current_health = s.max_health
+		s.min_health_floor = 10 # en el tutorial de combate el jugador no puede morir
 		s.health_changed.emit(s.current_health, s.max_health)
 	if player.has_method("_apply_game_data_upgrades"):
 		player._apply_game_data_upgrades()
@@ -212,7 +214,7 @@ func _update_dialogue_text() -> void:
 			else:
 				dialogue_label.text = "Bien, ve a golpear al maniqui (%d/3)" % mannequin_hits_received
 		TutorialState.COMBAT:
-			dialogue_label.text = "Los obstaculos bloquean los projectiles, elimina a tu enemigo"
+			dialogue_label.text = "Los obstáculos bloquean los proyectiles, elimina a tu enemigo"
 		TutorialState.COMPLETE:
 			dialogue_panel.visible = false
 

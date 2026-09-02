@@ -43,6 +43,12 @@ func _setup_music_loop() -> void:
 
 func _spawn_or_reposition_player() -> void:
 	var p_spawn = get_node_or_null("player_spawn")
+	# Si venimos de la sala de mejoras O.M.N.I.A., aparecemos junto a esa puerta y no en el spawn original del laboratorio
+	if GameData.last_room_name == "Core_Upgrade_Room":
+		var omnia_spawn = get_node_or_null("player_spawn_omnia")
+		if omnia_spawn:
+			p_spawn = omnia_spawn
+	GameData.last_room_name = ""
 	if not p_spawn:
 		return
 	var players = get_tree().get_nodes_in_group("player")

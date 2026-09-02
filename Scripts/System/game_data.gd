@@ -1,6 +1,6 @@
 extends Node
 ## GameData – Autoload singleton.
-## Persists scrap and weapon upgrade levels across scene transitions and deaths.
+## Persists scrap y niveles de mejora de armas entre cambios de escena y muertes.
 
 # ── Scrap ───────────────────────────────────────────────────────────────────
 var scrap: int = 0
@@ -42,6 +42,7 @@ var unlocked_protocols: Array[String] = []
 var active_protocol: String = ""
 var has_died_once: bool = false
 var has_shown_inventory_tutorial: bool = false
+var last_room_name: String = "" # nombre de la última sala de la que salimos, usado para elegir el spawn correcto
 var chosen_primary_weapon: String = "pistol"
 var chosen_melee_weapon: String = "daga"
 var temporary_damage_multiplier: float = 1.0
@@ -521,6 +522,7 @@ func save_game(slot: int = -1) -> void:
 		"chosen_primary_weapon": chosen_primary_weapon,
 		"chosen_melee_weapon": chosen_melee_weapon,
 		"weapons_unlocked": codex_unlocks["weapons"],
+		"codex_unlocks": codex_unlocks,
 		"max_reached_level": max_reached_level,
 		"max_reached_room": max_reached_room,
 		"total_deployments": total_deployments,
@@ -596,10 +598,20 @@ func load_game(slot: int) -> bool:
 	chosen_primary_weapon = str(json.get("chosen_primary_weapon", "pistol"))
 	chosen_melee_weapon = str(json.get("chosen_melee_weapon", "daga"))
 	
-	var raw_weapons = json.get("weapons_unlocked", ["pistol", "daga"])
-	codex_unlocks["weapons"].clear()
-	for w in raw_weapons:
-		codex_unlocks["weapons"].append(str(w))
+	# códice: restauramos todas las categorías (enemigos, armas, ítems, npcs, zonas)
+	var raw_codex: Dictionary = json.get("codex_unlocks", {})
+	for cat in codex_unlocks.keys():
+		var raw_list: Array = raw_codex.get(cat, [])
+		codex_unlocks[cat].clear()
+		for entry_id in raw_list:
+			codex_unlocks[cat].append(str(entry_id))
+	
+	# compatibilidad con guardados viejos que solo tenían el códice de armas
+	if not raw_codex.has("weapons"):
+		var raw_weapons = json.get("weapons_unlocked", ["pistol", "daga"])
+		codex_unlocks["weapons"].clear()
+		for w in raw_weapons:
+			codex_unlocks["weapons"].append(str(w))
 	
 	scrap_changed.emit(scrap)
 	_save_global_settings(slot)

@@ -116,13 +116,25 @@ func _build_header(parent: Control) -> void:
 	subtitle.add_theme_color_override("font_color", Color(0.5, 0.5, 0.6))
 	title_vbox.add_child(subtitle)
 	
+	var scrap_hbox = HBoxContainer.new()
+	scrap_hbox.name = "ScrapContainer"
+	scrap_hbox.add_theme_constant_override("separation", 8)
+	header.add_child(scrap_hbox)
+	
+	var scrap_icon = TextureRect.new()
+	scrap_icon.texture = load("res://Art/Scrap/scrap_icon.png")
+	scrap_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	scrap_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	scrap_icon.custom_minimum_size = Vector2(28, 28)
+	scrap_hbox.add_child(scrap_icon)
+	
 	var scrap_lbl = Label.new()
 	scrap_lbl.name = "ScrapLabel"
 	scrap_lbl.text = "CHATARRA: " + str(GameData.scrap)
 	scrap_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
 	scrap_lbl.add_theme_font_size_override("font_size", 22)
 	scrap_lbl.add_theme_color_override("font_color", Color(0.9, 0.7, 0.1))
-	header.add_child(scrap_lbl)
+	scrap_hbox.add_child(scrap_lbl)
 	
 	var close_btn = Button.new()
 	close_btn.text = "VOLVER"
@@ -366,7 +378,9 @@ func _build_leveled_upgrades(parent: Control, upgrades: Array) -> void:
 			buy_btn.disabled = true
 			buy_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
 		else:
-			buy_btn.text = "MEJORAR (%d⚙)" % cost
+			buy_btn.text = "MEJORAR (%d)" % cost
+			buy_btn.icon = load("res://Art/Scrap/scrap_icon.png")
+			buy_btn.expand_icon = false
 			if GameData.scrap < cost:
 				buy_btn.disabled = true
 				buy_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
@@ -469,7 +483,9 @@ func _load_arsenal(parent: Control) -> void:
 			unlock_btn.disabled = true
 			unlock_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
 		else:
-			unlock_btn.text = "DESBLOQUEAR (%d⚙)" % w.cost
+			unlock_btn.text = "DESBLOQUEAR (%d)" % w.cost
+			unlock_btn.icon = load("res://Art/Scrap/scrap_icon.png")
+			unlock_btn.expand_icon = false
 			if GameData.scrap < w.cost:
 				unlock_btn.disabled = true
 				unlock_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
@@ -584,7 +600,9 @@ func _load_sinergias(parent: Control) -> void:
 			desc_lbl.text = "Requiere desbloquear Mente Colmena y Roadkill"
 			desc_lbl.add_theme_color_override("font_color", Color(0.6, 0.2, 0.2))
 		else:
-			buy_btn.text = "DESBLOQUEAR (%d⚙)" % s.cost
+			buy_btn.text = "DESBLOQUEAR (%d)" % s.cost
+			buy_btn.icon = load("res://Art/Scrap/scrap_icon.png")
+			buy_btn.expand_icon = false
 			if GameData.scrap < s.cost:
 				buy_btn.disabled = true
 				buy_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
@@ -702,7 +720,9 @@ func _load_protocolos(parent: Control) -> void:
 				action_btn.text = "EQUIPAR"
 				action_btn.pressed.connect(func(): _equip_protocol(p.id, parent))
 		else:
-			action_btn.text = "DESBLOQUEAR (%d⚙)" % p.cost
+			action_btn.text = "DESBLOQUEAR (%d)" % p.cost
+			action_btn.icon = load("res://Art/Scrap/scrap_icon.png")
+			action_btn.expand_icon = false
 			if GameData.scrap < p.cost:
 				action_btn.disabled = true
 				action_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
