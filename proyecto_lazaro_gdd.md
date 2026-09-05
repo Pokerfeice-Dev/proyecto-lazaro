@@ -10,9 +10,9 @@ This document serves as the complete technical and game design specification (GD
 *   **Genre**: Top-Down Action Roguelike (similar to *Enter the Gungeon* and *Hades*).
 *   **Aesthetics**: Cyberpunk, bio-organic mutations, mechanical implants.
 *   **Controls**:
-    *   **Movement**: `W`, `A`, `S`, `D` keys.
-    *   **Dashing**: `Space` key. Invulnerability frames, directional animation states, and stamina/cooldown bar on HUD.
-    *   **Weapon Orbit**: Ranged weapons pivot around the player's wrist marker and orbit pointing towards the mouse cursor.
+	*   **Movement**: `W`, `A`, `S`, `D` keys.
+	*   **Dashing**: `Space` key. Invulnerability frames, directional animation states, and stamina/cooldown bar on HUD.
+	*   **Weapon Orbit**: Ranged weapons pivot around the player's wrist marker and orbit pointing towards the mouse cursor.
     *   **Inventory Toggle**: `I` key to slide up/down the equipment panel.
     *   **Debug Menu Warp**: `F6` key to transition to the sandbox test scene.
     *   **Synergy Cheat Hotkeys**: `F1` (Hivemind), `F2` (Roadkill), `F3` (Bestia de Caza), `F4` (Trituradora Biomecánica), `F5` (Minigun).
@@ -29,8 +29,8 @@ This document serves as the complete technical and game design specification (GD
     *   Tracked globally in `GameData.scrap`.
 2.  **Carne (Flesh)**:
     *   Resets to `0` upon starting a new run or dying.
-    *   Used as currency inside runs for **Ygor's peaceful shop**.
-    *   Tracked globally in `GameData.flesh`.
+	*   Used as currency inside runs for **Ygor's peaceful shop**.
+	*   Tracked globally in `GameData.flesh`.
 
 ### Rooms & Level Progression
 Runs progress room-by-room, managed by `GameData.gd`:
@@ -104,36 +104,36 @@ Calculated via the `SynergyManager` Autoload:
 ### 1. Pistola Mente Colmena
 *   **Requirements**: Pistol (equipped) + Colmena + Cerebro + Cabeza Humana.
 *   **Effects**:
-    *   Replaces weapon scene with `HivemindPistol.tscn`.
-    *   Fires mechanical homing bees (`BeeProjectile.tscn`).
-    *   **Bee Behavior**: Flies straight out of the muzzle for `0.3s`, then targets the nearest enemy inside a frontal cone and locks on.
-    *   **Stats**: `+2` bullets, `+3` damage, `+4s` bullet lifetime, `-200` speed, `+1.5` fire rate.
+	*   Replaces weapon scene with `HivemindPistol.tscn`.
+	*   Fires mechanical homing bees (`BeeProjectile.tscn`).
+	*   **Bee Behavior**: Flies straight out of the muzzle for `0.3s`, then targets the nearest enemy inside a frontal cone and locks on.
+	*   **Stats**: `+2` bullets, `+3` damage, `+4s` bullet lifetime, `-200` speed, `+1.5` fire rate.
 
 ### 2. Roadkill
 *   **Requirements**: Pistol (equipped) + Motocicleta + Sierra Circular + Pulmones.
 *   **Effects**:
-    *   Replaces weapon scene with `RoadkillPistol.tscn`.
-    *   Fires circular saw blades (`RoadkillProjectile.tscn`).
-    *   **Blade Behavior**: Rays check collision normals on walls, bouncing off obstacles up to 3 times while piercing up to 3 enemies.
-    *   **Stats**: `+5` damage, `+150` projectile speed, `+1.0` attack speed, `+3` piercing.
+	*   Replaces weapon scene with `RoadkillPistol.tscn`.
+	*   Fires circular saw blades (`RoadkillProjectile.tscn`).
+	*   **Blade Behavior**: Rays check collision normals on walls, bouncing off obstacles up to 3 times while piercing up to 3 enemies.
+	*   **Stats**: `+5` damage, `+150` projectile speed, `+1.0` attack speed, `+3` piercing.
 
 ### 3. Bestia de Caza (Instinto Depredador)
 *   **Requirements**: Piernas Caninas + Brazo Armado + Torso Ligero.
 *   **Effects**:
-    *   Prevents player from using ranged weapons. Left click and right click both swing melee weapons (dual-wielding).
-    *   Performing a dash triggers **Furia (Fury)** for 3 seconds:
-        *   Player character turns red.
-        *   Walks/passes through small enemies.
-        *   Melee slashes generate a circle AoE shockwave.
-        *   `+50%` Attack Speed.
+	*   Prevents player from using ranged weapons. Left click and right click both swing melee weapons (dual-wielding).
+	*   Performing a dash triggers **Furia (Fury)** for 3 seconds:
+		*   Player character turns red.
+		*   Walks/passes through small enemies.
+		*   Melee slashes generate a circle AoE shockwave.
+		*   `+50%` Attack Speed.
 
 ### 4. Trituradora Biomecánica (Carga de Impacto)
 *   **Requirements**: Torso Blindado + Piernas Rodantes + Brazo Reforzado.
 *   **Effects**:
-    *   Walking accumulates kinetic energy (slow rate).
-    *   At 100% charge:
-        *   The next dash generates a shockwave pushing enemies back and dealing damage in an area.
-        *   Grants `2` seconds of complete invulnerability.
+	*   Walking accumulates kinetic energy (slow rate).
+	*   At 100% charge:
+		*   The next dash generates a shockwave pushing enemies back and dealing damage in an area.
+		*   Grants `2` seconds of complete invulnerability.
 
 ---
 
@@ -144,10 +144,10 @@ Calculated via the `SynergyManager` Autoload:
 3.  **Mutante Coloso (Tank)**: Giant health pool, slow speed, heavy contact damage.
 4.  **Torreta de Seguridad (Turret)**: Static mechanical base that fires at the player when inside its radius.
 5.  **Invocador (Summoner)**:
-    *   Spawns starting from the 5th room.
-    *   Maintains distance from the player and summons up to 2 mechanical bee minions at a time.
+	*   Spawns starting from the 5th room.
+	*   Maintains distance from the player and summons up to 2 mechanical bee minions at a time.
 6.  **Abeja Invocada (Bee Minion)**:
-    *   Approaches the player, projects a line-of-sight laser warning indicator, and dashes in a straight line at high speed.
+	*   Approaches the player, projects a line-of-sight laser warning indicator, and dashes in a straight line at high speed.
 7.  **Génesis (Boss)**: Hard-hitting end boss. Multiple bullet-hell patterns and a massive boss health bar.
 
 ---
@@ -156,9 +156,9 @@ Calculated via the `SynergyManager` Autoload:
 
 *   Located in `Level1_Room12(Ygor1).tscn`.
 *   Interactive physical shop:
-    *   **Heal (Heart)**: Costs `20` carne. Restores `25%` of player's missing health.
-    *   **Random Body Item**: Costs `30` carne.
-    *   **Random Weapon Item**: Costs `40` carne.
+	*   **Heal (Heart)**: Costs `20` carne. Restores `25%` of player's missing health.
+	*   **Random Body Item**: Costs `30` carne.
+	*   **Random Weapon Item**: Costs `40` carne.
 *   NPC interaction: Clicking/standing near Ygor prompts dialogue balloons containing floating text instead of static menus.
 
 ---
@@ -169,10 +169,10 @@ Activated at any time by pressing **F6** in a build.
 *   **State Persistence**: Saves the exact room and state the player left. Pressing F6 inside the debug scene loads you back into the game smoothly.
 *   **Collapsible Panel**: Features a dynamic panel sliding on the right screen edge using Godot Tweens.
 *   **Sandbox Tabs**:
-    1.  **Cheats**: Refill HP, toggle invulnerable God Mode (persists across runs/rooms), add currency, kill all active enemies in the room, cheat Minigun synergy.
-    2.  **Weapons**: Instantly spawn and equip any primary ranged or secondary melee weapon.
-    3.  **Items**: Add any of the 12 body implants or 9 weapon upgrades to the player inventory (or bulk-add all 21 items).
-    4.  **Enemies**: Spawn any of the 7 enemy types at a safe offset from the player.
+	1.  **Cheats**: Refill HP, toggle invulnerable God Mode (persists across runs/rooms), add currency, kill all active enemies in the room, cheat Minigun synergy.
+	2.  **Weapons**: Instantly spawn and equip any primary ranged or secondary melee weapon.
+	3.  **Items**: Add any of the 12 body implants or 9 weapon upgrades to the player inventory (or bulk-add all 21 items).
+	4.  **Enemies**: Spawn any of the 7 enemy types at a safe offset from the player.
 
 ---
 

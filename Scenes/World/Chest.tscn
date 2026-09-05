@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://db1b1mm0vsoyc"]
+
+[ext_resource type="Script" uid="uid://cq81u3dkomk2" path="res://Scripts/World/chest.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="4_font"]
+[ext_resource type="AudioStream" uid="uid://dnsadsf7qssny" path="res://Audio/Sfx/Interact_reward.mp3" id="5_sfx"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_chest"]
+radius = 26.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_chest"]
+font = ExtResource("4_font")
+font_size = 24
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+shadow_color = Color(0, 0, 0, 0.64705884)
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_flash"]
+blend_mode = 1
+
+[node name="Chest" type="Node2D"]
+script = ExtResource("1_script")
+scale = Vector2(2, 2)
+
+[node name="CapsuleSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+
+[node name="CapsuleActiveSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+modulate = Color(1, 1, 1, 0)
+
+[node name="FlashOverlay" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_flash")
+modulate = Color(1, 1, 1, 0)
+
+[node name="Item_sprite" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -21)
+
+[node name="InteractArea" type="Area2D" parent="."]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+shape = SubResource("CircleShape2D_chest")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -100.0
+offset_top = -80.0
+offset_right = 100.0
+offset_bottom = -20.0
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(100, 30)
+text = ""
+label_settings = SubResource("LabelSettings_chest")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Interact" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_sfx")

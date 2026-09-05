@@ -1,4 +1,4 @@
-[gd_scene format=4 uid="uid://b8fvnm43ditag"]
+[gd_scene format=4 uid="uid://c7siv5cupixj8"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_nkrm6"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_q1imp"]
@@ -85,6 +85,7 @@ position = Vector2(-2, -215)
 position = Vector2(5, -355)
 rotation = 1.5707964
 custom_next_scene = "res://Scenes/Rooms/lab_room.tscn"
+is_boss_exit_door = true
 
 [node name="Boss" parent="." unique_id=1266905629 instance=ExtResource("4_nu4ea")]
 position = Vector2(0, -330)

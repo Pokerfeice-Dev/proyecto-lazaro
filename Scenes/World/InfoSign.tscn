@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/World/info_sign.gd" id="1_infosign"]
+[ext_resource type="Texture2D" uid="uid://d3bqynch51qyn" path="res://Art/npc/Icon50.png" id="2_infosign"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_infosign"]
+size = Vector2(64, 64)
+
+[node name="InfoSign" type="Node2D"]
+script = ExtResource("1_infosign")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_infosign")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_infosign")
+modulate = Color(0.6, 0.9, 1, 1)

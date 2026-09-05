@@ -21,7 +21,6 @@ func _ready() -> void:
 		grab.body_exited.connect(_on_grab_area_body_exited)
 		
 	_create_interaction_label()
-	_check_and_show_inventory_tutorial()
 
 func _check_and_show_inventory_tutorial() -> void:
 	if GameData.has_shown_inventory_tutorial:
@@ -95,6 +94,7 @@ func _on_grab_area_body_entered(body: Node2D) -> void:
 	player_nearby = true
 	if interaction_label:
 		interaction_label.visible = true
+	_check_and_show_inventory_tutorial()
 
 func _on_grab_area_body_exited(body: Node2D) -> void:
 	if not body.is_in_group("player"): return

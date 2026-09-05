@@ -3,28 +3,46 @@ class_name CodexData
 const DATA = {
 	"enemies": {
 		"follower": {
-			"name": "Mutante Seguidor",
-			"lore": "Un humano infectado por la mutación Lázaro. Su cerebro dañado solo retiene el instinto de persecución y alimentación.",
-			"stats": "Vida: 60 | Daño: 10 | Velocidad: Alta",
-			"icon": preload("res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png")
+			"name": "Perro Mecánico",
+			"lore": "Unidad canina automatizada de Asphodel Laboratories. Rastrea cualquier señal de tejido vivo y ataca cuerpo a cuerpo en manada, sin detenerse hasta destrozar a su presa.",
+			"stats": "Vida: 60 | Daño: 10 | Velocidad: Alta | Persecución directa",
+			"icon": preload("res://Art/Enemy_Mutation/dog_codex_icon.png")
 		},
 		"shooter": {
-			"name": "Mutante Tirador",
-			"lore": "Esta variante mutante posee glándulas hipertróficas que proyectan esporas ácidas altamente corrosivas a gran distancia.",
-			"stats": "Vida: 40 | Daño: 10 | Rango: Largo",
-			"icon": preload("res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png")
+			"name": "Carpintero",
+			"lore": "Antigua unidad de mantenimiento reconvertida en centinela de Asphodel. Dispara clavos a presión con su pistola neumática y se repliega mientras el objetivo se acerca.",
+			"stats": "Vida: 40 | Daño: 10 | Cadencia: 1.5s | Rango: Largo",
+			"icon": preload("res://Art/Enemy_Shooter/carpenter_codex_icon.png")
 		},
 		"tank": {
-			"name": "Mutante Coloso (Tank)",
-			"lore": "Una colosal aberración de tejido muscular endurecido. Actúa como un escudo viviente capaz de absorber cantidades masivas de daño.",
-			"stats": "Vida: 180 | Daño: 25 | Resistencia: Extrema",
-			"icon": preload("res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png")
+			"name": "Mecha Constructor",
+			"lore": "Maquinaria pesada de demolición requisada y armada por Asphodel. Su mezcladora de cemento convertida en garra aplasta todo lo que entra en su radio de patrulla.",
+			"stats": "Vida: 180 | Daño: 25 | Velocidad: Muy baja | Rango: Corto",
+			"icon": preload("res://Art/Enemy_tank/mecha_codex_icon.png")
 		},
 		"turret": {
-			"name": "Torreta de Seguridad",
-			"lore": "Unidad de contención automatizada de los laboratorios. Abre fuego de forma implacable ante firmas biológicas no identificadas.",
-			"stats": "Vida: 50 | Daño: Variable | Rango: Área de Disparo",
-			"icon": preload("res://Art/Enemy_turret/turret1.png")
+			"name": "Repartidor Enterrado",
+			"lore": "Motociclista repartidor sepultado y fusionado al asfalto por la biofabricación. Inmóvil, pero dispara con una cadencia implacable a todo lo que entra en su radio de alcance.",
+			"stats": "Vida: 50 | Cadencia: 1.5s | Alcance: Muy largo | Estático",
+			"icon": preload("res://Art/Enemy_turret/deliverydriver_codex_icon.png")
+		},
+		"charger": {
+			"name": "Robo-Abeja",
+			"lore": "Dron de combate liberado por la Apicultora, aunque también aparece de forma natural en las salas. Se comprime antes de embestir en línea recta a máxima velocidad.",
+			"stats": "Vida: 35 | Daño: 12 | Embestida: Velocidad muy alta",
+			"icon": preload("res://Art/Enemy_Summoner/robobee_codex_icon.png")
+		},
+		"spawner": {
+			"name": "Apicultora",
+			"lore": "Guardiana enjambre que evita el combate directo. Mantiene la distancia con el objetivo mientras libera oleadas de Robo-Abejas para desgastarlo.",
+			"stats": "Vida: 80 | Invoca Robo-Abejas cada ~3.5s | Sin ataque directo",
+			"icon": preload("res://Art/Enemy_Summoner/beekeeper_codex_icon.png")
+		},
+		"boss": {
+			"name": "Centinela Génesis",
+			"lore": "Guardián del Núcleo de Mutación. Barre la sala con un par de láseres giratorios y descarga anillos de proyectiles; al caer bajo el 50% de su vida entra en Modo Furia, regenerando salud y redoblando sus ataques.",
+			"stats": "Vida: 1000 | Daño: 15-20 | Fase 2: +20% vida, ataques más rápidos",
+			"icon": preload("res://Art/Enemy_Boss_1/Boss_sprite.png")
 		}
 	},
 	"weapons": {
@@ -32,19 +50,19 @@ const DATA = {
 			"name": "Pistola",
 			"lore": "Arma corta estándar y confiable del personal táctico. Versátil y ligera.",
 			"stats": "Daño: 10 | APS: 1.0 | Precisión: Alta",
-			"icon": preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
+			"icon": preload("res://Art/Weapons/Distance/Pistol/Weapon_Pisotol.png")
 		},
 		"shotgun": {
 			"name": "Escopeta de Combate",
 			"lore": "Arma principal pesada que proyecta ráfagas de perdigones a corta distancia.",
 			"stats": "Daño: Alto | Dispersión: Amplia | Proyectiles: 4",
-			"icon": preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
+			"icon": preload("res://Art/Weapons/Distance/Shotgun/Weapon_Shotgun.png")
 		},
 		"uzi": {
 			"name": "Subfusil Uzi",
 			"lore": "Arma compacta automática con gran cadencia de fuego para control a media distancia.",
 			"stats": "Daño: Medio | APS: Alta | Dispersión: Media",
-			"icon": preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
+			"icon": preload("res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png")
 		},
 		"second_weapon": {
 			"name": "Bayoneta Táctica",
