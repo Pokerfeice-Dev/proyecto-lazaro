@@ -43,7 +43,7 @@ func _spawn_fire_explosion_fx() -> void:
 	
 	var gradient = Gradient.new()
 	gradient.set_color(0, Color(1.0, 0.9, 0.2, 1.0))
-	gradient.set_color(0.4, Color(1.0, 0.35, 0.0, 0.95))
+	gradient.add_point(0.4, Color(1.0, 0.35, 0.0, 0.95))
 	gradient.set_color(1, Color(0.2, 0.05, 0.0, 0.0))
 	particles.color_ramp = gradient
 	

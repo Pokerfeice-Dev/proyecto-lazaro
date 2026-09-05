@@ -43,7 +43,7 @@ func _spawn_ice_explosion_fx() -> void:
 	
 	var gradient = Gradient.new()
 	gradient.set_color(0, Color(0.85, 0.95, 1.0, 1.0))
-	gradient.set_color(0.5, Color(0.2, 0.75, 1.0, 0.9))
+	gradient.add_point(0.5, Color(0.2, 0.75, 1.0, 0.9))
 	gradient.set_color(1, Color(0.05, 0.3, 0.7, 0.0))
 	particles.color_ramp = gradient
 	

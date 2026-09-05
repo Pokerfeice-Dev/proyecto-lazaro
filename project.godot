@@ -23,10 +23,6 @@ OptionsMenu="*res://Scenes/UI/options_menu.tscn"
 SynergyManager="*res://Scripts/System/synergy_manager.gd"
 MCPRuntimeProbe="*res://addons/godot_mcp/runtime/mcp_runtime_probe.gd"
 
-[audio]
-
-buses/default_bus_layout="res://default_bus_layout.tres"
-
 [display]
 
 window/size/viewport_width=1920
