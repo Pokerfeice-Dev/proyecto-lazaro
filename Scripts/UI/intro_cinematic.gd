@@ -5,7 +5,7 @@ extends Control
 # muestra el progreso real de esa carga. Con un click o cualquier tecla se puede saltar.
 
 const MAIN_MENU_PATH: String = "res://Scenes/UI/MainMenu.tscn"
-const VIDEO_PATH: String = "res://Art/Video/intro_teaser.ogv"
+const VIDEO_PATH: String = "res://Splash_Screen/0908.ogv"
 
 @onready var video_player: VideoStreamPlayer = $VideoPlayer
 @onready var loading_bar: ProgressBar = $LoadingBar

@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://cc1lqc7wlyhbn"]
 
 [ext_resource type="Script" uid="uid://c0xixgojs3dqw" path="res://Scripts/UI/main_menu.gd" id="1_mm"]
-[ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://Art/Menu/Logo lazaro.png" id="3_744d7"]
-[ext_resource type="Texture2D" uid="uid://duywrj8qr6s4u" path="res://Art/Menu/Wall.jpg" id="3_jex3y"]
+[ext_resource type="Texture2D" uid="uid://ckjwwr6q8v018" path="res://Art/Menu/lazaro artwork.jpg" id="3_744d7"]
+[ext_resource type="Texture2D" uid="uid://c8i8eiqrnnhjv" path="res://Art/Menu/FRANKEN-GUN_Logo.png" id="4_744d7"]
 [ext_resource type="AudioStream" uid="uid://e3bms8u37ppr" path="res://Audio/Sfx/Fantasy_UI (8).wav" id="4_t6w0q"]
+[ext_resource type="Texture2D" uid="uid://dr4gcejpycvr2" path="res://Art/Menu/Kid Gunz_Logo.png" id="5_kl3t2"]
 [ext_resource type="AudioStream" uid="uid://bnlysd01ewdpi" path="res://Audio/Sfx/Piano_Ui (2).wav" id="6_kl3t2"]
 [ext_resource type="Theme" uid="uid://vjygo4dmal04" path="res://Art/Ui/game_theme.tres" id="7_theme"]
 
@@ -51,7 +52,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("3_jex3y")
+texture = ExtResource("3_744d7")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=2012467861]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -111.0
+offset_right = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.46666667)
 
 [node name="RainParticles" type="GPUParticles2D" parent="." unique_id=2024042601]
 position = Vector2(960, -50)
@@ -68,29 +81,52 @@ lifetime = 10.0
 preprocess = 10.0
 process_material = SubResource("ParticleProcessMaterial_snow")
 
-[node name="Logo" type="TextureRect" parent="." unique_id=1034622863]
-visible = false
-layout_mode = 0
-offset_left = -106.0
-offset_top = 18.0
-offset_right = 1430.0
-offset_bottom = 1042.0
-mouse_filter = 2
-texture = ExtResource("3_744d7")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=528226637]
+[node name="Logo_Franken" type="TextureRect" parent="." unique_id=1034622863]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 534.0
-offset_top = -100.0
-offset_right = 834.0
-offset_bottom = 100.0
+offset_left = -428.0
+offset_top = -5.0
+offset_right = 397.0
+offset_bottom = 545.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_744d7")
+
+[node name="Logo_KidGunz" type="TextureRect" parent="." unique_id=76637740]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -334.0
+offset_top = -103.0
+offset_right = -205.75769
+offset_bottom = -28.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("5_kl3t2")
+expand_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=528226637]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -434.0
+offset_top = -511.0
+offset_right = -134.0
+offset_bottom = -131.0
+grow_horizontal = 0
+grow_vertical = 0
 theme_override_constants/separation = 20
 
 [node name="PlayButton" type="Button" parent="VBoxContainer" unique_id=70740468]
