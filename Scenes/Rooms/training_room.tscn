@@ -1,11 +1,13 @@
 [gd_scene format=4 uid="uid://bcowt0kdd726u"]
 
 [ext_resource type="TileSet" uid="uid://crs88nnfgs0gw" path="res://Scenes/Rooms/Floor.tres" id="1_1ifsi"]
-[ext_resource type="Script" path="res://Scripts/World/training_room.gd" id="1_training_room_gd"]
+[ext_resource type="Script" uid="uid://bc2froj3it6vp" path="res://Scripts/World/training_room.gd" id="1_training_room_gd"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_7b60e"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="3_3enep"]
 [ext_resource type="PackedScene" uid="uid://dtc62xovhjm13" path="res://Scenes/Enemies/dummy.tscn" id="5_3enep"]
 [ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="6_wfxhr"]
+[ext_resource type="Script" uid="uid://crek2l7dbib5k" path="res://Scripts/World/weapon_terminal.gd" id="7_rb72t"]
+[ext_resource type="Texture2D" uid="uid://d3bqynch51qyn" path="res://Art/npc/Icon50.png" id="8_i88kh"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_v4dhf"]
 font = ExtResource("6_wfxhr")
@@ -13,6 +15,9 @@ font_size = 14
 outline_size = 1
 outline_color = Color(0, 0, 0, 1)
 shadow_color = Color(0, 0, 0, 0.64705884)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xia3l"]
+size = Vector2(64, 64)
 
 [node name="Training_Room" type="Node2D" unique_id=987856244]
 script = ExtResource("1_training_room_gd")
@@ -49,3 +54,14 @@ offset_right = 23.0
 offset_bottom = -24.0
 text = "Manny"
 label_settings = SubResource("LabelSettings_v4dhf")
+
+[node name="WeaponTerminal" type="Area2D" parent="." unique_id=1942696176]
+position = Vector2(-170, -140)
+script = ExtResource("7_rb72t")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponTerminal" unique_id=1313883645]
+shape = SubResource("RectangleShape2D_xia3l")
+
+[node name="Sprite2D" type="Sprite2D" parent="WeaponTerminal" unique_id=793272766]
+modulate = Color(1, 0.75, 0.35, 1)
+texture = ExtResource("8_i88kh")

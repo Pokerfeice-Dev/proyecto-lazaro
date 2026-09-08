@@ -15,6 +15,25 @@ var enemy_pool: Array[PackedScene] = []
 @export var room_reward_scene: PackedScene
 @export var scrap_reward: int = 20
 
+@export_category("Aparición de sala")
+## Si está prendido, los objetos sueltos de la sala (puerta, cofres, props)
+## aparecen con un rebote al cargar la sala en vez de estar ahí de una.
+@export var reveal_props_on_load: bool = true
+## Velocidad (px/seg) a la que se expande la "ola" de aparición desde
+## player_spawn hacia el resto de la sala. Más alto = aparece todo más rápido.
+@export var reveal_wave_speed: float = 500.0
+## Si está prendido, el tileset entero (Floor/Tile_Objects/Walls, cualquier
+## TileMapLayer hijo de la sala) aparece en piezas que caen del cielo, en la
+## misma ola que los props sueltos.
+@export var reveal_tiles_on_load: bool = true
+## Tamaño (en tiles) de cada pieza que cae. Más chico = más piezas, más
+## "confeti" pero más costoso; más grande = piezas más grandes, más barato.
+@export var tile_chunk_size: int = 2
+## Altura (px) desde la que caen las piezas del tileset.
+@export var tile_fall_height: float = 90.0
+## Duración (seg) de la caída de cada pieza individual.
+@export var tile_fall_duration: float = 0.22
+
 var active_enemies: int = 0
 var enemies_spawned_so_far: int = 0
 var room_started: bool = false
@@ -27,12 +46,53 @@ func _ready() -> void:
 	_setup_player()
 	_setup_spawn_points()
 	_setup_spawn_timer()
-	_unlock_level_codex_entry()
 	_detect_preplaced_enemies()
-		
+	if reveal_tiles_on_load:
+		_reveal_room_tiles()
+	if reveal_props_on_load:
+		_reveal_room_props()
+
 	var start_area = get_node_or_null("Area_entered")
 	if start_area:
 		start_area.body_entered.connect(_on_start_area_entered)
+
+# Junta los objetos sueltos de la sala (puerta, cofres, props colocados a
+# mano) y los hace aparecer con rebote via RoomReveal, en forma de ola que
+# arranca en player_spawn y se expande hacia el punto más lejano de la sala.
+# No incluye tilemaps (Floor/Tile_Objects/Walls, que no se pueden animar
+# por-tile), marcadores invisibles (Spawn*, player_spawn) ni triggers
+# (Area_entered).
+func _reveal_room_props() -> void:
+	var props: Array = []
+	for child in get_children():
+		if _is_revealable_prop(child):
+			props.append(child)
+	if props.is_empty(): return
+
+	var origin_node = get_node_or_null("player_spawn")
+	if origin_node:
+		RoomReveal.reveal_nodes_from_origin(props, origin_node.global_position, reveal_wave_speed)
+	else:
+		RoomReveal.reveal_nodes(props)
+
+func _is_revealable_prop(node: Node) -> bool:
+	if not (node is Node2D): return false
+	if node is TileMapLayer: return false
+	if node is Marker2D: return false
+	if node is Area2D: return false
+	if node.name.begins_with("Spawn"): return false
+	return true
+
+# Hace caer del cielo, en piezas chicas, cualquier TileMapLayer hijo de la
+# sala (Floor, Tile_Objects, Walls, etc. -- lo que haya, sin depender de sus
+# nombres). Usa la misma ola/origen que _reveal_room_props para que todo
+# aparezca coordinado.
+func _reveal_room_tiles() -> void:
+	var origin_node = get_node_or_null("player_spawn")
+	var origin: Vector2 = origin_node.global_position if origin_node else global_position
+	for child in get_children():
+		if child is TileMapLayer:
+			TileRainReveal.reveal_tilemap_layer(child, origin, tile_chunk_size, reveal_wave_speed, tile_fall_height, tile_fall_duration)
 
 func _detect_preplaced_enemies() -> void:
 	var preplaced_enemies = get_tree().get_nodes_in_group("enemy")
@@ -43,19 +103,12 @@ func _detect_preplaced_enemies() -> void:
 				enemy.enemy_died.connect(_on_enemy_died)
 				active_enemies += 1
 				has_preplaced = true
-	
+
 	if has_preplaced:
 		_close_door()
 
-func _unlock_level_codex_entry() -> void:
-	if not GameData.has_method("unlock_codex_entry"): return
-	var room = GameData.current_run_room
-	if room >= 1:
-		GameData.unlock_codex_entry("levels", "level_1")
-	if room >= 4:
-		GameData.unlock_codex_entry("levels", "room_4")
-	if room >= 7:
-		GameData.unlock_codex_entry("levels", "room_7")
+# El aviso de "distrito descubierto" ahora se dispara desde GameData al avanzar
+# de nivel (ver get_post_boss_scene en game_data.gd), no por profundidad de sala.
 
 func _apply_difficulty_settings() -> void:
 	var config: Dictionary = GameData.get_room_config()
@@ -71,7 +124,7 @@ func _build_enemy_pool(allowed: Array) -> void:
 	_add_tank_if_allowed(allowed, new_pool)
 	_add_turret_if_allowed(allowed, new_pool)
 	_add_summoner_if_allowed(allowed, new_pool)
-	
+
 	if new_pool.is_empty(): return
 	enemy_pool = new_pool
 
@@ -121,7 +174,7 @@ func _setup_spawn_timer() -> void:
 
 func _on_start_area_entered(body: Node2D) -> void:
 	if room_started or room_cleared: return
-	
+
 	if body.is_in_group("player"):
 		_start_room()
 
@@ -136,34 +189,34 @@ func _on_spawn_timer_timeout() -> void:
 	if enemies_spawned_so_far >= total_enemies_to_spawn:
 		spawn_timer.stop()
 		return
-		
+
 	if active_enemies >= max_concurrent_enemies:
 		return # Esperar a que muera un enemigo
-		
+
 	_spawn_single_enemy()
 
 func _spawn_single_enemy() -> void:
 	if spawn_points.is_empty() or enemy_pool.is_empty(): return
-	
+
 	var point = spawn_points.pick_random()
 	var random_enemy_scene = enemy_pool.pick_random()
-	
+
 	if not random_enemy_scene: return
-	
+
 	var enemy = random_enemy_scene.instantiate()
 	enemy.global_position = point.global_position
 	enemy.enemy_died.connect(_on_enemy_died)
-	
+
 	var escaner_lvl = GameData.core_upgrades.get("escaner_objetivos", 0)
 	var elite_chance = 0.05 + (escaner_lvl * 0.01)
 	if randf() <= elite_chance:
 		enemy.is_elite = true
-		
+
 	get_tree().current_scene.call_deferred("add_child", enemy)
-	
+
 	if enemy.has_method("spawn_appear"):
 		enemy.call_deferred("spawn_appear")
-		
+
 	active_enemies += 1
 	enemies_spawned_so_far += 1
 
@@ -184,7 +237,7 @@ func _clear_room() -> void:
 	_spawn_reward()
 	_play_room_clear_effects()
 	_award_clear_scrap()
-	
+
 	if GameData.get_active_protocol() == "reparacion_autonoma":
 		var player = get_tree().get_first_node_in_group("player")
 		if player and "stats" in player and player.stats.has_method("heal"):
@@ -209,11 +262,11 @@ func _play_room_clear_flash() -> void:
 	var canvas: CanvasLayer = CanvasLayer.new()
 	canvas.layer = 100
 	add_child(canvas)
-	
+
 	var rect: ColorRect = ColorRect.new()
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
+
 	var mat: ShaderMaterial = ShaderMaterial.new()
 	var shader: Shader = Shader.new()
 	shader.code = _get_green_flash_shader()
@@ -222,7 +275,7 @@ func _play_room_clear_flash() -> void:
 	mat.set_shader_parameter("intensity", 0.0)
 	rect.material = mat
 	canvas.add_child(rect)
-	
+
 	var t: Tween = create_tween()
 	t.tween_method(_set_flash_intensity.bind(mat), 0.0, 1.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	t.tween_method(_set_flash_intensity.bind(mat), 1.0, 0.0, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)

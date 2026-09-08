@@ -151,6 +151,7 @@ func _update_player_stats() -> void:
 		if active_weapon:
 			active_weapon.show()
 			
+	sync_weapon_visibility_for_room()
 	if not _is_trituradora_active():
 		trituradora_shockwave_ready = false
 		trituradora_energy = 0.0
@@ -316,7 +317,26 @@ func _init_stats() -> void:
 func _init_weapon() -> void:
 	_init_primary_weapon()
 	_init_secondary_weapon()
-	_show_primary_weapon()
+	sync_weapon_visibility_for_room()
+
+## Muestra u oculta las armas según la sala actual (en el laboratorio no
+## aparecemos armados). Se llama al inicializar el arma y también cada vez
+## que el jugador (que persiste entre salas) vuelve al laboratorio, para no
+## dejar visible un arma que quedó mostrada durante la run anterior.
+func sync_weapon_visibility_for_room() -> void:
+	if _is_in_lab_room():
+		_hide_all_weapons()
+	else:
+		_show_primary_weapon()
+
+func _is_in_lab_room() -> bool:
+	var scene = get_tree().current_scene
+	return scene != null and scene.name == "Lab_room"
+
+func _hide_all_weapons() -> void:
+	if active_weapon: active_weapon.hide()
+	if second_weapon: second_weapon.hide()
+	if left_melee_weapon: left_melee_weapon.hide()
 
 func _init_primary_weapon() -> void:
 	if not weapon_scene: return
@@ -327,8 +347,8 @@ func _init_secondary_weapon() -> void:
 	if not second_weapon_scene: return
 	second_weapon = second_weapon_scene.instantiate()
 	add_child(second_weapon)
-	if GameData.has_method("unlock_codex_entry"):
-		GameData.unlock_codex_entry("weapons", "second_weapon")
+	# "second_weapon" no es un arma real (mismo ícono que la daga): daga/maza/hacha ya se unlockean solas en second_weapon_container.gd según cuál esté equipada.
+ 
 
 func _apply_game_data_upgrades() -> void:
 	if active_weapon and active_weapon.has_method("get_damage"):
@@ -432,6 +452,7 @@ func _process_movement(delta: float) -> void:
 
 func _process_actions() -> void:
 	if is_dashing: return
+	if _is_in_lab_room(): return
 	handle_shooting()
 	handle_melee()
 

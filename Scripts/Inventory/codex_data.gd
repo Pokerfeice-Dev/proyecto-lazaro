@@ -43,6 +43,12 @@ const DATA = {
 			"lore": "Guardián del Núcleo de Mutación. Barre la sala con un par de láseres giratorios y descarga anillos de proyectiles; al caer bajo el 50% de su vida entra en Modo Furia, regenerando salud y redoblando sus ataques.",
 			"stats": "Vida: 1000 | Daño: 15-20 | Fase 2: +20% vida, ataques más rápidos",
 			"icon": preload("res://Art/Enemy_Boss_1/Boss_sprite.png")
+		},
+		"boss2": {
+			"name": "??? (Jefe del Distrito 2)",
+			"lore": "Masa mutante colosal que domina su territorio a base de peso puro: salta para aplastar a quien esté debajo, escupe bilis corrosiva en abanico a distancia, y cuando se siente acorralado invoca a otras criaturas mutadas para que lo cubran. Todavía no tiene nombre ni arte final.",
+			"stats": "Vida: 1400 | Daño: 22 | Fase única | Ataques: Salto en área, escupitajo, invocación",
+			"icon": preload("res://Art/Enemy_Boss_2/boss2_codex_icon_placeholder.png")
 		}
 	},
 	"weapons": {
@@ -63,12 +69,6 @@ const DATA = {
 			"lore": "Arma compacta automática con gran cadencia de fuego para control a media distancia.",
 			"stats": "Daño: Medio | APS: Alta | Dispersión: Media",
 			"icon": preload("res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png")
-		},
-		"second_weapon": {
-			"name": "Bayoneta Táctica",
-			"lore": "Arma de combate cuerpo a cuerpo veloz que inflige gran daño a corta distancia.",
-			"stats": "Daño: 40 | APS: 1.2 | Empuje: 110",
-			"icon": preload("res://Art/Weapons/Melee/Dagger/Weapon_Dagger.png")
 		},
 		"daga": {
 			"name": "Daga de Cristal",
@@ -208,23 +208,23 @@ const DATA = {
 		}
 	},
 	"levels": {
-		"level_1": {
-			"name": "Laboratorios Iniciales (Piso 1)",
+		"distrito_1": {
+			"name": "Distrito 1: Laboratorios Iniciales",
 			"lore": "Sector de investigación genética de Lázaro Corp. Aquí comenzó la contaminación de los sujetos de prueba biológicos.",
-			"stats": "Rango de peligro: Bajo | Amenazas: Seguidores, Tiradores",
+			"stats": "Rango de peligro: Bajo-Medio | Amenazas: Seguidores, Tiradores, Torretas",
 			"icon": preload("res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png")
 		},
-		"room_4": {
-			"name": "Área de Contención (Piso 4)",
-			"lore": "Sector fuertemente blindado que albergaba sistemas de torretas robotizadas para evitar fugas de especímenes mutados.",
-			"stats": "Rango de peligro: Medio | Amenazas: Torreta de Seguridad",
-			"icon": preload("res://Art/Enemy_turret/turret1.png")
-		},
-		"room_7": {
-			"name": "Núcleo de Mutación (Piso 7)",
-			"lore": "La sección más profunda donde reposan los tanques principales de biomasa mutada. Cuidado extremo requerido.",
-			"stats": "Rango de peligro: Crítico | Amenazas: Mutante Coloso (Tank)",
+		"distrito_2": {
+			"name": "Distrito 2: Núcleo de Mutación",
+			"lore": "Sector más profundo del complejo, donde la biomasa mutada escapó a todo control. Pocos exploradores vuelven de aquí con el mismo aspecto con el que entraron.",
+			"stats": "Rango de peligro: Alto | Amenazas: Mutante Coloso, variantes nuevas",
 			"icon": preload("res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png")
+		},
+		"distrito_3": {
+			"name": "???",
+			"lore": "???",
+			"stats": "???",
+			"icon": null
 		}
 	}
 }

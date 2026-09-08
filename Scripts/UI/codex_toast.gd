@@ -12,7 +12,7 @@ const CATEGORY_LABELS = {
 	"weapons": "¡NUEVA ARMA DESCUBIERTA!",
 	"items": "¡NUEVO OBJETO DESCUBIERTO!",
 	"npcs": "¡NUEVO PERSONAJE DESCUBIERTO!",
-	"levels": "¡NUEVA ZONA DESCUBIERTA!",
+	"levels": "¡NUEVO DISTRITO DESCUBIERTO!",
 }
 
 var category: String = ""

@@ -117,7 +117,7 @@ func _ready() -> void:
 	_load_level1_rooms()
 	for slot in ItemData.ItemSlot.values():
 		equipment_slots[slot] = null
-	unlock_codex_entry("levels", "level_1", false)
+	unlock_codex_entry("levels", "distrito_1", false)
 	unlock_codex_entry("weapons", "pistol", false)
 	unlock_codex_entry("weapons", "daga", false)
 
@@ -218,6 +218,8 @@ func get_post_boss_scene() -> String:
 		last_room_path = ""
 		if current_level > max_reached_level:
 			max_reached_level = current_level
+		# Distrito nuevo alcanzado: dispara el aviso de descubrimiento en el códice.
+		unlock_codex_entry("levels", "distrito_2")
 		save_game()
 		return get_random_room_from_pool()
 	just_won_run = true
@@ -802,7 +804,7 @@ func unlock_all_omnia() -> void:
 			unlocked_protocols.append(p)
 			
 	codex_unlocks["weapons"] = ["pistol", "uzi", "shotgun", "daga", "maze", "hacha"]
-	codex_unlocks["levels"] = ["level_1", "room_4", "room_7"]
+	codex_unlocks["levels"] = ["distrito_1", "distrito_2"]
 	
 	scrap_changed.emit(scrap)
 	flesh_changed.emit(flesh)

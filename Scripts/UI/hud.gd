@@ -191,6 +191,15 @@ func _process(_delta: float) -> void:
 	_update_weapons_hud(p)
 
 func _update_weapons_hud(p: Node2D) -> void:
+	# En el laboratorio no mostramos el HUD de armas (el jugador tampoco las
+	# tiene visibles ahí, ver _is_in_lab_room en player.gd).
+	var weapon_hud = get_node_or_null("Control/WeaponHUD")
+	var hide_weapon_hud = p.has_method("_is_in_lab_room") and p._is_in_lab_room()
+	if weapon_hud:
+		weapon_hud.visible = not hide_weapon_hud
+	if hide_weapon_hud:
+		return
+
 	if "active_weapon" in p and p.active_weapon:
 		var tex = _get_weapon_texture(p.active_weapon)
 		if primary_weapon_rect:

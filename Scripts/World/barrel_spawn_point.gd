@@ -18,6 +18,13 @@ class_name BarrelSpawnPoint
 	preload("res://Scenes/Objects/IceBarrel.tscn"),
 ]
 
+## Si está prendido, el barril aparece con un rebote (ver RoomReveal) en vez
+## de estar ahí de una apenas se carga la sala. Si la sala tiene un nodo
+## "player_spawn", el rebote sale como una ola desde ahí (mismo timing que
+## usa CombatRoom para el resto de los props); si no lo encuentra, usa un
+## delay random chico.
+@export var reveal_with_bounce: bool = true
+
 func _ready() -> void:
 	_roll_for_barrel()
 
@@ -34,4 +41,13 @@ func _spawn_random_barrel() -> void:
 		return
 	var barrel = barrel_scene.instantiate()
 	barrel.global_position = global_position
+	if reveal_with_bounce:
+		barrel.ready.connect(_on_barrel_ready.bind(barrel), CONNECT_ONE_SHOT)
 	get_tree().current_scene.call_deferred("add_child", barrel)
+
+func _on_barrel_ready(barrel: Node2D) -> void:
+	var delay = randf_range(0.0, 0.25)
+	var origin_node = get_tree().current_scene.get_node_or_null("player_spawn")
+	if origin_node:
+		delay = RoomReveal.delay_from_origin(barrel.global_position, origin_node.global_position)
+	RoomReveal.reveal_node(barrel, delay)

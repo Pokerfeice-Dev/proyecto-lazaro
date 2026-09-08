@@ -83,3 +83,8 @@ func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 		s.health_changed.emit(s.current_health, s.max_health)
 	if player.has_method("_apply_game_data_upgrades"):
 		player._apply_game_data_upgrades()
+	# El jugador persiste entre salas (no se recrea), así que si volvió de una
+	# run donde se le mostró el arma (disparando/atacando), hay que re-ocultarla
+	# acá -- si no, queda visible en el laboratorio.
+	if player.has_method("sync_weapon_visibility_for_room"):
+		player.sync_weapon_visibility_for_room()

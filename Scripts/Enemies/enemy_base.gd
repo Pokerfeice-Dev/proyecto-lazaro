@@ -66,7 +66,13 @@ func _ready() -> void:
 
 func _find_player() -> void:
 	var players = get_tree().get_nodes_in_group("player")
-	if players.is_empty(): return
+	if players.is_empty():
+		# Enemigos pre-colocados en la sala (ej. bosses) hacen _ready() antes de que
+		# el jugador termine de instanciarse (se agrega con call_deferred). Reintenta
+		# en el próximo idle frame hasta que exista, en vez de quedarse sin target.
+		if is_inside_tree():
+			call_deferred("_find_player")
+		return
 	target = players[0]
 	add_collision_exception_with(target)
 
@@ -279,6 +285,8 @@ func _unlock_bestiary_entry() -> void:
 		GameData.unlock_codex_entry("enemies", "charger")
 	elif "summoner" in script_path:
 		GameData.unlock_codex_entry("enemies", "spawner")
+	elif "boss2" in script_path:
+		GameData.unlock_codex_entry("enemies", "boss2")
 	elif "boss" in script_path:
 		GameData.unlock_codex_entry("enemies", "boss")
 
