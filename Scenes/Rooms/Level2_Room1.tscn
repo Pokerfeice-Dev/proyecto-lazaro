@@ -1,9 +1,10 @@
 [gd_scene format=4 uid="uid://datxh3ff3l63j"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_22tw2"]
-[ext_resource type="TileSet" uid="uid://bv52ty5n5liaw" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_22tw2"]
+[ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_22tw2"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_f20la"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_73ejj"]
+[ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="5_1pc7k"]
 
 [node name="Room_11" type="Node2D" unique_id=708789417]
 script = ExtResource("1_22tw2")
@@ -38,3 +39,9 @@ position = Vector2(516, -418)
 scale = Vector2(1.5, 1.5)
 chest_type = "trap"
 metadata/_edit_group_ = true
+
+[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("5_1pc7k")]
+position = Vector2(336, -456)
+
+[node name="BarrelSpawnPoint2" parent="." unique_id=56848724 instance=ExtResource("5_1pc7k")]
+position = Vector2(768, -440)

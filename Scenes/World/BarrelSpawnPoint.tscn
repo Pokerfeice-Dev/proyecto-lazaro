@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://76e4pcw68cwx"]
+
+[ext_resource type="Script" path="res://Scripts/World/barrel_spawn_point.gd" id="1_script"]
+
+[node name="BarrelSpawnPoint" type="Marker2D" unique_id=50616672]
+script = ExtResource("1_script")
