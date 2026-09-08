@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_3hgh5"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="3_8tcee"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="3_x1pwl"]
+[ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="5_x1pwl"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
@@ -53,16 +54,8 @@ shape = SubResource("RectangleShape2D_476il")
 [node name="Door" parent="." unique_id=2122964514 instance=ExtResource("new_door_1")]
 position = Vector2(-1216, 55)
 
-[node name="Barrels_Marks" type="Marker2D" parent="." unique_id=1362478563]
+[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("5_x1pwl")]
+position = Vector2(-126, -88)
 
-[node name="Barrel1" type="Marker2D" parent="Barrels_Marks" unique_id=238710024]
-position = Vector2(-134, -153)
-
-[node name="Barrel2" type="Marker2D" parent="Barrels_Marks" unique_id=1355313388]
-position = Vector2(-669, 48)
-
-[node name="Barrel3" type="Marker2D" parent="Barrels_Marks" unique_id=117504026]
-position = Vector2(-546, -164)
-
-[node name="Barrel4" type="Marker2D" parent="Barrels_Marks" unique_id=2088387803]
-position = Vector2(-626, 278)
+[node name="BarrelSpawnPoint" parent="BarrelSpawnPoint" unique_id=348376986 instance=ExtResource("5_x1pwl")]
+position = Vector2(-484, 347)

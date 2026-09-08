@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_ecabj"]
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_se77t"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_yqmbo"]
+[ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="4_se77t"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5n313"]
 size = Vector2(266.28882, 115.1699)
@@ -62,3 +63,15 @@ scale = Vector2(3.0042567, 3.0042567)
 visible = false
 position = Vector2(-31.954681, 30.956062)
 shape = SubResource("RectangleShape2D_5n313")
+
+[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_se77t")]
+position = Vector2(838, -393)
+
+[node name="BarrelSpawnPoint2" parent="." unique_id=1508924986 instance=ExtResource("4_se77t")]
+position = Vector2(1369, -425)
+
+[node name="BarrelSpawnPoint3" parent="." unique_id=1483359617 instance=ExtResource("4_se77t")]
+position = Vector2(820, -875)
+
+[node name="BarrelSpawnPoint4" parent="." unique_id=1579972618 instance=ExtResource("4_se77t")]
+position = Vector2(1408, -873)

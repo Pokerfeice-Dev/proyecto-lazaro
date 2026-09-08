@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_2wevg"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="2_2wevg"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_2wevg"]
+[ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="5_durxx"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
@@ -64,3 +65,9 @@ position = Vector2(-418, 223)
 [node name="Chest_Locked" parent="." unique_id=1269503208 instance=ExtResource("4_2wevg")]
 position = Vector2(125, 225)
 chest_type = "locked"
+
+[node name="BarrelSpawnPoint" parent="Chest_Locked" unique_id=50616672 instance=ExtResource("5_durxx")]
+position = Vector2(-168.5, 4)
+
+[node name="BarrelSpawnPoint" parent="Chest_Locked/BarrelSpawnPoint" unique_id=240706223 instance=ExtResource("5_durxx")]
+position = Vector2(310.5, 0)
