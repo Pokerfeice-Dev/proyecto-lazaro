@@ -6,16 +6,28 @@
 [node name="Lampara_pie" type="Node2D" unique_id=1509059318]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1509059319]
-scale = Vector2(0.5, 0.5)
+scale = Vector2(1.5, 1.5)
 texture = ExtResource("1_0vuib")
 
-[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1509059320]
-position = Vector2(0, -20)
+[node name="PointLight2D2" type="PointLight2D" parent="." unique_id=872130925]
+position = Vector2(0, -11.000001)
 scale = Vector2(2.5, 2.5)
-energy = 0.4
+energy = 0.8
 shadow_enabled = true
 shadow_color = Color(0, 0, 0, 0.72156864)
 shadow_filter = 1
 shadow_filter_smooth = 5.0
 texture = ExtResource("2_ogcyp")
-texture_scale = 1.2
+texture_scale = 0.4
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1509059320]
+position = Vector2(0, -11.000001)
+scale = Vector2(2.5, 2.5)
+color = Color(1, 1, 0.85490197, 1)
+energy = 0.5
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.72156864)
+shadow_filter = 1
+shadow_filter_smooth = 5.0
+texture = ExtResource("2_ogcyp")
+texture_scale = 1.4

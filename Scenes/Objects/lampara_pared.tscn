@@ -6,15 +6,29 @@
 [node name="lampara_pared" type="Node2D" unique_id=1368619277]
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1368619279]
+position = Vector2(-2.9999998, 3.9999998)
 scale = Vector2(2.5, 2.5)
-energy = 0.8
+energy = 0.4
 shadow_enabled = true
 shadow_color = Color(0, 0, 0, 0.5882353)
 shadow_filter = 1
 shadow_filter_smooth = 5.0
 texture = ExtResource("2_gg1gb")
+texture_scale = 1.2
+
+[node name="PointLight2D2" type="PointLight2D" parent="." unique_id=2062351244]
+position = Vector2(-2.9999998, 3.9999998)
+scale = Vector2(2.5, 2.5)
+color = Color(1, 1, 1, 0.35686275)
+energy = 1.2
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.5882353)
+shadow_filter = 1
+shadow_filter_smooth = 5.0
+texture = ExtResource("2_gg1gb")
+texture_scale = 0.4
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1368619278]
 texture_filter = 1
-scale = Vector2(0.5, 0.5)
+scale = Vector2(1.5, 1.5)
 texture = ExtResource("1_fc6jx")

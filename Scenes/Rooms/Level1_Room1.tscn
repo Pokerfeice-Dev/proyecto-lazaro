@@ -67,42 +67,54 @@ position = Vector2(-126, -88)
 [node name="BarrelSpawnPoint" parent="BarrelSpawnPoint" unique_id=348376986 instance=ExtResource("5_x1pwl")]
 position = Vector2(-484, 347)
 
-[node name="Lampara_pie" parent="." unique_id=1509059318 instance=ExtResource("6_e2bw1")]
+[node name="Lights" type="Node2D" parent="." unique_id=1310856576]
+
+[node name="Lampara_pie" parent="Lights" unique_id=1509059318 instance=ExtResource("6_e2bw1")]
 position = Vector2(-368, -139)
 scale = Vector2(0.9696379, 0.9696379)
 
-[node name="Lampara_pie2" parent="." unique_id=1267553118 instance=ExtResource("6_e2bw1")]
-position = Vector2(-368, 181)
+[node name="Lampara_pie2" parent="Lights" unique_id=1267553118 instance=ExtResource("6_e2bw1")]
+position = Vector2(-368, 183.00005)
 scale = Vector2(0.9401976, 0.9401976)
 
-[node name="lampara_pared" parent="." unique_id=1368619277 instance=ExtResource("7_uydgp")]
-position = Vector2(-987, -155)
-rotation = 1.5707964
+[node name="lampara_pared" parent="Lights" unique_id=1368619277 instance=ExtResource("7_uydgp")]
+position = Vector2(-1006, -177)
 
-[node name="lampara_pared2" parent="." unique_id=1369328980 instance=ExtResource("7_uydgp")]
-position = Vector2(-572, -316)
-rotation = 1.5707964
+[node name="lampara_pared11" parent="Lights" unique_id=1668025429 instance=ExtResource("7_uydgp")]
+position = Vector2(-847, -177)
 
-[node name="lampara_pared3" parent="." unique_id=1735328257 instance=ExtResource("7_uydgp")]
-position = Vector2(-179, -316)
-rotation = 1.5707964
+[node name="lampara_pared2" parent="Lights" unique_id=1369328980 instance=ExtResource("7_uydgp")]
+position = Vector2(-526, -337)
 
-[node name="lampara_pared4" parent="." unique_id=1544003093 instance=ExtResource("7_uydgp")]
-position = Vector2(254, -150)
-rotation = 1.5707964
+[node name="lampara_pared3" parent="Lights" unique_id=1735328257 instance=ExtResource("7_uydgp")]
+position = Vector2(-143, -336)
 
-[node name="lampara_pared5" parent="." unique_id=737611252 instance=ExtResource("7_uydgp")]
-position = Vector2(-1138, 249)
-rotation = -1.5707964
+[node name="lampara_pared4" parent="Lights" unique_id=1544003093 instance=ExtResource("7_uydgp")]
+position = Vector2(338, -179)
 
-[node name="lampara_pared6" parent="." unique_id=723858867 instance=ExtResource("7_uydgp")]
-position = Vector2(-643, 408)
-rotation = -1.5707964
+[node name="lampara_pared12" parent="Lights" unique_id=1180631158 instance=ExtResource("7_uydgp")]
+position = Vector2(110, -178)
 
-[node name="lampara_pared7" parent="." unique_id=1221258565 instance=ExtResource("7_uydgp")]
-position = Vector2(-69, 407)
-rotation = -1.5707964
+[node name="lampara_pared5" parent="Lights" unique_id=737611252 instance=ExtResource("7_uydgp")]
+position = Vector2(-1139, 272)
+rotation = -3.1415925
 
-[node name="lampara_pared8" parent="." unique_id=132533255 instance=ExtResource("7_uydgp")]
-position = Vector2(386, 248)
-rotation = -1.5707964
+[node name="lampara_pared6" parent="Lights" unique_id=723858867 instance=ExtResource("7_uydgp")]
+position = Vector2(-628, 433)
+rotation = -3.1415925
+
+[node name="lampara_pared7" parent="Lights" unique_id=1221258565 instance=ExtResource("7_uydgp")]
+position = Vector2(-116, 431)
+rotation = -3.1415925
+
+[node name="lampara_pared8" parent="Lights" unique_id=132533255 instance=ExtResource("7_uydgp")]
+position = Vector2(363, 272)
+rotation = -3.1415925
+
+[node name="lampara_pared9" parent="Lights" unique_id=22907850 instance=ExtResource("7_uydgp")]
+position = Vector2(-850, 271)
+rotation = -3.1415925
+
+[node name="lampara_pared10" parent="Lights" unique_id=1915869388 instance=ExtResource("7_uydgp")]
+position = Vector2(76, 273)
+rotation = -3.1415925
