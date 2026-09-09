@@ -4,10 +4,15 @@
 [ext_resource type="Texture2D" uid="uid://vpobsasv1vml" path="res://Art/Items/Weapons/Item9_SierraCircular.png" id="3_7pk8s"]
 [ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="3_vku8s"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_road"]
+light_mode = 1
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
 radius = 2.0
 
 [node name="Projectile" type="Area2D" unique_id=1955768555]
+z_index = 50
+z_as_relative = false
 texture_filter = 1
 collision_layer = 8
 collision_mask = 7
@@ -15,13 +20,12 @@ script = ExtResource("1_road")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1783107775]
 color = Color(0.3137255, 0.5686275, 1, 1)
-energy = 0.3
-shadow_color = Color(0, 0, 0, 0.69803923)
-shadow_filter_smooth = 2.5
+energy = 1.3
 texture = ExtResource("3_vku8s")
-texture_scale = 0.4
+texture_scale = 1.3
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2208952]
+material = SubResource("CanvasItemMaterial_road")
 modulate = Color(1, 0.14117648, 0, 1)
 scale = Vector2(0.7, 0.7)
 texture = ExtResource("3_7pk8s")

@@ -5,6 +5,7 @@ signal hit_received()
 
 func _ready() -> void:
 	super._ready()
+	has_footstep_fx = false
 	move_speed = 0.0
 	max_health = 9999
 	current_health = max_health

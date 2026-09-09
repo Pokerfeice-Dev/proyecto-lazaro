@@ -25,7 +25,7 @@ var enemy_pool: Array[PackedScene] = []
 ## Si está prendido, el tileset entero (Floor/Tile_Objects/Walls, cualquier
 ## TileMapLayer hijo de la sala) aparece en piezas que caen del cielo, en la
 ## misma ola que los props sueltos.
-@export var reveal_tiles_on_load: bool = true
+@export var reveal_tiles_on_load: bool = false
 ## Tamaño (en tiles) de cada pieza que cae. Más chico = más piezas, más
 ## "confeti" pero más costoso; más grande = piezas más grandes, más barato.
 @export var tile_chunk_size: int = 2
@@ -40,13 +40,17 @@ var room_started: bool = false
 var room_cleared: bool = false
 var spawn_timer: Timer
 var spawn_points: Array[Node] = []
+var astar_nav: AStar2D = null
+var _nav_cell_to_id: Dictionary = {}
 
 func _ready() -> void:
+	add_to_group("combat_room")
 	_apply_difficulty_settings()
 	_setup_player()
 	_setup_spawn_points()
 	_setup_spawn_timer()
 	_detect_preplaced_enemies()
+	_setup_navigation_grid()
 	if reveal_tiles_on_load:
 		_reveal_room_tiles()
 	if reveal_props_on_load:
@@ -55,6 +59,21 @@ func _ready() -> void:
 	var start_area = get_node_or_null("Area_entered")
 	if start_area:
 		start_area.body_entered.connect(_on_start_area_entered)
+	
+	_ensure_room_music_bus()
+	_init_adaptive_music()
+
+func _ensure_room_music_bus() -> void:
+	var boss_music = get_node_or_null("Boss_Fight_Music") as AudioStreamPlayer
+	if not boss_music: return
+	boss_music.bus = "Music"
+
+func _init_adaptive_music() -> void:
+	var start_area = get_node_or_null("Area_entered")
+	if start_area:
+		SceneTransition.set_combat_mode(false, true)
+		return
+	SceneTransition.set_combat_mode(true, true)
 
 # Junta los objetos sueltos de la sala (puerta, cofres, props colocados a
 # mano) y los hace aparecer con rebote via RoomReveal, en forma de ola que
@@ -182,6 +201,7 @@ func _start_room() -> void:
 	room_started = true
 	_close_door()
 	spawn_timer.start()
+	SceneTransition.set_combat_mode(true)
 	# Forzar el primer spawn de inmediato
 	_on_spawn_timer_timeout()
 
@@ -237,6 +257,7 @@ func _clear_room() -> void:
 	_spawn_reward()
 	_play_room_clear_effects()
 	_award_clear_scrap()
+	SceneTransition.set_combat_mode(false)
 
 	if GameData.get_active_protocol() == "reparacion_autonoma":
 		var player = get_tree().get_first_node_in_group("player")
@@ -317,3 +338,79 @@ func _spawn_reward() -> void:
 	if center:
 		reward.global_position = center.global_position
 	get_tree().current_scene.call_deferred("add_child", reward)
+
+# --- Sistema de Navegación (AStar2D) ---
+
+func _setup_navigation_grid() -> void:
+	var floor_layer = get_node_or_null("Floor") as TileMapLayer
+	if not floor_layer: return
+	astar_nav = AStar2D.new()
+	_nav_cell_to_id.clear()
+	
+	var blocked_cells = _get_blocked_cells(floor_layer)
+	_populate_nav_points(floor_layer, blocked_cells)
+	_connect_nav_points()
+
+func _get_blocked_cells(floor_layer: TileMapLayer) -> Dictionary:
+	var blocked: Dictionary = {}
+	_collect_layer_obstacles("Walls", floor_layer, blocked)
+	_collect_layer_obstacles("Tile_Objects", floor_layer, blocked)
+	return blocked
+
+func _collect_layer_obstacles(layer_name: String, floor_layer: TileMapLayer, blocked: Dictionary) -> void:
+	var layer = get_node_or_null(layer_name) as TileMapLayer
+	if not layer: return
+	var cells = layer.get_used_cells()
+	for cell in cells:
+		var global_pos = layer.to_global(layer.map_to_local(cell))
+		var floor_cell = floor_layer.local_to_map(floor_layer.to_local(global_pos))
+		blocked[floor_cell] = true
+
+func _populate_nav_points(floor_layer: TileMapLayer, blocked_cells: Dictionary) -> void:
+	var floor_cells = floor_layer.get_used_cells()
+	var point_id: int = 0
+	for cell in floor_cells:
+		if blocked_cells.has(cell): continue
+		var world_pos = floor_layer.to_global(floor_layer.map_to_local(cell))
+		astar_nav.add_point(point_id, world_pos)
+		_nav_cell_to_id[cell] = point_id
+		point_id += 1
+
+func _connect_nav_points() -> void:
+	var offsets = [
+		Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+		Vector2i(1, 1), Vector2i(-1, 1), Vector2i(1, -1), Vector2i(-1, -1)
+	]
+	for cell in _nav_cell_to_id.keys():
+		var id_from = _nav_cell_to_id[cell]
+		_connect_single_cell_neighbors(cell, id_from, offsets)
+
+func _connect_single_cell_neighbors(cell: Vector2i, id_from: int, offsets: Array) -> void:
+	for offset in offsets:
+		var neighbor_cell = cell + offset
+		_try_connect_neighbor(id_from, cell, neighbor_cell, offset)
+
+func _try_connect_neighbor(id_from: int, cell: Vector2i, neighbor: Vector2i, offset: Vector2i) -> void:
+	if not _nav_cell_to_id.has(neighbor): return
+	var id_to = _nav_cell_to_id[neighbor]
+	if astar_nav.are_points_connected(id_from, id_to): return
+	if absi(offset.x) + absi(offset.y) == 2 and not _can_traverse_diagonal(cell, offset):
+		return
+	astar_nav.connect_points(id_from, id_to, true)
+
+func _can_traverse_diagonal(cell: Vector2i, offset: Vector2i) -> bool:
+	var adj1 = cell + Vector2i(offset.x, 0)
+	var adj2 = cell + Vector2i(0, offset.y)
+	return _nav_cell_to_id.has(adj1) and _nav_cell_to_id.has(adj2)
+
+func get_nav_path(from_pos: Vector2, to_pos: Vector2) -> PackedVector2Array:
+	if not astar_nav or astar_nav.get_point_count() == 0:
+		return PackedVector2Array()
+	var start_id = astar_nav.get_closest_point(from_pos)
+	var end_id = astar_nav.get_closest_point(to_pos)
+	if start_id == end_id:
+		return PackedVector2Array([to_pos])
+	var path = astar_nav.get_point_path(start_id, end_id)
+	if path.size() > 0:
+		path.append(to_pos)
+	return path

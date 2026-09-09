@@ -5,9 +5,13 @@
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_f20la"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_73ejj"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="5_1pc7k"]
+[ext_resource type="PackedScene" uid="uid://bdq8stcr4op42" path="res://Scenes/World/Torch.tscn" id="6_torch"]
 
-[node name="Room_11" type="Node2D" unique_id=708789417]
+[node name="Room_1" type="Node2D" unique_id=708789417]
 script = ExtResource("1_22tw2")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=74839210]
+color = Color(0.12, 0.14, 0.22, 1)
 
 [node name="Floor" type="TileMapLayer" parent="." unique_id=1946478345]
 modulate = Color(0.926511, 0.926511, 0.926511, 1)
@@ -18,7 +22,7 @@ tile_set = ExtResource("2_22tw2")
 [node name="Tile_Objects" type="TileMapLayer" parent="." unique_id=1080521442]
 modulate = Color(0.926511, 0.926511, 0.926511, 1)
 scale = Vector2(2, 2)
-tile_map_data = PackedByteArray("AAAYAPD/AAAEAAUAAAAPAOz/AAADAAUAAAAPAO3/AAADAAYAAAAGAOz/AAADAAUAAAAGAO3/AAADAAYAAAAYAPT/AAAIAAQAAAAQAPX/AAAIAAQAAAAHAPP/AAAGAAYAAAAJAPb/AAAGAAYAAAA=")
+tile_map_data = PackedByteArray("AAAYAPD/AAAEAAUAAAAPAOz/AAADAAUAAAAPAO3/AAADAAYAAAAGAOz/AAADAAUAAAAGAO3/AAADAAYAAAAYAPT/AAAIAAQAAAAQAPX/AAAIAAQAAAAHAPP/AAAGAAYAAAAJAPb/AAAGAAYAAAALAPD/AAAEAAUAAAALAPX/AAAEAAUAAAAYAPX/AAAEAAUAAAA=")
 tile_set = ExtResource("2_22tw2")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=806992237]
@@ -45,3 +49,21 @@ position = Vector2(336, -456)
 
 [node name="BarrelSpawnPoint2" parent="." unique_id=56848724 instance=ExtResource("5_1pc7k")]
 position = Vector2(768, -440)
+
+[node name="Torch1" parent="." unique_id=64839211 instance=ExtResource("6_torch")]
+position = Vector2(240, -600)
+
+[node name="Torch2" parent="." unique_id=64839212 instance=ExtResource("6_torch")]
+position = Vector2(367, -512)
+
+[node name="Torch3" parent="." unique_id=64839213 instance=ExtResource("6_torch")]
+position = Vector2(783, -512)
+
+[node name="Torch4" parent="." unique_id=64839214 instance=ExtResource("6_torch")]
+position = Vector2(367, -352)
+
+[node name="Torch5" parent="." unique_id=64839201 instance=ExtResource("6_torch")]
+position = Vector2(926, -600)
+
+[node name="Torch6" parent="." unique_id=1396736350 instance=ExtResource("6_torch")]
+position = Vector2(783, -352)

@@ -115,6 +115,7 @@ var boss_health_bar_node: Range = null
 
 func _ready() -> void:
 	super._ready()
+	has_footstep_fx = false
 	damage = boss_damage
 	max_health = boss_max_health
 	current_health = max_health

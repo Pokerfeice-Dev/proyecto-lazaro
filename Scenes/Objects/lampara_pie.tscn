@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://bn5bjdd22602q"]
+
+[ext_resource type="Texture2D" uid="uid://ddilkqpxlbbpa" path="res://Art/Miscellaneous/Lamparapie.png" id="1_0vuib"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="2_ogcyp"]
+
+[node name="Lampara_pie" type="Node2D" unique_id=1509059318]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1509059319]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_0vuib")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1509059320]
+position = Vector2(0, -20)
+scale = Vector2(2.5, 2.5)
+energy = 0.4
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.72156864)
+shadow_filter = 1
+shadow_filter_smooth = 5.0
+texture = ExtResource("2_ogcyp")
+texture_scale = 1.2

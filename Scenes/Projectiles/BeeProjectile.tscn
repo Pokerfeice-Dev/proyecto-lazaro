@@ -4,6 +4,9 @@
 [ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="2_yn4dn"]
 [ext_resource type="Texture2D" uid="uid://dlrxejag7y3es" path="res://Art/Weapons/Distance/Pistol/Projectile_Bee.png" id="3_ixtxx"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bee"]
+light_mode = 1
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
 radius = 1.4861722
 
@@ -30,18 +33,18 @@ animations = [{
 }]
 
 [node name="Projectile" type="Area2D" unique_id=1955768554]
+z_index = 50
+z_as_relative = false
 texture_filter = 1
 collision_layer = 8
 collision_mask = 7
 script = ExtResource("1_ixtxx")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1783107774]
-color = Color(1, 1, 0.050980393, 1)
-energy = 0.3
-shadow_color = Color(0, 0, 0, 0.69803923)
-shadow_filter_smooth = 2.5
+color = Color(1, 1, 0.2, 1)
+energy = 1.3
 texture = ExtResource("2_yn4dn")
-texture_scale = 0.3
+texture_scale = 1.3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=186395577]
 scale = Vector2(3.3643477, 3.3643477)
@@ -51,6 +54,7 @@ shape = SubResource("CircleShape2D_proj")
 position = Vector2(6, 0)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=178723507]
+material = SubResource("CanvasItemMaterial_bee")
 sprite_frames = SubResource("SpriteFrames_x587k")
 autoplay = "default"
 frame_progress = 0.5017996

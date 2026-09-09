@@ -17,7 +17,7 @@ func _decrement_piercing_or_free() -> void:
 	if piercing > 0:
 		piercing -= 1
 		return
-	queue_free()
+	_destroy_projectile()
 
 func _handle_other_collision(body: Node2D) -> void:
 	if body.is_in_group("player") or body.is_in_group("enemy") or body.is_in_group("projectile_pass"):
@@ -26,7 +26,8 @@ func _handle_other_collision(body: Node2D) -> void:
 
 func _handle_wall_bounce() -> void:
 	if bounces_left <= 0:
-		queue_free()
+		_spawn_wall_sparks()
+		_destroy_projectile()
 		return
 	_bounce_off_wall()
 
@@ -42,6 +43,7 @@ func _bounce_off_wall() -> void:
 	_apply_bounce_result(result)
 
 func _apply_bounce_result(result: Dictionary) -> void:
+	_spawn_wall_sparks()
 	if result.is_empty():
 		_fallback_bounce()
 		return

@@ -1,0 +1,86 @@
+﻿[gd_scene format=3 uid="uid://bdq8stcr4op42"]
+
+[ext_resource type="Script" path="res://Scripts/World/torch.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Art/Tileset/Area 2 placeholder/fire_torch_20x29.png" id="2_tex"]
+[ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="3_light"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t0"]
+atlas = ExtResource("2_tex")
+region = Rect2(0, 0, 20, 29)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t1"]
+atlas = ExtResource("2_tex")
+region = Rect2(20, 0, 20, 29)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t2"]
+atlas = ExtResource("2_tex")
+region = Rect2(40, 0, 20, 29)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t3"]
+atlas = ExtResource("2_tex")
+region = Rect2(60, 0, 20, 29)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t4"]
+atlas = ExtResource("2_tex")
+region = Rect2(80, 0, 20, 29)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t5"]
+atlas = ExtResource("2_tex")
+region = Rect2(100, 0, 20, 29)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t6"]
+atlas = ExtResource("2_tex")
+region = Rect2(120, 0, 20, 29)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t7"]
+atlas = ExtResource("2_tex")
+region = Rect2(140, 0, 20, 29)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_torch"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t7")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[node name="Torch" type="Node2D" unique_id=64839201]
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=64839202]
+texture_filter = 1
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_torch")
+autoplay = "default"
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=64839203]
+position = Vector2(0, -10)
+scale = Vector2(2.5, 2.5)
+color = Color(1, 0.62, 0.25, 1)
+energy = 1.3
+texture = ExtResource("3_light")
+texture_scale = 0.8

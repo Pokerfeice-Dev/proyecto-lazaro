@@ -54,6 +54,8 @@ var is_dashing: bool = false
 var dash_timer: Timer
 var dash_cd_timer: Timer
 var dash_dir: Vector2 = Vector2.DOWN
+var dash_ghost_timer: float = 0.0
+const DASH_GHOST_INTERVAL: float = 0.075
 
 # sonido de pasos al caminar
 const FOOTSTEP_INTERVAL: float = 0.35
@@ -97,6 +99,7 @@ func _ready() -> void:
 	_apply_game_data_upgrades()
 	_update_hud_health(stats.current_health, stats.max_health)
 	_update_hud_scrap(GameData.scrap)
+	z_index = 5
 	
 	if anim_sprite:
 		_default_modulate = anim_sprite.modulate
@@ -400,6 +403,14 @@ func _start_dash() -> void:
 	_set_dash_direction()
 	_play_dash_sound()
 	_spawn_dash_dust()
+	_trigger_initial_dash_ghost()
+	_trigger_dash_synergies()
+
+func _trigger_initial_dash_ghost() -> void:
+	dash_ghost_timer = DASH_GHOST_INTERVAL
+	_spawn_dash_ghost()
+
+func _trigger_dash_synergies() -> void:
 	if _is_bestia_de_caza_active():
 		_start_furia()
 	if _is_trituradora_active() and trituradora_shockwave_ready:
@@ -442,13 +453,64 @@ func _spawn_dash_dust() -> void:
 
 func _process_movement(delta: float) -> void:
 	if is_dashing:
-		var bonus_dash_speed_pct = _get_equip_stat("dash_speed_percent", false)
-		var final_dash_speed = dash_speed * (1.0 + bonus_dash_speed_pct)
-		velocity = dash_dir * final_dash_speed
+		_apply_dash_movement()
+		_process_dash_ghosts(delta)
 		return
 	handle_movement(delta)
-	if not is_dashing:
-		_accumulate_trituradora_energy(delta)
+	_accumulate_trituradora_energy(delta)
+
+func _apply_dash_movement() -> void:
+	var bonus_dash_speed_pct = _get_equip_stat("dash_speed_percent", false)
+	var final_dash_speed = dash_speed * (1.0 + bonus_dash_speed_pct)
+	velocity = dash_dir * final_dash_speed
+
+func _process_dash_ghosts(delta: float) -> void:
+	dash_ghost_timer -= delta
+	if dash_ghost_timer > 0.0: return
+	dash_ghost_timer = DASH_GHOST_INTERVAL
+	_spawn_dash_ghost()
+
+func _spawn_dash_ghost() -> void:
+	if not anim_sprite or not is_instance_valid(anim_sprite): return
+	if not anim_sprite.sprite_frames: return
+	var texture = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame)
+	if not texture: return
+	
+	var ghost = Sprite2D.new()
+	_configure_ghost_transform(ghost, texture)
+	_configure_ghost_visuals(ghost)
+	_animate_and_cleanup_ghost(ghost)
+
+func _configure_ghost_transform(ghost: Sprite2D, texture: Texture2D) -> void:
+	ghost.texture = texture
+	ghost.global_position = anim_sprite.global_position
+	ghost.scale = anim_sprite.scale
+	ghost.flip_h = anim_sprite.flip_h
+	ghost.rotation = anim_sprite.rotation
+	ghost.offset = anim_sprite.offset
+
+func _configure_ghost_visuals(ghost: Sprite2D) -> void:
+	ghost.z_as_relative = false
+	ghost.z_index = maxi(1, z_index - 1)
+	ghost.modulate = _get_dash_ghost_color()
+	
+	var mat = CanvasItemMaterial.new()
+	mat.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+	ghost.material = mat
+	
+	get_tree().current_scene.add_child(ghost)
+
+func _get_dash_ghost_color() -> Color:
+	if is_furia_active:
+		return Color(1.3, 0.35, 0.35, 0.65)
+	return Color(0.35, 0.75, 1.25, 0.65)
+
+func _animate_and_cleanup_ghost(ghost: Sprite2D) -> void:
+	var tween = ghost.create_tween().set_parallel(true)
+	var fade_duration = 0.28
+	tween.tween_property(ghost, "modulate:a", 0.0, fade_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(ghost, "scale", ghost.scale * 1.08, fade_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_callback(ghost.queue_free)
 
 func _process_actions() -> void:
 	if is_dashing: return
@@ -476,6 +538,13 @@ func setup_damage_effect() -> void:
 	damage_indicator_layer.layer = 100
 	add_child(damage_indicator_layer)
 	_setup_low_health_effect()
+	_setup_enemy_compass()
+
+func _setup_enemy_compass() -> void:
+	var compass_script = load("res://Scripts/UI/enemy_compass.gd")
+	if not compass_script: return
+	var compass = compass_script.new()
+	damage_indicator_layer.add_child(compass)
 
 func _apply_damage_material() -> void:
 	var mat = ShaderMaterial.new()
@@ -531,10 +600,16 @@ func handle_movement(delta: float) -> void:
 	_apply_acceleration(input_dir, delta)
 	_play_footstep_sound()
 
-# sonido de pasos, con cooldown para que no suene en cada frame
+var _footstep_side: int = 1
+
+# sonido y efectos de pasos, con cooldown para que no suene en cada frame
 func _play_footstep_sound() -> void:
 	if not footstep_timer.is_stopped(): return
 	footstep_timer.start(FOOTSTEP_INTERVAL)
+	_play_footstep_sfx()
+	_spawn_player_footstep_fx()
+
+func _play_footstep_sfx() -> void:
 	var sfx_player = AudioStreamPlayer.new()
 	sfx_player.stream = load("res://Audio/Sfx/Pasos.wav")
 	sfx_player.bus = "SFX"
@@ -543,12 +618,45 @@ func _play_footstep_sound() -> void:
 	sfx_player.play()
 	sfx_player.finished.connect(sfx_player.queue_free)
 
+const FootstepFXScript = preload("res://Scripts/Effects/footstep_fx.gd")
+
+func _spawn_player_footstep_fx() -> void:
+	var move_dir = velocity.normalized()
+	if move_dir == Vector2.ZERO:
+		move_dir = _get_dir_vector(last_dir)
+	var foot_pos = global_position + Vector2(0, 10)
+	_footstep_side = -_footstep_side
+	FootstepFXScript.spawn_footstep(get_tree(), foot_pos, move_dir, false, _footstep_side)
+
+
+var _speed_modifiers: Dictionary = {}
+
+func set_speed_modifier(source_id: String, multiplier: float) -> void:
+	_speed_modifiers[source_id] = multiplier
+	_update_speed_modifier_visuals()
+
+func remove_speed_modifier(source_id: String) -> void:
+	_speed_modifiers.erase(source_id)
+	_update_speed_modifier_visuals()
+
+func _get_external_speed_multiplier() -> float:
+	var mult = 1.0
+	for m in _speed_modifiers.values():
+		mult *= m
+	return mult
+
+func _update_speed_modifier_visuals() -> void:
+	if not anim_sprite: return
+	if _speed_modifiers.has("ice_puddle"):
+		anim_sprite.modulate = Color(0.65, 0.85, 1.3, 1.0)
+		return
+	anim_sprite.modulate = _default_modulate
 
 func _apply_friction(delta: float) -> void:
 	velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 
 func _apply_acceleration(input_dir: Vector2, delta: float) -> void:
-	var final_speed = stats.move_speed
+	var final_speed = stats.move_speed * _get_external_speed_multiplier()
 	if _is_minigun_active() and Input.is_action_pressed("shoot") and can_shoot:
 		final_speed = _apply_minigun_speed_penalty(final_speed)
 	velocity = velocity.move_toward(input_dir * final_speed, acceleration * delta)

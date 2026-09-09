@@ -10,6 +10,8 @@ func _ready() -> void:
 	add_to_group("destructible")
 	add_to_group("barrel")
 
+const ElementalPuddleScript = preload("res://Scripts/Objects/elemental_puddle.gd")
+
 func take_damage(_amount: float = 1.0, _is_crit: bool = false) -> void:
 	if is_exploding: return
 	is_exploding = true
@@ -17,7 +19,13 @@ func take_damage(_amount: float = 1.0, _is_crit: bool = false) -> void:
 	_spawn_fire_explosion_fx()
 	_play_explosion_audio()
 	_apply_fire_explosion_damage()
+	_spawn_fire_puddle()
 	_schedule_queue_free()
+
+func _spawn_fire_puddle() -> void:
+	var puddle = ElementalPuddleScript.new()
+	puddle.setup(ElementalPuddle.PuddleType.FIRE, global_position)
+	get_parent().add_child(puddle)
 
 func _disable_barrel_collisions() -> void:
 	var col = get_node_or_null("CollisionShape2D")
@@ -65,16 +73,24 @@ func _play_explosion_audio() -> void:
 func _apply_fire_explosion_damage() -> void:
 	var enemies = get_tree().get_nodes_in_group("enemy")
 	for enemy in enemies:
-		if not is_instance_valid(enemy): continue
-		if "is_dying" in enemy and enemy.is_dying: continue
-		var dist = global_position.distance_to(enemy.global_position)
-		if dist <= explosion_radius:
-			if enemy.has_method("take_damage"):
-				enemy.take_damage(damage_amount)
-			if enemy.has_method("apply_knockback"):
-				var dir = (enemy.global_position - global_position).normalized()
-				if dir == Vector2.ZERO: dir = Vector2.UP
-				enemy.apply_knockback(220.0, dir)
+		_try_damage_exploded_enemy(enemy)
+
+func _try_damage_exploded_enemy(enemy: Node) -> void:
+	if not is_instance_valid(enemy): return
+	if enemy.get("is_dying") == true: return
+	if global_position.distance_to(enemy.global_position) > explosion_radius: return
+	_deal_explosion_hit(enemy)
+
+func _deal_explosion_hit(enemy: Node) -> void:
+	if enemy.has_method("take_damage"):
+		enemy.take_damage(damage_amount)
+	_apply_explosion_knockback(enemy)
+
+func _apply_explosion_knockback(enemy: Node) -> void:
+	if not enemy.has_method("apply_knockback"): return
+	var dir = (enemy.global_position - global_position).normalized()
+	if dir == Vector2.ZERO: dir = Vector2.UP
+	enemy.apply_knockback(220.0, dir)
 
 func _schedule_queue_free() -> void:
 	var t = create_tween()

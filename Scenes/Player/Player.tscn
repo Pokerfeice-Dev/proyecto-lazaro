@@ -1238,7 +1238,8 @@ friction = 1000.0
 dash_speed = 370.0
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1758516561]
-z_index = -1
+z_index = -2
+z_as_relative = false
 offset_left = -1013.99994
 offset_top = -857.0
 offset_right = -973.99994

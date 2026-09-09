@@ -15,8 +15,6 @@ enum Facing {
 }
 
 var current_state: State = State.WANDER
-var has_detected_player: bool = false
-@export var detection_radius: float = 250.0
 
 var wander_timer: float = 0.0
 var wander_direction: Vector2 = Vector2.ZERO
@@ -35,7 +33,8 @@ var has_damaged_this_attack: bool = false
 func _ready() -> void:
 	super._ready()
 	move_speed = 180.0
-	max_health = 60
+	max_health = 48
+	detection_radius = 250.0
 	_setup_attack_system()
 	current_state = State.WANDER
 	_pick_new_wander_direction()
@@ -123,6 +122,10 @@ func _finish_attack() -> void:
 	anim_sprite.speed_scale = 1.0
 	current_state = State.CHASE
 
+func _on_player_alerted() -> void:
+	if current_state != State.ATTACK and current_state != State.DEAD:
+		current_state = State.CHASE
+
 func process_movement(delta: float) -> void:
 	if is_dying:
 		current_state = State.DEAD
@@ -137,13 +140,9 @@ func process_movement(delta: float) -> void:
 		return
 
 	if not has_detected_player:
-		if global_position.distance_to(target.global_position) <= detection_radius:
-			has_detected_player = true
-			current_state = State.CHASE
-		else:
-			_process_wander(delta)
-			update_animation_state()
-			return
+		_process_wander(delta)
+		update_animation_state()
+		return
 
 	move_towards_target()
 	update_sprite_direction()
@@ -174,12 +173,12 @@ func move_towards_target() -> void:
 	_apply_chase_velocity()
 
 func _apply_chase_velocity() -> void:
-	var dir = (target.global_position - global_position).normalized()
+	var dir = get_nav_direction_to_target()
 	velocity = dir * move_speed
 
 func update_sprite_direction() -> void:
 	if not anim_sprite or not target: return
-	var dir = (target.global_position - global_position).normalized()
+	var dir = velocity.normalized() if velocity.length() > 10.0 else (target.global_position - global_position).normalized()
 	_update_facing_from_direction(dir)
 
 # Decide si el sprite debe mirar de frente, de perfil o de espaldas segun el

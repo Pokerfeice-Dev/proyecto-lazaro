@@ -10,8 +10,6 @@ enum State {
 }
 
 var current_state: State = State.WANDER
-var has_detected_player: bool = false
-@export var detection_radius: float = 300.0
 
 var wander_timer: float = 0.0
 var wander_direction: Vector2 = Vector2.ZERO
@@ -27,12 +25,18 @@ var has_damaged_this_attack: bool = false
 
 func _ready() -> void:
 	super._ready()
+	is_heavy_stepper = true
+	_enemy_footstep_interval = 0.48
 	move_speed = 70.0
-	max_health = 180
+	max_health = 144
 	damage = 25
+	detection_radius = 300.0
 	_setup_attack_timer()
 	current_state = State.WANDER
 	_pick_new_wander_direction()
+
+func _get_footstep_offset() -> Vector2:
+	return Vector2(0, 14)
 
 func _play_attack_sound() -> void:
 	if attack_sound:
@@ -53,10 +57,13 @@ func _pick_new_wander_direction() -> void:
 
 # --- Lógica de Combate ---
 
+func _on_player_alerted() -> void:
+	if current_state != State.ATTACK and current_state != State.DEAD:
+		current_state = State.CHASE
+
 func _on_detect_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
-		has_detected_player = true
-		current_state = State.CHASE
+		alert_to_player()
 
 func _on_area_attack_body_entered(_body: Node2D) -> void:
 	pass
@@ -142,12 +149,12 @@ func _process_chase() -> void:
 	if dist <= attack_range * 0.6:
 		velocity = Vector2.ZERO
 		return
-	var dir = (target.global_position - global_position).normalized()
+	var dir = get_nav_direction_to_target()
 	velocity = dir * move_speed
 
 func update_sprite_direction() -> void:
 	if not target: return
-	var dir = (target.global_position - global_position).normalized()
+	var dir = velocity.normalized() if velocity.length() > 10.0 else (target.global_position - global_position).normalized()
 	anim_sprite.flip_h = dir.x > 0
 
 func update_animation_state() -> void:

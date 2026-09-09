@@ -20,6 +20,7 @@ var _turret_flash_tween: Tween = null
 
 func _ready() -> void:
 	super._ready()
+	has_footstep_fx = false
 	if sprite_base:
 		_default_base_modulate = sprite_base.modulate
 		_default_base_modulate.a = 1.0

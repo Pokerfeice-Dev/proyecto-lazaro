@@ -2,6 +2,7 @@ extends EnemyBase
 class_name EnemyBeeSummon
 
 enum State {
+	SUMMON,
 	CHASE,
 	PREPARE_CHARGE,
 	CHARGE,
@@ -15,7 +16,7 @@ enum State {
 @export var cooldown_duration: float = 1.2
 @export var min_dist_to_charge: float = 200.0
 
-var current_state: State = State.CHASE
+var current_state: State = State.SUMMON
 var state_timer: float = 0.0
 var charge_direction: Vector2 = Vector2.ZERO
 var charge_target_position: Vector2 = Vector2.ZERO
@@ -27,16 +28,35 @@ var charge_line: Line2D = null
 
 func _ready() -> void:
 	super._ready()
-	max_health = 35
+	has_footstep_fx = false
+	max_health = 28
 	current_health = max_health
 	move_speed = 220.0
 	damage = 12
 	
+	_setup_charge_line()
+	_start_summon_animation()
+
+func _setup_charge_line() -> void:
 	charge_line = Line2D.new()
 	charge_line.width = 3.0
 	charge_line.default_color = Color(1.0, 0.1, 0.1, 0.5)
 	charge_line.visible = false
 	add_child(charge_line)
+
+func _start_summon_animation() -> void:
+	current_state = State.SUMMON
+	velocity = Vector2.ZERO
+	if anim_sprite and anim_sprite.sprite_frames and anim_sprite.sprite_frames.has_animation("summon"):
+		anim_sprite.play("summon")
+		
+	var timer = get_tree().create_timer(0.5)
+	timer.timeout.connect(_on_summon_animation_finished)
+
+func _on_summon_animation_finished() -> void:
+	if not is_instance_valid(self) or is_dying: return
+	if current_state == State.SUMMON:
+		_start_chase()
 
 func _physics_process(delta: float) -> void:
 	if is_dying:
@@ -118,33 +138,40 @@ func _check_collision_damage() -> void:
 			has_hit_player = true
 			break
 
+func _on_player_alerted() -> void:
+	if current_state == State.SUMMON or current_state == State.DEAD: return
+	if current_state == State.COOLDOWN: return
+	current_state = State.CHASE
+
 func process_movement(delta: float) -> void:
 	if is_dying:
 		velocity = Vector2.ZERO
 		return
 		
 	match current_state:
+		State.SUMMON:
+			velocity = Vector2.ZERO
 		State.CHASE:
-			if not target:
-				velocity = Vector2.ZERO
-				if anim_sprite:
-					anim_sprite.play("idle")
-				return
-				
-			var dir = (target.global_position - global_position).normalized()
-			velocity = dir * move_speed
-			if anim_sprite:
-				anim_sprite.play("walk")
-				anim_sprite.flip_h = dir.x > 0
-				
-			if global_position.distance_to(target.global_position) <= min_dist_to_charge:
-				_start_prepare()
-				
+			_process_bee_chase()
 		State.PREPARE_CHARGE:
 			velocity = Vector2.ZERO
-			
 		State.CHARGE:
 			velocity = charge_direction * charge_speed
-			
 		State.COOLDOWN:
 			velocity = velocity.lerp(Vector2.ZERO, 8.0 * delta)
+
+func _process_bee_chase() -> void:
+	if not target:
+		velocity = Vector2.ZERO
+		if anim_sprite:
+			anim_sprite.play("idle")
+		return
+		
+	var dir = get_nav_direction_to_target()
+	velocity = dir * move_speed
+	if anim_sprite:
+		anim_sprite.play("walk")
+		anim_sprite.flip_h = dir.x > 0
+		
+	if has_line_of_sight_to_player() and global_position.distance_to(target.global_position) <= min_dist_to_charge:
+		_start_prepare()

@@ -25,7 +25,7 @@ var player_in_detect_range: bool = false
 func _ready() -> void:
 	super._ready()
 	move_speed = 120.0
-	max_health = 40
+	max_health = 32
 	_setup_shoot_timer()
 	current_state = State.WANDER
 	_pick_new_wander_direction()
@@ -71,20 +71,32 @@ func _process_wander(delta: float) -> void:
 		_pick_new_wander_direction()
 	velocity = wander_direction * (move_speed * 0.4)
 
+func _on_player_alerted() -> void:
+	if current_state != State.DEAD:
+		player_in_detect_range = true
+		_update_logic_state()
+
 func _process_chase() -> void:
 	if not target: return
-	var dir = (target.global_position - global_position).normalized()
+	_update_logic_state()
+	if current_state == State.SHOOT: return
+	var dir = get_nav_direction_to_target()
 	velocity = dir * move_speed
 
 func _process_shoot() -> void:
 	velocity = Vector2.ZERO
+	if not has_line_of_sight_to_player():
+		_update_logic_state()
+		return
 	if shoot_timer.is_stopped():
 		shoot_timer.start(fire_rate)
 
 func _on_shoot_ready() -> void:
 	if is_dying or current_state == State.DEAD: return
 	if not target: return
-	# Solo disparar si el jugador sigue en rango (opcional, pero recomendado)
+	if not has_line_of_sight_to_player():
+		_update_logic_state()
+		return
 	shoot_at_target()
 
 # --- Señales conectadas desde el Inspector ---
@@ -92,6 +104,7 @@ func _on_shoot_ready() -> void:
 func _on_detect_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		player_in_detect_range = true
+		alert_to_player()
 		_update_logic_state()
 
 func _on_detect_area_body_exited(body: Node2D) -> void:
@@ -110,9 +123,9 @@ func _on_shoot_area_body_exited(body: Node2D) -> void:
 		_update_logic_state()
 
 func _update_logic_state() -> void:
-	if player_in_shoot_range:
+	if player_in_shoot_range and has_line_of_sight_to_player():
 		current_state = State.SHOOT
-	elif player_in_detect_range:
+	elif player_in_detect_range or has_detected_player:
 		current_state = State.CHASE
 	else:
 		current_state = State.WANDER
@@ -122,7 +135,7 @@ func _update_logic_state() -> void:
 func update_sprite_direction() -> void:
 	var anim_sprite = get_node_or_null("AnimatedSprite2D")
 	if not anim_sprite or not target: return
-	var dir = (target.global_position - global_position).normalized()
+	var dir = velocity.normalized() if velocity.length() > 10.0 else (target.global_position - global_position).normalized()
 	anim_sprite.flip_h = dir.x > 0
 
 func update_animation_state() -> void:

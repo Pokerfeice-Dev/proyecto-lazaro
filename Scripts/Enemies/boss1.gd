@@ -48,6 +48,7 @@ var roar_player: AudioStreamPlayer2D = null
 
 func _ready() -> void:
 	super._ready()
+	has_footstep_fx = false
 	damage = boss_damage
 	move_speed = 0.0 # Stationary boss
 	laser_sweep_speed = laser_sweep_base_speed

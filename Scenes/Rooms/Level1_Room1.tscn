@@ -4,6 +4,8 @@
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="3_8tcee"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="3_x1pwl"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="5_x1pwl"]
+[ext_resource type="PackedScene" uid="uid://bn5bjdd22602q" path="res://Scenes/Objects/lampara_pie.tscn" id="6_e2bw1"]
+[ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="7_uydgp"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
@@ -11,6 +13,11 @@ size = Vector2(370, 412)
 
 [node name="Room_1" type="Node2D" unique_id=1265789073]
 script = ExtResource("1_3hgh5")
+reveal_tiles_on_load = true
+tile_chunk_size = 1
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=74839220]
+color = Color(0.36, 0.38, 0.5, 1)
 
 [node name="Floor" type="TileMapLayer" parent="." unique_id=1961340780]
 scale = Vector2(2, 2)
@@ -59,3 +66,43 @@ position = Vector2(-126, -88)
 
 [node name="BarrelSpawnPoint" parent="BarrelSpawnPoint" unique_id=348376986 instance=ExtResource("5_x1pwl")]
 position = Vector2(-484, 347)
+
+[node name="Lampara_pie" parent="." unique_id=1509059318 instance=ExtResource("6_e2bw1")]
+position = Vector2(-368, -139)
+scale = Vector2(0.9696379, 0.9696379)
+
+[node name="Lampara_pie2" parent="." unique_id=1267553118 instance=ExtResource("6_e2bw1")]
+position = Vector2(-368, 181)
+scale = Vector2(0.9401976, 0.9401976)
+
+[node name="lampara_pared" parent="." unique_id=1368619277 instance=ExtResource("7_uydgp")]
+position = Vector2(-987, -155)
+rotation = 1.5707964
+
+[node name="lampara_pared2" parent="." unique_id=1369328980 instance=ExtResource("7_uydgp")]
+position = Vector2(-572, -316)
+rotation = 1.5707964
+
+[node name="lampara_pared3" parent="." unique_id=1735328257 instance=ExtResource("7_uydgp")]
+position = Vector2(-179, -316)
+rotation = 1.5707964
+
+[node name="lampara_pared4" parent="." unique_id=1544003093 instance=ExtResource("7_uydgp")]
+position = Vector2(254, -150)
+rotation = 1.5707964
+
+[node name="lampara_pared5" parent="." unique_id=737611252 instance=ExtResource("7_uydgp")]
+position = Vector2(-1138, 249)
+rotation = -1.5707964
+
+[node name="lampara_pared6" parent="." unique_id=723858867 instance=ExtResource("7_uydgp")]
+position = Vector2(-643, 408)
+rotation = -1.5707964
+
+[node name="lampara_pared7" parent="." unique_id=1221258565 instance=ExtResource("7_uydgp")]
+position = Vector2(-69, 407)
+rotation = -1.5707964
+
+[node name="lampara_pared8" parent="." unique_id=132533255 instance=ExtResource("7_uydgp")]
+position = Vector2(386, 248)
+rotation = -1.5707964

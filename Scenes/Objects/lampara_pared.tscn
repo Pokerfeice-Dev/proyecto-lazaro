@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bumpa0odwq534"]
+
+[ext_resource type="Texture2D" uid="uid://cdcjeo7jre5a0" path="res://Art/Miscellaneous/Lamparapared.png" id="1_fc6jx"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="2_gg1gb"]
+
+[node name="lampara_pared" type="Node2D" unique_id=1368619277]
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1368619279]
+scale = Vector2(2.5, 2.5)
+energy = 0.8
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.5882353)
+shadow_filter = 1
+shadow_filter_smooth = 5.0
+texture = ExtResource("2_gg1gb")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1368619278]
+texture_filter = 1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_fc6jx")

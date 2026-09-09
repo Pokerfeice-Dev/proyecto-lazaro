@@ -4,26 +4,30 @@
 [ext_resource type="Texture2D" uid="uid://cmjgf07ct5v5r" path="res://Art/Weapons/Distance/Pistol/normalprojectile16x6.png" id="3_76vf1"]
 [ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="3_vku8s"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_proj"]
+light_mode = 1
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
 radius = 2.0
 
 [node name="Projectile" type="Area2D" unique_id=1955768554]
+z_index = 50
+z_as_relative = false
 texture_filter = 1
 collision_layer = 8
 collision_mask = 7
 script = ExtResource("1_proj")
 
-[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1783107774]
-color = Color(0.99999994, 0.29522884, 0.051717713, 1)
-energy = 0.2
-shadow_color = Color(0, 0, 0, 0.69803923)
-shadow_filter_smooth = 2.5
-texture = ExtResource("3_vku8s")
-texture_scale = 0.4
-
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2208951]
+material = SubResource("CanvasItemMaterial_proj")
 texture = ExtResource("3_76vf1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=186395577]
 scale = Vector2(3.3643477, 3.3643477)
 shape = SubResource("CircleShape2D_proj")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1783107774]
+color = Color(1, 0.55, 0.15, 1)
+energy = 0.9
+texture = ExtResource("3_vku8s")
+texture_scale = 1.2

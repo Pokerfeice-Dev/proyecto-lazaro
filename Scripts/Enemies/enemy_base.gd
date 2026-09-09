@@ -1,8 +1,8 @@
 extends CharacterBody2D
 class_name EnemyBase
 
-@export var max_health: int = 50
-@export var current_health: int = 50
+@export var max_health: int = 40
+@export var current_health: int = 40
 @export var move_speed: float = 150.0
 @export var damage: int = 10
 @export var attack_speed: float = 1.0
@@ -38,13 +38,63 @@ var is_dying: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO
 var hit_stun_timer: float = 0.0
 
+@export var detection_radius: float = 280.0
+var has_detected_player: bool = false
+var is_stuck: bool = false
+var _stuck_timer: float = 0.0
+var _last_stuck_pos: Vector2 = Vector2.ZERO
+var _current_nav_path: PackedVector2Array = PackedVector2Array()
+var _nav_recalc_timer: float = 0.0
+var _nav_target_last_pos: Vector2 = Vector2.ZERO
+var _avoidance_angle_bias: float = 1.0
+var _avoidance_bias_timer: float = 0.0
+
 var is_elite: bool = false
 signal enemy_died(enemy: EnemyBase)
 
 var _default_modulate: Color = Color.WHITE
 var _flash_tween: Tween = null
 
+var has_footstep_fx: bool = true
+var is_heavy_stepper: bool = false
+var _enemy_footstep_timer: float = 0.0
+var _enemy_footstep_interval: float = 0.38
+var _enemy_footstep_side: int = 1
+
+var base_move_speed: float = -1.0
+var _speed_modifiers: Dictionary = {}
+
+func set_speed_modifier(source_id: String, multiplier: float) -> void:
+	if base_move_speed < 0.0:
+		base_move_speed = move_speed
+	_speed_modifiers[source_id] = multiplier
+	_recalculate_move_speed()
+	_update_slow_visuals()
+
+func remove_speed_modifier(source_id: String) -> void:
+	_speed_modifiers.erase(source_id)
+	_recalculate_move_speed()
+	_update_slow_visuals()
+
+func _recalculate_move_speed() -> void:
+	if base_move_speed < 0.0: return
+	var mult = 1.0
+	for m in _speed_modifiers.values():
+		mult *= m
+	move_speed = base_move_speed * mult
+
+func _update_slow_visuals() -> void:
+	var spr = _get_sprite()
+	if not spr: return
+	if _speed_modifiers.has("ice_puddle"):
+		spr.modulate = Color(0.65, 0.85, 1.3, 1.0)
+		return
+	spr.modulate = _default_modulate
+
 func _ready() -> void:
+	base_move_speed = move_speed
+	z_index = 5
+	_last_stuck_pos = global_position
 	current_health = max_health
 	add_to_group("enemy")
 	_find_player()
@@ -149,18 +199,44 @@ func _physics_process(delta: float) -> void:
 	if hit_stun_timer > 0.0:
 		hit_stun_timer -= delta
 	else:
+		_check_detection_range()
 		process_movement(delta)
 	
+	_update_stuck_detection(delta)
+	_process_knockback(delta)
+	move_and_slide()
+	handle_collisions()
+	_update_footstep_fx(delta)
+
+func _update_footstep_fx(delta: float) -> void:
+	if not has_footstep_fx: return
+	if is_dying or is_spawning: return
+	if velocity.length() < 25.0: return
+	
+	_enemy_footstep_timer -= delta
+	if _enemy_footstep_timer > 0.0: return
+	
+	_trigger_enemy_footstep()
+
+const FootstepFXScript = preload("res://Scripts/Effects/footstep_fx.gd")
+
+func _trigger_enemy_footstep() -> void:
+	_enemy_footstep_timer = _enemy_footstep_interval
+	_enemy_footstep_side = -_enemy_footstep_side
+	var move_dir = velocity.normalized()
+	var foot_pos = global_position + _get_footstep_offset()
+	var heavy = is_heavy_stepper or is_elite
+	FootstepFXScript.spawn_footstep(get_tree(), foot_pos, move_dir, heavy, _enemy_footstep_side)
+
+func _get_footstep_offset() -> Vector2:
+	return Vector2(0, 8)
+
+func _process_knockback(delta: float) -> void:
 	if knockback_velocity.length() > 5.0:
 		knockback_velocity = knockback_velocity.lerp(Vector2.ZERO, 10.0 * delta)
 		velocity += knockback_velocity
-	else:
-		knockback_velocity = Vector2.ZERO
-		
-	move_and_slide()
-	handle_collisions()
-
-
+		return
+	knockback_velocity = Vector2.ZERO
 
 func apply_knockback(force: float, direction: Vector2) -> void:
 	if is_dying: return
@@ -172,10 +248,169 @@ func process_movement(_delta: float) -> void:
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	current_health -= amount
 	hit_stun_timer = 0.15
+	alert_to_player()
 	_show_damage_text(amount, is_crit)
 	_flash_red()
 	_update_health_bar()
 	_check_death()
+
+# --- Detección y Alerta ---
+
+func _check_detection_range() -> void:
+	if has_detected_player: return
+	if not target or not is_instance_valid(target):
+		_find_player()
+		return
+	if global_position.distance_to(target.global_position) <= detection_radius:
+		alert_to_player()
+
+func alert_to_player() -> void:
+	has_detected_player = true
+	if not target or not is_instance_valid(target):
+		_find_player()
+	_on_player_alerted()
+
+func _on_player_alerted() -> void:
+	pass
+
+# --- Detección de Obstáculos (Línea de Visión) ---
+
+func has_line_of_sight_to_player() -> bool:
+	if not target or not is_instance_valid(target):
+		return false
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.create(global_position, target.global_position)
+	query.exclude = [self.get_rid(), target.get_rid()]
+	query.collision_mask = 1
+	var result = space_state.intersect_ray(query)
+	return result.is_empty()
+
+# --- Detección de Atascamiento ---
+
+func _update_stuck_detection(delta: float) -> void:
+	if not has_detected_player or velocity.length() < 20.0:
+		_reset_stuck_state()
+		return
+	
+	var dist_moved = global_position.distance_to(_last_stuck_pos)
+	_evaluate_stuck_movement(dist_moved, delta)
+	_last_stuck_pos = global_position
+
+func _reset_stuck_state() -> void:
+	_stuck_timer = 0.0
+	is_stuck = false
+	_last_stuck_pos = global_position
+
+func _evaluate_stuck_movement(dist_moved: float, delta: float) -> void:
+	if dist_moved < (move_speed * 0.15 * delta):
+		_stuck_timer += delta
+		if _stuck_timer >= 0.25:
+			is_stuck = true
+		return
+	_stuck_timer = maxf(0.0, _stuck_timer - delta * 2.0)
+	if _stuck_timer == 0.0:
+		is_stuck = false
+
+# --- Navegación y Pathfinding ---
+
+func get_nav_direction_to_target() -> Vector2:
+	if not target or not is_instance_valid(target):
+		return Vector2.ZERO
+	
+	var has_los = has_line_of_sight_to_player()
+	if has_los and not is_stuck:
+		_clear_nav_path()
+		return (target.global_position - global_position).normalized()
+		
+	return _get_pathing_direction()
+
+func _get_pathing_direction() -> Vector2:
+	_update_nav_path_if_needed()
+	if _has_valid_waypoints():
+		return _get_direction_from_waypoints()
+	return _get_feeler_avoidance_direction()
+
+func _update_nav_path_if_needed() -> void:
+	_nav_recalc_timer -= get_physics_process_delta_time()
+	var target_moved = target.global_position.distance_to(_nav_target_last_pos) > 64.0
+	if _nav_recalc_timer > 0.0 and not target_moved and not _current_nav_path.is_empty():
+		return
+	_recalculate_nav_path()
+
+func _recalculate_nav_path() -> void:
+	_nav_recalc_timer = 0.4
+	_nav_target_last_pos = target.global_position
+	var room = _get_current_combat_room()
+	if not room:
+		_current_nav_path.clear()
+		return
+	_current_nav_path = room.get_nav_path(global_position, target.global_position)
+	_trim_reached_waypoints()
+
+func _get_current_combat_room() -> Node:
+	var node: Node = get_parent()
+	while node:
+		if node.has_method("get_nav_path"):
+			return node
+		node = node.get_parent()
+	return get_tree().get_first_node_in_group("combat_room")
+
+func _has_valid_waypoints() -> bool:
+	return not _current_nav_path.is_empty()
+
+func _get_direction_from_waypoints() -> Vector2:
+	_trim_reached_waypoints()
+	if _current_nav_path.is_empty():
+		return (target.global_position - global_position).normalized()
+	var next_point = _current_nav_path[0]
+	return (next_point - global_position).normalized()
+
+func _trim_reached_waypoints() -> void:
+	while not _current_nav_path.is_empty():
+		var next_wp = _current_nav_path[0]
+		if global_position.distance_to(next_wp) > 28.0:
+			break
+		_current_nav_path.remove_at(0)
+
+func _clear_nav_path() -> void:
+	_current_nav_path.clear()
+
+# --- Evasión Local con Ray Probes (Feeler Avoidance) ---
+
+func _get_feeler_avoidance_direction() -> Vector2:
+	var target_dir = (target.global_position - global_position).normalized()
+	_update_avoidance_bias()
+	
+	var best_dir = target_dir
+	var best_score = -999.0
+	var probe_angles = [0.0, 30.0, -30.0, 60.0, -60.0, 90.0, -90.0, 120.0, -120.0, 150.0, -150.0, 180.0]
+	
+	for angle_deg in probe_angles:
+		var test_dir = target_dir.rotated(deg_to_rad(angle_deg * _avoidance_angle_bias))
+		var score = _evaluate_direction_probe(test_dir, target_dir)
+		if score > best_score:
+			best_score = score
+			best_dir = test_dir
+			
+	return best_dir
+
+func _update_avoidance_bias() -> void:
+	var dt = get_physics_process_delta_time()
+	_avoidance_bias_timer -= dt
+	if _avoidance_bias_timer <= 0.0 and is_stuck:
+		_avoidance_angle_bias = -_avoidance_angle_bias
+		_avoidance_bias_timer = 0.8
+
+func _evaluate_direction_probe(dir: Vector2, target_dir: Vector2) -> float:
+	var probe_dist = 40.0
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.create(global_position, global_position + dir * probe_dist)
+	query.exclude = [self.get_rid()]
+	query.collision_mask = 1
+	var result = space_state.intersect_ray(query)
+	if not result.is_empty():
+		return -10.0
+	return dir.dot(target_dir)
 
 func _update_health_bar() -> void:
 	var bar = get_node_or_null("HealthBar")
@@ -240,6 +475,7 @@ func _unfreeze_enemy(sprite: Node) -> void:
 		sprite.modulate = _default_modulate
 	set_physics_process(true)
 	set_process(true)
+	_update_slow_visuals()
 
 func _flash_red() -> void:
 	var sprite = _get_sprite()

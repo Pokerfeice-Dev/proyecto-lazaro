@@ -10,6 +10,8 @@ func _ready() -> void:
 	add_to_group("destructible")
 	add_to_group("barrel")
 
+const ElementalPuddleScript = preload("res://Scripts/Objects/elemental_puddle.gd")
+
 func take_damage(_amount: float = 1.0, _is_crit: bool = false) -> void:
 	if is_exploding: return
 	is_exploding = true
@@ -17,7 +19,13 @@ func take_damage(_amount: float = 1.0, _is_crit: bool = false) -> void:
 	_spawn_ice_explosion_fx()
 	_play_ice_audio()
 	_apply_ice_freeze_effect()
+	_spawn_ice_puddle()
 	_schedule_queue_free()
+
+func _spawn_ice_puddle() -> void:
+	var puddle = ElementalPuddleScript.new()
+	puddle.setup(ElementalPuddle.PuddleType.ICE, global_position)
+	get_parent().add_child(puddle)
 
 func _disable_barrel_collisions() -> void:
 	var col = get_node_or_null("CollisionShape2D")
@@ -65,14 +73,20 @@ func _play_ice_audio() -> void:
 func _apply_ice_freeze_effect() -> void:
 	var enemies = get_tree().get_nodes_in_group("enemy")
 	for enemy in enemies:
-		if not is_instance_valid(enemy): continue
-		if "is_dying" in enemy and enemy.is_dying: continue
-		var dist = global_position.distance_to(enemy.global_position)
-		if dist <= freeze_radius:
-			if enemy.has_method("freeze_enemy"):
-				enemy.freeze_enemy(freeze_duration)
-			elif enemy.has_method("apply_freeze"):
-				enemy.apply_freeze(freeze_duration)
+		_try_freeze_exploded_enemy(enemy)
+
+func _try_freeze_exploded_enemy(enemy: Node) -> void:
+	if not is_instance_valid(enemy): return
+	if enemy.get("is_dying") == true: return
+	if global_position.distance_to(enemy.global_position) > freeze_radius: return
+	_apply_freeze_to_target(enemy)
+
+func _apply_freeze_to_target(enemy: Node) -> void:
+	if enemy.has_method("freeze_enemy"):
+		enemy.freeze_enemy(freeze_duration)
+		return
+	if enemy.has_method("apply_freeze"):
+		enemy.apply_freeze(freeze_duration)
 
 func _schedule_queue_free() -> void:
 	var t = create_tween()
