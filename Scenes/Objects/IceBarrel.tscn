@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://Scripts/Objects/ice_barrel.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://Art/Scenario_objects/icebarrel_sprite.png" id="2_tex"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="3_shadow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_icebarrel"]
 size = Vector2(24, 30)
@@ -11,6 +12,13 @@ collision_layer = 4
 collision_mask = 7
 script = ExtResource("1_script")
 
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 13)
+script = ExtResource("3_shadow")
+shadow_size = Vector2(26, 12)
+shadow_offset = Vector2(0, 13)
+shadow_alpha = 0.38
+
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=74839205]
 scale = Vector2(1.5, 1.5)
 texture = ExtResource("2_tex")
@@ -18,3 +26,4 @@ texture = ExtResource("2_tex")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=74839206]
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_icebarrel")
+

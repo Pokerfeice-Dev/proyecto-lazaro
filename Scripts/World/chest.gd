@@ -117,6 +117,10 @@ func _ready() -> void:
 		item_sprite.visible = false # el item no se ve hasta que se abre el cofre
 	_update_label()
 	_connect_signals()
+	_setup_shadow()
+
+func _setup_shadow() -> void:
+	DropShadow.attach_to(self, Vector2(32.0, 14.0), Vector2(0.0, 10.0), 0.38)
 
 func _connect_signals() -> void:
 	if interact_area:

@@ -54,6 +54,7 @@ signal enemy_died(enemy: EnemyBase)
 
 var _default_modulate: Color = Color.WHITE
 var _flash_tween: Tween = null
+var drop_shadow: DropShadow = null
 
 var has_footstep_fx: bool = true
 var is_heavy_stepper: bool = false
@@ -111,6 +112,7 @@ func _ready() -> void:
 		scale = Vector2(1.25, 1.25)
 		modulate = Color(1.3, 0.8, 0.8)
 	_setup_health_bar()
+	_setup_enemy_shadow()
 
 
 
@@ -153,11 +155,49 @@ func _setup_health_bar() -> void:
 	bar.name = "HealthBar"
 	add_child(bar)
 
+func _setup_enemy_shadow() -> void:
+	var existing = get_node_or_null("DropShadow") as DropShadow
+	if existing:
+		drop_shadow = existing
+		if is_elite:
+			drop_shadow.shadow_size *= 1.25
+		return
+	var shadow_dim = _get_enemy_shadow_dimensions()
+	var final_size: Vector2 = shadow_dim.size
+	var final_offset: Vector2 = shadow_dim.offset
+	if is_elite:
+		final_size *= 1.25
+	drop_shadow = DropShadow.attach_to(self, final_size, final_offset, 0.4)
+
+
+func _get_enemy_shadow_dimensions() -> Dictionary:
+	var script_path = get_script().resource_path.to_lower()
+	if "tank" in script_path:
+		return {"size": Vector2(44.0, 18.0), "offset": Vector2(0.0, 16.0)}
+	if "boss2" in script_path:
+		return {"size": Vector2(76.0, 32.0), "offset": Vector2(0.0, 28.0)}
+	if "boss" in script_path:
+		return {"size": Vector2(64.0, 28.0), "offset": Vector2(0.0, 26.0)}
+	if "bee_summon" in script_path:
+		return {"size": Vector2(18.0, 9.0), "offset": Vector2(0.0, 14.0)}
+	if "turret" in script_path:
+		return {"size": Vector2(32.0, 14.0), "offset": Vector2(0.0, 12.0)}
+	return {"size": Vector2(26.0, 12.0), "offset": Vector2(0.0, 14.0)}
+
 func spawn_appear() -> void:
 	is_spawning = true
 	set_physics_process(false)
 	_hide_sprite_alpha()
+	_hide_shadow_alpha()
 	_play_summon_anim()
+
+func _hide_shadow_alpha() -> void:
+	if not drop_shadow: return
+	drop_shadow.modulate.a = 0.0
+
+func _fade_in_shadow() -> void:
+	if not drop_shadow: return
+	drop_shadow.fade_in(0.2)
 
 func _hide_sprite_alpha() -> void:
 	var sprite = _get_sprite()
@@ -187,6 +227,7 @@ func _fade_in_sprite() -> void:
 	if not sprite:
 		_finish_spawn()
 		return
+	_fade_in_shadow()
 	var t = create_tween()
 	t.tween_property(sprite, "modulate:a", 1.0, 0.2)
 	t.finished.connect(_finish_spawn, CONNECT_ONE_SHOT)
@@ -250,7 +291,7 @@ func take_damage(amount: int, is_crit: bool = false) -> void:
 	hit_stun_timer = 0.15
 	alert_to_player()
 	_show_damage_text(amount, is_crit)
-	_flash_red()
+	_flash_hit()
 	_update_health_bar()
 	_check_death()
 
@@ -477,17 +518,33 @@ func _unfreeze_enemy(sprite: Node) -> void:
 	set_process(true)
 	_update_slow_visuals()
 
-func _flash_red() -> void:
+func _flash_hit() -> void:
 	var sprite = _get_sprite()
-	if not sprite: return
-	
-	if _flash_tween and _flash_tween.is_valid():
-		_flash_tween.kill()
-		
-	var target_col = Color(0.3, 0.85, 1.8, 1.0) if is_frozen_by_ice else _default_modulate
-	sprite.modulate = Color.RED
+	if not sprite:
+		return
+	_cancel_active_flash_tween()
+	var target_col = _get_flash_target_color()
+	sprite.modulate = Color(3.0, 3.0, 3.0, 1.0)
+	_start_flash_tween(sprite, target_col)
+
+func _cancel_active_flash_tween() -> void:
+	if not _flash_tween:
+		return
+	if not _flash_tween.is_valid():
+		return
+	_flash_tween.kill()
+
+func _get_flash_target_color() -> Color:
+	if is_frozen_by_ice:
+		return Color(0.3, 0.85, 1.8, 1.0)
+	return _default_modulate
+
+func _start_flash_tween(sprite: Node2D, target_col: Color) -> void:
 	_flash_tween = create_tween()
-	_flash_tween.tween_property(sprite, "modulate", target_col, 0.2)
+	_flash_tween.tween_property(sprite, "modulate", target_col, 0.18)
+
+func _flash_red() -> void:
+	_flash_hit()
 
 func _check_death() -> void:
 	if current_health > 0: return
@@ -503,8 +560,13 @@ func die() -> void:
 	_disable_physics()
 	_hide_sprite()
 	_hide_health_bar()
+	_fade_shadow()
 	_play_death_sound()
 	_play_death_fx()
+
+func _fade_shadow() -> void:
+	if not drop_shadow: return
+	drop_shadow.fade_out(0.25)
 
 func _unlock_bestiary_entry() -> void:
 	if not is_inside_tree() or not GameData.has_method("unlock_codex_entry"): return

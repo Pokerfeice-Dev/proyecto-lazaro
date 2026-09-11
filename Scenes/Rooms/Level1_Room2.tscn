@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_quyhl"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_wtbdm"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="4_u6w7e"]
+[ext_resource type="PackedScene" uid="uid://bn5bjdd22602q" path="res://Scenes/Objects/lampara_pie.tscn" id="5_s1th1"]
+[ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="6_js5mu"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
@@ -73,3 +75,58 @@ position = Vector2(336, -10)
 
 [node name="BarrelSpawnPoint2" parent="." unique_id=890209323 instance=ExtResource("4_u6w7e")]
 position = Vector2(-610, -49)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1018410529]
+color = Color(0.36, 0.38, 0.5, 1)
+
+[node name="Lights" type="Node2D" parent="." unique_id=383576071]
+
+[node name="Lampara_pie" parent="Lights" unique_id=1509059318 instance=ExtResource("5_s1th1")]
+position = Vector2(-447, 7.0000305)
+scale = Vector2(0.9696379, 0.9696379)
+
+[node name="Lampara_pie2" parent="Lights" unique_id=246175933 instance=ExtResource("5_s1th1")]
+position = Vector2(-190.00005, -174.99998)
+scale = Vector2(0.9401976, 0.9401976)
+
+[node name="Lampara_pie3" parent="Lights" unique_id=2061383924 instance=ExtResource("5_s1th1")]
+position = Vector2(-702.99994, -174.99998)
+scale = Vector2(0.9401976, 0.9401976)
+
+[node name="lampara_pared" parent="Lights" unique_id=1368619277 instance=ExtResource("6_js5mu")]
+position = Vector2(-334, -304)
+
+[node name="lampara_pared11" parent="Lights" unique_id=588742507 instance=ExtResource("6_js5mu")]
+position = Vector2(-880, -176)
+rotation = -1.5707964
+
+[node name="lampara_pared2" parent="Lights" unique_id=1752688245 instance=ExtResource("6_js5mu")]
+position = Vector2(-623, -304)
+
+[node name="lampara_pared3" parent="Lights" unique_id=787564983 instance=ExtResource("6_js5mu")]
+position = Vector2(-16, -173)
+rotation = 1.5707964
+
+[node name="lampara_pared4" parent="Lights" unique_id=314532176 instance=ExtResource("6_js5mu")]
+position = Vector2(-16, 114)
+rotation = 1.5707964
+
+[node name="lampara_pared12" parent="Lights" unique_id=1112930196 instance=ExtResource("6_js5mu")]
+position = Vector2(-116, 368)
+rotation = 3.1415927
+
+[node name="lampara_pared5" parent="Lights" unique_id=956225601 instance=ExtResource("6_js5mu")]
+position = Vector2(-341, 368)
+rotation = -3.1415925
+
+[node name="lampara_pared6" parent="Lights" unique_id=326729931 instance=ExtResource("6_js5mu")]
+position = Vector2(-725, 367)
+rotation = -3.1415925
+
+[node name="lampara_pared7" parent="Lights" unique_id=1039410885 instance=ExtResource("6_js5mu")]
+position = Vector2(-881, 110)
+rotation = -1.5707964
+
+[node name="lampara_pared9" parent="Lights" unique_id=865263209 instance=ExtResource("6_js5mu")]
+position = Vector2(-880, 304)
+rotation = -1.5707964

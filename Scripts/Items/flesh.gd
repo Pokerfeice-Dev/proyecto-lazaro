@@ -14,6 +14,10 @@ func _ready() -> void:
 	add_to_group("flesh")
 	_connect_grab_area()
 	_apply_magnet_upgrade()
+	_setup_shadow()
+
+func _setup_shadow() -> void:
+	DropShadow.attach_to(self, Vector2(14.0, 7.0), Vector2(0.0, 4.0), 0.28)
 
 func _apply_magnet_upgrade() -> void:
 	if not grab_area: return

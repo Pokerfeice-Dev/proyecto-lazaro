@@ -21,6 +21,10 @@ func _ready() -> void:
 		grab.body_exited.connect(_on_grab_area_body_exited)
 		
 	_create_interaction_label()
+	_setup_shadow()
+
+func _setup_shadow() -> void:
+	DropShadow.attach_to(self, Vector2(16.0, 8.0), Vector2(0.0, 6.0), 0.28)
 
 func _check_and_show_inventory_tutorial() -> void:
 	if GameData.has_shown_inventory_tutorial:

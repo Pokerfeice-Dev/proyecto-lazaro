@@ -16,26 +16,91 @@ class_name Door
 var is_locked: bool = true
 var player_inside: bool = false
 var interaction_label: Label = null
+var base_close_energy: float = 1.0
+var base_open_energy: float = 1.1
+
+@onready var close_light: PointLight2D = get_node_or_null("Close")
+@onready var open_light: PointLight2D = get_node_or_null("Open")
 
 func _ready() -> void:
 	add_to_group("door")
-	
-	var should_unlock = false
-	if is_open:
-		should_unlock = true
-	elif name.to_lower() == "door_coreupgrades":
-		should_unlock = GameData.has_died_once
-	elif not start_locked:
-		should_unlock = true
-		
-	if should_unlock:
-		unlock_door()
-	else:
-		lock_door()
-		
+	_init_lights_base_energy()
+	_apply_initial_door_state()
 	area_2d.body_entered.connect(_on_body_entered)
 	area_2d.body_exited.connect(_on_body_exited)
 	_setup_interaction_label()
+
+func _init_lights_base_energy() -> void:
+	if close_light:
+		base_close_energy = close_light.energy
+	if open_light:
+		base_open_energy = open_light.energy
+
+func _apply_initial_door_state() -> void:
+	if _should_start_unlocked():
+		unlock_door()
+		return
+	lock_door()
+
+func _should_start_unlocked() -> bool:
+	if is_open:
+		return true
+	if name.to_lower() == "door_coreupgrades":
+		return GameData.has_died_once
+	if not start_locked:
+		return true
+	return false
+
+func _process(_delta: float) -> void:
+	if not is_locked:
+		return
+	if not close_light:
+		return
+	_pulse_close_light()
+
+func _pulse_close_light() -> void:
+	var t = Time.get_ticks_msec() / 1000.0
+	close_light.energy = base_close_energy * (0.85 + sin(t * 3.5) * 0.15)
+
+func lock_door() -> void:
+	is_locked = true
+	anim_sprite.play("Door_lock")
+	collision_shape.set_deferred("disabled", false)
+	_hide_interaction_label()
+	_update_door_lights()
+
+func unlock_door() -> void:
+	is_locked = false
+	anim_sprite.play("Door_Unlock")
+	collision_shape.set_deferred("disabled", true)
+	_update_door_lights()
+
+func _update_door_lights() -> void:
+	if is_locked:
+		_show_close_light()
+		return
+	_show_open_light()
+
+func _show_close_light() -> void:
+	_set_node_visible(close_light, true)
+	_set_node_visible(open_light, false)
+
+func _show_open_light() -> void:
+	_set_node_visible(close_light, false)
+	_set_node_visible(open_light, true)
+	_fade_in_open_light()
+
+func _set_node_visible(node: CanvasItem, is_vis: bool) -> void:
+	if not node:
+		return
+	node.visible = is_vis
+
+func _fade_in_open_light() -> void:
+	if not open_light:
+		return
+	open_light.energy = 0.0
+	var tween = create_tween()
+	tween.tween_property(open_light, "energy", base_open_energy, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _setup_interaction_label() -> void:
 	interaction_label = get_node_or_null("Label") as Label
@@ -58,17 +123,10 @@ func _setup_interaction_label() -> void:
 	interaction_label.text = "Presiona E"
 	interaction_label.visible = false
 
-func lock_door() -> void:
-	is_locked = true
-	anim_sprite.play("Door_lock")
-	collision_shape.set_deferred("disabled", false)
-	if interaction_label:
-		interaction_label.visible = false
-
-func unlock_door() -> void:
-	is_locked = false
-	anim_sprite.play("Door_Unlock")
-	collision_shape.set_deferred("disabled", true)
+func _hide_interaction_label() -> void:
+	if not interaction_label:
+		return
+	interaction_label.visible = false
 
 func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"): return

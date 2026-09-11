@@ -460,6 +460,23 @@ func get_active_protocol() -> String:
 func is_synergy_unlocked(syn_id: String) -> bool:
 	return unlocked_synergies.has(syn_id)
 
+func unlock_synergy(syn_id: String) -> void:
+	if not unlocked_synergies.has(syn_id):
+		unlocked_synergies.append(syn_id)
+
+func unlock_all_synergies() -> void:
+	var all_ids: Array[String] = [
+		"pistola_mente_colmena",
+		"roadkill",
+		"bestia_de_caza",
+		"trituradora_biomecanica",
+		"acorazado_muscular",
+		"minigun"
+	]
+	for syn_id in all_ids:
+		unlock_synergy(syn_id)
+
+
 func get_upgrade_level(key: String) -> float:
 	match key:
 		"damage":            return weapon_damage

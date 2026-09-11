@@ -3,11 +3,11 @@ extends Node
 const SYNERGIES = {
 	"pistola_mente_colmena": {
 		"name": "Mente Colmena",
-		"description": "Balas teledirigidas (abejas mecánicas) que buscan enemigos. Aumenta proyectiles, daño, rango y velocidad de ataque, pero reduce la velocidad de bala.",
+		"description": "Balas teledirigidas (abejas mecánicas). Dispara 3 abejas que buscan en abanico con vuelo ondulado orgánico y cazan agresivamente al objetivo.",
 		"required_weapon": "pistol",
 		"required_items": ["colmena", "cerebro", "cabeza_humana"],
 		"stat_modifiers": {
-			"bullet_count": 2.0,
+			"bullet_count": 1.0,
 			"damage": 3.0,
 			"lifetime": 4.0,
 			"projectile_speed": -200.0,

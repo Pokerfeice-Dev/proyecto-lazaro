@@ -9,6 +9,10 @@ var is_exploding: bool = false
 func _ready() -> void:
 	add_to_group("destructible")
 	add_to_group("barrel")
+	_setup_shadow()
+
+func _setup_shadow() -> void:
+	DropShadow.attach_to(self, Vector2(26.0, 12.0), Vector2(0.0, 13.0), 0.38)
 
 const ElementalPuddleScript = preload("res://Scripts/Objects/elemental_puddle.gd")
 
@@ -23,9 +27,12 @@ func take_damage(_amount: float = 1.0, _is_crit: bool = false) -> void:
 	_schedule_queue_free()
 
 func _spawn_ice_puddle() -> void:
+	var parent_node = get_parent()
+	if not parent_node: return
 	var puddle = ElementalPuddleScript.new()
 	puddle.setup(ElementalPuddle.PuddleType.ICE, global_position)
-	get_parent().add_child(puddle)
+	parent_node.call_deferred("add_child", puddle)
+
 
 func _disable_barrel_collisions() -> void:
 	var col = get_node_or_null("CollisionShape2D")

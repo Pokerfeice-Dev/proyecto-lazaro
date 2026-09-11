@@ -3,6 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://b3sfkuffxoep6" path="res://Art/Enemy_Shooter/enemy-explosion.png" id="1_0fh2i"]
 [ext_resource type="Script" uid="uid://ihjtddlrwddx" path="res://Scripts/Projectiles/enemy_shooter_projectile.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://ceupttpu830fl" path="res://Art/Weapons/Distance/Pistol/enemyprojectile16x6.png" id="3_hqsr6"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="4_mgxdm"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hqsr6"]
 atlas = ExtResource("1_0fh2i")
@@ -66,12 +67,18 @@ script = ExtResource("1_script")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=806443049]
 position = Vector2(-1.1920929e-07, 0)
 sprite_frames = SubResource("SpriteFrames_nsthf")
-animation = &"explosion"
+animation = &"shoot"
 autoplay = "shoot"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=123456789]
 position = Vector2(-0.99999994, 3.5527137e-15)
 scale = Vector2(0.648737, 0.648737)
 shape = SubResource("CircleShape2D_proj")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1108462665]
+color = Color(0.87455374, 0, 0.12445616, 1)
+energy = 0.7
+texture = ExtResource("4_mgxdm")
+texture_scale = 0.9
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

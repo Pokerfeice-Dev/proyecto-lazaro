@@ -25,7 +25,7 @@ func take_damage(amount: int, is_crit: bool = false) -> void:
 	
 	hit_stun_timer = 0.15
 	_show_damage_text(amount, is_crit)
-	_flash_red()
+	_flash_hit()
 	
 	# Emit hit signal for the tutorial logic
 	hit_received.emit()

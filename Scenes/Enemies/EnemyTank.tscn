@@ -17,6 +17,8 @@
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="15_jtnus"]
 [ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="16_po6uv"]
 [ext_resource type="AudioStream" uid="uid://d1xqc1066qerx" path="res://Audio/Enemy_snd/Enemy_tank.mp3" id="17_yosx3"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="18_shadow"]
+
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ciq8k"]
 atlas = ExtResource("2_rs3yy")
@@ -240,6 +242,13 @@ move_speed = 70.0
 damage = 17
 flesh_drop_chance = 0.9
 item_drop_chance = 0.5
+
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 16)
+script = ExtResource("18_shadow")
+shadow_size = Vector2(44, 18)
+shadow_offset = Vector2(0, 16)
+shadow_alpha = 0.45
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2111728552]
 texture_filter = 1
