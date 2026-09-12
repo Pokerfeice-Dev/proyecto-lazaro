@@ -21,11 +21,13 @@ script = ExtResource("1_apdux")
 [node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=1289403521]
 texture_filter = 1
 material = SubResource("CanvasItemMaterial_apdux")
+position = Vector2(19.000002, 0)
 rotation = 1.5707964
 scale = Vector2(0.09, 0.09)
 sprite_frames = ExtResource("2_apdux")
 animation = &"burn"
 autoplay = "burn"
+frame_progress = 0.57514155
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=453741919]
 scale = Vector2(3.5, 3.5)
@@ -34,5 +36,7 @@ shape = SubResource("CircleShape2D_xt0ww")
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=534579675]
 color = Color(1, 0.45, 0.1, 1)
 energy = 1.1
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.46666667)
 texture = ExtResource("3_rbvl6")
 texture_scale = 1.3

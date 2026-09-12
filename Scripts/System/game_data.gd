@@ -471,7 +471,8 @@ func unlock_all_synergies() -> void:
 		"bestia_de_caza",
 		"trituradora_biomecanica",
 		"acorazado_muscular",
-		"minigun"
+		"minigun",
+		"lanzallamas"
 	]
 	for syn_id in all_ids:
 		unlock_synergy(syn_id)

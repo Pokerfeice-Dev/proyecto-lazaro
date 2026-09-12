@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_suroi"]
 [ext_resource type="PackedScene" uid="uid://ckrk2gw0k85li" path="res://Scenes/Projectiles/FlameProjectile.tscn" id="2_gguvj"]
 [ext_resource type="Texture2D" uid="uid://c3n28g286y2py" path="res://Art/Weapons/Distance/Shotgun/Weapon_Shotgun.png" id="3_e43nr"]
-[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="4_hv4te"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_e43nr"]
 animations = [{
@@ -46,7 +45,6 @@ sprite_frames = SubResource("SpriteFrames_e43nr")
 animation = &"idle"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=1712458969]
-stream = ExtResource("4_hv4te")
 pitch_scale = 0.6
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1318768836]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c5yvy3a6wa2kj"]
 
-[ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://Art/Menu/Logo lazaro.png" id="1_run4o"]
 [ext_resource type="Script" uid="uid://cy3knerbe2tnk" path="res://Scripts/UI/options_menu.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c8i8eiqrnnhjv" path="res://Art/Menu/FRANKEN-GUN_Logo.png" id="2_fn00r"]
 
 [node name="Options_menu" type="CanvasLayer" unique_id=780314834]
 layer = 100
@@ -41,7 +41,7 @@ grow_horizontal = 2
 grow_vertical = 2
 scale = Vector2(6.6, 6.6)
 mouse_filter = 2
-texture = ExtResource("1_run4o")
+texture = ExtResource("2_fn00r")
 expand_mode = 3
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MenuControl" unique_id=1156914449]
@@ -68,12 +68,12 @@ horizontal_alignment = 1
 layout_mode = 2
 value = 100.0
 
-[node name="SfxLabel" type="Label" parent="MenuControl/VBoxContainer"]
+[node name="SfxLabel" type="Label" parent="MenuControl/VBoxContainer" unique_id=1742183276]
 layout_mode = 2
 text = "Efectos"
 horizontal_alignment = 1
 
-[node name="SfxSlider" type="HSlider" parent="MenuControl/VBoxContainer"]
+[node name="SfxSlider" type="HSlider" parent="MenuControl/VBoxContainer" unique_id=2072276856]
 layout_mode = 2
 value = 100.0
 

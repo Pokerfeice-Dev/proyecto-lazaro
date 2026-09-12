@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://eqaj6rtb03j6"]
 
 [ext_resource type="Script" uid="uid://d06hps2ebviip" path="res://Scripts/Weapon/flame_stream.gd" id="1_v5euq"]
+[ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="2_4lffr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4lffr"]
 
@@ -13,3 +14,11 @@ script = ExtResource("1_v5euq")
 shape = SubResource("RectangleShape2D_4lffr")
 
 [node name="TickTimer" type="Timer" parent="." unique_id=923076034]
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1314606821]
+color = Color(1, 0.45, 0.1, 1)
+energy = 0.7
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.46666667)
+texture = ExtResource("2_4lffr")
+texture_scale = 1.3

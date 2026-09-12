@@ -2255,13 +2255,30 @@ func _spawn_flame_stream() -> void:
 
 	flame_stream_instance = stream
 	_show_primary_weapon()
-	_play_weapon_effects()
+	_animate_flamethrower_shoot()
 	apply_camera_shake()
+
+func _animate_flamethrower_shoot() -> void:
+	if not active_weapon:
+		return
+	var weapon_anim = active_weapon.get_node_or_null("Weapon_Sprites") as AnimatedSprite2D
+	if not weapon_anim:
+		return
+	weapon_anim.play("shoot")
+
+func _animate_flamethrower_idle() -> void:
+	if not active_weapon:
+		return
+	var weapon_anim = active_weapon.get_node_or_null("Weapon_Sprites") as AnimatedSprite2D
+	if not weapon_anim:
+		return
+	weapon_anim.play("idle")
 
 func _force_stop_flame_stream() -> void:
 	if is_instance_valid(flame_stream_instance):
 		flame_stream_instance.start_extinguish()
 	flame_stream_instance = null
+	_animate_flamethrower_idle()
 
 func _initialize_protocols() -> void:
 	first_hit_taken_in_room = false
