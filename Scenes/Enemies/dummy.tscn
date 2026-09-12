@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://de1kxxsbmnrnh" path="res://Art/Dummy/Dummy.png" id="1_fotkt"]
 [ext_resource type="Script" uid="uid://csusbytpusisw" path="res://Scripts/Enemies/mannequin.gd" id="1_mannequin"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="3_shadow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ccesc"]
 size = Vector2(20, 45)
@@ -11,9 +12,17 @@ collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_mannequin")
 
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 14)
+script = ExtResource("3_shadow")
+shadow_size = Vector2(26, 12)
+shadow_offset = Vector2(0, 14)
+shadow_alpha = 0.38
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=999588907]
 position = Vector2(0, -0.5)
 shape = SubResource("RectangleShape2D_ccesc")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=263586188]
 texture = ExtResource("1_fotkt")
+

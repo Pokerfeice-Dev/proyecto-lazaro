@@ -13,6 +13,8 @@
 [ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="12_jbpaa"]
 [ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="13_631ej"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_8jjyg"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="15_shadow"]
+
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_anqt5"]
 atlas = ExtResource("2_oxu7a")
@@ -134,6 +136,13 @@ script = ExtResource("1_mannequin")
 max_health = 9999
 current_health = 9999
 move_speed = 0.0
+
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 14)
+script = ExtResource("15_shadow")
+shadow_size = Vector2(26, 12)
+shadow_offset = Vector2(0, 14)
+shadow_alpha = 0.38
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=283656131]
 texture_filter = 1

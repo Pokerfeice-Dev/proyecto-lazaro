@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" uid="uid://bx32aaya7ovcl" path="res://Art/Enemy_Boss_2/Slime2/Slime2_Idle.png" id="4_ae64y"]
 [ext_resource type="Texture2D" uid="uid://byem2tr6kbl0r" path="res://Art/Enemy_Boss_2/Slime2/Slime2_Run.png" id="5_c80ij"]
 [ext_resource type="Script" uid="uid://rxpdn8hqtmsc" path="res://Scripts/Enemies/boss2_slime_visual.gd" id="6_ae64y"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="7_shadow"]
+
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_boss2body"]
 radius = 34.0
@@ -587,6 +589,13 @@ animations = [{
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_boss2script")
+
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 28)
+script = ExtResource("7_shadow")
+shadow_size = Vector2(76, 32)
+shadow_offset = Vector2(0, 28)
+shadow_alpha = 0.48
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=719952362]
 shape = SubResource("CircleShape2D_boss2body")

@@ -29,10 +29,23 @@
 [ext_resource type="PackedScene" uid="uid://mpouyawdwg70" path="res://Scenes/UI/HUD.tscn" id="52_daopn"]
 [ext_resource type="Script" uid="uid://bs5ls16658xo0" path="res://Scripts/Inventory/inventory.gd" id="100_inv"]
 [ext_resource type="Script" uid="uid://bfyvaviudoe86" path="res://Scripts/Equipment/equipment.gd" id="101_equ"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="102_shadow"]
+[ext_resource type="Script" uid="uid://bb68lgwsf5x7q" path="res://Scripts/Effects/ambient_dust.gd" id="103_dust"]
 
 [sub_resource type="Resource" id="Resource_b7nrf"]
 script = ExtResource("2_ft8w5")
 metadata/_custom_type_script = "uid://bi0sm5p5ejgtm"
+
+[sub_resource type="Gradient" id="Gradient_o2jaa"]
+offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_2l7ve"]
+gradient = SubResource("Gradient_o2jaa")
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_i8kqr"]
 atlas = ExtResource("3_wwmao")
@@ -1261,6 +1274,18 @@ offset_top = -261.0
 offset_right = 482.0
 offset_bottom = 280.0
 color = Color(0, 0, 0, 1)
+
+[node name="AmbientDust" type="CPUParticles2D" parent="Camera2D" unique_id=1982736450]
+script = ExtResource("103_dust")
+
+[node name="DropShadow" type="Sprite2D" parent="." unique_id=1821202540]
+modulate = Color(0, 0, 0, 0.38)
+show_behind_parent = true
+position = Vector2(0, 15)
+scale = Vector2(0.40625, 0.375)
+texture = SubResource("GradientTexture2D_2l7ve")
+script = ExtResource("102_shadow")
+shadow_offset = Vector2(0, 15)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1352715319]
 scale = Vector2(1.3, 1.3)

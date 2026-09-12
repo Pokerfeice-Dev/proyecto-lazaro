@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://Art/Scrap/atlas_56a.png" id="3_1i0h4"]
 [ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="3_kgv6s"]
 [ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://Art/Scrap/Scrap_snd.wav" id="4_4qgmg"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="5_shadow"]
+
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dytfl"]
 atlas = ExtResource("3_1i0h4")
@@ -104,6 +106,13 @@ animations = [{
 [node name="ItemDropWorld" type="Node2D" unique_id=89846516]
 script = ExtResource("1_script")
 item_data = ExtResource("2_ewpb2")
+
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 6)
+script = ExtResource("5_shadow")
+shadow_size = Vector2(16, 8)
+shadow_offset = Vector2(0, 6)
+shadow_alpha = 0.28
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=554808052]
 z_index = -1

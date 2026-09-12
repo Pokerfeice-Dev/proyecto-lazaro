@@ -54,7 +54,8 @@ func _setup_collision_shape() -> void:
 	shape.radius = puddle_radius
 	var col = CollisionShape2D.new()
 	col.shape = shape
-	add_child(col)
+	call_deferred("add_child", col)
+
 
 func _setup_particles() -> void:
 	_particles = CPUParticles2D.new()

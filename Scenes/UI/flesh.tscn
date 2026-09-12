@@ -5,6 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://evhu5eu2upic" path="res://Art/Lights/Cyan_light.png" id="3_52gp0"]
 [ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://Art/Scrap/atlas_56a.png" id="4_o0mdh"]
 [ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://Art/Scrap/Scrap_snd.wav" id="5_o4a1k"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="6_shadow"]
+
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_yo6nm"]
 radius = 11.0404
@@ -104,6 +106,13 @@ animations = [{
 [node name="Flesh" type="Node2D" unique_id=1014588695]
 scale = Vector2(0.9, 0.9)
 script = ExtResource("1_bhe41")
+
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 4)
+script = ExtResource("6_shadow")
+shadow_size = Vector2(14, 7)
+shadow_offset = Vector2(0, 4)
+shadow_alpha = 0.28
 
 [node name="flesh_sprite" type="Sprite2D" parent="." unique_id=1764180436]
 texture_filter = 1

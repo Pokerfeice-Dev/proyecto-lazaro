@@ -17,6 +17,8 @@
 [ext_resource type="Texture2D" uid="uid://b5y10xhlvkgwy" path="res://Art/Enemy_Boss_1/Fx/frame0009.png" id="15_yu4hn"]
 [ext_resource type="Texture2D" uid="uid://dmpk1l0ky7dot" path="res://Art/Enemy_Boss_1/Fx/frame0010.png" id="16_smiad"]
 [ext_resource type="AudioStream" uid="uid://d1dpaiu1b8225" path="res://Audio/Enemy_snd/Boss1/Explosion.mp3" id="17_d28mi"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="18_shadow"]
+
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kcty2"]
 size = Vector2(132, 137)
@@ -70,6 +72,13 @@ collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_script")
 boss_damage = 25
+
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 26)
+script = ExtResource("18_shadow")
+shadow_size = Vector2(64, 28)
+shadow_offset = Vector2(0, 26)
+shadow_alpha = 0.48
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2135203738]
 scale = Vector2(3, 3)

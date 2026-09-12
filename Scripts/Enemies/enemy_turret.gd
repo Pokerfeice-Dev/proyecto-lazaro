@@ -109,15 +109,27 @@ func _hide_sprite() -> void:
 	if sprite_cannon:
 		sprite_cannon.hide()
 
-func _flash_red() -> void:
-	if not sprite_base or not sprite_cannon: return
-	
-	if _turret_flash_tween and _turret_flash_tween.is_valid():
-		_turret_flash_tween.kill()
-		
-	sprite_base.modulate = Color.RED
-	sprite_cannon.modulate = Color.RED
-	
+func _flash_hit() -> void:
+	if not sprite_base:
+		return
+	if not sprite_cannon:
+		return
+	_cancel_turret_flash_tween()
+	sprite_base.modulate = Color(3.0, 3.0, 3.0, 1.0)
+	sprite_cannon.modulate = Color(3.0, 3.0, 3.0, 1.0)
+	_start_turret_flash_tween()
+
+func _cancel_turret_flash_tween() -> void:
+	if not _turret_flash_tween:
+		return
+	if not _turret_flash_tween.is_valid():
+		return
+	_turret_flash_tween.kill()
+
+func _start_turret_flash_tween() -> void:
 	_turret_flash_tween = create_tween().set_parallel(true)
-	_turret_flash_tween.tween_property(sprite_base, "modulate", _default_base_modulate, 0.2)
-	_turret_flash_tween.tween_property(sprite_cannon, "modulate", _default_cannon_modulate, 0.2)
+	_turret_flash_tween.tween_property(sprite_base, "modulate", _default_base_modulate, 0.18)
+	_turret_flash_tween.tween_property(sprite_cannon, "modulate", _default_cannon_modulate, 0.18)
+
+func _flash_red() -> void:
+	_flash_hit()

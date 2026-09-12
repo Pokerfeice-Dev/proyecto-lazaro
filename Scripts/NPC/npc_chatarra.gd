@@ -13,6 +13,10 @@ func _ready() -> void:
 		area_2d.body_entered.connect(_on_body_entered)
 		area_2d.body_exited.connect(_on_body_exited)
 	_setup_interact_label()
+	_setup_shadow()
+
+func _setup_shadow() -> void:
+	DropShadow.attach_to(self, Vector2(28.0, 14.0), Vector2(0.0, 16.0), 0.38)
 
 func _setup_interact_label() -> void:
 	interact_label = Label.new()

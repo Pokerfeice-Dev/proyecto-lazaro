@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="1_door"]
 [ext_resource type="Texture2D" uid="uid://d4mktwpsxdm4w" path="res://Art/Tileset/door_spritesheet.png" id="1_uem52"]
 [ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="3_8spo7"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="4_14duu"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_b72a7"]
 atlas = ExtResource("1_uem52")
@@ -116,3 +117,16 @@ offset_right = 26.0
 offset_bottom = 73.0
 rotation = -1.5707964
 label_settings = SubResource("LabelSettings_14duu")
+
+[node name="Close" type="PointLight2D" parent="." unique_id=834699254]
+position = Vector2(-18, 0)
+color = Color(0.8288101, 2.7193873e-06, 5.7756904e-07, 1)
+texture = ExtResource("4_14duu")
+texture_scale = 0.4
+
+[node name="Open" type="PointLight2D" parent="." unique_id=995110236]
+position = Vector2(-18, 0)
+color = Color(0.29665944, 0.8396237, 0.7382413, 1)
+energy = 1.1
+texture = ExtResource("4_14duu")
+texture_scale = 0.5

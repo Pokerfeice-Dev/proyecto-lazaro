@@ -90,6 +90,7 @@ var dash_start_pos: Vector2 = Vector2.ZERO
 
 var _default_modulate: Color = Color.WHITE
 var _flash_tween: Tween = null
+var drop_shadow: DropShadow = null
 
 func _ready() -> void:
 	_init_timers()
@@ -102,6 +103,8 @@ func _ready() -> void:
 	_update_hud_health(stats.current_health, stats.max_health)
 	_update_hud_scrap(GameData.scrap)
 	z_index = 5
+	_setup_player_shadow()
+	_setup_cinematic_vignette()
 	
 	if anim_sprite:
 		_default_modulate = anim_sprite.modulate
@@ -112,6 +115,13 @@ func _ready() -> void:
 		equip.equipment_changed.connect(_on_equipment_changed)
 		equip.body_part_equipped.connect(_on_body_part_equipped)
 	_update_player_stats()
+
+func _setup_player_shadow() -> void:
+	drop_shadow = DropShadow.attach_to(self, Vector2(26.0, 12.0), Vector2(0.0, 15.0), 0.38)
+
+func _setup_cinematic_vignette() -> void:
+	var vignette = CinematicVignette.new()
+	add_child(vignette)
 
 func _on_equipment_changed() -> void:
 	_update_player_stats()
@@ -812,6 +822,8 @@ func fire_projectile(dir: Vector2) -> void:
 	if cheat_op_weapon_mode:
 		dmg = 50.0
 		final_fire_rate = 0.05
+	bullets = _calculate_final_bullet_count(bullets, p_scene, active_weapon_id)
+	spread = _calculate_final_spread(spread, p_scene, active_weapon_id)
 	shoot_timer.start(final_fire_rate)
 	_spawn_bullets(p_scene, bullets, spread, dir, dmg, p_speed, fire_point, piercing, crit_chance, crit_damage, lifetime)
 	apply_camera_shake()
@@ -924,33 +936,69 @@ func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle:
 	if "lifetime" in proj: proj.lifetime = lifetime
 	if "fragmentation_chance" in proj:
 		proj.fragmentation_chance = _get_fragmentation_chance()
-	_assign_homing_target_if_supported(proj)
+	_configure_bee_swarm_if_supported(proj, i, count, final_dir)
+	_assign_homing_target_if_supported(proj, i)
 
-func _assign_homing_target_if_supported(proj: Node2D) -> void:
+func _calculate_final_bullet_count(current_bullets: int, p_scene: PackedScene, active_weapon_id: String) -> int:
+	if active_weapon_id == "hivemind_pistol":
+		return 3
+	if p_scene and "beeprojectile" in p_scene.resource_path.to_lower():
+		return 3
+	return current_bullets
+
+func _calculate_final_spread(current_spread: float, p_scene: PackedScene, active_weapon_id: String) -> float:
+	if active_weapon_id == "hivemind_pistol":
+		return maxf(50.0, current_spread)
+	if p_scene and "beeprojectile" in p_scene.resource_path.to_lower():
+		return maxf(50.0, current_spread)
+	return current_spread
+
+func _configure_bee_swarm_if_supported(proj: Node2D, index: int, total: int, initial_dir: Vector2) -> void:
+	if not proj.has_method("setup_bee_swarm"):
+		return
+	proj.setup_bee_swarm(index, total, initial_dir)
+
+func _assign_homing_target_if_supported(proj: Node2D, index: int = 0) -> void:
 	if not proj.has_method("set_homing_target"):
 		return
-	var target = _get_cone_target_enemy()
-	if target:
-		proj.set_homing_target(target)
+	var target = _get_cone_target_enemy_for_index(index)
+	if not target:
+		return
+	proj.set_homing_target(target)
 
-func _get_cone_target_enemy() -> Node2D:
-	if not active_weapon:
+func _get_cone_target_enemy_for_index(index: int) -> Node2D:
+	var enemies = _get_cone_enemies_list()
+	if enemies.is_empty():
 		return null
+	if enemies.size() == 1:
+		return enemies[0] as Node2D
+	var target_index = index % enemies.size()
+	return enemies[target_index] as Node2D
+
+func _get_cone_enemies_list() -> Array:
+	if not active_weapon:
+		return []
 	var cur = active_weapon.get("current_weapon")
 	if not cur:
-		return null
+		return []
 	var cone_aim = _get_cone_aim_node(cur)
 	if not cone_aim:
-		return null
-		
-	# Programmatic safety configuration
+		return []
 	cone_aim.monitoring = true
-	cone_aim.collision_mask = 2 # Detect enemies (layer 2)
-	
+	cone_aim.collision_mask = 2
 	var bodies = cone_aim.get_overlapping_bodies()
-	var target = _find_closest_enemy_in_list(bodies)
-	print("[CONE AIM DEBUG] Overlapping bodies: ", bodies.size(), " | Selected Homing Target: ", target.name if target else "None")
-	return target
+	var enemies: Array = []
+	for b in bodies:
+		if not b.is_in_group("enemy"):
+			continue
+		enemies.append(b)
+	return enemies
+
+func _get_cone_target_enemy() -> Node2D:
+	var enemies = _get_cone_enemies_list()
+	if enemies.is_empty():
+		return null
+	return _find_closest_enemy_in_list(enemies)
 
 func _get_cone_aim_node(cur: Node) -> Area2D:
 	var node = cur.get_node_or_null("Cone_Aim")

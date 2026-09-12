@@ -1,10 +1,18 @@
 [gd_scene format=3 uid="uid://c8gocqke6jibu"]
 
 [ext_resource type="Texture2D" uid="uid://d3bqynch51qyn" path="res://Art/npc/Icon50.png" id="1_68hwf"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="2_shadow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fwbht"]
 
 [node name="Npc_Chatarra" type="Node2D" unique_id=718364386]
+
+[node name="DropShadow" type="Sprite2D" parent="."]
+position = Vector2(0, 16)
+script = ExtResource("2_shadow")
+shadow_size = Vector2(28, 14)
+shadow_offset = Vector2(0, 16)
+shadow_alpha = 0.38
 
 [node name="Area2D" type="Area2D" parent="." unique_id=503682900]
 
@@ -14,3 +22,4 @@ shape = SubResource("RectangleShape2D_fwbht")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=688705634]
 texture = ExtResource("1_68hwf")
+

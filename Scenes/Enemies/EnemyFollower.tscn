@@ -17,6 +17,18 @@
 [ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="15_anqt5"]
 [ext_resource type="AudioStream" uid="uid://vkx5y77agot8" path="res://Audio/Enemy_snd/Enemy_mutation.mp3" id="16_n36py"]
 [ext_resource type="Texture2D" uid="uid://d0byweagbhu27" path="res://Art/Enemy_Mutation/dog_attack.png" id="17_dogatk"]
+[ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="18_shadow"]
+
+[sub_resource type="Gradient" id="Gradient_o2jaa"]
+offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_2l7ve"]
+gradient = SubResource("Gradient_o2jaa")
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dogatkback0"]
 atlas = ExtResource("17_dogatk")
@@ -538,6 +550,15 @@ script = ExtResource("1_efol")
 move_speed = 100.0
 damage = 7
 attack_speed = 0.7
+
+[node name="DropShadow" type="Sprite2D" parent="." unique_id=93508587]
+modulate = Color(0, 0, 0, 0.4)
+show_behind_parent = true
+position = Vector2(0, 10.000001)
+scale = Vector2(0.40625, 0.375)
+texture = SubResource("GradientTexture2D_2l7ve")
+script = ExtResource("18_shadow")
+shadow_alpha = 0.4
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=283656131]
 texture_filter = 1
