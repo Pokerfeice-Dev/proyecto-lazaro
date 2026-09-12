@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c60eaa82nh8jw"
-path="res://.godot/imported/Scrap_icon.png-691c4c5d7f2d290b42a9083bba312efd.ctex"
+uid="uid://utkkqm0fd61a"
+path="res://.godot/imported/FlameStream_Strip.png-62ccff2a595af80e2efe0bf3a85a4276.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Scrap/Scrap_icon.png"
-dest_files=["res://.godot/imported/Scrap_icon.png-691c4c5d7f2d290b42a9083bba312efd.ctex"]
+source_file="res://Art/Effects/FlameStream_Strip.png"
+dest_files=["res://.godot/imported/FlameStream_Strip.png-62ccff2a595af80e2efe0bf3a85a4276.ctex"]
 
 [params]
 

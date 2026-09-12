@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://eqaj6rtb03j6"]
+
+[ext_resource type="Script" uid="uid://d06hps2ebviip" path="res://Scripts/Weapon/flame_stream.gd" id="1_v5euq"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4lffr"]
+
+[node name="FlameStream" type="Area2D" unique_id=688487021]
+script = ExtResource("1_v5euq")
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=987078242]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=929989699]
+shape = SubResource("RectangleShape2D_4lffr")
+
+[node name="TickTimer" type="Timer" parent="." unique_id=923076034]

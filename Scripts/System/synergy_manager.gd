@@ -68,6 +68,14 @@ const SYNERGIES = {
 		"required_weapon": "uzi",
 		"required_items": ["mezcladora", "motocicleta", "sierra_circular"],
 		"weapon_scene_override": "res://Scenes/Weapon/Minigun.tscn"
+	},
+	"lanzallamas": {
+		"name": "Lanzallamas",
+		"description": "Reemplaza la escopeta por un lanzallamas de alcance corto. Quema al impactar (daño en el tiempo) y el alcance aumenta rápido mientras mantenés presionado el disparo.",
+		"required_weapon": "shotgun",
+		"required_items": ["cabeza_de_perro", "cabeza_de_perro", "cabeza_de_perro"],
+		"stat_modifiers": {},
+		"weapon_scene_override": "res://Scenes/Weapon/Flamethrower.tscn"
 	}
 }
 
@@ -104,23 +112,29 @@ func _is_weapon_satisfied(def: Dictionary, active_weapon_id: String) -> bool:
 
 func _are_items_satisfied(def: Dictionary, equipment: Object, is_main: bool = true) -> bool:
 	var req_items = def.get("required_items", [])
+	var needed_counts = {}
 	for req_item_id in req_items:
-		var is_eq = _is_item_equipped(equipment, req_item_id, is_main)
-		if not is_eq:
+		var key = req_item_id.to_lower()
+		needed_counts[key] = needed_counts.get(key, 0) + 1
+	for item_id in needed_counts.keys():
+		var needed = needed_counts[item_id]
+		var have = _count_item_equipped(equipment, item_id, is_main)
+		if have < needed:
 			return false
 	return true
 
-func _is_item_equipped(equipment: Object, item_id: String, is_main: bool = true) -> bool:
+func _count_item_equipped(equipment: Object, item_id: String, is_main: bool = true) -> int:
 	if not equipment:
-		return false
+		return 0
+	var count = 0
 	for slot in equipment.slots.keys():
 		if is_main and (slot == ItemData.ItemSlot.SEC_W1 or slot == ItemData.ItemSlot.SEC_W2 or slot == ItemData.ItemSlot.SEC_W3):
 			continue
 		if not is_main and (slot == ItemData.ItemSlot.MAIN_W1 or slot == ItemData.ItemSlot.MAIN_W2 or slot == ItemData.ItemSlot.MAIN_W3):
 			continue
 		if _check_item_id_in_slot(equipment, slot, item_id):
-			return true
-	return false
+			count += 1
+	return count
 
 func _check_item_id_in_slot(equipment: Object, slot: Variant, item_id: String) -> bool:
 	var item = equipment.slots[slot]

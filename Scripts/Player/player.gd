@@ -47,6 +47,8 @@ var is_low_health: bool = false
 
 var can_shoot: bool = true
 var minigun_hold_time: float = 0.0
+var flamethrower_hold_time: float = 0.0
+var flame_stream_instance: Area2D = null
 var shoot_timer: Timer
 var cheat_op_weapon_mode: bool = false
 
@@ -378,6 +380,7 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	_update_minigun_hold_time(delta)
+	_update_flamethrower_hold_time(delta)
 	_check_dash_input()
 	_process_movement(delta)
 	update_glock()
@@ -700,6 +703,11 @@ func handle_shooting() -> void:
 		if Input.is_action_just_pressed("shoot"):
 			_attack_left_melee()
 		return
+	if _is_flamethrower_active():
+		_handle_flamethrower_stream()
+		return
+	if is_instance_valid(flame_stream_instance):
+		_force_stop_flame_stream()
 	if not can_shoot: return
 	if not Input.is_action_pressed("shoot"): return
 	var shoot_dir = (get_global_mouse_position() - global_position).normalized()
@@ -736,6 +744,7 @@ func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 		
 	if is_main:
 		bonus += _get_minigun_stat_bonus(stat_name)
+		bonus += _get_flamethrower_range_bonus(stat_name)
 		
 	return bonus
 
@@ -2145,6 +2154,66 @@ func _get_fragmentation_chance() -> float:
 	if _is_minigun_active() and _get_minigun_level() == 5:
 		return 0.25
 	return 0.0
+
+func _update_flamethrower_hold_time(delta: float) -> void:
+	if _is_flamethrower_active() and Input.is_action_pressed("shoot"):
+		flamethrower_hold_time += delta
+	else:
+		flamethrower_hold_time = 0.0
+
+func _is_flamethrower_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_ranged_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
+	return active_syns.has("lanzallamas")
+
+func _get_flamethrower_range_bonus(stat_name: String) -> float:
+	if stat_name != "lifetime":
+		return 0.0
+	if not _is_flamethrower_active():
+		return 0.0
+	var ramp_time = 0.3
+	var max_lifetime_bonus = 0.14
+	var t = clamp(flamethrower_hold_time / ramp_time, 0.0, 1.0)
+	return max_lifetime_bonus * t
+
+## Chorro continuo del lanzallamas: en vez de disparar proyectiles, mantiene
+## un unico nodo FlameStream pegado al arma mientras se mantiene presionado
+## el disparo, y lo extingue (con su propia animacion de fade) al soltar.
+func _handle_flamethrower_stream() -> void:
+	if Input.is_action_pressed("shoot"):
+		if not is_instance_valid(flame_stream_instance):
+			_spawn_flame_stream()
+		if is_instance_valid(flame_stream_instance):
+			flame_stream_instance.update_hold(flamethrower_hold_time)
+	else:
+		_force_stop_flame_stream()
+
+func _spawn_flame_stream() -> void:
+	if not active_weapon:
+		return
+	var stream_scene = load("res://Scenes/Weapon/FlameStream.tscn")
+	if not stream_scene:
+		return
+	var stream = stream_scene.instantiate()
+	active_weapon.add_child(stream)
+	stream.position = Vector2(18, -2)
+
+	var bonus_aps_pct = _get_equip_stat("attack_speed")
+	var final_aps = _get_weapon_attack_speed() * (1.0 + bonus_aps_pct)
+	var dmg = (_get_weapon_damage() + _get_equip_stat("damage")) * (_get_weapon_damage_multiplier() + _get_equip_stat("damage_multiplier"))
+	var dps = dmg * final_aps
+	stream.setup(dps, 2, 0.4, 1.6)
+
+	flame_stream_instance = stream
+	_show_primary_weapon()
+	_play_weapon_effects()
+	apply_camera_shake()
+
+func _force_stop_flame_stream() -> void:
+	if is_instance_valid(flame_stream_instance):
+		flame_stream_instance.start_extinguish()
+	flame_stream_instance = null
 
 func _initialize_protocols() -> void:
 	first_hit_taken_in_room = false

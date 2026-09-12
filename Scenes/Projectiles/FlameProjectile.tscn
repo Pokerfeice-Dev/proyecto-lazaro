@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://ckrk2gw0k85li"]
+
+[ext_resource type="Script" uid="uid://bqyn6bl8a2pi1" path="res://Scripts/Projectiles/flame_projectile.gd" id="1_apdux"]
+[ext_resource type="SpriteFrames" uid="uid://dcbr662n1a0rm" path="res://Art/Effects/FlameAnim.tres" id="2_apdux"]
+[ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="3_rbvl6"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_apdux"]
+light_mode = 1
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xt0ww"]
+radius = 2.0
+
+[node name="FlameProjectile" type="Area2D" unique_id=1154702800]
+z_index = 50
+z_as_relative = false
+texture_filter = 1
+collision_layer = 8
+collision_mask = 7
+script = ExtResource("1_apdux")
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=1289403521]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_apdux")
+rotation = 1.5707964
+scale = Vector2(0.09, 0.09)
+sprite_frames = ExtResource("2_apdux")
+animation = &"burn"
+autoplay = "burn"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=453741919]
+scale = Vector2(3.5, 3.5)
+shape = SubResource("CircleShape2D_xt0ww")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=534579675]
+color = Color(1, 0.45, 0.1, 1)
+energy = 1.1
+texture = ExtResource("3_rbvl6")
+texture_scale = 1.3
