@@ -17,6 +17,16 @@
 [ext_resource type="AudioStream" uid="uid://dweeue74eh7sp" path="res://Audio/Enemy_snd/Enemy_turret.mp3" id="15_jy7vw"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="16_shadow"]
 
+[sub_resource type="Gradient" id="Gradient_86xiu"]
+offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vkefd"]
+gradient = SubResource("Gradient_86xiu")
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_af2qg"]
 size = Vector2(18.5, 39)
@@ -129,7 +139,7 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_10tr6"]
 radius = 9.586417
 
-[node name="EnemyTurret" type="CharacterBody2D" unique_id=1213135006 groups=["enemy"]]
+[node name="Delivery" type="CharacterBody2D" unique_id=1213135006 groups=["enemy"]]
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_iuh4p")
@@ -138,8 +148,12 @@ attack_speed = 0.8
 flesh_drop_chance = 0.1
 item_drop_chance = 0.9
 
-[node name="DropShadow" type="Sprite2D" parent="."]
+[node name="DropShadow" type="Sprite2D" parent="." unique_id=1809498239]
+modulate = Color(0, 0, 0, 0.4)
+show_behind_parent = true
 position = Vector2(0, 12)
+scale = Vector2(0.5, 0.4375)
+texture = SubResource("GradientTexture2D_vkefd")
 script = ExtResource("16_shadow")
 shadow_size = Vector2(32, 14)
 shadow_offset = Vector2(0, 12)
@@ -172,6 +186,7 @@ frame = 10
 frame_progress = 1.0
 
 [node name="Summon_anim" type="AnimatedSprite2D" parent="." unique_id=1910675046]
+visible = false
 modulate = Color(1, 1, 1, 0.92156863)
 position = Vector2(0, 8)
 scale = Vector2(3.1173692, 3.1173692)

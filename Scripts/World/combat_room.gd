@@ -152,15 +152,15 @@ func _add_follower_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 	pool.append(preload("res://Scenes/Enemies/EnemyFollower.tscn"))
 
 func _add_shooter_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
-	if not allowed.has("shooter"): return
+	if not allowed.has("shooter") and not allowed.has("carpenter"): return
 	pool.append(preload("res://Scenes/Enemies/EnemyShooter.tscn"))
 
 func _add_tank_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
-	if not allowed.has("tank"): return
+	if not allowed.has("tank") and not allowed.has("mecha"): return
 	pool.append(preload("res://Scenes/Enemies/EnemyTank.tscn"))
 
 func _add_turret_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
-	if not allowed.has("turret"): return
+	if not allowed.has("turret") and not allowed.has("delivery"): return
 	pool.append(preload("res://Scenes/Enemies/EnemyTurret.tscn"))
 
 func _add_summoner_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
@@ -219,7 +219,7 @@ func _spawn_single_enemy() -> void:
 	if spawn_points.is_empty() or enemy_pool.is_empty(): return
 
 	var point = spawn_points.pick_random()
-	var random_enemy_scene = enemy_pool.pick_random()
+	var random_enemy_scene = _pick_random_enemy_scene()
 
 	if not random_enemy_scene: return
 
@@ -239,6 +239,34 @@ func _spawn_single_enemy() -> void:
 
 	active_enemies += 1
 	enemies_spawned_so_far += 1
+
+func _pick_random_enemy_scene() -> PackedScene:
+	if enemy_pool.is_empty(): return null
+	var available_pool = _filter_available_enemy_pool()
+	if available_pool.is_empty():
+		return enemy_pool.pick_random()
+	return available_pool.pick_random()
+
+func _filter_available_enemy_pool() -> Array[PackedScene]:
+	var result: Array[PackedScene] = []
+	var summoners_count = _count_active_summoners()
+	for scene in enemy_pool:
+		if _is_summoner_scene(scene) and summoners_count >= 2:
+			continue
+		result.append(scene)
+	return result
+
+func _count_active_summoners() -> int:
+	var count = 0
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for e in enemies:
+		if e is EnemySummoner and not e.is_dying:
+			count += 1
+	return count
+
+func _is_summoner_scene(scene: PackedScene) -> bool:
+	if not scene: return false
+	return scene.resource_path.to_lower().contains("summoner")
 
 func _on_enemy_died(_enemy) -> void:
 	active_enemies -= 1

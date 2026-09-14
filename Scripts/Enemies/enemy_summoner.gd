@@ -8,14 +8,15 @@ enum State {
 	DEAD
 }
 
-@export var summon_cooldown: float = 3.5
+@export var summon_cooldown: float = 5.0
+@export var post_all_dead_cooldown: float = 4.0
 @export var min_chase_dist: float = 180.0
 @export var max_chase_dist: float = 320.0
 @export var bee_scene: PackedScene = preload("res://Scenes/Enemies/Enemy_bee_summon.tscn")
 
 var current_state: State = State.CHASE
 var active_summons: Array[Node2D] = []
-var summon_timer: float = 1.0 # First summon occurs quickly
+var summon_timer: float = 2.5
 
 @onready var anim_sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var summon_anim: AnimatedSprite2D = get_node_or_null("Summon_anim")
@@ -49,17 +50,18 @@ func _physics_process(delta: float) -> void:
 	_handle_summoning(delta)
 
 func _handle_summoning(delta: float) -> void:
-	# Clean up any freed nodes from active_summons
+	_cleanup_dead_summons()
+	if active_summons.size() >= 2: return
+	summon_timer -= delta
+	if summon_timer <= 0.0:
+		_start_summon()
+
+func _cleanup_dead_summons() -> void:
 	var valid_summons: Array[Node2D] = []
 	for s in active_summons:
-		if is_instance_valid(s):
+		if is_instance_valid(s) and not s.is_queued_for_deletion():
 			valid_summons.append(s)
 	active_summons = valid_summons
-
-	if active_summons.size() < 2:
-		summon_timer -= delta
-		if summon_timer <= 0.0:
-			_start_summon()
 
 func _start_summon() -> void:
 	current_state = State.SUMMON
@@ -128,6 +130,12 @@ func _spawn_bee() -> void:
 
 func _on_bee_died(bee: EnemyBase) -> void:
 	active_summons.erase(bee)
+	_check_all_bees_killed()
+
+func _check_all_bees_killed() -> void:
+	_cleanup_dead_summons()
+	if not active_summons.is_empty(): return
+	summon_timer = post_all_dead_cooldown
 
 func _play_walk_animation(dir: Vector2) -> void:
 	if not anim_sprite: return

@@ -172,7 +172,7 @@ func _setup_enemy_shadow() -> void:
 
 func _get_enemy_shadow_dimensions() -> Dictionary:
 	var script_path = get_script().resource_path.to_lower()
-	if "tank" in script_path:
+	if "tank" in script_path or "mecha" in script_path:
 		return {"size": Vector2(44.0, 18.0), "offset": Vector2(0.0, 16.0)}
 	if "boss2" in script_path:
 		return {"size": Vector2(76.0, 32.0), "offset": Vector2(0.0, 28.0)}
@@ -180,7 +180,7 @@ func _get_enemy_shadow_dimensions() -> Dictionary:
 		return {"size": Vector2(64.0, 28.0), "offset": Vector2(0.0, 26.0)}
 	if "bee_summon" in script_path:
 		return {"size": Vector2(18.0, 9.0), "offset": Vector2(0.0, 14.0)}
-	if "turret" in script_path:
+	if "turret" in script_path or "delivery" in script_path:
 		return {"size": Vector2(32.0, 14.0), "offset": Vector2(0.0, 12.0)}
 	return {"size": Vector2(26.0, 12.0), "offset": Vector2(0.0, 14.0)}
 
@@ -573,11 +573,11 @@ func _unlock_bestiary_entry() -> void:
 	var script_path = get_script().resource_path.to_lower()
 	if "follower" in script_path:
 		GameData.unlock_codex_entry("enemies", "follower")
-	elif "shooter" in script_path:
+	elif "shooter" in script_path or "carpenter" in script_path:
 		GameData.unlock_codex_entry("enemies", "shooter")
-	elif "tank" in script_path:
+	elif "tank" in script_path or "mecha" in script_path:
 		GameData.unlock_codex_entry("enemies", "tank")
-	elif "turret" in script_path:
+	elif "turret" in script_path or "delivery" in script_path:
 		GameData.unlock_codex_entry("enemies", "turret")
 	elif "bee_summon" in script_path:
 		GameData.unlock_codex_entry("enemies", "charger")

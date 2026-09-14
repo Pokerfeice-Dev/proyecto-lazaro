@@ -57,10 +57,10 @@ const TELEPORTS: Array[Dictionary] = [
 
 const ENEMIES: Array[Dictionary] = [
 	{"name": "Perro Infectado (Follower)", "path": "res://Scenes/Enemies/EnemyFollower.tscn"},
-	{"name": "Disparador (Shooter)", "path": "res://Scenes/Enemies/EnemyShooter.tscn"},
+	{"name": "Carpenter", "path": "res://Scenes/Enemies/EnemyShooter.tscn"},
 	{"name": "Invocador (Summoner)", "path": "res://Scenes/Enemies/EnemySummoner.tscn"},
-	{"name": "Enemigo Pesado (Tank)", "path": "res://Scenes/Enemies/EnemyTank.tscn"},
-	{"name": "Torreta Fija (Turret)", "path": "res://Scenes/Enemies/EnemyTurret.tscn"},
+	{"name": "Mecha", "path": "res://Scenes/Enemies/EnemyTank.tscn"},
+	{"name": "Delivery", "path": "res://Scenes/Enemies/EnemyTurret.tscn"},
 	{"name": "Abeja Robótica (Bee)", "path": "res://Scenes/Enemies/Enemy_bee_summon.tscn"},
 	{"name": "Dummy / Maniquí de Pruebas", "path": "res://Scenes/Enemies/Mannequin.tscn"},
 	{"name": "Jefe 1 (Génesis)", "path": "res://Scenes/Enemies/boss1.tscn"},

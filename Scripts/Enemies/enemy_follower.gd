@@ -27,6 +27,10 @@ var attack_area: Area2D
 var attack_timer: Timer
 var has_damaged_this_attack: bool = false
 @export var attack_range: float = 45.0
+@export var anticipation_time: float = 0.22
+
+var is_anticipating: bool = false
+var _anticipation_tween: Tween = null
 
 @onready var attack_sound: AudioStreamPlayer2D = $Attack_sound
 
@@ -39,10 +43,17 @@ func _ready() -> void:
 	current_state = State.WANDER
 	_pick_new_wander_direction()
 
+func _exit_tree() -> void:
+	_cancel_anticipation_tween()
+
+func die() -> void:
+	is_anticipating = false
+	_restore_sprite_modulate()
+	super.die()
+
 func _play_attack_sound() -> void:
 	if attack_sound:
 		attack_sound.play()
-
 
 func _setup_attack_system() -> void:
 	_create_attack_area()
@@ -67,15 +78,47 @@ func _create_attack_timer() -> void:
 
 func _on_attack_timer_timeout() -> void:
 	if current_state == State.DEAD: return
-	if current_state == State.ATTACK: return
+	if current_state == State.ATTACK or is_anticipating: return
 	_check_overlapping_for_attack()
 
 func _check_overlapping_for_attack() -> void:
 	var bodies = attack_area.get_overlapping_bodies()
 	for body in bodies:
 		if body.is_in_group("player"):
-			perform_attack()
+			_start_attack_anticipation()
 			return
+
+func _start_attack_anticipation() -> void:
+	if is_dying or current_state == State.DEAD: return
+	if current_state == State.ATTACK or is_anticipating: return
+	is_anticipating = true
+	velocity = Vector2.ZERO
+	_play_anticipation_visuals()
+	get_tree().create_timer(anticipation_time).timeout.connect(_on_anticipation_finished, CONNECT_ONE_SHOT)
+
+func _play_anticipation_visuals() -> void:
+	if not anim_sprite: return
+	_cancel_anticipation_tween()
+	_anticipation_tween = create_tween()
+	_anticipation_tween.tween_property(anim_sprite, "modulate", Color(2.4, 0.35, 0.35, 1.0), 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+func _on_anticipation_finished() -> void:
+	if is_dying or current_state == State.DEAD: return
+	if not is_anticipating: return
+	is_anticipating = false
+	_restore_sprite_modulate()
+	perform_attack()
+
+func _restore_sprite_modulate() -> void:
+	_cancel_anticipation_tween()
+	if not anim_sprite: return
+	anim_sprite.modulate = _default_modulate
+
+func _cancel_anticipation_tween() -> void:
+	if not _anticipation_tween: return
+	if not _anticipation_tween.is_valid(): return
+	_anticipation_tween.kill()
+	_anticipation_tween = null
 
 func perform_attack() -> void:
 	if is_dying: return
@@ -116,6 +159,8 @@ func _get_attack_duration(anim_name: String = "") -> float:
 	return float(frames) / fps if fps > 0 else 0.6
 
 func _finish_attack() -> void:
+	is_anticipating = false
+	_restore_sprite_modulate()
 	if is_dying:
 		current_state = State.DEAD
 		return
@@ -131,7 +176,7 @@ func process_movement(delta: float) -> void:
 		current_state = State.DEAD
 		return
 
-	if current_state == State.ATTACK:
+	if current_state == State.ATTACK or is_anticipating:
 		velocity = Vector2.ZERO
 		return
 

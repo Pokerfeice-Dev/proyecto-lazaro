@@ -42,10 +42,10 @@ const MELEE_WEAPONS: Array[Dictionary] = [
 
 const ENEMIES: Array[Dictionary] = [
 	{"name": "Follower", "path": "res://Scenes/Enemies/EnemyFollower.tscn"},
-	{"name": "Shooter", "path": "res://Scenes/Enemies/EnemyShooter.tscn"},
+	{"name": "Carpenter", "path": "res://Scenes/Enemies/EnemyShooter.tscn"},
 	{"name": "Summoner", "path": "res://Scenes/Enemies/EnemySummoner.tscn"},
-	{"name": "Tank", "path": "res://Scenes/Enemies/EnemyTank.tscn"},
-	{"name": "Turret", "path": "res://Scenes/Enemies/EnemyTurret.tscn"},
+	{"name": "Mecha", "path": "res://Scenes/Enemies/EnemyTank.tscn"},
+	{"name": "Delivery", "path": "res://Scenes/Enemies/EnemyTurret.tscn"},
 	{"name": "Bee Minion", "path": "res://Scenes/Enemies/Enemy_bee_summon.tscn"},
 	{"name": "Genesis Boss", "path": "res://Scenes/Enemies/boss1.tscn"}
 ]

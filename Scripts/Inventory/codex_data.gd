@@ -9,19 +9,19 @@ const DATA = {
 			"icon": preload("res://Art/Enemy_Mutation/dog_codex_icon.png")
 		},
 		"shooter": {
-			"name": "Carpintero",
+			"name": "Carpenter",
 			"lore": "Antigua unidad de mantenimiento reconvertida en centinela de Asphodel. Dispara clavos a presión con su pistola neumática y se repliega mientras el objetivo se acerca.",
 			"stats": "Vida: 40 | Daño: 10 | Cadencia: 1.5s | Rango: Largo",
 			"icon": preload("res://Art/Enemy_Shooter/carpenter_codex_icon.png")
 		},
 		"tank": {
-			"name": "Mecha Constructor",
+			"name": "Mecha",
 			"lore": "Maquinaria pesada de demolición requisada y armada por Asphodel. Su mezcladora de cemento convertida en garra aplasta todo lo que entra en su radio de patrulla.",
 			"stats": "Vida: 180 | Daño: 25 | Velocidad: Muy baja | Rango: Corto",
 			"icon": preload("res://Art/Enemy_tank/mecha_codex_icon.png")
 		},
 		"turret": {
-			"name": "Repartidor Enterrado",
+			"name": "Delivery",
 			"lore": "Motociclista repartidor sepultado y fusionado al asfalto por la biofabricación. Inmóvil, pero dispara con una cadencia implacable a todo lo que entra en su radio de alcance.",
 			"stats": "Vida: 50 | Cadencia: 1.5s | Alcance: Muy largo | Estático",
 			"icon": preload("res://Art/Enemy_turret/deliverydriver_codex_icon.png")
