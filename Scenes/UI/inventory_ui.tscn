@@ -31,16 +31,16 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 120.0
-offset_top = 80.0
-offset_right = -120.0
-offset_bottom = -80.0
+offset_left = 50.0
+offset_top = 35.0
+offset_right = -50.0
+offset_bottom = -35.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 64
-theme_override_constants/margin_top = 64
-theme_override_constants/margin_right = 64
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1198383295]
 layout_mode = 2
@@ -71,10 +71,10 @@ patch_margin_bottom = 24
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/InventoryPanel" unique_id=1025293595]
 layout_mode = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/InventoryPanel/MarginContainer" unique_id=993680938]
 layout_mode = 2
@@ -122,14 +122,14 @@ patch_margin_bottom = 24
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/CharacterPanel" unique_id=1747915522]
 layout_mode = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer" unique_id=1297213183]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer" unique_id=1790140326]
 layout_mode = 2
@@ -141,21 +141,20 @@ horizontal_alignment = 1
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer" unique_id=136383054]
 layout_mode = 2
 
-[node name="BodyHBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer"]
+[node name="BodyHBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer" unique_id=812447584]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 24
 
-[node name="PaperdollColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox"]
+[node name="PaperdollColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox" unique_id=1243223123]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="PortraitFrame" type="NinePatchRect" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn"]
+[node name="PortraitFrame" type="NinePatchRect" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn" unique_id=977617939]
 custom_minimum_size = Vector2(0, 108)
 layout_mode = 2
-size_flags_horizontal = 1
 texture = ExtResource("4_border")
 region_rect = Rect2(10, 10, 260, 100)
 patch_margin_left = 24
@@ -163,22 +162,25 @@ patch_margin_top = 24
 patch_margin_right = 24
 patch_margin_bottom = 24
 
-[node name="PortraitTexture" type="TextureRect" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame"]
+[node name="PortraitContainer" type="Control" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame" unique_id=176934587]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+
+[node name="PortraitAnimatedSprite" type="AnimatedSprite2D" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame/PortraitContainer" unique_id=784728433]
+process_mode = 3
 texture_filter = 1
-expand_mode = 1
-stretch_mode = 5
+scale = Vector2(2.5, 2.5)
 
 [node name="SlotsList" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn" unique_id=1635861517]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="StatsColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox"]
+[node name="StatsColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox" unique_id=748309982]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -186,5 +188,6 @@ size_flags_vertical = 3
 [node name="StatsLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/StatsColumn" unique_id=399768408]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 17
+theme_override_font_sizes/normal_font_size = 16
 text = "- Selecciona un item para ver las mejoras aplicadas al personaje -"
+scroll_active = false

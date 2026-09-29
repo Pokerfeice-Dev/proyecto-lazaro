@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://ddilkqpxlbbpa" path="res://Art/Miscellaneous/Lamparapie.png" id="1_0vuib"]
 [ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="2_ogcyp"]
-[ext_resource type="Script" path="res://Scripts/Effects/flickering_light.gd" id="3_flicker"]
+[ext_resource type="Script" uid="uid://damc505tbc8qk" path="res://Scripts/Effects/flickering_light.gd" id="3_flicker"]
 
 [node name="Lampara_pie" type="Node2D" unique_id=1509059318]
 script = ExtResource("3_flicker")

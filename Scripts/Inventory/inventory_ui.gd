@@ -11,7 +11,13 @@ var inventory_slots: Array[UISlot] = []
 @onready var stats_label: RichTextLabel = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/StatsColumn/StatsLabel
 @onready var equip_container: VBoxContainer = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/SlotsList
 @onready var inventory_grid: GridContainer = $MarginContainer/HBoxContainer/InventoryPanel/MarginContainer/VBoxContainer/InventoryGrid
-@onready var portrait_rect: TextureRect = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame/PortraitTexture
+@onready var portrait_container: Control = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame/PortraitContainer
+@onready var portrait_anim_sprite: AnimatedSprite2D = $MarginContainer/HBoxContainer/CharacterPanel/MarginContainer/VBoxContainer/BodyHBox/PaperdollColumn/PortraitFrame/PortraitContainer/PortraitAnimatedSprite
+
+var primary_weapon_slot_panel: PanelContainer
+var primary_weapon_icon: TextureRect
+var secondary_weapon_slot_panel: PanelContainer
+var secondary_weapon_icon: TextureRect
 
 # Tab and layout variables
 var current_tab: String = "INVENTORY" # "INVENTORY" or "CODEX"
@@ -112,6 +118,7 @@ func update_ui() -> void:
 	_update_portrait()
 	update_items_list()
 	update_equipment_display()
+	_update_weapon_displays()
 	update_stats_display()
 	if current_tab == "CODEX":
 		_refresh_codex_grid()
@@ -120,6 +127,14 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_auto_fetch_player_nodes()
 	_init_default_margin_position()
+	_setup_portrait_container()
+	_configure_stats_label()
+
+func _configure_stats_label() -> void:
+	if not stats_label:
+		return
+	stats_label.scroll_active = false
+	stats_label.bbcode_enabled = true
 
 func _init_default_margin_position() -> void:
 	var margin_node = get_node_or_null("MarginContainer")
@@ -135,7 +150,6 @@ func _init_default_margin_position() -> void:
 
 	inventory.inventory_updated.connect(update_items_list)
 	equipment.equipment_changed.connect(update_ui)
-	stats_label.bbcode_enabled = true
 	_setup_slots()
 
 func _input(event: InputEvent) -> void:
@@ -212,20 +226,48 @@ func _auto_fetch_player_nodes() -> void:
 	if not player_sprite:
 		player_sprite = players[0].get_node_or_null("AnimatedSprite2D")
 
-# Retrato de Lázaro: usa un frame estático de su animación de idle (no la
-# animación completa corriendo en loop, para no arriesgarnos a que se vea
-# raro encogido en un marco chico) tomado directo de su AnimatedSprite2D, asi
-# que siempre es el arte real del personaje y no un ícono generico.
+# Retrato dinámico de Lázaro: reproduce su animación de idle_down en tiempo real
+# incluso con el juego pausado usando process_mode = PROCESS_MODE_ALWAYS.
+func _setup_portrait_container() -> void:
+	if not portrait_container:
+		return
+	portrait_container.resized.connect(_on_portrait_container_resized)
+
+func _on_portrait_container_resized() -> void:
+	_center_portrait_sprite()
+
 func _update_portrait() -> void:
-	if not portrait_rect:
+	if not portrait_anim_sprite:
 		return
 	_auto_fetch_player_nodes()
 	if not player_sprite or not player_sprite.sprite_frames:
 		return
-	var anim = &"idle_down"
-	if not player_sprite.sprite_frames.has_animation(anim):
+	_sync_portrait_sprite()
+
+func _sync_portrait_sprite() -> void:
+	_assign_portrait_frames()
+	_play_portrait_idle()
+	_center_portrait_sprite()
+
+func _assign_portrait_frames() -> void:
+	if portrait_anim_sprite.sprite_frames == player_sprite.sprite_frames:
 		return
-	portrait_rect.texture = player_sprite.sprite_frames.get_frame_texture(anim, 0)
+	portrait_anim_sprite.sprite_frames = player_sprite.sprite_frames
+
+func _play_portrait_idle() -> void:
+	var anim = &"idle_down"
+	if not portrait_anim_sprite.sprite_frames.has_animation(anim):
+		return
+	if portrait_anim_sprite.animation == anim and portrait_anim_sprite.is_playing():
+		return
+	portrait_anim_sprite.play(anim)
+
+func _center_portrait_sprite() -> void:
+	if not portrait_container or not portrait_anim_sprite:
+		return
+	if portrait_container.size.x <= 0.0 or portrait_container.size.y <= 0.0:
+		return
+	portrait_anim_sprite.position = portrait_container.size * 0.5
 
 # ── Header & Tabs Re-wrapping ───────────────────────────────────────────────
 
@@ -768,7 +810,7 @@ func _setup_slots() -> void:
 	sep.custom_minimum_size.y = 16
 	equip_container.add_child(sep)
 
-	var wpns_grid = _create_centered_grid(3)
+	var wpns_grid = _create_centered_grid(4)
 	equip_container.add_child(wpns_grid)
 	_add_weapon_grid_slots(wpns_grid)
 
@@ -785,6 +827,7 @@ func _setup_slots() -> void:
 		slot_ui.slot_double_clicked.connect(_on_slot_double_clicked)
 		slot_ui.slot_hovered.connect(_on_slot_hovered)
 		slot_ui.slot_unhovered.connect(_on_slot_unhovered)
+		slot_ui.drag_started.connect(_on_drag_started)
 		inventory_grid.add_child(slot_ui)
 		inventory_slots.append(slot_ui)
 
@@ -808,13 +851,198 @@ func _add_body_grid_slots(grid: GridContainer) -> void:
 	_create_equip_slot(ItemData.ItemSlot.LEG_R, "Pierna D", grid)
 
 func _add_weapon_grid_slots(grid: GridContainer) -> void:
+	_create_weapon_badge_slot(true, grid)
 	_create_equip_slot(ItemData.ItemSlot.MAIN_W1, "Arma 1", grid)
 	_create_equip_slot(ItemData.ItemSlot.MAIN_W2, "Arma 2", grid)
 	_create_equip_slot(ItemData.ItemSlot.MAIN_W3, "Arma 3", grid)
 
+	_create_weapon_badge_slot(false, grid)
 	_create_equip_slot(ItemData.ItemSlot.SEC_W1, "Sec 1", grid)
 	_create_equip_slot(ItemData.ItemSlot.SEC_W2, "Sec 2", grid)
 	_create_equip_slot(ItemData.ItemSlot.SEC_W3, "Sec 3", grid)
+
+func _create_weapon_badge_slot(is_main: bool, grid: GridContainer) -> void:
+	var slot_panel = PanelContainer.new()
+	slot_panel.custom_minimum_size = Vector2(64, 64)
+	_apply_badge_style(slot_panel)
+
+	var icon = _create_badge_icon()
+	slot_panel.add_child(icon)
+
+	_store_badge_references(is_main, slot_panel, icon)
+	_connect_badge_mouse_events(slot_panel, is_main)
+	grid.add_child(slot_panel)
+
+func _apply_badge_style(panel: PanelContainer) -> void:
+	var style = StyleBoxTexture.new()
+	style.texture = load("res://Art/Ui/Cell 2.png")
+	style.texture_margin_left = 8.0
+	style.texture_margin_top = 8.0
+	style.texture_margin_right = 8.0
+	style.texture_margin_bottom = 8.0
+	panel.add_theme_stylebox_override("panel", style)
+
+func _create_badge_icon() -> TextureRect:
+	var icon = TextureRect.new()
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return icon
+
+func _store_badge_references(is_main: bool, panel: PanelContainer, icon: TextureRect) -> void:
+	if is_main:
+		primary_weapon_slot_panel = panel
+		primary_weapon_icon = icon
+		return
+	secondary_weapon_slot_panel = panel
+	secondary_weapon_icon = icon
+
+func _connect_badge_mouse_events(panel: PanelContainer, is_main: bool) -> void:
+	panel.mouse_entered.connect(_on_weapon_badge_hovered.bind(is_main))
+	panel.mouse_exited.connect(_on_weapon_badge_unhovered)
+
+func _on_weapon_badge_hovered(is_main: bool) -> void:
+	_tooltip_hide_request_id += 1
+	var players = get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return
+	var p = players[0]
+	var panel = primary_weapon_slot_panel if is_main else secondary_weapon_slot_panel
+	if not panel:
+		return
+	var rect = panel.get_global_rect()
+	_dispatch_weapon_tooltip(p, is_main, rect)
+
+func _dispatch_weapon_tooltip(p: Node2D, is_main: bool, rect: Rect2) -> void:
+	if is_main:
+		_show_primary_weapon_tooltip(p, rect)
+		return
+	_show_secondary_weapon_tooltip(p, rect)
+
+func _on_weapon_badge_unhovered() -> void:
+	_request_hide_tooltip()
+
+func _show_primary_weapon_tooltip(p: Node2D, rect: Rect2) -> void:
+	if not tooltip_panel:
+		return
+	var weapon_name = _get_weapon_display_name(p, true)
+	tooltip_name.text = weapon_name.to_upper()
+	tooltip_rarity.text = "EQUIPADA"
+	tooltip_rarity.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
+	tooltip_type.text = "ARMA PRINCIPAL"
+	tooltip_desc.text = "Arma a distancia equipada. Coloca mejoras en los 3 zócalos contiguos para potenciarla."
+	tooltip_stats.text = _get_primary_weapon_stats_bbcode(p)
+	tooltip_action.text = "✨ Arma activa"
+	tooltip_action.add_theme_color_override("font_color", Color(1, 0.8, 0.4, 0.8))
+	_display_tooltip_at_position(rect)
+
+func _show_secondary_weapon_tooltip(p: Node2D, rect: Rect2) -> void:
+	if not tooltip_panel:
+		return
+	var weapon_name = _get_weapon_display_name(p, false)
+	tooltip_name.text = weapon_name.to_upper()
+	tooltip_rarity.text = "EQUIPADA"
+	tooltip_rarity.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
+	tooltip_type.text = "ARMA CUERPO A CUERPO"
+	tooltip_desc.text = "Arma secundaria cuerpo a cuerpo. Coloca mejoras en los 3 zócalos contiguos para potenciarla."
+	tooltip_stats.text = _get_secondary_weapon_stats_bbcode(p)
+	tooltip_action.text = "✨ Arma secundaria activa"
+	tooltip_action.add_theme_color_override("font_color", Color(1, 0.8, 0.4, 0.8))
+	_display_tooltip_at_position(rect)
+
+func _get_weapon_display_name(p: Node2D, is_main: bool) -> String:
+	var container = p.active_weapon if is_main else p.second_weapon
+	if not container or not container.get("current_weapon"):
+		return "Sin Arma" if is_main else "Sin Arma Secundaria"
+	var cur = container.current_weapon
+	if "id" in cur and cur.id != "":
+		return cur.id.capitalize()
+	return cur.name.capitalize()
+
+func _get_primary_weapon_stats_bbcode(p: Node2D) -> String:
+	if not "active_weapon" in p or not p.active_weapon:
+		return ""
+	var dmg = p._get_weapon_damage() * p._get_weapon_damage_multiplier()
+	var aps = p._get_weapon_attack_speed()
+	var bullets = p._get_weapon_bullets()
+	var crit_c = p._get_weapon_crit_chance()
+	var lines = [
+		"[font_size=22]💥[/font_size] Daño: %d" % int(dmg),
+		"[font_size=22]⚡[/font_size] Vel. Ataque: %.1f" % aps,
+		"[font_size=22]🔫[/font_size] Proyectiles: %d" % bullets,
+		"[font_size=22]🎯[/font_size] Prob. Crítico: %d%%" % int(crit_c * 100)
+	]
+	return "\n".join(lines)
+
+func _get_secondary_weapon_stats_bbcode(p: Node2D) -> String:
+	if not "second_weapon" in p or not p.second_weapon:
+		return ""
+	var lines = [
+		"[font_size=22]💥[/font_size] Daño: %d" % int(GameData.melee_damage),
+		"[font_size=22]⚡[/font_size] Vel. Ataque: %.1f" % GameData.melee_speed,
+		"[font_size=22]👊[/font_size] Empuje: %d" % int(GameData.melee_knockback)
+	]
+	return "\n".join(lines)
+
+func _update_weapon_displays() -> void:
+	var players = get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return
+	var p = players[0]
+	_update_primary_weapon_display(p)
+	_update_secondary_weapon_display(p)
+
+func _update_primary_weapon_display(p: Node2D) -> void:
+	if not primary_weapon_icon:
+		return
+	if not "active_weapon" in p or not p.active_weapon:
+		primary_weapon_icon.texture = null
+		return
+	primary_weapon_icon.texture = _get_weapon_texture(p.active_weapon)
+
+func _update_secondary_weapon_display(p: Node2D) -> void:
+	if not secondary_weapon_icon:
+		return
+	if not "second_weapon" in p or not p.second_weapon:
+		secondary_weapon_icon.texture = null
+		return
+	secondary_weapon_icon.texture = _get_weapon_texture(p.second_weapon)
+
+func _get_weapon_texture(weapon_container: Node) -> Texture2D:
+	if not weapon_container:
+		return null
+	var cur = weapon_container.get("current_weapon")
+	if not cur:
+		return null
+	var melee_tex = _get_melee_texture(cur)
+	if melee_tex:
+		return melee_tex
+	return _get_animated_weapon_texture(cur)
+
+func _get_melee_texture(weapon_node: Node) -> Texture2D:
+	var melee_sprite = weapon_node.get_node_or_null("Melee_sprite")
+	if not melee_sprite is Sprite2D:
+		return null
+	return melee_sprite.texture
+
+func _get_animated_weapon_texture(weapon_node: Node) -> Texture2D:
+	var anim_sprite = weapon_node.get_node_or_null("Weapon_Sprites")
+	if not anim_sprite is AnimatedSprite2D:
+		return null
+	return _extract_texture_from_anim_sprite(anim_sprite)
+
+func _extract_texture_from_anim_sprite(anim_sprite: AnimatedSprite2D) -> Texture2D:
+	var frames = anim_sprite.sprite_frames
+	if not frames:
+		return null
+	var anim_name = anim_sprite.animation
+	if not frames.has_animation(anim_name):
+		return null
+	if frames.get_frame_count(anim_name) == 0:
+		return null
+	return frames.get_frame_texture(anim_name, 0)
+
 
 func _create_equip_slot(slot_key: ItemData.ItemSlot, empty_text: String, parent: Control) -> void:
 	var slot_ui = UISlot.new()
@@ -825,8 +1053,24 @@ func _create_equip_slot(slot_key: ItemData.ItemSlot, empty_text: String, parent:
 	slot_ui.slot_double_clicked.connect(_on_slot_double_clicked)
 	slot_ui.slot_hovered.connect(_on_slot_hovered)
 	slot_ui.slot_unhovered.connect(_on_slot_unhovered)
+	slot_ui.drag_started.connect(_on_drag_started)
 	parent.add_child(slot_ui)
 	ui_slots.append(slot_ui)
+
+func _on_drag_started(drag_item: ItemData, source_slot: UISlot) -> void:
+	_highlight_valid_slots(drag_item, source_slot)
+
+func _highlight_valid_slots(drag_item: ItemData, source_slot: UISlot) -> void:
+	_highlight_slot_list(ui_slots, drag_item, source_slot)
+	_highlight_slot_list(inventory_slots, drag_item, source_slot)
+
+func _highlight_slot_list(slot_list: Array[UISlot], drag_item: ItemData, source_slot: UISlot) -> void:
+	for slot in slot_list:
+		if slot == source_slot:
+			continue
+		var is_valid = slot.is_valid_target_for(drag_item)
+		slot.set_highlight(is_valid)
+
 
 func _on_item_dropped(drag_item: ItemData, source_slot: UISlot, target_slot: UISlot) -> void:
 	if source_slot.is_inventory_slot and not target_slot.is_inventory_slot:
