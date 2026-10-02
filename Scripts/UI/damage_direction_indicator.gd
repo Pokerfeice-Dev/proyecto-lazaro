@@ -9,6 +9,9 @@ const ARROW_COLOR: Color = Color(0.95, 0.15, 0.15, 0.9)
 const LIFETIME: float = 0.6
 
 func _ready() -> void:
+	if not FxSettings.on("indicador_danio"):
+		queue_free()
+		return
 	z_index = 4096
 	modulate.a = 0.0
 	_animate()

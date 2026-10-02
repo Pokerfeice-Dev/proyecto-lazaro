@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_jolep"]
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_gp6ns"]
+[ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="4_x8ldu"]
 [ext_resource type="PackedScene" uid="uid://cvf5dmgeplxjj" path="res://Scenes/Enemies/Boss2.tscn" id="5_27pga"]
 
 [node name="Room_11" type="Node2D" unique_id=708789417]
@@ -30,3 +31,8 @@ position = Vector2(960, -474)
 
 [node name="Boss2" parent="." unique_id=1442297552 instance=ExtResource("5_27pga")]
 position = Vector2(962, -793)
+
+[node name="Door" parent="." unique_id=201233454 instance=ExtResource("4_x8ldu")]
+position = Vector2(955, -1120)
+rotation = 1.5707964
+is_boss_exit_door = true

@@ -67,6 +67,7 @@ func _ensure_room_music_bus() -> void:
 	var boss_music = get_node_or_null("Boss_Fight_Music") as AudioStreamPlayer
 	if not boss_music: return
 	boss_music.bus = "Music"
+	boss_music.process_mode = Node.PROCESS_MODE_ALWAYS # sigue sonando con el inventario abierto
 
 func _init_adaptive_music() -> void:
 	var start_area = get_node_or_null("Area_entered")
@@ -303,6 +304,7 @@ func _play_room_clear_sound() -> void:
 	var stream: AudioStream = preload("res://Audio/Sfx/Room_clear/Room_clear.wav")
 	var player: AudioStreamPlayer = AudioStreamPlayer.new()
 	player.stream = stream
+	player.bus = "SFX"
 	add_child(player)
 	player.play()
 	player.finished.connect(player.queue_free)

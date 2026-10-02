@@ -36,6 +36,7 @@ func _setup_audio() -> void:
 	if snd:
 		explosion_audio.stream = snd
 	explosion_audio.volume_db = -2.0
+	explosion_audio.bus = "SFX"
 	add_child(explosion_audio)
 
 func _process(delta: float) -> void:

@@ -82,6 +82,8 @@ var trituradora_energy: float = 0.0
 const TRITURADORA_MAX_ENERGY: float = 600.0
 var trituradora_shockwave_ready: bool = false
 var _last_active_synergy_state: String = ""
+var _werewolf_marked_enemy: Node2D = null
+var _werewolf_mark_visual: Node2D = null
 
 var first_hit_taken_in_room: bool = false
 var is_blindaje_reactivo_active: bool = false
@@ -183,6 +185,12 @@ func _check_and_trigger_first_time_synergies() -> void:
 	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
 	
 	for syn_id in active_syns:
+		_process_potential_first_time_synergy(syn_id)
+	
+	var active_melee_weapon_id = get_active_melee_weapon_id()
+	var active_melee_syns = SynergyManager.get_active_synergies(equip, active_melee_weapon_id, false)
+	
+	for syn_id in active_melee_syns:
 		_process_potential_first_time_synergy(syn_id)
 
 func _process_potential_first_time_synergy(syn_id: String) -> void:
@@ -343,10 +351,16 @@ func sync_weapon_visibility_for_room() -> void:
 		_hide_all_weapons()
 	else:
 		_show_primary_weapon()
+	if not _is_in_training_room():
+		stats.min_health_floor = 0
 
 func _is_in_lab_room() -> bool:
 	var scene = get_tree().current_scene
 	return scene != null and scene.name == "Lab_room"
+
+func _is_in_training_room() -> bool:
+	var scene = get_tree().current_scene
+	return scene != null and scene.name == "Training_Room"
 
 func _hide_all_weapons() -> void:
 	if active_weapon: active_weapon.hide()
@@ -391,6 +405,9 @@ func _physics_process(delta: float) -> void:
 		return
 	_update_minigun_hold_time(delta)
 	_update_flamethrower_hold_time(delta)
+	_update_melee_synergy_visual(delta)
+	_ensure_werewolf_mark()
+	_update_ranged_synergy_visual(delta)
 	_check_dash_input()
 	_process_movement(delta)
 	update_glock()
@@ -755,6 +772,8 @@ func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 	if is_main:
 		bonus += _get_minigun_stat_bonus(stat_name)
 		bonus += _get_flamethrower_range_bonus(stat_name)
+	else:
+		bonus += _get_daga_del_odio_bonus(stat_name)
 		
 	return bonus
 
@@ -765,7 +784,7 @@ func get_active_ranged_weapon_id() -> String:
 		return active_weapon.get_base_weapon_id()
 	var cur = active_weapon.get("current_weapon")
 	if not cur:
-		return ""
+		return active_weapon.get("id") if "id" in active_weapon else ""
 	return cur.get("id") if "id" in cur else ""
 
 func get_active_melee_weapon_id() -> String:
@@ -1019,12 +1038,14 @@ func _find_closest_enemy_in_list(bodies: Array) -> Node2D:
 	return closest
 
 func apply_camera_shake() -> void:
+	if not FxSettings.on("sacudida_camara"): return
 	var camera = get_viewport().get_camera_2d()
 	if not camera: return
 	_reset_camera_shake(camera)
 	_start_camera_shake(camera)
 
 func apply_custom_camera_shake(intensity: float = 16.0, duration: float = 1.0) -> void:
+	if not FxSettings.on("sacudida_camara"): return
 	var camera = get_viewport().get_camera_2d()
 	if not camera: return
 	_reset_camera_shake(camera)
@@ -2225,6 +2246,178 @@ func _get_flamethrower_range_bonus(stat_name: String) -> float:
 	var t = clamp(flamethrower_hold_time / ramp_time, 0.0, 1.0)
 	return max_lifetime_bonus * t
 
+## Sinergia Daga del Odio: cuanto menos vida le queda al jugador, mas fuerte
+## se vuelve la daga (dano, velocidad de ataque, alcance y probabilidad de
+## critico escalan de forma continua segun la vida actual).
+func _is_daga_del_odio_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
+	return active_syns.has("daga_del_odio")
+
+func _get_daga_del_odio_bonus(stat_name: String) -> float:
+	if not _is_daga_del_odio_active():
+		return 0.0
+	if stats.max_health <= 0:
+		return 0.0
+	var health_ratio = clamp(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
+	var t = 1.0 - health_ratio
+	match stat_name:
+		"damage":
+			return 30.0 * t
+		"attack_speed":
+			return 1.2 * t
+		"attack_range_percent":
+			return 0.6 * t
+		"crit_chance":
+			return 0.5 * t
+		"crit_damage":
+			return 0.6 * t
+	return 0.0
+
+## Tiñe la hoja de la daga de rojo (mas intenso cuanta menos vida queda)
+## mientras la sinergia Daga del Odio este activa, para que el jugador
+## note visualmente el cambio ademas de sentirlo en las estadisticas.
+func _update_daga_del_odio_visual(_delta: float = 0.0) -> void:
+	if not second_weapon:
+		return
+	var weapon = second_weapon.get("current_weapon")
+	if not weapon:
+		return
+	var sprite = weapon.get("melee_sprite") if "melee_sprite" in weapon else null
+	if not sprite:
+		return
+	if not _is_daga_del_odio_active() or stats.max_health <= 0:
+		sprite.modulate = Color(1.0, 1.0, 1.0)
+		return
+	var health_ratio = clamp(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
+	var t = 1.0 - health_ratio
+	sprite.modulate = Color(1.0, 1.0 - 0.85 * t, 1.0 - 0.85 * t)
+
+## Version generalizada del efecto visual anterior: aplica color y escala
+## distintos segun que sinergia de arma cuerpo a cuerpo este activa, para
+## diferenciarlas visualmente de las armas normales.
+func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
+	if not second_weapon:
+		return
+	var weapon = second_weapon.get("current_weapon")
+	if not weapon:
+		return
+	var sprite = weapon.get("melee_sprite") if "melee_sprite" in weapon else null
+	if not sprite:
+		return
+	if not sprite.has_meta("base_scale"):
+		sprite.set_meta("base_scale", sprite.scale)
+	var base_scale: Vector2 = sprite.get_meta("base_scale")
+	if _is_daga_del_odio_active() and stats.max_health > 0:
+		var health_ratio = clamp(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
+		var t = 1.0 - health_ratio
+		sprite.modulate = Color(1.0, 1.0 - 0.85 * t, 1.0 - 0.85 * t)
+		sprite.scale = base_scale * (1.0 + 0.25 * t)
+	elif _is_arrogancia_equipped():
+		sprite.modulate = Color(1.5, 1.15, 0.3)
+		sprite.scale = base_scale * 1.15
+	elif _is_hombre_lobo_active():
+		sprite.modulate = Color(0.75, 0.35, 1.3)
+		sprite.scale = base_scale * 1.15
+	else:
+		sprite.modulate = Color(1.0, 1.0, 1.0)
+		sprite.scale = base_scale
+
+## Sinergia Arrogancia: mientras el swing de la maza esta activo, cualquier
+## bala enemiga que te toque rebota devuelta (nerfeada) en vez de danarte.
+## Lo consulta enemy_shooter_projectile.gd antes de aplicar su dano normal.
+func _is_arrogancia_reflect_active() -> bool:
+	if not second_weapon:
+		return false
+	if not second_weapon.has_method("is_attacking") or not second_weapon.is_attacking():
+		return false
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
+	return active_syns.has("arrogancia")
+
+func _is_arrogancia_equipped() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
+	return active_syns.has("arrogancia")
+
+## Sinergia Hombre Lobo: mientras el hacha tiene la sinergia activa, un
+## enemigo de la sala queda "marcado". Golpear al enemigo marcado hace
+## muchisimo mas dano y lo hace explotar, danando a los enemigos cercanos;
+## al explotar la marca, aparece una marca nueva en otro enemigo.
+func _is_hombre_lobo_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
+	return active_syns.has("hombre_lobo")
+
+func _ensure_werewolf_mark() -> void:
+	if not _is_hombre_lobo_active():
+		if _werewolf_marked_enemy or _werewolf_mark_visual:
+			_clear_werewolf_mark_visual()
+			_werewolf_marked_enemy = null
+		return
+	if is_instance_valid(_werewolf_marked_enemy):
+		return
+	_werewolf_marked_enemy = null
+	_clear_werewolf_mark_visual()
+	var candidates: Array = []
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if is_instance_valid(enemy):
+			candidates.append(enemy)
+	if candidates.is_empty():
+		return
+	_werewolf_marked_enemy = candidates.pick_random()
+	_werewolf_marked_enemy.set_meta("werewolf_mark", true)
+	_spawn_werewolf_mark_visual(_werewolf_marked_enemy)
+
+func _spawn_werewolf_mark_visual(enemy: Node2D) -> void:
+	var marker = Node2D.new()
+	var glow = Sprite2D.new()
+	var tex_path = "res://Art/Lights/White_Light.png"
+	if ResourceLoader.exists(tex_path):
+		glow.texture = load(tex_path)
+	glow.modulate = Color(0.75, 0.2, 1.0, 0.9)
+	glow.scale = Vector2(0.35, 0.35)
+	glow.position = Vector2(0, -40)
+	marker.add_child(glow)
+	enemy.add_child(marker)
+	_werewolf_mark_visual = marker
+	var tween = marker.create_tween().set_loops()
+	tween.tween_property(glow, "scale", Vector2(0.42, 0.42), 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(glow, "scale", Vector2(0.35, 0.35), 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+func _clear_werewolf_mark_visual() -> void:
+	if is_instance_valid(_werewolf_mark_visual):
+		_werewolf_mark_visual.queue_free()
+	_werewolf_mark_visual = null
+
+func _trigger_werewolf_mark_explosion(enemy: Node2D) -> void:
+	if is_instance_valid(enemy) and enemy.has_meta("werewolf_mark"):
+		enemy.remove_meta("werewolf_mark")
+	_clear_werewolf_mark_visual()
+	if _werewolf_marked_enemy == enemy:
+		_werewolf_marked_enemy = null
+	if not is_instance_valid(enemy):
+		return
+	var pos = enemy.global_position
+	var explosion_dmg = 20
+	for other in get_tree().get_nodes_in_group("enemy"):
+		if not is_instance_valid(other) or other == enemy:
+			continue
+		var dist = pos.distance_to(other.global_position)
+		if dist > 0.1 and dist < 140.0 and other.has_method("take_damage"):
+			other.take_damage(explosion_dmg)
+			if other.has_method("apply_knockback"):
+				var dir = (other.global_position - pos).normalized()
+				if dir == Vector2.ZERO: dir = Vector2.UP
+				other.apply_knockback(100.0, dir)
+	var wave = load("res://Scripts/Effects/furia_shockwave.gd").new()
+	wave.global_position = pos
+	get_tree().current_scene.add_child(wave)
+
 ## Chorro continuo del lanzallamas: en vez de disparar proyectiles, mantiene
 ## un unico nodo FlameStream pegado al arma mientras se mantiene presionado
 ## el disparo, y lo extingue (con su propia animacion de fade) al soltar.
@@ -2348,3 +2541,25 @@ func _spawn_dash_hologram(start_pos: Vector2) -> void:
 	var tween = create_tween()
 	tween.tween_property(holo, "modulate:a", 0.0, 0.4)
 	tween.chain().tween_callback(holo.queue_free)
+
+## Sinergia Relampago: mientras este activa, la UZI en mano se tine de un
+## color electrico para que se note visualmente que esta equipada.
+func _is_relampago_equipped() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_ranged_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
+	return active_syns.has("relampago")
+
+func _update_ranged_synergy_visual(_delta: float = 0.0) -> void:
+	if not active_weapon:
+		return
+	var sprite = active_weapon.get("sprite_anim") if "sprite_anim" in active_weapon else null
+	if not sprite:
+		return
+	if not sprite.has_meta("base_modulate"):
+		sprite.set_meta("base_modulate", sprite.modulate)
+	var base_modulate: Color = sprite.get_meta("base_modulate")
+	if _is_relampago_equipped():
+		sprite.modulate = Color(0.6, 0.9, 1.6)
+	else:
+		sprite.modulate = base_modulate

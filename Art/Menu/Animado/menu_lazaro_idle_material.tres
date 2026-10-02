@@ -1,0 +1,27 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://b0koyh6l5my1r"]
+
+[ext_resource type="Shader" uid="uid://s16xmdrc7b6q" path="res://Art/Menu/Animado/menu_lazaro_idle.gdshader" id="1_dde7o"]
+[ext_resource type="Texture2D" uid="uid://ca8jppx5uqqla" path="res://Art/Menu/Animado/menu_mascara_cuerpo.png" id="2_dlaca"]
+[ext_resource type="Texture2D" uid="uid://dl0pm22n2knp8" path="res://Art/Menu/Animado/menu_mascara_extra.png" id="3_6tv3c"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_e20k5"]
+frequency = 0.008
+fractal_octaves = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_th0uc"]
+noise = SubResource("FastNoiseLite_e20k5")
+seamless = true
+
+[resource]
+shader = ExtResource("1_dde7o")
+shader_parameter/mascara_cuerpo = ExtResource("2_dlaca")
+shader_parameter/mascara_extra = ExtResource("3_6tv3c")
+shader_parameter/niebla = SubResource("NoiseTexture2D_th0uc")
+shader_parameter/tam_px = Vector2(905, 720)
+shader_parameter/intensidad = 1.0
+shader_parameter/respiracion_seg = 4.6
+shader_parameter/respiracion_fuerza = 2.2
+shader_parameter/giro_cabeza_grados = 1.1
+shader_parameter/niebla_fuerza = 0.22
+shader_parameter/luz_pulso = 0.05
+shader_parameter/niebla_color = Color(0.55, 0.62, 0.85, 1)

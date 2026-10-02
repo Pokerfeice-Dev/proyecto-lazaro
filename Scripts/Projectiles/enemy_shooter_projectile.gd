@@ -27,6 +27,9 @@ func _physics_process(delta):
 
 func _on_body_entered(body: Node2D):
 	if body.is_in_group(target_group):
+		if body.is_in_group("player") and body.has_method("_is_arrogancia_reflect_active") and body._is_arrogancia_reflect_active():
+			_reflect_back()
+			return
 		if body.has_method("take_damage"):
 			# la flecha apunta en contra de la dirección de vuelo del proyectil (de donde vino el disparo)
 			var source_position = global_position - direction * 9999.0
@@ -35,6 +38,23 @@ func _on_body_entered(body: Node2D):
 	elif not body.is_in_group("enemy") and not body.is_in_group("projectile_pass"):
 		# Colisión con pared u otro objeto sólido
 		_explode()
+
+# Sinergia Arrogancia (maza): en vez de pegarle al jugador, la bala se destruye
+# y nace una bala "devuelta" (con dano reducido) viajando en direccion contraria
+# hacia los enemigos. Reusa la escena base de proyectil del jugador para heredar
+# su colision/dano contra enemigos ya probados.
+func _reflect_back() -> void:
+	var reflected_scene = load("res://Scenes/Projectiles/Projectile.tscn")
+	if reflected_scene:
+		var reflected = reflected_scene.instantiate()
+		get_tree().current_scene.add_child(reflected)
+		reflected.global_position = global_position
+		reflected.setup(-direction, damage * 0.5, "enemy")
+		reflected.modulate = Color(1.4, 1.1, 0.3)
+	set_physics_process(false)
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
+	queue_free()
 
 func _explode():
 	set_physics_process(false)

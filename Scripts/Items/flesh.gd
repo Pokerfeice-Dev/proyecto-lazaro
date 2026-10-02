@@ -12,6 +12,7 @@ var is_collected: bool = false
 
 func _ready() -> void:
 	add_to_group("flesh")
+	if scrap_snd: scrap_snd.bus = "SFX"
 	_connect_grab_area()
 	_apply_magnet_upgrade()
 	_setup_shadow()

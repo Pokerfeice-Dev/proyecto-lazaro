@@ -8,6 +8,7 @@ class_name FootstepFX
 static func spawn_footstep(tree: SceneTree, foot_pos: Vector2, move_dir: Vector2, is_heavy: bool = false, side: int = 1) -> void:
 	if not tree: return
 	if not tree.current_scene: return
+	if not FxSettings.on("polvo_pasos"): return # opcion "Polvo y huellas al caminar"
 	var parent = tree.current_scene
 	_spawn_dust(parent, foot_pos, move_dir, is_heavy)
 	_spawn_footprint(parent, foot_pos, move_dir, is_heavy, side)

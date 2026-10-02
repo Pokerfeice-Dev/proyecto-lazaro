@@ -215,6 +215,7 @@ func _complete_purchase() -> void:
 	_apply_item_effect()
 	_play_purchase_effects()
 	_disable_shop_pedestal()
+	$Interact.bus = "SFX"
 	$Interact.play()
 
 func _disable_shop_pedestal() -> void:

@@ -61,6 +61,7 @@ func _animate_open() -> void:
 	_is_animating = true
 	visible = true
 	get_tree().paused = true
+	SceneTransition.set_menu_muffle(true) # la musica sigue, pero embotellada
 	update_ui()
 	_start_open_tweens()
 
@@ -87,6 +88,7 @@ func _on_open_animation_finished() -> void:
 func _animate_close() -> void:
 	_is_animating = true
 	_hide_tooltip()
+	SceneTransition.set_menu_muffle(false)
 	_start_close_tweens()
 
 func _start_close_tweens() -> void:

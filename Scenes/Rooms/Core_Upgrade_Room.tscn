@@ -4,7 +4,6 @@
 [ext_resource type="TileSet" uid="uid://crs88nnfgs0gw" path="res://Scenes/Rooms/Floor.tres" id="2_a82vr"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="3_osdx6"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="4_gnq5d"]
-[ext_resource type="AudioStream" uid="uid://d0krhd3grvu33" path="res://Audio/Music/lab.ogg" id="5_iglo5"]
 [ext_resource type="Texture2D" uid="uid://cecvacdhdfoyr" path="res://Art/Core_Engine/Core_engine.png" id="7_a82vr"]
 [ext_resource type="PackedScene" uid="uid://b340be6qpcdil" path="res://Scenes/Rooms/door_CoreUpgrades.tscn" id="7_osdx6"]
 [ext_resource type="PackedScene" uid="uid://c8gocqke6jibu" path="res://Scenes/Npc/npc_chatarra.tscn" id="8_osdx6"]
@@ -30,11 +29,6 @@ tile_set = ExtResource("4_gnq5d")
 
 [node name="player_spawn" type="Marker2D" parent="." unique_id=807711299]
 position = Vector2(0, 119)
-
-[node name="Audio_lab" type="AudioStreamPlayer" parent="." unique_id=1955253072]
-stream = ExtResource("5_iglo5")
-autoplay = true
-parameters/looping = true
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1822239354]
 position = Vector2(7, -196)

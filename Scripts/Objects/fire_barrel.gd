@@ -72,6 +72,7 @@ func _play_explosion_audio() -> void:
 		audio.stream = stream
 		audio.pitch_scale = randf_range(1.1, 1.3)
 		audio.volume_db = 2.0
+		audio.bus = "SFX"
 		get_parent().add_child(audio)
 		audio.global_position = global_position
 		audio.play()

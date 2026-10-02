@@ -300,6 +300,7 @@ func _play_current_weapon_effects() -> void:
 		anim.play("shoot")
 	var sound = current_weapon.get_node_or_null("Bullet_sound")
 	if sound and sound.has_method("play"):
+		sound.bus = "SFX"
 		sound.play()
 
 func get_bullet_spawn_pos(fallback: Vector2) -> Vector2:

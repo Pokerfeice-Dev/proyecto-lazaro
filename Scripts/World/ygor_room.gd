@@ -9,6 +9,8 @@ func _setup_music_loop() -> void:
 	var music_node = get_node_or_null("Ygor_music")
 	if not music_node:
 		return
+	music_node.bus = "Music" # asi respeta el volumen de musica de Opciones
+	music_node.process_mode = Node.PROCESS_MODE_ALWAYS # sigue sonando con el inventario abierto
 	if not music_node.stream:
 		return
 	music_node.stream.loop = true

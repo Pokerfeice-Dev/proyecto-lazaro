@@ -17,6 +17,7 @@ config/icon="uid://duywrj8qr6s4u"
 
 [autoload]
 
+GameSettings="*res://Scripts/System/game_settings.gd"
 SceneTransition="*res://Scripts/System/scene_transition.gd"
 GameData="*res://Scripts/System/game_data.gd"
 OptionsMenu="*res://Scenes/UI/options_menu.tscn"
@@ -28,7 +29,8 @@ DebugMenu="*res://Scripts/UI/debug_menu.gd"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=3
+window/size/window_width_override=1600
+window/size/window_height_override=900
 window/stretch/mode="canvas_items"
 
 [editor_plugins]

@@ -273,6 +273,22 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_musculoso()
 	)
 
+	_add_synergy_card(tab, "Daga del Odio", "daga_del_odio", "Pulmones, Cabeza Humana, Sierra Circular", func():
+		_activate_synergy_daga_del_odio()
+	)
+
+	_add_synergy_card(tab, "Arrogancia", "arrogancia", "Mezcladora, Cabeza Humana, Colmena", func():
+		_activate_synergy_arrogancia()
+	)
+
+	_add_synergy_card(tab, "Hombre Lobo", "hombre_lobo", "Cabeza Humana, Cabeza de Perro, Aguijón Mecánico", func():
+		_activate_synergy_hombre_lobo()
+	)
+
+	_add_synergy_card(tab, "Relámpago", "relampago", "Cerebro, Aguijón Mecánico, Motocicleta", func():
+		_activate_synergy_relampago()
+	)
+
 func _add_synergy_card(parent: Control, syn_name: String, syn_id: String, req_desc: String, callback: Callable) -> void:
 	var card = VBoxContainer.new()
 	card.add_theme_constant_override("separation", 3)
@@ -370,6 +386,42 @@ func _activate_synergy_musculoso() -> void:
 	])
 	_show_status("Sinergia 'Set Musculoso' activada y equipada.")
 
+func _activate_synergy_daga_del_odio() -> void:
+	GameData.unlock_synergy("daga_del_odio")
+	_equip_melee_weapon_and_mods("res://Scenes/Weapon/dagger.tscn", [
+		{"path": "res://Art/Items/Weapons/Item5.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Weapons/Item9_SierraCircular.tres", "slot": ItemData.ItemSlot.SEC_W3}
+	])
+	_show_status("Sinergia 'Daga del Odio' activada y equipada.")
+
+func _activate_synergy_arrogancia() -> void:
+	GameData.unlock_synergy("arrogancia")
+	_equip_melee_weapon_and_mods("res://Scenes/Weapon/mace.tscn", [
+		{"path": "res://Art/Items/Weapons/Item1.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Weapons/Item7_Colmena.tres", "slot": ItemData.ItemSlot.SEC_W3}
+	])
+	_show_status("Sinergia 'Arrogancia' activada y equipada.")
+
+func _activate_synergy_hombre_lobo() -> void:
+	GameData.unlock_synergy("hombre_lobo")
+	_equip_melee_weapon_and_mods("res://Scenes/Weapon/axe.tscn", [
+		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item4.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Weapons/Item2.tres", "slot": ItemData.ItemSlot.SEC_W3}
+	])
+	_show_status("Sinergia 'Hombre Lobo' activada y equipada.")
+
+func _activate_synergy_relampago() -> void:
+	GameData.unlock_synergy("relampago")
+	_equip_weapon_and_mods("res://Scenes/Weapon/uzi.tscn", [
+		{"path": "res://Art/Items/Weapons/Item3.tres", "slot": ItemData.ItemSlot.MAIN_W1},
+		{"path": "res://Art/Items/Weapons/Item2.tres", "slot": ItemData.ItemSlot.MAIN_W2},
+		{"path": "res://Art/Items/Weapons/Item6.tres", "slot": ItemData.ItemSlot.MAIN_W3}
+	])
+	_show_status("Sinergia 'Relámpago' activada y equipada.")
+
 func _equip_weapon_and_mods(weapon_path: String, mods: Array[Dictionary]) -> void:
 	var player = _get_player()
 	if not player: return
@@ -377,6 +429,18 @@ func _equip_weapon_and_mods(weapon_path: String, mods: Array[Dictionary]) -> voi
 	if weapon_wrapper:
 		var scene = load(weapon_path)
 		if scene: weapon_wrapper.switch_weapon(scene)
+	var equip = player.get_node_or_null("Equipment")
+	var inv = player.get_node_or_null("Inventory")
+	for mod_info in mods:
+		_equip_slot_item(equip, inv, mod_info.path, mod_info.slot)
+
+func _equip_melee_weapon_and_mods(weapon_path: String, mods: Array[Dictionary]) -> void:
+	var player = _get_player()
+	if not player: return
+	var second_weapon_container = player.get("second_weapon")
+	if second_weapon_container:
+		var scene = load(weapon_path)
+		if scene: second_weapon_container.switch_weapon(scene)
 	var equip = player.get_node_or_null("Equipment")
 	var inv = player.get_node_or_null("Inventory")
 	for mod_info in mods:

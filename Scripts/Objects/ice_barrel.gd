@@ -72,6 +72,7 @@ func _play_ice_audio() -> void:
 		audio.stream = stream
 		audio.pitch_scale = randf_range(0.95, 1.05)
 		audio.volume_db = 2.0
+		audio.bus = "SFX"
 		get_parent().add_child(audio)
 		audio.global_position = global_position
 		audio.play()

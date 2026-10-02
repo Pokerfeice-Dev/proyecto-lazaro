@@ -205,7 +205,8 @@ func determine_next_room() -> String:
 	return check_for_ygor_room()
 
 func get_boss_room() -> String:
-	# Placeholder: por ahora el nivel 2 reutiliza la pelea del boss 1 (Marcos pidio esto "por ahora")
+	if current_level >= 2:
+		return "res://Scenes/Rooms/Level2_Room14BossFight.tscn"
 	return "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"
 
 # Se llama cuando el jugador cruza la puerta de salida del boss.
@@ -472,7 +473,11 @@ func unlock_all_synergies() -> void:
 		"trituradora_biomecanica",
 		"acorazado_muscular",
 		"minigun",
-		"lanzallamas"
+		"lanzallamas",
+		"daga_del_odio",
+		"arrogancia",
+		"hombre_lobo",
+		"relampago"
 	]
 	for syn_id in all_ids:
 		unlock_synergy(syn_id)

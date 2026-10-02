@@ -20,6 +20,7 @@ const DEFAULT_WAVE_SPEED: float = 500.0
 ## (útil para escalonar varios objetos).
 static func reveal_node(node: Node2D, delay: float = 0.0, duration: float = DEFAULT_POP_DURATION, trans_type: Tween.TransitionType = Tween.TRANS_BOUNCE, fade_in: bool = true) -> void:
 	if not is_instance_valid(node): return
+	if not FxSettings.on("animacion_salas"): return # opcion apagada: el objeto queda donde esta
 	var target_scale = node.scale
 	node.scale = Vector2.ZERO
 	var target_alpha = node.modulate.a

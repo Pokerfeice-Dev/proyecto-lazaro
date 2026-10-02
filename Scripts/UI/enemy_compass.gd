@@ -12,6 +12,8 @@ var arrows: Array[CompassArrow] = []
 
 func _ready() -> void:
 	z_index = 4095
+	add_to_group("enemy_compass") # GameSettings la muestra/oculta en vivo
+	visible = FxSettings.on("brujula_enemigos")
 	_create_arrows()
 
 func _create_arrows() -> void:

@@ -495,6 +495,7 @@ func _show_damage_text(amount: int, is_crit: bool) -> void:
 	tween.chain().tween_callback(floating_node.queue_free)
 
 var is_frozen_by_ice: bool = false
+var is_electrified: bool = false # tinte amarillo mientras dura el stun de Relampago
 
 func freeze_enemy(duration: float = 5.0) -> void:
 	if is_dying: return
@@ -537,6 +538,8 @@ func _cancel_active_flash_tween() -> void:
 func _get_flash_target_color() -> Color:
 	if is_frozen_by_ice:
 		return Color(0.3, 0.85, 1.8, 1.0)
+	if is_electrified:
+		return Color(2.2, 2.0, 0.2, 1.0)
 	return _default_modulate
 
 func _start_flash_tween(sprite: Node2D, target_col: Color) -> void:

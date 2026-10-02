@@ -514,7 +514,11 @@ func _load_sinergias(parent: Control) -> void:
 		{"id": "lanzallamas", "name": "Lanzallamas", "desc": "Reemplaza la escopeta por un lanzallamas de alcance corto que quema a los enemigos.", "cost": 300},
 		{"id": "bestia_de_caza", "name": "Bestia de Caza", "desc": "Reemplaza el arma a rango por una segunda arma melee. Otorga bonos de daño, velocidad y furia al dash.", "cost": 500},
 		{"id": "trituradora_biomecanica", "name": "Trituradora Biomecánica", "desc": "Acumulas energía de impacto al moverte. Dash genera onda de choque.", "cost": 500},
-		{"id": "acorazado_muscular", "name": "Set Musculoso", "desc": "Incrementa daño, empuje, vida máxima y defensa, a cambio de reducir velocidad de movimiento.", "cost": 500}
+		{"id": "acorazado_muscular", "name": "Set Musculoso", "desc": "Incrementa daño, empuje, vida máxima y defensa, a cambio de reducir velocidad de movimiento.", "cost": 500},
+		{"id": "daga_del_odio", "name": "Daga del Odio", "desc": "Cuanto menos vida te queda, más fuerte pega la daga: gana daño, velocidad, alcance y crítico.", "cost": 300},
+		{"id": "arrogancia", "name": "Arrogancia", "desc": "Mientras atacás con la maza, devolvés las balas enemigas (nerfeadas) hacia los enemigos.", "cost": 300},
+		{"id": "hombre_lobo", "name": "Hombre Lobo", "desc": "Marca a un enemigo de la sala: el hacha le hace muchísimo más daño y, al golpearlo, la marca explota.", "cost": 300},
+		{"id": "relampago", "name": "Relámpago", "desc": "Tus balas de UZI tienen chance de salir electrificadas: aturden notoriamente al enemigo y la electricidad se contagia en cadena.", "cost": 300}
 	]
 	
 	# Determine if Mente Colmena AND Roadkill are unlocked

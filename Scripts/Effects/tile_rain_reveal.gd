@@ -23,6 +23,7 @@ const DEFAULT_FALL_DURATION: float = 0.22
 
 static func reveal_tilemap_layer(layer: TileMapLayer, origin: Vector2, chunk_size: int = DEFAULT_CHUNK_SIZE, wave_speed: float = DEFAULT_WAVE_SPEED, fall_height: float = DEFAULT_FALL_HEIGHT, fall_duration: float = DEFAULT_FALL_DURATION) -> void:
 	if not layer or not is_instance_valid(layer): return
+	if not FxSettings.on("animacion_salas"): return # opcion apagada: el piso ya esta armado
 	var tile_set = layer.tile_set
 	if not tile_set: return
 	var cells = layer.get_used_cells()

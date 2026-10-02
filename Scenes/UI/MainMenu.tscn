@@ -1,9 +1,11 @@
 [gd_scene format=3 uid="uid://cc1lqc7wlyhbn"]
 
 [ext_resource type="Script" uid="uid://c0xixgojs3dqw" path="res://Scripts/UI/main_menu.gd" id="1_mm"]
-[ext_resource type="Texture2D" uid="uid://ckjwwr6q8v018" path="res://Art/Menu/lazaro artwork.jpg" id="3_744d7"]
+[ext_resource type="Material" uid="uid://b0koyh6l5my1r" path="res://Art/Menu/Animado/menu_lazaro_idle_material.tres" id="3_ynupv"]
 [ext_resource type="Texture2D" uid="uid://c8i8eiqrnnhjv" path="res://Art/Menu/FRANKEN-GUN_Logo.png" id="4_744d7"]
+[ext_resource type="Texture2D" uid="uid://cjghxl8dyp3s6" path="res://Art/Menu/Animado/menu_lazaro_cuerpo.png" id="4_m48tj"]
 [ext_resource type="AudioStream" uid="uid://e3bms8u37ppr" path="res://Audio/Sfx/Fantasy_UI (8).wav" id="4_t6w0q"]
+[ext_resource type="Texture2D" uid="uid://cbr53ikcsq5g8" path="res://Art/Menu/Animado/menu_lazaro_barrotes.png" id="5_dvisc"]
 [ext_resource type="Texture2D" uid="uid://dr4gcejpycvr2" path="res://Art/Menu/Kid Gunz_Logo.png" id="5_kl3t2"]
 [ext_resource type="AudioStream" uid="uid://bnlysd01ewdpi" path="res://Audio/Sfx/Piano_Ui (2).wav" id="6_kl3t2"]
 [ext_resource type="Theme" uid="uid://vjygo4dmal04" path="res://Art/Ui/game_theme.tres" id="7_theme"]
@@ -45,6 +47,7 @@ theme = ExtResource("7_theme")
 script = ExtResource("1_mm")
 
 [node name="Background" type="TextureRect" parent="." unique_id=133628852]
+material = ExtResource("3_ynupv")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -52,7 +55,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("3_744d7")
+texture = ExtResource("4_m48tj")
+
+[node name="Barrotes" type="TextureRect" parent="." unique_id=200092413]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_dvisc")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=2012467861]
 visible = false

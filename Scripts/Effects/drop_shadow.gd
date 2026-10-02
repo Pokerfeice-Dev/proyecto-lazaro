@@ -26,6 +26,13 @@ var _fade_tween: Tween = null
 
 func _ready() -> void:
 	_init_shadow_visuals()
+	_apply_user_setting()
+
+# respeta la opcion "Sombras" del menu de opciones (GameSettings las prende/apaga en vivo por grupo)
+func _apply_user_setting() -> void:
+	if Engine.is_editor_hint(): return
+	add_to_group("drop_shadows")
+	visible = FxSettings.on("sombras")
 
 func _init_shadow_visuals() -> void:
 	texture = _get_or_create_shared_texture()

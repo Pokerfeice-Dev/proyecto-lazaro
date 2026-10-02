@@ -76,6 +76,36 @@ const SYNERGIES = {
 		"required_items": ["cabeza_de_perro", "cabeza_de_perro", "cabeza_de_perro"],
 		"stat_modifiers": {},
 		"weapon_scene_override": "res://Scenes/Weapon/Flamethrower.tscn"
+	},
+	"hombre_lobo": {
+		"name": "Hombre Lobo",
+		"description": "Aparece un enemigo marcado en la sala. El hacha hace muchísimo más daño al enemigo marcado y, al golpearlo, la marca explota dañando a los enemigos cercanos y aparece en otro enemigo.",
+		"required_weapon": "hacha",
+		"required_items": ["cabeza_humana", "cabeza_de_perro", "aguijon_mecanico"],
+		"stat_modifiers": {}
+	},
+	"daga_del_odio": {
+		"name": "Daga del Odio",
+		"description": "Mientras menos vida tenés, más letal se vuelve la daga: gana muchísimo daño, velocidad de ataque, alcance y probabilidad/daño crítico a medida que baja tu salud. El filo se tiñe de rojo.",
+		"required_weapon": "daga",
+		"required_items": ["pulmones", "cabeza_humana", "sierra_circular"],
+		"stat_modifiers": {}
+	},
+	"arrogancia": {
+		"name": "Arrogancia",
+		"description": "Mientras atacás con la maza, cualquier bala enemiga que te toque durante el golpe rebota devuelta (con daño reducido) hacia los enemigos, en vez de pegarte a vos.",
+		"required_weapon": "maze",
+		"required_items": ["mezcladora", "cabeza_humana", "colmena"],
+		"stat_modifiers": {}
+	},
+	"relampago": {
+		"name": "Relámpago",
+		"description": "La UZI dispara normal, pero cada bala tiene chance de salir como bala relámpago: electrifica al enemigo que impacta, lo aturde de forma notoria y contagia la marca en cadena a los enemigos cercanos.",
+		"required_weapon": "uzi",
+		"required_items": ["cerebro", "aguijon_mecanico", "motocicleta"],
+		"stat_modifiers": {},
+		"projectile_override": "res://Scenes/Projectiles/ElectroProjectile.tscn",
+		"projectile_override_chance": 0.35
 	}
 }
 
@@ -164,6 +194,11 @@ func _get_single_synergy_projectile_override(syn_id: String) -> PackedScene:
 	var def = SYNERGIES[syn_id]
 	var path = def.get("projectile_override", "")
 	if path == "":
+		return null
+	# Algunas sinergias (ej: Relampago) no reemplazan TODAS las balas, solo
+	# tienen una probabilidad de que la bala disparada sea la especial.
+	var chance = float(def.get("projectile_override_chance", 1.0))
+	if chance < 1.0 and randf() > chance:
 		return null
 	if not ResourceLoader.exists(path):
 		return null

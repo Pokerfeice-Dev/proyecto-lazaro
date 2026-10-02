@@ -4,7 +4,6 @@
 [ext_resource type="TileSet" uid="uid://crs88nnfgs0gw" path="res://Scenes/Rooms/Floor.tres" id="2_fk30j"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="2_otkfy"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="3_yufhn"]
-[ext_resource type="AudioStream" uid="uid://d0krhd3grvu33" path="res://Audio/Music/lab.ogg" id="6_yufhn"]
 [ext_resource type="PackedScene" uid="uid://b340be6qpcdil" path="res://Scenes/Rooms/door_CoreUpgrades.tscn" id="7_cwij8"]
 [ext_resource type="PackedScene" path="res://Scenes/World/InfoSign.tscn" id="20_infosign"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
@@ -41,12 +40,6 @@ sign_body = "[b]Optimización y Mantenimiento de Núcleos Individuales Adaptativ
 Este terminal administra el PROTOCOLO LÁZARO: convertí la chatarra que recuperes en el campo en mejoras permanentes para tu chasis, tus armas y tus sistemas de soporte.
 
 Las mejoras que compres acá se mantienen entre cada despliegue, incluso si caés en combate. Volvé cuando quieras para seguir invirtiendo tu chatarra."
-
-[node name="Audio_lab" type="AudioStreamPlayer" parent="." unique_id=1955253072]
-stream = ExtResource("6_yufhn")
-autoplay = true
-bus = &"Music"
-parameters/looping = true
 
 [node name="Door" parent="." unique_id=1038942087 instance=ExtResource("new_door_1")]
 position = Vector2(-324, 9)

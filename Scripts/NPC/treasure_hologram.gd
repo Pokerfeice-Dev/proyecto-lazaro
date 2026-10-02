@@ -200,6 +200,7 @@ func _give_reward_item() -> void:
 func _play_collection_effects() -> void:
 	var interact_sound = get_node_or_null("Interact") as AudioStreamPlayer2D
 	if interact_sound:
+		interact_sound.bus = "SFX"
 		interact_sound.play()
 		return
 	

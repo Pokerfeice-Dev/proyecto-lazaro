@@ -36,6 +36,7 @@ var _anticipation_tween: Tween = null
 
 func _ready() -> void:
 	super._ready()
+	if attack_sound: attack_sound.bus = "SFX"
 	move_speed = 180.0
 	max_health = 48
 	detection_radius = 250.0

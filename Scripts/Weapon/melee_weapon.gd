@@ -32,6 +32,7 @@ func _ready() -> void:
 	_initialize_id()
 	_init_audio_player()
 	_init_collision()
+	_init_melee_sprite()
 	_init_attack_fx()
 	rotation = deg_to_rad(sprite_rotation_offset)
 
@@ -64,6 +65,13 @@ func _init_collision() -> void:
 	if slash_attack:
 		slash_attack.body_entered.connect(_on_body_entered)
 		slash_attack.monitoring = false
+
+func _init_melee_sprite() -> void:
+	# fallback: en dagger.tscn y axe.tscn el NodePath de melee_sprite no
+	# esta asignado en la escena (solo mace.tscn lo tiene), asi que sin esto
+	# el sprite quedaba null y los tintes de sinergia nunca se veian.
+	if not melee_sprite:
+		melee_sprite = get_node_or_null("Melee_sprite")
 
 func _init_attack_fx() -> void:
 	if not attack_fx:
@@ -175,12 +183,19 @@ func _apply_damage_to_enemy(body: Node2D) -> void:
 	if randf() <= crit_chance:
 		final_dmg = int(final_dmg * crit_damage)
 		is_crit = true
-		
+
+	var is_marked_hit = false
+	if equip_owner and body.has_meta("werewolf_mark") and equip_owner.has_method("_is_hombre_lobo_active") and equip_owner._is_hombre_lobo_active():
+		is_marked_hit = true
+		final_dmg *= 4
 	body.take_damage(final_dmg, is_crit)
 	_apply_knockback_to_enemy(body, final_kb)
 	
 	if equip_owner and equip_owner.get("is_furia_active") == true:
 		_trigger_furia_area_attack(body.global_position, final_dmg)
+	
+	if is_marked_hit and equip_owner and equip_owner.has_method("_trigger_werewolf_mark_explosion"):
+		equip_owner._trigger_werewolf_mark_explosion(body)
 
 func _apply_knockback_to_enemy(body: Node2D, force: float) -> void:
 	if force <= 0.0: return
