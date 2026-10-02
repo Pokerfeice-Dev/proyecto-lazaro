@@ -104,3 +104,6 @@ position = Vector2(-286, -203)
 
 [node name="Spawn2" type="Marker2D" parent="." unique_id=1894963541]
 position = Vector2(289, -203)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=172476215]
+color = Color(0.36, 0.38, 0.5, 1)

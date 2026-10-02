@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_sgqvj"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="3_qy87u"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_mynlx"]
+[ext_resource type="PackedScene" uid="uid://bn5bjdd22602q" path="res://Scenes/Objects/lampara_pie.tscn" id="4_sgqvj"]
+[ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="5_edgl6"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [node name="Room_11" type="Node2D" unique_id=708789417]
@@ -31,6 +33,34 @@ position = Vector2(833, -423)
 [node name="Door" parent="." unique_id=1922391837 instance=ExtResource("new_door_1")]
 position = Vector2(125, -416)
 start_locked = false
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1533773753]
+position = Vector2(516, -418)
+scale = Vector2(1.5, 1.5)
+color = Color(0.36, 0.38, 0.5, 1)
+
+[node name="Lampara_pie" parent="CanvasModulate" unique_id=1509059318 instance=ExtResource("4_sgqvj")]
+position = Vector2(2.666687, -94.666664)
+scale = Vector2(0.9696379, 0.9696379)
+
+[node name="Lampara_pie2" parent="CanvasModulate" unique_id=1983995399 instance=ExtResource("4_sgqvj")]
+position = Vector2(2.666687, 113.333336)
+scale = Vector2(0.9696379, 0.9696379)
+
+[node name="lampara_pared" parent="CanvasModulate" unique_id=1368619277 instance=ExtResource("5_edgl6")]
+position = Vector2(-167.99998, -121.33333)
+
+[node name="lampara_pared2" parent="CanvasModulate" unique_id=1358028690 instance=ExtResource("5_edgl6")]
+position = Vector2(-125.333336, 172.00002)
+
+[node name="lampara_pared3" parent="CanvasModulate" unique_id=441284843 instance=ExtResource("5_edgl6")]
+position = Vector2(152, 172)
+
+[node name="lampara_pared4" parent="CanvasModulate" unique_id=804301170 instance=ExtResource("5_edgl6")]
+position = Vector2(178.66667, -94.66669)
+
+[node name="lampara_pared5" parent="CanvasModulate" unique_id=140731697 instance=ExtResource("5_edgl6")]
+position = Vector2(178.66667, -94.66669)
 
 [node name="Chest_Trap" parent="." unique_id=763261542 instance=ExtResource("4_mynlx")]
 position = Vector2(516, -418)

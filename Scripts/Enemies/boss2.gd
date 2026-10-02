@@ -80,6 +80,19 @@ class_name Boss2
 @export var melee_recover_time: float = 0.4
 @export var melee_damage_mult: float = 1.0
 
+@export_group("Boss Fase 2 (Despertar)")
+## Misma lógica que el boss 1: al bajar de este porcentaje de vida despierta,
+## se cura, se pone más rápido y cambia la música. Todo en la misma sala.
+@export var phase_two_threshold: float = 0.5
+## Cuánto se cura al despertar (boss 1: +20%).
+@export var phase_two_heal_ratio: float = 0.2
+## Multiplicador de ritmo de la fase 2 (boss 1: x1.5).
+@export var phase_two_speed_mult: float = 1.5
+## Música de cada fase. La de la fase 2 arranca con 4 compases de "despertar"
+## pensados para durar lo mismo que la cinemática (~6 s).
+@export var phase_two_music: AudioStream = preload("res://Audio/Music/Boss2_Fase2.ogg")
+@export var phase_two_title: String = "◆ FASE 2: DESPERTAR ◆"
+
 enum State {
 	IDLE,
 	JUMP_TELEGRAPH,
@@ -112,6 +125,8 @@ var home_position: Vector2 = Vector2.ZERO
 
 var healthbar_instance: Node = null
 var boss_health_bar_node: Range = null
+var is_phase_two: bool = false
+var is_transitioning_phase: bool = false
 
 func _ready() -> void:
 	super._ready()
@@ -279,7 +294,7 @@ func _apply_melee_damage() -> void:
 		visual.play_squash_down()
 	if slam_sound:
 		slam_sound.play()
-	if target and global_position.distance_to(target.global_position) <= melee_attack_range * 1.15:
+	if not is_transitioning_phase and target and global_position.distance_to(target.global_position) <= melee_attack_range * 1.15:
 		if target.has_method("take_damage"):
 			target.take_damage(int(float(damage) * melee_damage_mult), boss_display_name, global_position)
 	get_tree().create_timer(melee_recover_time).timeout.connect(_finish_pattern)
@@ -374,6 +389,7 @@ func _finish_jump_step() -> void:
 
 func _deal_slam_damage(pos: Vector2) -> void:
 	_spawn_shockwave(pos)
+	if is_transitioning_phase: return # el jugador está congelado en la cinemática
 	for body in get_tree().get_nodes_in_group("player"):
 		if body.global_position.distance_to(pos) <= jump_slam_radius and body.has_method("take_damage"):
 			body.take_damage(int(float(damage) * jump_slam_damage_mult), boss_display_name, pos)
@@ -405,7 +421,7 @@ func _start_spit_attack() -> void:
 
 func _do_spit_volley(volleys_left: int) -> void:
 	if is_dying: return
-	if volleys_left <= 0:
+	if volleys_left <= 0 or is_transitioning_phase:
 		get_tree().create_timer(spit_recover_time).timeout.connect(_finish_pattern)
 		return
 	_fire_spit_volley()
@@ -480,8 +496,241 @@ func _shake_camera(force: float, duration: float) -> void:
 		player.apply_custom_camera_shake(force, duration)
 
 func take_damage(amount: int, is_crit: bool = false) -> void:
+	if is_transitioning_phase: return # invulnerable mientras despierta (igual que el boss 1)
 	super.take_damage(amount, is_crit)
 	_update_hud_health()
+	_check_phase_transition()
+
+# --- Fase 2: "Despertar" (misma lógica que el boss 1, sin cambiar de sala) ---
+
+func _check_phase_transition() -> void:
+	if is_phase_two: return
+	if is_dying: return
+	if is_transitioning_phase: return
+	if float(current_health) <= float(max_health) * phase_two_threshold:
+		_trigger_phase_two()
+
+func _trigger_phase_two() -> void:
+	is_phase_two = true
+	is_transitioning_phase = true
+	jump_combo_remaining = 0 # si estaba en un combo de saltos, termina el salto actual y se queda
+	_stop_boss_timers()
+	_hide_landing_shadow()
+	_set_minions_frozen(true)
+	_play_rage_effects()
+	_show_phase_two_message()
+	_fade_out_boss_music(1.4)
+	var t = create_tween()
+	t.tween_interval(1.4)
+	t.tween_callback(_start_phase_two_cinematic)
+
+func _stop_boss_timers() -> void:
+	for timer in [pattern_timer, chase_timer, melee_timer]:
+		if timer:
+			timer.stop()
+
+func _play_rage_effects() -> void:
+	if roar_sound:
+		roar_sound.play()
+	_shake_camera(20.0, 1.4)
+	if visual:
+		var t = create_tween()
+		t.tween_property(visual, "modulate", Color(2.0, 0.4, 0.4), 0.2)
+		t.tween_property(visual, "modulate", Color.WHITE, 1.0)
+
+func _show_phase_two_message() -> void:
+	var label = Label.new()
+	label.text = "FASE 2: DESPERTAR"
+	label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))
+	label.add_theme_font_size_override("font_size", 48)
+	label.add_theme_color_override("font_outline_color", Color.BLACK)
+	label.add_theme_constant_override("outline_size", 12)
+	var font_res = load("res://Art/Fonts/Dekatron-SemiBold.otf")
+	if font_res:
+		label.add_theme_font_override("font", font_res)
+
+	var canvas_layer = CanvasLayer.new()
+	canvas_layer.layer = 100
+	get_tree().current_scene.add_child(canvas_layer)
+	canvas_layer.add_child(label)
+	label.set_anchors_preset(Control.PRESET_CENTER)
+	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	label.grow_vertical = Control.GROW_DIRECTION_BOTH
+	label.position = Vector2(960 - 250, 540 - 40)
+
+	var t = create_tween().set_parallel(true)
+	t.tween_property(label, "scale", Vector2(1.2, 1.2), 1.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.tween_property(label, "modulate:a", 0.0, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	t.chain().tween_callback(canvas_layer.queue_free)
+
+# La cinemática es la del boss 1: título, zoom al boss, rugido + curación, zoom de vuelta.
+func _start_phase_two_cinematic() -> void:
+	if is_dying: return
+	var player = get_tree().get_first_node_in_group("player")
+	_freeze_player(player)
+	_play_phase_two_music()
+
+	var cinema_layer = CanvasLayer.new()
+	cinema_layer.layer = 10
+	get_tree().current_scene.add_child(cinema_layer)
+	var title = _create_cinematic_title(cinema_layer)
+	var camera = get_viewport().get_camera_2d()
+	create_tween().tween_property(title, "modulate:a", 1.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_run_cinematic_timeline(cinema_layer, title, player, camera)
+
+func _create_cinematic_title(parent: CanvasLayer) -> VBoxContainer:
+	var container = VBoxContainer.new()
+	container.set_anchors_preset(Control.PRESET_CENTER)
+	container.position = Vector2(960 - 350, 540 - 65)
+	container.custom_minimum_size = Vector2(700, 130)
+	container.modulate.a = 0.0
+	parent.add_child(container)
+	var font_res = load("res://Art/Fonts/Dekatron-SemiBold.otf")
+	container.add_child(_make_cinematic_label(boss_display_name.to_upper(), 42, Color(1.0, 0.25, 0.25), 12, font_res))
+	var sub_text = "%s\n[ REGENERACIÓN BIOLÓGICA +%d%% ]" % [phase_two_title, int(phase_two_heal_ratio * 100.0)]
+	container.add_child(_make_cinematic_label(sub_text, 20, Color(0.3, 0.9, 1.0), 8, font_res))
+	return container
+
+func _make_cinematic_label(text: String, size: int, color: Color, outline: int, font_res: Font) -> Label:
+	var label = Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if font_res:
+		label.add_theme_font_override("font", font_res)
+	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color.BLACK)
+	label.add_theme_constant_override("outline_size", outline)
+	return label
+
+# Mismos tiempos que el boss 1 (6 s): coinciden con los 4 compases de "despertar" de la música.
+func _run_cinematic_timeline(cinema_layer: CanvasLayer, title: Control, player: Node, camera: Camera2D) -> void:
+	var t = create_tween()
+	t.tween_interval(1.0)
+	t.tween_callback(func(): _zoom_camera_to_boss(camera, 1.0))
+	t.tween_interval(1.0)
+	t.tween_callback(_trigger_healing_effects)
+	t.tween_interval(2.0)
+	t.tween_callback(func(): _zoom_camera_to_player(camera, 1.0))
+	t.tween_interval(1.0)
+	t.tween_callback(func(): create_tween().tween_property(title, "modulate:a", 0.0, 0.4))
+	t.tween_interval(1.0)
+	t.tween_callback(func(): _finish_phase_two_cinematic(cinema_layer, player))
+
+func _zoom_camera_to_boss(camera: Camera2D, duration: float) -> void:
+	if not camera or not camera.get_parent(): return
+	var target_offset = global_position - camera.get_parent().global_position
+	var t = create_tween().set_parallel(true)
+	t.tween_property(camera, "zoom", Vector2(1.35, 1.35), duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	t.tween_property(camera, "position", target_offset, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+func _zoom_camera_to_player(camera: Camera2D, duration: float) -> void:
+	if not camera: return
+	var t = create_tween().set_parallel(true)
+	t.tween_property(camera, "zoom", Vector2.ONE, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(camera, "position", Vector2.ZERO, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+
+func _trigger_healing_effects() -> void:
+	if roar_sound:
+		roar_sound.play()
+	_shake_camera(16.0, 2.0)
+	if visual:
+		var t = create_tween()
+		t.tween_property(visual, "modulate", Color(2.0, 0.3, 0.3), 0.3)
+		t.tween_property(visual, "modulate", Color(0.3, 1.8, 0.6), 0.9)
+		t.tween_property(visual, "modulate", Color.WHITE, 0.8)
+	var particles = _create_healing_particles()
+	var target_hp = mini(max_health, current_health + int(float(max_health) * phase_two_heal_ratio))
+	var t_heal = create_tween()
+	t_heal.tween_method(_update_healing_step, float(current_health), float(target_hp), 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	t_heal.tween_interval(0.2)
+	t_heal.tween_callback(particles.queue_free)
+
+func _create_healing_particles() -> CPUParticles2D:
+	var particles = CPUParticles2D.new()
+	particles.amount = 40
+	particles.lifetime = 1.6
+	particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
+	particles.emission_sphere_radius = 55.0
+	particles.direction = Vector2(0, -1)
+	particles.spread = 60.0
+	particles.gravity = Vector2(0, -80)
+	particles.initial_velocity_min = 30.0
+	particles.initial_velocity_max = 80.0
+	particles.scale_amount_min = 4.0
+	particles.scale_amount_max = 8.0
+	var gradient = Gradient.new()
+	gradient.set_color(0, Color(0.2, 1.0, 0.5, 0.9))
+	gradient.set_color(1, Color(0.1, 0.8, 1.0, 0.0))
+	particles.color_ramp = gradient
+	add_child(particles)
+	return particles
+
+func _update_healing_step(val: float) -> void:
+	current_health = int(val)
+	if boss_health_bar_node:
+		boss_health_bar_node.value = current_health
+
+func _finish_phase_two_cinematic(cinema_layer: CanvasLayer, player: Node) -> void:
+	if cinema_layer and is_instance_valid(cinema_layer):
+		cinema_layer.queue_free()
+	_unfreeze_player(player)
+	_set_minions_frozen(false)
+	_apply_phase_two_buffs()
+	is_transitioning_phase = false
+
+# Más rápido en todo, pero los saltos siguen telegrafiados para que se puedan esquivar.
+func _apply_phase_two_buffs() -> void:
+	var mult = maxf(phase_two_speed_mult, 0.01)
+	jump_telegraph_time /= 1.2
+	spit_volleys += 1
+	if pattern_timer:
+		pattern_timer.wait_time = time_between_patterns / mult
+		pattern_timer.start()
+	if chase_timer:
+		chase_timer.wait_time = chase_check_interval / mult
+		chase_timer.start()
+	if melee_timer:
+		melee_timer.wait_time = melee_attack_cooldown / mult
+		melee_timer.start()
+
+func _freeze_player(player: Node) -> void:
+	if not player or not is_instance_valid(player): return
+	if player.has_method("freeze_player"):
+		player.freeze_player()
+
+func _unfreeze_player(player: Node) -> void:
+	if not player or not is_instance_valid(player): return
+	if player.has_method("unfreeze_player"):
+		player.unfreeze_player()
+
+# los mutantes invocados se quedan quietos durante la cinemática
+func _set_minions_frozen(frozen: bool) -> void:
+	_cleanup_dead_minions()
+	for m in spawned_minions:
+		m.process_mode = Node.PROCESS_MODE_DISABLED if frozen else Node.PROCESS_MODE_INHERIT
+
+# --- Música del boss (nodo Boss_Fight_Music de la sala) ---
+
+func _get_boss_music() -> AudioStreamPlayer:
+	# primero en la sala donde está el boss, después en la escena actual
+	var music = get_parent().get_node_or_null("Boss_Fight_Music") if get_parent() else null
+	if not music:
+		music = get_tree().current_scene.get_node_or_null("Boss_Fight_Music")
+	return music as AudioStreamPlayer
+
+func _fade_out_boss_music(duration: float) -> void:
+	var music = _get_boss_music()
+	if not music or not music.playing: return
+	music.set_meta("volumen_base", music.volume_db)
+	create_tween().tween_property(music, "volume_db", music.volume_db - 30.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+func _play_phase_two_music() -> void:
+	var music = _get_boss_music()
+	if not music or not phase_two_music: return
+	music.volume_db = music.get_meta("volumen_base", music.volume_db)
+	music.stream = phase_two_music
+	music.play()
 
 func _update_hud_health() -> void:
 	if boss_health_bar_node:

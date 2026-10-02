@@ -46,3 +46,6 @@ position = Vector2(524, -470)
 [node name="Door" parent="." unique_id=1451456676 instance=ExtResource("new_door_1")]
 position = Vector2(188, -313)
 start_locked = false
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=2005806226]
+color = Color(0.12, 0.14, 0.22, 1)

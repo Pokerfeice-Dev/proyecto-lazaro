@@ -4,6 +4,7 @@
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_u1vqe"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_m6ci3"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="4_5n313"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Torch.tscn" id="5_u1vqe"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5n313"]
 size = Vector2(173.08772, 224.68118)
@@ -68,3 +69,40 @@ position = Vector2(496, -472)
 
 [node name="BarrelSpawnPoint2" parent="." unique_id=2094970486 instance=ExtResource("4_5n313")]
 position = Vector2(1080, -416)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1403585275]
+position = Vector2(1080, -416)
+color = Color(0.12, 0.14, 0.22, 1)
+
+[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_u1vqe")]
+position = Vector2(80, -216)
+
+[node name="Torch2" parent="CanvasModulate" unique_id=1209936652 instance=ExtResource("5_u1vqe")]
+position = Vector2(88, 264)
+
+[node name="Torch3" parent="CanvasModulate" unique_id=280542405 instance=ExtResource("5_u1vqe")]
+position = Vector2(88, 0)
+
+[node name="Torch4" parent="CanvasModulate" unique_id=1583332529 instance=ExtResource("5_u1vqe")]
+position = Vector2(-160, -8)
+
+[node name="Torch5" parent="CanvasModulate" unique_id=806177406 instance=ExtResource("5_u1vqe")]
+position = Vector2(-160, -240)
+
+[node name="Torch6" parent="CanvasModulate" unique_id=1115256118 instance=ExtResource("5_u1vqe")]
+position = Vector2(-160, 272)
+
+[node name="Torch7" parent="CanvasModulate" unique_id=2134023609 instance=ExtResource("5_u1vqe")]
+position = Vector2(-464, 120)
+
+[node name="Torch8" parent="CanvasModulate" unique_id=272948298 instance=ExtResource("5_u1vqe")]
+position = Vector2(-464, -224)
+
+[node name="Torch9" parent="CanvasModulate" unique_id=1278739946 instance=ExtResource("5_u1vqe")]
+position = Vector2(-816, -224)
+
+[node name="Torch10" parent="CanvasModulate" unique_id=1981641461 instance=ExtResource("5_u1vqe")]
+position = Vector2(-808, 104)
+
+[node name="Torch11" parent="CanvasModulate" unique_id=1976518572 instance=ExtResource("5_u1vqe")]
+position = Vector2(-656, -64)

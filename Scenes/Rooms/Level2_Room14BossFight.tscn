@@ -4,6 +4,8 @@
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_gp6ns"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="4_x8ldu"]
 [ext_resource type="PackedScene" uid="uid://cvf5dmgeplxjj" path="res://Scenes/Enemies/Boss2.tscn" id="5_27pga"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Torch.tscn" id="5_jolep"]
+[ext_resource type="AudioStream" uid="uid://b77l27s5fbp35" path="res://Audio/Music/Boss2_Fase1.ogg" id="6_gp6ns"]
 
 [node name="Room_11" type="Node2D" unique_id=708789417]
 script = ExtResource("1_jolep")
@@ -36,3 +38,69 @@ position = Vector2(962, -793)
 position = Vector2(955, -1120)
 rotation = 1.5707964
 is_boss_exit_door = true
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=103679788]
+position = Vector2(955, -1120)
+rotation = 1.5707964
+color = Color(0.12, 0.14, 0.22, 1)
+
+[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_jolep")]
+position = Vector2(-5.9999504, -100.00003)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch2" parent="CanvasModulate" unique_id=1805437772 instance=ExtResource("5_jolep")]
+position = Vector2(-7.999941, 122.99997)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch3" parent="CanvasModulate" unique_id=868791242 instance=ExtResource("5_jolep")]
+position = Vector2(203.00006, 84.99996)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch4" parent="CanvasModulate" unique_id=1215546867 instance=ExtResource("5_jolep")]
+position = Vector2(195, -90.00004)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch5" parent="CanvasModulate" unique_id=1067770952 instance=ExtResource("5_jolep")]
+position = Vector2(423, 92.99995)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch6" parent="CanvasModulate" unique_id=773236604 instance=ExtResource("5_jolep")]
+position = Vector2(430, -82.99999)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch7" parent="CanvasModulate" unique_id=68025239 instance=ExtResource("5_jolep")]
+position = Vector2(322, 324)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch8" parent="CanvasModulate" unique_id=1522838084 instance=ExtResource("5_jolep")]
+position = Vector2(303.99997, -334)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch9" parent="CanvasModulate" unique_id=440313328 instance=ExtResource("5_jolep")]
+position = Vector2(649, 281)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch10" parent="CanvasModulate" unique_id=525341 instance=ExtResource("5_jolep")]
+position = Vector2(662, -312)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Torch11" parent="CanvasModulate" unique_id=1702159094 instance=ExtResource("5_jolep")]
+position = Vector2(675, -5)
+rotation = -1.5707964
+scale = Vector2(1.075, 1.075)
+
+[node name="Boss_Fight_Music" type="AudioStreamPlayer" parent="." unique_id=79362965]
+stream = ExtResource("6_gp6ns")
+volume_db = -5.0
+autoplay = true
+bus = &"Music"

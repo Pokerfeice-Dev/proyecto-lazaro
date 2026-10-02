@@ -4,6 +4,8 @@
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="2_2wevg"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_2wevg"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="5_durxx"]
+[ext_resource type="PackedScene" uid="uid://bn5bjdd22602q" path="res://Scenes/Objects/lampara_pie.tscn" id="6_y546u"]
+[ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="7_vh6uo"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
@@ -71,3 +73,22 @@ position = Vector2(-168.5, 4)
 
 [node name="BarrelSpawnPoint" parent="Chest_Locked/BarrelSpawnPoint" unique_id=240706223 instance=ExtResource("5_durxx")]
 position = Vector2(310.5, 0)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=659569556]
+position = Vector2(409, 233)
+scale = Vector2(2, 2)
+color = Color(0.36, 0.38, 0.5, 1)
+
+[node name="Lampara_pie" parent="CanvasModulate" unique_id=1509059318 instance=ExtResource("6_y546u")]
+position = Vector2(-261, -71.99998)
+scale = Vector2(0.9696379, 0.9696379)
+
+[node name="Lampara_pie2" parent="CanvasModulate" unique_id=1073240183 instance=ExtResource("6_y546u")]
+position = Vector2(-21.999939, 38.500015)
+scale = Vector2(0.9696379, 0.9696379)
+
+[node name="lampara_pared" parent="CanvasModulate" unique_id=1368619277 instance=ExtResource("7_vh6uo")]
+position = Vector2(138.5, 15.5)
+
+[node name="lampara_pared2" parent="CanvasModulate" unique_id=1630775428 instance=ExtResource("7_vh6uo")]
+position = Vector2(-411.5, -55)

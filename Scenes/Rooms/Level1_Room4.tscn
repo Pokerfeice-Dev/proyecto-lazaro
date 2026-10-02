@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_2lehk"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_fd17i"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="4_xinml"]
+[ext_resource type="PackedScene" uid="uid://bn5bjdd22602q" path="res://Scenes/Objects/lampara_pie.tscn" id="5_2746y"]
+[ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="6_hxj05"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
@@ -73,3 +75,43 @@ position = Vector2(312, 383)
 
 [node name="BarrelSpawnPoint4" parent="." unique_id=480004372 instance=ExtResource("4_xinml")]
 position = Vector2(-269, -189)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="BarrelSpawnPoint4" unique_id=2022489478]
+color = Color(0.36, 0.38, 0.5, 1)
+
+[node name="Lampara_pie" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1509059318 instance=ExtResource("5_2746y")]
+position = Vector2(-80.99997, -95)
+scale = Vector2(1.575, 1.575)
+
+[node name="Lampara_pie2" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=510506011 instance=ExtResource("5_2746y")]
+position = Vector2(658, -74)
+scale = Vector2(1.575, 1.575)
+
+[node name="Lampara_pie3" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=909255489 instance=ExtResource("5_2746y")]
+position = Vector2(649.99994, 663)
+scale = Vector2(1.575, 1.575)
+
+[node name="Lampara_pie4" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=2130824718 instance=ExtResource("5_2746y")]
+position = Vector2(-66, 663)
+scale = Vector2(1.575, 1.575)
+
+[node name="lampara_pared" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1368619277 instance=ExtResource("6_hxj05")]
+position = Vector2(156, -154)
+
+[node name="lampara_pared2" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=687982094 instance=ExtResource("6_hxj05")]
+position = Vector2(472, -151)
+
+[node name="lampara_pared3" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=11464720 instance=ExtResource("6_hxj05")]
+position = Vector2(482, 739)
+
+[node name="lampara_pared4" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1251255634 instance=ExtResource("6_hxj05")]
+position = Vector2(93, 734)
+
+[node name="lampara_pared5" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1398515020 instance=ExtResource("6_hxj05")]
+position = Vector2(-146, 270)
+
+[node name="lampara_pared6" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=2124716693 instance=ExtResource("6_hxj05")]
+position = Vector2(144, 384)
+
+[node name="lampara_pared7" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=602997631 instance=ExtResource("6_hxj05")]
+position = Vector2(455, 192)

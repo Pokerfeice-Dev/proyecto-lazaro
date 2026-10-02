@@ -4,6 +4,7 @@
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_f5bob"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_hvqhb"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_d1kc5"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Torch.tscn" id="5_f5bob"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5n313"]
 size = Vector2(266.28882, 115.1699)
@@ -66,3 +67,28 @@ shape = SubResource("RectangleShape2D_5n313")
 [node name="Chest_Locked" parent="." unique_id=1550621111 instance=ExtResource("4_d1kc5")]
 position = Vector2(1002, -730)
 chest_type = "locked"
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1343440496]
+position = Vector2(1002, -730)
+scale = Vector2(2, 2)
+color = Color(0.12, 0.14, 0.22, 1)
+
+[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_f5bob")]
+position = Vector2(65.5, -148)
+scale = Vector2(0.575, 0.575)
+
+[node name="Torch2" parent="CanvasModulate" unique_id=1009595441 instance=ExtResource("5_f5bob")]
+position = Vector2(-89, -149)
+scale = Vector2(0.575, 0.575)
+
+[node name="Torch3" parent="CanvasModulate" unique_id=534933533 instance=ExtResource("5_f5bob")]
+position = Vector2(-103.5, 103.5)
+scale = Vector2(0.575, 0.575)
+
+[node name="Torch4" parent="CanvasModulate" unique_id=1021751522 instance=ExtResource("5_f5bob")]
+position = Vector2(90.5, 98)
+scale = Vector2(0.575, 0.575)
+
+[node name="Torch5" parent="CanvasModulate" unique_id=1228611408 instance=ExtResource("5_f5bob")]
+position = Vector2(-2.5, -51.5)
+scale = Vector2(0.575, 0.575)

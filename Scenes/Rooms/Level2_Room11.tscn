@@ -4,6 +4,7 @@
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_2ib7v"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_q7oph"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_2ib7v"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Torch.tscn" id="5_q7oph"]
 
 [node name="Room_11" type="Node2D" unique_id=708789417]
 script = ExtResource("1_32e8q")
@@ -39,3 +40,28 @@ position = Vector2(989, -831)
 scale = Vector2(1.5, 1.5)
 chest_type = "trap"
 metadata/_edit_group_ = true
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1698045244]
+position = Vector2(989, -831)
+scale = Vector2(1.5, 1.5)
+color = Color(0.12, 0.14, 0.22, 1)
+
+[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_q7oph")]
+position = Vector2(86.66667, -128.66666)
+scale = Vector2(0.63, 0.63)
+
+[node name="Torch2" parent="CanvasModulate" unique_id=747930312 instance=ExtResource("5_q7oph")]
+position = Vector2(-101.999985, -128.66666)
+scale = Vector2(0.63, 0.63)
+
+[node name="Torch3" parent="CanvasModulate" unique_id=1838131759 instance=ExtResource("5_q7oph")]
+position = Vector2(-137.33331, 84)
+scale = Vector2(0.63, 0.63)
+
+[node name="Torch4" parent="CanvasModulate" unique_id=650713677 instance=ExtResource("5_q7oph")]
+position = Vector2(-1.3333282, -45.999985)
+scale = Vector2(0.63, 0.63)
+
+[node name="Torch5" parent="CanvasModulate" unique_id=1151598348 instance=ExtResource("5_q7oph")]
+position = Vector2(112.66667, 94.666664)
+scale = Vector2(0.63, 0.63)

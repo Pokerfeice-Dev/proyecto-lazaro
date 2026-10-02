@@ -1,3 +1,17 @@
+## 2026-10-02 (boss 2: fase 2 y musica)
+
+- **Musica nueva del boss 2** en `Audio/Music/`, masterizada a -14 LUFS. Esta en Do# frigio como la Cripta y usa recursos del boss 1: coro con acordes largos, pulso de octavas en cuerdas, arpegio de piano de 12 notas y una melodia de notas largas.
+  - `Boss2_Fase1.ogg`, "La Cosa de la Cripta": 126 BPM (1,5 veces el tempo de la Cripta), pesada y a medio tiempo, con un ritmo de 3+3+2 que imita los saltos del blob. Tiene 8 compases de intro y despues repite en bucle desde el compas 9 (`loop_offset` 15,238 s).
+  - `Boss2_Fase2.ogg`, "Despertar": 168 BPM (el doble que la Cripta). Abre con 4 compases que duran lo mismo que la cinematica (5,7 s) y el golpe de entrada cae justo cuando vuelve la pelea. En la seccion B aparece el motivo de Lazaro. Repite en bucle desde el compas 5 (`loop_offset` 5,714 s).
+  - Los proyectos de Cakewalk, los bocetos MIDI y los masters quedaron en la carpeta de musica de Frankengun, junto con `Herramientas/masterizar_con_intro.py`, que masteriza temas con intro y bucle.
+- **Boss 2 con fase 2 "Despertar"** (`boss2.gd`), con la misma logica que el boss 1 pero sin cambiar de sala:
+  - Al 50% de vida se vuelve invulnerable, ruge, sacude la camara y muestra "FASE 2: DESPERTAR"; la musica de la fase 1 se apaga en 1,4 s.
+  - Despues viene la misma cinematica del boss 1: jugador congelado, titulo, zoom al boss, rugido y curacion del 20% con particulas, y zoom de vuelta. Arranca la musica de la fase 2.
+  - En la fase 2 todo va 1,5 veces mas rapido (patrones, persecucion, mordida), tira una tanda mas de escupitajos y los saltos tardan un poco menos en avisar, aunque siguen avisandose.
+  - Durante la transicion los ataques que estaban en curso no lastiman al jugador congelado y los mutantes invocados se quedan quietos.
+  - Todo se ajusta desde el inspector, en el grupo "Boss Fase 2 (Despertar)": umbral, curacion, multiplicador, musica y titulo.
+- `Level2_Room14BossFight.tscn` ahora tiene su nodo `Boss_Fight_Music` (fase 1, bus Music, -5 dB como la musica de zona).
+
 ## 2026-10-02 (fix modo ventana)
 
 - **Fix (modo ventana):** el juego ahora arranca en ventana de 1600x900 (Project Settings: `display/window/size/mode` = Ventana, con `window_width_override`/`window_height_override`) y `GameSettings` lo pasa a pantalla completa al abrir si esa es la opcion guardada (por defecto si). Antes arrancaba en pantalla completa y Windows guardaba el tamaño de la pantalla entera como "tamaño de ventana": al elegir "Ventana" el juego quedaba trabado en pantalla completa exclusiva. Probado: pantalla completa -> ventana -> pantalla completa funciona, y arrancar con "Ventana" guardado abre en ventana con barra de titulo.

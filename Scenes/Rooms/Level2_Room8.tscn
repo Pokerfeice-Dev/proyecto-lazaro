@@ -4,6 +4,7 @@
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_cshtv"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_53omm"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="4_cshtv"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Torch.tscn" id="5_53omm"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5n313"]
 size = Vector2(266.28882, 115.1699)
@@ -65,3 +66,26 @@ shape = SubResource("RectangleShape2D_5n313")
 
 [node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_cshtv")]
 position = Vector2(988, -722)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1119766230]
+color = Color(0.12, 0.14, 0.22, 1)
+
+[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_53omm")]
+position = Vector2(796, -1022)
+scale = Vector2(1.175, 1.175)
+
+[node name="Torch2" parent="CanvasModulate" unique_id=532823198 instance=ExtResource("5_53omm")]
+position = Vector2(1172, -1022)
+scale = Vector2(1.175, 1.175)
+
+[node name="Torch3" parent="CanvasModulate" unique_id=1838151249 instance=ExtResource("5_53omm")]
+position = Vector2(756, -487)
+scale = Vector2(1.175, 1.175)
+
+[node name="Torch4" parent="CanvasModulate" unique_id=399065242 instance=ExtResource("5_53omm")]
+position = Vector2(1234, -478)
+scale = Vector2(1.175, 1.175)
+
+[node name="Torch5" parent="CanvasModulate" unique_id=1006114794 instance=ExtResource("5_53omm")]
+position = Vector2(984, -783)
+scale = Vector2(1.175, 1.175)
