@@ -561,6 +561,15 @@ func _load_sinergias(parent: Control) -> void:
 		desc_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		text_vbox.add_child(desc_lbl)
 		
+		var recipe_str = SynergyManager.get_synergy_recipe_string(s.id)
+		if recipe_str != "":
+			var formula_lbl = Label.new()
+			formula_lbl.text = "Fórmula: " + recipe_str
+			formula_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+			formula_lbl.add_theme_font_size_override("font_size", 11)
+			formula_lbl.add_theme_color_override("font_color", Color(0.75, 0.55, 1.0))
+			text_vbox.add_child(formula_lbl)
+		
 		var is_unlocked = GameData.is_synergy_unlocked(s.id)
 		var is_locked_advanced = (s.id in ["bestia_de_caza", "trituradora_biomecanica", "acorazado_muscular"]) and not advanced_synergies_available
 		

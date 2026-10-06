@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vtlosvww8q0n"
-path="res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"
+uid="uid://bpl3d18d0wsda"
+path="res://.godot/imported/wp_battery_sprite.png-a57f9c7dd0cb501671efdf26afbb3717.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Lights/White_light.png"
-dest_files=["res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"]
+source_file="res://Art/Items/Weapons/wp_battery_sprite.png"
+dest_files=["res://.godot/imported/wp_battery_sprite.png-a57f9c7dd0cb501671efdf26afbb3717.ctex"]
 
 [params]
 

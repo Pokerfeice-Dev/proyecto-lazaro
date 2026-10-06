@@ -326,14 +326,13 @@ func _set_room_n_config(config: Dictionary, room: int) -> void:
 	config.spawn_interval = maxf(0.3, new_interval)
 	
 	config.allowed_enemies = ["follower", "shooter"]
-	_add_tank_to_allowed_enemies_if_not_level_1(config)
+	_add_tank_to_allowed_enemies(config, room)
 	_add_turret_to_allowed_enemies_if_level_4(config, room)
 	_add_summoner_to_allowed_enemies_if_level_5(config, room)
 
-# El tank ("Mecha Constructor") por ahora solo aparece a partir del nivel 2, para que
-# el nivel 1 se quede solo con perro/carpintero/torreta/apicultora (pedido de Marcos).
-func _add_tank_to_allowed_enemies_if_not_level_1(config: Dictionary) -> void:
-	if current_level < 2: return
+func _add_tank_to_allowed_enemies(config: Dictionary, room: int) -> void:
+	if current_level <= 1 and room < 4:
+		return
 	config.allowed_enemies.append("tank")
 
 func _add_turret_to_allowed_enemies_if_level_4(config: Dictionary, room: int) -> void:
@@ -364,84 +363,84 @@ var melee_knockback: float = 0.0
 const UPGRADE_DEFS: Array[Dictionary] = [
 	{
 		"key": "damage",
-		"label": "⚔ Daño",
+		"label": "Daño",
 		"desc": "Aumenta el daño base del arma",
 		"cost": 1,
 		"step": 5.0
 	},
 	{
 		"key": "fire_rate",
-		"label": "🔥 Cadencia",
+		"label": "Cadencia",
 		"desc": "Dispara más rápido",
 		"cost": 1,
 		"step": 0.2
 	},
 	{
 		"key": "bullet_count",
-		"label": "🔫 Balas",
+		"label": "Balas",
 		"desc": "Dispara más balas por vez",
 		"cost": 1,
 		"step": 1
 	},
 	{
 		"key": "bullet_speed",
-		"label": "💨 Velocidad de bala",
+		"label": "Velocidad de bala",
 		"desc": "Las balas viajan más rápido",
 		"cost": 1,
 		"step": 80.0
 	},
 	{
 		"key": "spread",
-		"label": "🎯 Precisión",
+		"label": "Precisión",
 		"desc": "Reduce la dispersión del cono",
 		"cost": 1,
 		"step": -3.0
 	},
 	{
 		"key": "damage_multiplier",
-		"label": "💣 Multiplicador de daño",
+		"label": "Multiplicador de daño",
 		"desc": "Cada bala hace aún más daño",
 		"cost": 1,
 		"step": 0.25
 	},
 	{
 		"key": "crit_chance",
-		"label": "💥 Críticos",
+		"label": "Críticos",
 		"desc": "Probabilidad de golpe crítico (x2 daño)",
 		"cost": 1,
 		"step": 0.1
 	},
 	{
 		"key": "piercing",
-		"label": "🗡 Penetración",
+		"label": "Penetración",
 		"desc": "Las balas atraviesan enemigos adicionales",
 		"cost": 1,
 		"step": 1
 	},
 	{
 		"key": "melee_damage",
-		"label": "🔪 Daño Melee",
+		"label": "Daño Melee",
 		"desc": "Aumenta el daño del ataque cuerpo a cuerpo",
 		"cost": 1,
 		"step": 10.0
 	},
 	{
 		"key": "melee_speed",
-		"label": "⚡ Velocidad Melee",
+		"label": "Velocidad Melee",
 		"desc": "Ataca más rápido cuerpo a cuerpo",
 		"cost": 1,
 		"step": 0.2
 	},
 	{
 		"key": "melee_range",
-		"label": "📏 Alcance Melee",
+		"label": "Alcance Melee",
 		"desc": "Aumenta el rango y tamaño del ataque",
 		"cost": 1,
 		"step": 0.15
 	},
 	{
 		"key": "melee_knockback",
-		"label": "💨 Empuje Melee",
+		"label": "Empuje Melee",
 		"desc": "Empuja a los enemigos al golpearlos",
 		"cost": 1,
 		"step": 250.0

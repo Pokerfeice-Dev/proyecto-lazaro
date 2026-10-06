@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vtlosvww8q0n"
-path="res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"
+uid="uid://d2vy11fboi86l"
+path="res://.godot/imported/wp_liquidnitrogen_sprite.png-7ceaaec74474656265f71324fa7aafbc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Lights/White_light.png"
-dest_files=["res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"]
+source_file="res://Art/Items/Weapons/wp_liquidnitrogen_sprite.png"
+dest_files=["res://.godot/imported/wp_liquidnitrogen_sprite.png-7ceaaec74474656265f71324fa7aafbc.ctex"]
 
 [params]
 
