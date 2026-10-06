@@ -100,14 +100,14 @@ static func show_popup(caller: Node, title_text: String, subtitle_text: String, 
 	var melee_btn_group = ButtonGroup.new()
 
 	var prim_weapons = [
-		{"id": "pistol", "name": "Pistola Base", "desc": "Precisión y cadencia estable"},
-		{"id": "uzi", "name": "Uzi", "desc": "Fuego rápido a corta distancia"},
-		{"id": "shotgun", "name": "Escopeta", "desc": "Gran dispersión a quemarropa"}
+		{"id": "pistol", "name": "Pistola Base", "desc": "Precisión y cadencia estable", "synergy": "Sinergias: Mente Colmena, Roadkill"},
+		{"id": "uzi", "name": "Uzi", "desc": "Fuego rápido a corta distancia", "synergy": "Sinergias: Minigun, Relámpago"},
+		{"id": "shotgun", "name": "Escopeta", "desc": "Gran dispersión a quemarropa", "synergy": "Sinergia: Lanzallamas"}
 	]
 	var melee_weapons = [
-		{"id": "daga", "name": "Daga Base", "desc": "Cortes veloces de corto alcance"},
-		{"id": "hacha", "name": "Hacha de Mano", "desc": "Ataques potentes de rango medio"},
-		{"id": "maze", "name": "Maza Pesada", "desc": "Lento con gran fuerza de empuje"}
+		{"id": "daga", "name": "Daga Base", "desc": "Cortes veloces de corto alcance", "synergy": "Sinergia: Daga del Odio"},
+		{"id": "hacha", "name": "Hacha de Mano", "desc": "Ataques potentes de rango medio", "synergy": "Sinergia: Hombre Lobo"},
+		{"id": "maze", "name": "Maza Pesada", "desc": "Lento con gran fuerza de empuje", "synergy": "Sinergia: Arrogancia"}
 	]
 
 	# Styles
@@ -144,7 +144,7 @@ static func show_popup(caller: Node, title_text: String, subtitle_text: String, 
 		var btn = Button.new()
 		btn.toggle_mode = true
 		btn.button_group = prim_btn_group
-		btn.custom_minimum_size = Vector2(300, 64)
+		btn.custom_minimum_size = Vector2(300, 72)
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn.add_theme_stylebox_override("normal", sb_normal)
 		btn.add_theme_stylebox_override("hover", sb_hover)
@@ -167,6 +167,13 @@ static func show_popup(caller: Node, title_text: String, subtitle_text: String, 
 		desc_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
 		desc_lbl.add_theme_font_size_override("font_size", 11)
 		box.add_child(desc_lbl)
+
+		var syn_lbl = Label.new()
+		syn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+		syn_lbl.add_theme_font_size_override("font_size", 10)
+		syn_lbl.add_theme_color_override("font_color", Color(0.75, 0.5, 1.0))
+		syn_lbl.text = w.synergy
+		box.add_child(syn_lbl)
 
 		var is_unlocked = GameData.is_codex_unlocked("weapons", w.id)
 		if is_unlocked:
@@ -181,10 +188,11 @@ static func show_popup(caller: Node, title_text: String, subtitle_text: String, 
 		else:
 			btn.disabled = true
 			btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
-			name_lbl.text = "🔒 " + w.name + " (Bloqueada)"
+			name_lbl.text = w.name + " (Bloqueada)"
 			name_lbl.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
 			desc_lbl.text = "Desbloquéala en el terminal de chatarra"
 			desc_lbl.add_theme_color_override("font_color", Color(0.3, 0.3, 0.3))
+			syn_lbl.visible = false
 
 		prim_vbox.add_child(btn)
 
@@ -193,7 +201,7 @@ static func show_popup(caller: Node, title_text: String, subtitle_text: String, 
 		var btn = Button.new()
 		btn.toggle_mode = true
 		btn.button_group = melee_btn_group
-		btn.custom_minimum_size = Vector2(300, 64)
+		btn.custom_minimum_size = Vector2(300, 72)
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn.add_theme_stylebox_override("normal", sb_normal)
 		btn.add_theme_stylebox_override("hover", sb_hover)
@@ -217,6 +225,13 @@ static func show_popup(caller: Node, title_text: String, subtitle_text: String, 
 		desc_lbl.add_theme_font_size_override("font_size", 11)
 		box.add_child(desc_lbl)
 
+		var syn_lbl = Label.new()
+		syn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
+		syn_lbl.add_theme_font_size_override("font_size", 10)
+		syn_lbl.add_theme_color_override("font_color", Color(0.75, 0.5, 1.0))
+		syn_lbl.text = w.synergy
+		box.add_child(syn_lbl)
+
 		var is_unlocked = GameData.is_codex_unlocked("weapons", w.id)
 		if is_unlocked:
 			name_lbl.text = w.name
@@ -230,10 +245,11 @@ static func show_popup(caller: Node, title_text: String, subtitle_text: String, 
 		else:
 			btn.disabled = true
 			btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
-			name_lbl.text = "🔒 " + w.name + " (Bloqueada)"
+			name_lbl.text = w.name + " (Bloqueada)"
 			name_lbl.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
 			desc_lbl.text = "Desbloquéala en el terminal de chatarra"
 			desc_lbl.add_theme_color_override("font_color", Color(0.3, 0.3, 0.3))
+			syn_lbl.visible = false
 
 		melee_vbox.add_child(btn)
 

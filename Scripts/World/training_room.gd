@@ -11,6 +11,8 @@ enum TutorialState {
 	MELEE,
 	MANNEQUIN,
 	COMBAT,
+	SYNERGY_EQUIP,
+	SYNERGY_ATTACK,
 	COMPLETE
 }
 
@@ -26,6 +28,7 @@ var center_label: Label = null
 var mannequin_inst: Node2D = null
 var shooter_inst: Node = null
 var mannequin_hits_received: int = 0
+var synergy_hits_received: int = 0
 
 func _ready() -> void:
 	_spawn_player()
@@ -51,6 +54,8 @@ func _check_state_transitions() -> void:
 		_check_shoot_transition()
 	elif current_state == TutorialState.MELEE:
 		_check_melee_transition()
+	elif current_state == TutorialState.SYNERGY_EQUIP:
+		_check_synergy_equip_transition()
 
 func _check_move_transition() -> void:
 	if _is_move_input_pressed():
@@ -68,12 +73,29 @@ func _check_melee_transition() -> void:
 	if Input.is_action_just_pressed("attack_melee"):
 		_transition_to_state(TutorialState.MANNEQUIN)
 
+func _check_synergy_equip_transition() -> void:
+	var players = get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return
+	var player = players[0]
+	var equip = player.get_node_or_null("Equipment")
+	if not equip:
+		return
+	var active_syns = SynergyManager.get_active_synergies(equip, "pistol", true)
+	if not active_syns.has("pistola_mente_colmena"):
+		return
+	_transition_to_state(TutorialState.SYNERGY_ATTACK)
+
 func _transition_to_state(new_state: TutorialState) -> void:
 	current_state = new_state
 	_update_dialogue_text()
 	
 	if current_state == TutorialState.COMBAT:
 		_spawn_shooter()
+	elif current_state == TutorialState.SYNERGY_EQUIP:
+		_setup_synergy_step()
+	elif current_state == TutorialState.SYNERGY_ATTACK:
+		_setup_synergy_attack_step()
 	elif current_state == TutorialState.COMPLETE:
 		_show_complete_screen()
 
@@ -135,6 +157,46 @@ func _on_mannequin_hit() -> void:
 		_update_dialogue_text()
 		if mannequin_hits_received >= 3:
 			_transition_to_state(TutorialState.COMBAT)
+		return
+	if current_state == TutorialState.SYNERGY_ATTACK:
+		synergy_hits_received += 1
+		_update_dialogue_text()
+		if synergy_hits_received >= 3:
+			_transition_to_state(TutorialState.COMPLETE)
+
+func _setup_synergy_step() -> void:
+	GameData.unlock_synergy("pistola_mente_colmena")
+	_spawn_synergy_items()
+
+func _spawn_synergy_items() -> void:
+	var item_drop_scene = preload("res://Scenes/Items/item_drop_world.tscn")
+	var items = [
+		preload("res://Art/Items/Weapons/Item7_Colmena.tres"),
+		preload("res://Art/Items/Weapons/Item3.tres"),
+		preload("res://Art/Items/Weapons/Item8_CabezaHumana.tres")
+	]
+	var base_pos = Vector2(0, -90)
+	var offsets = [Vector2(-35, 0), Vector2(0, 0), Vector2(35, 0)]
+	for i in range(items.size()):
+		_spawn_single_synergy_drop(item_drop_scene, items[i], base_pos + offsets[i])
+
+func _spawn_single_synergy_drop(scene: PackedScene, data: ItemData, pos: Vector2) -> void:
+	if not scene or not data:
+		return
+	var inst = scene.instantiate()
+	inst.item_data = data
+	inst.global_position = pos
+	get_tree().current_scene.call_deferred("add_child", inst)
+
+func _setup_synergy_attack_step() -> void:
+	synergy_hits_received = 0
+	_respawn_or_reset_mannequin()
+
+func _respawn_or_reset_mannequin() -> void:
+	if not mannequin_inst or not is_instance_valid(mannequin_inst):
+		_spawn_mannequin()
+		return
+	mannequin_inst.global_position = Vector2(0, -100)
 
 func _spawn_shooter() -> void:
 	if not shooter_scene:
@@ -155,7 +217,7 @@ func _spawn_shooter() -> void:
 
 func _on_shooter_died(_enemy: Node) -> void:
 	if current_state == TutorialState.COMBAT:
-		_transition_to_state(TutorialState.COMPLETE)
+		_transition_to_state(TutorialState.SYNERGY_EQUIP)
 
 func _setup_tutorial_ui() -> void:
 	hud_layer = CanvasLayer.new()
@@ -215,12 +277,19 @@ func _update_dialogue_text() -> void:
 				dialogue_label.text = "Bien, ve a golpear al maniqui (%d/3)" % mannequin_hits_received
 		TutorialState.COMBAT:
 			dialogue_label.text = "Los obstáculos bloquean los proyectiles, elimina a tu enemigo"
+		TutorialState.SYNERGY_EQUIP:
+			dialogue_label.text = "¡Sinergia! Recogé los 3 componentes del suelo [E] y equipalos en tu arma desde el inventario [I]"
+		TutorialState.SYNERGY_ATTACK:
+			if synergy_hits_received == 0:
+				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Disparale al maniquí con tus abejas"
+			else:
+				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Disparale al maniquí con tus abejas (%d/3)" % synergy_hits_received
 		TutorialState.COMPLETE:
 			dialogue_panel.visible = false
 
 func _show_complete_screen() -> void:
 	_setup_center_ui()
-	center_label.text = "Tutorial completado"
+	center_label.text = "¡Sinergia aprendida!\nTutorial completado"
 	
 	var t = get_tree().create_timer(3.0)
 	t.timeout.connect(_complete_tutorial_and_exit)

@@ -122,6 +122,7 @@ func update_ui() -> void:
 	update_equipment_display()
 	_update_weapon_displays()
 	update_stats_display()
+	_update_slot_synergy_affinities()
 	if current_tab == "CODEX":
 		_refresh_codex_grid()
 
@@ -411,7 +412,7 @@ func _create_tooltip_panel() -> void:
 	vbox.add_child(tooltip_stats)
 
 	tooltip_action = Label.new()
-	tooltip_action.text = "🖱 Clic para seleccionar"
+	tooltip_action.text = "Clic para seleccionar"
 	tooltip_action.add_theme_font_size_override("font_size", 13)
 	tooltip_action.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8, 0.7))
 	vbox.add_child(tooltip_action)
@@ -445,7 +446,7 @@ func _show_codex_tooltip(entry_id: String, category: String, slot_rect: Rect2) -
 		tooltip_type.text = category_names.get(category, category.to_upper())
 		tooltip_desc.text = "Información encriptada. Interactúa con este elemento en el juego para desbloquear sus detalles."
 		tooltip_stats.text = ""
-		tooltip_action.text = "🔒 Bloqueado"
+		tooltip_action.text = "Bloqueado"
 		tooltip_action.add_theme_color_override("font_color", Color(1, 0.2, 0.2, 0.7))
 	else:
 		tooltip_name.text = entry.name.to_upper()
@@ -461,8 +462,12 @@ func _show_codex_tooltip(entry_id: String, category: String, slot_rect: Rect2) -
 		var stats_display = entry.stats
 		if category == "items" or category == "weapons":
 			stats_display = _iconify_stat_text(stats_display)
+		if category == "items":
+			var syn_section = _format_item_synergy_section(entry_id)
+			if syn_section != "":
+				stats_display += "\n\n" + syn_section
 		tooltip_stats.text = stats_display
-		tooltip_action.text = "🔓 Registrado"
+		tooltip_action.text = "Registrado"
 		tooltip_action.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8, 0.7))
 
 	_display_tooltip_at_position(slot_rect)
@@ -511,9 +516,12 @@ func _show_inventory_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 	var stats_text = ""
 	for k in item_data.stats.keys():
 		stats_text += _format_tooltip_stat(k, item_data.stats[k]) + "\n"
+	var syn_section = _format_item_synergy_section(item_data.id)
+	if syn_section != "":
+		stats_text += "\n" + syn_section
 	tooltip_stats.text = stats_text
 
-	tooltip_action.text = "🖱 Clic para seleccionar / Arrastrar para equipar"
+	tooltip_action.text = "Clic para seleccionar / Arrastrar para equipar"
 	tooltip_action.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8, 0.7))
 
 	_display_tooltip_at_position(slot_rect)
@@ -525,26 +533,23 @@ func _display_tooltip_at_position(slot_rect: Rect2) -> void:
 	tooltip_panel.global_position = tooltip_pos
 	tooltip_panel.show()
 
-# ── Iconos minimalistas para stats: reemplazan el texto, sin colores ──────
+# ── Nombres legibles para stats: texto limpio sin emojis ──────
 const STAT_ICONS: Dictionary = {
-	"max_health_percent": "❤️",
-	"move_speed_percent": "💨",
-	"armor": "🛡️",
-	"damage": "💥",
-	"projectile_speed": "🚀",
-	"bullet_count": "🔫",
-	"cone_spread_angle": "📐",
-	"piercing": "➡️",
-	"crit_chance": "🎯",
-	"crit_damage": "☠️",
-	"attack_speed": "⚡",
-	"damage_multiplier": "✖️",
-	"knockback_force": "👊",
+	"max_health_percent": "•",
+	"move_speed_percent": "•",
+	"armor": "•",
+	"damage": "•",
+	"projectile_speed": "•",
+	"bullet_count": "•",
+	"cone_spread_angle": "•",
+	"piercing": "•",
+	"crit_chance": "•",
+	"crit_damage": "•",
+	"attack_speed": "•",
+	"damage_multiplier": "•",
+	"knockback_force": "•",
 }
 
-# Iconos para las stats en texto libre del Códice (CodexData); orden de mas
-# especifico a mas generico para que las frases largas no se pisen con las
-# cortas (ej "Daño Crítico" tiene que procesarse antes que "Daño" solo).
 const STAT_LABELS: Dictionary = {
 	"max_health_percent": "Vida Máxima",
 	"move_speed_percent": "Velocidad de Movimiento",
@@ -561,68 +566,12 @@ const STAT_LABELS: Dictionary = {
 	"knockback_force": "Empuje",
 }
 
-const STAT_PHRASE_ICONS: Array = [
-	["Daño Crítico", "☠️"],
-	["Daño Base", "💥"],
-	["Multiplicador de Daño", "✖️"],
-	["Empuje Melee", "👊"],
-	["Alcance Melee", "📏"],
-	["Vel. Movimiento", "💨"],
-	["Vel. Dash", "🌀"],
-	["CD Dash", "⏱️"],
-	["Vel. Ataque", "⚡"],
-	["Vel. Proyectil", "🚀"],
-	["Prob. Crítico", "🎯"],
-	["Tiempo de Vida", "⏳"],
-	["Vida Max", "❤️"],
-	["Defensa", "🛡️"],
-	["Perforación", "➡️"],
-	["Dispersión", "📐"],
-	["Proyectiles", "🔫"],
-	["Empuje", "👊"],
-	["Daño", "💥"],
-]
+const STAT_PHRASE_ICONS: Array = []
 
-# Iconos para los nombres ya traducidos que usa display_stats() (panel
-# ESTADÍSTICAS).
-const STAT_NAME_ICONS: Dictionary = {
-	"Vida Máxima": "❤️",
-	"Vel. Movimiento": "💨",
-	"Armadura": "🛡️",
-	"Daño Total": "💥",
-	"Velocidad de Ataque": "⚡",
-	"Proyectiles": "🔫",
-	"Prob. Crítico": "🎯",
-	"Daño Crítico": "☠️",
-	"Daño": "💥",
-	"Velocidad Ataque": "⚡",
-	"Empuje": "👊",
-	"Vel. Proyectil": "🚀",
-	"Dispersión": "📐",
-	"Perforación": "➡️",
-}
+const STAT_NAME_ICONS: Dictionary = {}
 
 func _iconify_stat_text(text: String) -> String:
-	# Pasada unica caracter por caracter (no result.replace() encadenado): una
-	# vez que insertamos un [hint=Daño Crítico]...[/hint], ese texto adentro del
-	# tag contiene igual la palabra "Daño" suelta, y un replace() posterior de
-	# la frase generica "Daño" la volveria a pisar. Escaneando una sola vez y
-	# saltando el cursor por sobre lo ya reemplazado evitamos ese problema.
-	var result = ""
-	var i = 0
-	while i < text.length():
-		var matched = false
-		for pair in STAT_PHRASE_ICONS:
-			var phrase: String = pair[0]
-			if text.substr(i, phrase.length()) == phrase:
-				result += "[hint=%s][font_size=22]%s[/font_size][/hint]" % [phrase, pair[1]]
-				i += phrase.length()
-				matched = true
-				break
-		if not matched:
-			result += text[i]
-			i += 1
-	return result
+	return text
 
 func _format_tooltip_stat(k: String, v: float) -> String:
 	var is_percent = false
@@ -630,11 +579,10 @@ func _format_tooltip_stat(k: String, v: float) -> String:
 		"max_health_percent", "move_speed_percent", "crit_chance", "attack_speed":
 			is_percent = true
 
-	var icon = STAT_ICONS.get(k, "▪")
 	var hint_label = STAT_LABELS.get(k, k.capitalize())
 	var sign_str = "+" if v > 0 else ""
 	var val_str = str(round(v * 100)) + "%" if is_percent else str(v)
-	return "[hint=%s][font_size=24]%s[/font_size][/hint] [font_size=18]%s%s[/font_size]" % [hint_label, icon, sign_str, val_str]
+	return "%s: %s%s" % [hint_label, sign_str, val_str]
 
 func _hide_tooltip() -> void:
 	if tooltip_panel:
@@ -934,8 +882,12 @@ func _show_primary_weapon_tooltip(p: Node2D, rect: Rect2) -> void:
 	tooltip_rarity.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
 	tooltip_type.text = "ARMA PRINCIPAL"
 	tooltip_desc.text = "Arma a distancia equipada. Coloca mejoras en los 3 zócalos contiguos para potenciarla."
-	tooltip_stats.text = _get_primary_weapon_stats_bbcode(p)
-	tooltip_action.text = "✨ Arma activa"
+	var stats = _get_primary_weapon_stats_bbcode(p)
+	var syn_section = _get_weapon_synergies_section(p, true)
+	if syn_section != "":
+		stats += "\n\n" + syn_section
+	tooltip_stats.text = stats
+	tooltip_action.text = "Arma activa"
 	tooltip_action.add_theme_color_override("font_color", Color(1, 0.8, 0.4, 0.8))
 	_display_tooltip_at_position(rect)
 
@@ -948,8 +900,12 @@ func _show_secondary_weapon_tooltip(p: Node2D, rect: Rect2) -> void:
 	tooltip_rarity.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
 	tooltip_type.text = "ARMA CUERPO A CUERPO"
 	tooltip_desc.text = "Arma secundaria cuerpo a cuerpo. Coloca mejoras en los 3 zócalos contiguos para potenciarla."
-	tooltip_stats.text = _get_secondary_weapon_stats_bbcode(p)
-	tooltip_action.text = "✨ Arma secundaria activa"
+	var stats = _get_secondary_weapon_stats_bbcode(p)
+	var syn_section = _get_weapon_synergies_section(p, false)
+	if syn_section != "":
+		stats += "\n\n" + syn_section
+	tooltip_stats.text = stats
+	tooltip_action.text = "Arma secundaria activa"
 	tooltip_action.add_theme_color_override("font_color", Color(1, 0.8, 0.4, 0.8))
 	_display_tooltip_at_position(rect)
 
@@ -970,10 +926,10 @@ func _get_primary_weapon_stats_bbcode(p: Node2D) -> String:
 	var bullets = p._get_weapon_bullets()
 	var crit_c = p._get_weapon_crit_chance()
 	var lines = [
-		"[font_size=22]💥[/font_size] Daño: %d" % int(dmg),
-		"[font_size=22]⚡[/font_size] Vel. Ataque: %.1f" % aps,
-		"[font_size=22]🔫[/font_size] Proyectiles: %d" % bullets,
-		"[font_size=22]🎯[/font_size] Prob. Crítico: %d%%" % int(crit_c * 100)
+		"Daño: %d" % int(dmg),
+		"Vel. Ataque: %.1f" % aps,
+		"Proyectiles: %d" % bullets,
+		"Prob. Crítico: %d%%" % int(crit_c * 100)
 	]
 	return "\n".join(lines)
 
@@ -981,9 +937,9 @@ func _get_secondary_weapon_stats_bbcode(p: Node2D) -> String:
 	if not "second_weapon" in p or not p.second_weapon:
 		return ""
 	var lines = [
-		"[font_size=22]💥[/font_size] Daño: %d" % int(GameData.melee_damage),
-		"[font_size=22]⚡[/font_size] Vel. Ataque: %.1f" % GameData.melee_speed,
-		"[font_size=22]👊[/font_size] Empuje: %d" % int(GameData.melee_knockback)
+		"Daño: %d" % int(GameData.melee_damage),
+		"Vel. Ataque: %.1f" % GameData.melee_speed,
+		"Empuje: %d" % int(GameData.melee_knockback)
 	]
 	return "\n".join(lines)
 
@@ -1344,3 +1300,93 @@ func format_stat_diff(stat_name: String, base: float, current: float, is_percent
 		return "%s %s → %s (▼%s)" % [icon_hint, base_str, current_str, diff_str.replace("-", "")]
 	else:
 		return "%s %s" % [icon_hint, current_str]
+
+# ── Sistema Didáctico de Sinergias en Tooltips y Ranuras ────────────────────
+
+func _format_item_synergy_section(item_id: String) -> String:
+	var players = get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return ""
+	var p = players[0]
+	var main_id = _get_player_weapon_id(p, true)
+	var sec_id = _get_player_weapon_id(p, false)
+	var syn_infos = SynergyManager.get_item_synergy_info(item_id, main_id, sec_id, equipment)
+	if syn_infos.is_empty():
+		return ""
+	var lines: Array[String] = []
+	for info in syn_infos:
+		var line = _format_single_synergy_line(info)
+		lines.append(line)
+	return "\n".join(lines)
+
+func _get_player_weapon_id(p: Node2D, is_main: bool) -> String:
+	if is_main and p.has_method("get_active_ranged_weapon_id"):
+		return p.get_active_ranged_weapon_id()
+	if not is_main and p.has_method("get_active_melee_weapon_id"):
+		return p.get_active_melee_weapon_id()
+	return ""
+
+func _format_single_synergy_line(info: Dictionary) -> String:
+	var weapon_name = SynergyManager.get_weapon_display_name(info.get("required_weapon", ""))
+	var name = info.get("name", "")
+	var count = info.get("equipped_count", 0)
+	var total = info.get("total_required", 3)
+	var is_match = info.get("matches_active_weapon", false)
+	var is_unlocked = info.get("is_unlocked", false)
+	
+	if is_match and is_unlocked:
+		return "[color=#df8fff]AFINIDAD ACTIVA: %s (%s) [%d/%d][/color]" % [name, weapon_name, count, total]
+	if is_match and not is_unlocked:
+		return "[color=#f0b5ff]AFINIDAD (Desbloquear en Lab): %s (%s) [%d/%d][/color]" % [name, weapon_name, count, total]
+	return "[color=#9a8aa8]Sinergia: %s (%s) [%d/%d][/color]" % [name, weapon_name, count, total]
+
+func _get_weapon_synergies_section(p: Node2D, is_main: bool) -> String:
+	var weapon_id = _get_player_weapon_id(p, is_main)
+	if weapon_id == "":
+		return ""
+	var syns = SynergyManager.get_weapon_synergies_info(weapon_id, equipment)
+	if syns.is_empty():
+		return ""
+	var lines: Array[String] = ["[color=#df8fff]SINERGIAS DISPONIBLES:[/color]"]
+	for s in syns:
+		var line = _format_weapon_synergy_entry(s)
+		lines.append(line)
+	return "\n".join(lines)
+
+func _format_weapon_synergy_entry(s: Dictionary) -> String:
+	var name = s.get("name", "")
+	var count = s.get("equipped_count", 0)
+	var total = s.get("total_required", 3)
+	var is_unlocked = s.get("is_unlocked", false)
+	var status = " [color=#00ffcc][ACTIVA][/color]" if (count >= total and is_unlocked) else ""
+	var lock_txt = " [color=#ffa500](bloqueada en Lab)[/color]" if not is_unlocked else ""
+	return " • %s: [%d/%d]%s%s" % [name, count, total, status, lock_txt]
+
+func _update_slot_synergy_affinities() -> void:
+	var players = get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return
+	var p = players[0]
+	var main_w = _get_player_weapon_id(p, true)
+	var sec_w = _get_player_weapon_id(p, false)
+	
+	_update_slot_list_synergy_glows(inventory_slots, main_w, sec_w)
+	_update_slot_list_synergy_glows(ui_slots, main_w, sec_w)
+
+func _update_slot_list_synergy_glows(slots: Array[UISlot], main_w: String, sec_w: String) -> void:
+	for slot in slots:
+		_update_single_slot_synergy_glow(slot, main_w, sec_w)
+
+func _update_single_slot_synergy_glow(slot: UISlot, main_w: String, sec_w: String) -> void:
+	if not slot.item:
+		slot.set_synergy_affinity(false)
+		return
+	var has_affinity = _check_item_affinity(slot.item.id, main_w, sec_w)
+	slot.set_synergy_affinity(has_affinity)
+
+func _check_item_affinity(item_id: String, main_w: String, sec_w: String) -> bool:
+	var syn_infos = SynergyManager.get_item_synergy_info(item_id, main_w, sec_w, equipment)
+	for info in syn_infos:
+		if info.get("matches_active_weapon", false):
+			return true
+	return false

@@ -43,16 +43,16 @@ const ITEMS: Array[Dictionary] = [
 ]
 
 const TELEPORTS: Array[Dictionary] = [
-	{"name": "💀 Jefe 1 (Génesis) - Sala 15", "path": "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"},
-	{"name": "💀 Jefe 1 (Génesis) - Sala 16", "path": "res://Scenes/Rooms/Level1_Room16-BossFight.tscn"},
-	{"name": "💀 Jefe 2 (Slime) - Sala 14", "path": "res://Scenes/Rooms/Level2_Room14BossFight.tscn"},
-	{"name": "🏢 Nivel 1 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level1_Room1.tscn"},
-	{"name": "🎁 Nivel 1 - Tesoro (Room 11)", "path": "res://Scenes/Rooms/Level1_Room11(treasure).tscn"},
-	{"name": "🛒 Nivel 1 - Tienda Ygor (Room 12)", "path": "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"},
-	{"name": "🏭 Nivel 2 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level2_Room1.tscn"},
-	{"name": "🔬 Laboratorio / Hub", "path": "res://Scenes/Rooms/lab_room.tscn"},
-	{"name": "⚡ Mejoras de Núcleo", "path": "res://Scenes/Rooms/Core_Upgrade_Room.tscn"},
-	{"name": "🧪 Sala Sandbox de Pruebas", "path": "res://Scenes/Rooms/debug_scene.tscn"}
+	{"name": "Jefe 1 (Génesis) - Sala 15", "path": "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"},
+	{"name": "Jefe 1 (Génesis) - Sala 16", "path": "res://Scenes/Rooms/Level1_Room16-BossFight.tscn"},
+	{"name": "Jefe 2 (Slime) - Sala 14", "path": "res://Scenes/Rooms/Level2_Room14BossFight.tscn"},
+	{"name": "Nivel 1 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level1_Room1.tscn"},
+	{"name": "Nivel 1 - Tesoro (Room 11)", "path": "res://Scenes/Rooms/Level1_Room11(treasure).tscn"},
+	{"name": "Nivel 1 - Tienda Ygor (Room 12)", "path": "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"},
+	{"name": "Nivel 2 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level2_Room1.tscn"},
+	{"name": "Laboratorio / Hub", "path": "res://Scenes/Rooms/lab_room.tscn"},
+	{"name": "Mejoras de Núcleo", "path": "res://Scenes/Rooms/Core_Upgrade_Room.tscn"},
+	{"name": "Sala Sandbox de Pruebas", "path": "res://Scenes/Rooms/debug_scene.tscn"}
 ]
 
 const ENEMIES: Array[Dictionary] = [
@@ -148,14 +148,14 @@ func _build_header(parent: Control) -> void:
 	parent.add_child(header_hbox)
 	
 	var title = Label.new()
-	title.text = "⚡ DEBUG RUN (TECLA T)"
+	title.text = "DEBUG RUN (TECLA T)"
 	title.add_theme_font_size_override("font_size", 18)
 	title.add_theme_color_override("font_color", Color(0.25, 0.85, 1.0))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_hbox.add_child(title)
 	
 	var close_btn = Button.new()
-	close_btn.text = " ✕ "
+	close_btn.text = " X "
 	close_btn.focus_mode = Control.FOCUS_NONE
 	close_btn.custom_minimum_size = Vector2(36, 32)
 	close_btn.pressed.connect(close_menu)
@@ -239,8 +239,8 @@ func _create_scroll_tab(tabs: TabContainer, tab_name: String) -> VBoxContainer:
 func _create_synergies_tab(tabs: TabContainer) -> void:
 	var tab = _create_scroll_tab(tabs, "Sinergias")
 	
-	tab.add_child(_create_button("🌟 Desbloquear TODAS las Sinergias", _unlock_all_synergies_action, Color(1.0, 0.85, 0.2)))
-	tab.add_child(_create_button("🧹 Limpiar Todo el Equipamiento", _clear_equipment_action, Color(0.9, 0.4, 0.4)))
+	tab.add_child(_create_button("Desbloquear TODAS las Sinergias", _unlock_all_synergies_action, Color(1.0, 0.85, 0.2)))
+	tab.add_child(_create_button("Limpiar Todo el Equipamiento", _clear_equipment_action, Color(0.9, 0.4, 0.4)))
 	
 	var sep1 = HSeparator.new()
 	tab.add_child(sep1)
@@ -306,7 +306,7 @@ func _add_synergy_card(parent: Control, syn_name: String, syn_id: String, req_de
 	sub.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
 	card.add_child(sub)
 	
-	var btn = _create_button("⚡ Desbloquear y Equipar " + syn_name, callback, Color(0.4, 1.0, 0.7))
+	var btn = _create_button("Desbloquear y Equipar " + syn_name, callback, Color(0.4, 1.0, 0.7))
 	card.add_child(btn)
 
 func _unlock_all_synergies_action() -> void:
@@ -504,9 +504,9 @@ func _teleport_to(scene_path: String, scene_name: String) -> void:
 func _create_cheats_tab(tabs: TabContainer) -> void:
 	var tab = _create_scroll_tab(tabs, "Cheats")
 	
-	tab.add_child(_create_button("💚 Curar Vida al 100%", _heal_player, Color(0.3, 1.0, 0.5)))
+	tab.add_child(_create_button("Curar Vida al 100%", _heal_player, Color(0.3, 1.0, 0.5)))
 	
-	god_mode_btn = _create_button("🛡️ Modo Dios: OFF", _toggle_god_mode, Color(1.0, 0.4, 0.4))
+	god_mode_btn = _create_button("Modo Dios: OFF", _toggle_god_mode, Color(1.0, 0.4, 0.4))
 	tab.add_child(god_mode_btn)
 	_update_god_mode_btn()
 	
@@ -532,13 +532,13 @@ func _create_cheats_tab(tabs: TabContainer) -> void:
 	var sep = HSeparator.new()
 	tab.add_child(sep)
 	
-	tab.add_child(_create_button("☠️ Matar a Todos los Enemigos de la Sala", _kill_all_enemies, Color(1.0, 0.35, 0.35)))
-	tab.add_child(_create_button("🔓 Abrir / Destrabar Todas las Puertas", _unlock_all_doors, Color(0.3, 0.9, 1.0)))
-	tab.add_child(_create_button("🌌 Desbloquear Todo en Omnia / Códice", _unlock_everything_in_omnia, Color(0.8, 0.5, 1.0)))
-	tab.add_child(_create_button("⭐ Maxear Mejoras del Núcleo (Core Upgrades)", _max_core_upgrades, Color(1.0, 0.8, 0.2)))
-	tab.add_child(_create_button("✨ Alternar Polvo Ambiental (ON / OFF)", _toggle_ambient_dust, Color(0.9, 0.9, 0.5)))
-	tab.add_child(_create_button("💡 Alternar Luces Parpadeantes (ON / OFF)", _toggle_flickering_lights, Color(1.0, 0.9, 0.4)))
-	tab.add_child(_create_button("🎬 Alternar Viñeta Cinemática (ON / OFF)", _toggle_cinematic_vignette, Color(0.8, 0.6, 1.0)))
+	tab.add_child(_create_button("Matar a Todos los Enemigos de la Sala", _kill_all_enemies, Color(1.0, 0.35, 0.35)))
+	tab.add_child(_create_button("Abrir / Destrabar Todas las Puertas", _unlock_all_doors, Color(0.3, 0.9, 1.0)))
+	tab.add_child(_create_button("Desbloquear Todo en Omnia / Códice", _unlock_everything_in_omnia, Color(0.8, 0.5, 1.0)))
+	tab.add_child(_create_button("Maxear Mejoras del Núcleo (Core Upgrades)", _max_core_upgrades, Color(1.0, 0.8, 0.2)))
+	tab.add_child(_create_button("Alternar Polvo Ambiental (ON / OFF)", _toggle_ambient_dust, Color(0.9, 0.9, 0.5)))
+	tab.add_child(_create_button("Alternar Luces Parpadeantes (ON / OFF)", _toggle_flickering_lights, Color(1.0, 0.9, 0.4)))
+	tab.add_child(_create_button("Alternar Viñeta Cinemática (ON / OFF)", _toggle_cinematic_vignette, Color(0.8, 0.6, 1.0)))
 	
 	var time_lbl = Label.new()
 	time_lbl.text = "Velocidad de Juego (Time Scale):"
@@ -571,10 +571,10 @@ func _toggle_god_mode() -> void:
 func _update_god_mode_btn() -> void:
 	if not god_mode_btn: return
 	if GameData.debug_god_mode:
-		god_mode_btn.text = "🛡️ Modo Dios: ON (Invulnerable)"
+		god_mode_btn.text = "Modo Dios: ON (Invulnerable)"
 		god_mode_btn.add_theme_color_override("font_color", Color(0.2, 1.0, 0.4))
 		return
-	god_mode_btn.text = "🛡️ Modo Dios: OFF (Vulnerable)"
+	god_mode_btn.text = "Modo Dios: OFF (Vulnerable)"
 	god_mode_btn.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
 
 func _add_scrap(amount: int) -> void:
@@ -684,7 +684,7 @@ func _equip_melee(path: String, w_name: String) -> void:
 func _create_items_tab(tabs: TabContainer) -> void:
 	var tab = _create_scroll_tab(tabs, "Ítems")
 	
-	tab.add_child(_create_button("📦 Dar TODOS los Ítems al Inventario", _add_all_items_to_inv, Color(0.25, 0.9, 1.0)))
+	tab.add_child(_create_button("Dar TODOS los Ítems al Inventario", _add_all_items_to_inv, Color(0.25, 0.9, 1.0)))
 	
 	var sep = HSeparator.new()
 	tab.add_child(sep)

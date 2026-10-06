@@ -8,6 +8,7 @@
 [ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="6_wfxhr"]
 [ext_resource type="Script" uid="uid://crek2l7dbib5k" path="res://Scripts/World/weapon_terminal.gd" id="7_rb72t"]
 [ext_resource type="Texture2D" uid="uid://d3bqynch51qyn" path="res://Art/npc/Icon50.png" id="8_i88kh"]
+[ext_resource type="Script" uid="uid://synergyterm123" path="res://Scripts/World/synergy_terminal.gd" id="9_synterm"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_v4dhf"]
 font = ExtResource("6_wfxhr")
@@ -64,4 +65,15 @@ shape = SubResource("RectangleShape2D_xia3l")
 
 [node name="Sprite2D" type="Sprite2D" parent="WeaponTerminal" unique_id=793272766]
 modulate = Color(1, 0.75, 0.35, 1)
+texture = ExtResource("8_i88kh")
+
+[node name="SynergyTerminal" type="Area2D" parent="." unique_id=1942696177]
+position = Vector2(-220, -140)
+script = ExtResource("9_synterm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SynergyTerminal" unique_id=1313883646]
+shape = SubResource("RectangleShape2D_xia3l")
+
+[node name="Sprite2D" type="Sprite2D" parent="SynergyTerminal" unique_id=793272767]
+modulate = Color(0.85, 0.45, 1.3, 1)
 texture = ExtResource("8_i88kh")

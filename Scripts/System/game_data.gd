@@ -340,84 +340,84 @@ var melee_knockback: float = 0.0
 const UPGRADE_DEFS: Array[Dictionary] = [
 	{
 		"key": "damage",
-		"label": "⚔ Daño",
+		"label": "Daño",
 		"desc": "Aumenta el daño base del arma",
 		"cost": 1,
 		"step": 5.0
 	},
 	{
 		"key": "fire_rate",
-		"label": "🔥 Cadencia",
+		"label": "Cadencia",
 		"desc": "Dispara más rápido",
 		"cost": 1,
 		"step": 0.2
 	},
 	{
 		"key": "bullet_count",
-		"label": "🔫 Balas",
+		"label": "Balas",
 		"desc": "Dispara más balas por vez",
 		"cost": 1,
 		"step": 1
 	},
 	{
 		"key": "bullet_speed",
-		"label": "💨 Velocidad de bala",
+		"label": "Velocidad de bala",
 		"desc": "Las balas viajan más rápido",
 		"cost": 1,
 		"step": 80.0
 	},
 	{
 		"key": "spread",
-		"label": "🎯 Precisión",
+		"label": "Precisión",
 		"desc": "Reduce la dispersión del cono",
 		"cost": 1,
 		"step": -3.0
 	},
 	{
 		"key": "damage_multiplier",
-		"label": "💣 Multiplicador de daño",
+		"label": "Multiplicador de daño",
 		"desc": "Cada bala hace aún más daño",
 		"cost": 1,
 		"step": 0.25
 	},
 	{
 		"key": "crit_chance",
-		"label": "💥 Críticos",
+		"label": "Críticos",
 		"desc": "Probabilidad de golpe crítico (x2 daño)",
 		"cost": 1,
 		"step": 0.1
 	},
 	{
 		"key": "piercing",
-		"label": "🗡 Penetración",
+		"label": "Penetración",
 		"desc": "Las balas atraviesan enemigos adicionales",
 		"cost": 1,
 		"step": 1
 	},
 	{
 		"key": "melee_damage",
-		"label": "🔪 Daño Melee",
+		"label": "Daño Melee",
 		"desc": "Aumenta el daño del ataque cuerpo a cuerpo",
 		"cost": 1,
 		"step": 10.0
 	},
 	{
 		"key": "melee_speed",
-		"label": "⚡ Velocidad Melee",
+		"label": "Velocidad Melee",
 		"desc": "Ataca más rápido cuerpo a cuerpo",
 		"cost": 1,
 		"step": 0.2
 	},
 	{
 		"key": "melee_range",
-		"label": "📏 Alcance Melee",
+		"label": "Alcance Melee",
 		"desc": "Aumenta el rango y tamaño del ataque",
 		"cost": 1,
 		"step": 0.15
 	},
 	{
 		"key": "melee_knockback",
-		"label": "💨 Empuje Melee",
+		"label": "Empuje Melee",
 		"desc": "Empuja a los enemigos al golpearlos",
 		"cost": 1,
 		"step": 250.0

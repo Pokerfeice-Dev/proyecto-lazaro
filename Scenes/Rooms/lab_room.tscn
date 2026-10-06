@@ -5,11 +5,16 @@
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="2_otkfy"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="3_yufhn"]
 [ext_resource type="PackedScene" uid="uid://b340be6qpcdil" path="res://Scenes/Rooms/door_CoreUpgrades.tscn" id="7_cwij8"]
+[ext_resource type="PackedScene" uid="uid://bn5bjdd22602q" path="res://Scenes/Objects/lampara_pie.tscn" id="8_07awv"]
+[ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="9_4wq7d"]
 [ext_resource type="PackedScene" path="res://Scenes/World/InfoSign.tscn" id="20_infosign"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
 [node name="Lab_room" type="Node2D" unique_id=377400053]
 script = ExtResource("1_lab_room_gd")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1594534112]
+color = Color(0.36, 0.38, 0.5, 1)
 
 [node name="Floor" type="TileMapLayer" parent="." unique_id=1347952604]
 scale = Vector2(2, 2)
@@ -42,17 +47,75 @@ Este terminal administra el PROTOCOLO LÁZARO: convertí la chatarra que recuper
 Las mejoras que compres acá se mantienen entre cada despliegue, incluso si caés en combate. Volvé cuando quieras para seguir invirtiendo tu chatarra."
 
 [node name="Door" parent="." unique_id=1038942087 instance=ExtResource("new_door_1")]
-position = Vector2(-324, 9)
+position = Vector2(-321, 9)
 start_locked = false
 is_start_run_door = true
 
 [node name="Door_CoreUpgrades" parent="." unique_id=201233454 instance=ExtResource("7_cwij8")]
-position = Vector2(511, -266)
+position = Vector2(513, -257)
 rotation = 1.5707964
 is_open = true
 
 [node name="Door_TrainingRoom" parent="." unique_id=2141127837 instance=ExtResource("new_door_1")]
-position = Vector2(-158, 319)
+position = Vector2(-148, 321)
 rotation = -1.5707964
 start_locked = false
 custom_next_scene = "res://Scenes/Rooms/training_room.tscn"
+
+[node name="Lights" type="Node2D" parent="." unique_id=1339319423]
+
+[node name="Lampara_pie" parent="Lights" unique_id=1509059318 instance=ExtResource("8_07awv")]
+position = Vector2(33.000008, -65.00001)
+scale = Vector2(0.9696379, 0.9696379)
+glitch_enabled = false
+enable_sparks = false
+
+[node name="Lampara_pie2" parent="Lights" unique_id=1497868148 instance=ExtResource("8_07awv")]
+position = Vector2(257, -61.999992)
+scale = Vector2(0.9401976, 0.9401976)
+glitch_enabled = false
+enable_sparks = false
+
+[node name="Lampara_pie3" parent="Lights" unique_id=665003283 instance=ExtResource("8_07awv")]
+position = Vector2(33, 98.00001)
+scale = Vector2(0.9696379, 0.9696379)
+glitch_enabled = false
+enable_sparks = false
+
+[node name="Lampara_pie4" parent="Lights" unique_id=670490540 instance=ExtResource("8_07awv")]
+position = Vector2(257, 98)
+scale = Vector2(0.9696379, 0.9696379)
+glitch_enabled = false
+enable_sparks = false
+
+[node name="Pared" type="Node2D" parent="Lights" unique_id=794289622]
+
+[node name="lampara_pared" parent="Lights/Pared" unique_id=1368619277 instance=ExtResource("9_4wq7d")]
+position = Vector2(-142, -272)
+
+[node name="lampara_pared2" parent="Lights/Pared" unique_id=20235849 instance=ExtResource("9_4wq7d")]
+position = Vector2(369, -275)
+
+[node name="lampara_pared3" parent="Lights/Pared" unique_id=1989119132 instance=ExtResource("9_4wq7d")]
+position = Vector2(-338, -144)
+rotation = -1.5707964
+
+[node name="lampara_pared4" parent="Lights/Pared" unique_id=449860086 instance=ExtResource("9_4wq7d")]
+position = Vector2(-337, 176)
+rotation = -1.5707964
+
+[node name="lampara_pared5" parent="Lights/Pared" unique_id=1576869279 instance=ExtResource("9_4wq7d")]
+position = Vector2(-19, 336)
+rotation = -3.1415925
+
+[node name="lampara_pared6" parent="Lights/Pared" unique_id=990060933 instance=ExtResource("9_4wq7d")]
+position = Vector2(431, 337)
+rotation = -3.1415925
+
+[node name="lampara_pared7" parent="Lights/Pared" unique_id=611129673 instance=ExtResource("9_4wq7d")]
+position = Vector2(626, 179)
+rotation = 1.5707964
+
+[node name="lampara_pared8" parent="Lights/Pared" unique_id=1883825346 instance=ExtResource("9_4wq7d")]
+position = Vector2(626, -139)
+rotation = 1.5707964

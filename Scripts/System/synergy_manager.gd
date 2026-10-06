@@ -219,3 +219,119 @@ func _get_single_synergy_weapon_override(syn_id: String) -> String:
 	if not ResourceLoader.exists(path):
 		return ""
 	return path
+
+# ── Helpers de Consulta y Afinidad para UI ──────────────────────────────────
+
+func get_item_display_name(item_id: String) -> String:
+	var item_entry = CodexData.DATA.get("items", {}).get(item_id.to_lower(), {})
+	if not item_entry.is_empty():
+		return item_entry.get("name", item_id.capitalize())
+	return item_id.capitalize()
+
+func get_weapon_display_name(weapon_id: String) -> String:
+	if weapon_id == "":
+		return "Set Biomecánico"
+	var weapon_entry = CodexData.DATA.get("weapons", {}).get(weapon_id.to_lower(), {})
+	if not weapon_entry.is_empty():
+		return weapon_entry.get("name", weapon_id.capitalize())
+	return weapon_id.capitalize()
+
+func get_item_synergy_info(item_id: String, active_weapon_id: String, active_melee_id: String, equipment: Object) -> Array[Dictionary]:
+	var results: Array[Dictionary] = []
+	var target_id = item_id.to_lower()
+	for syn_id in SYNERGIES.keys():
+		var info = _build_single_item_synergy_info(syn_id, target_id, active_weapon_id, active_melee_id, equipment)
+		if not info.is_empty():
+			results.append(info)
+	return results
+
+func _build_single_item_synergy_info(syn_id: String, target_item_id: String, active_weapon_id: String, active_melee_id: String, equipment: Object) -> Dictionary:
+	var def = SYNERGIES[syn_id]
+	var req_items: Array = def.get("required_items", [])
+	if not _list_has_item(req_items, target_item_id):
+		return {}
+	
+	var req_weapon: String = def.get("required_weapon", "")
+	var is_active = _is_synergy_weapon_matching(req_weapon, active_weapon_id, active_melee_id)
+	var equipped_count = _count_equipped_synergy_items(req_items, equipment, req_weapon, active_weapon_id)
+	
+	return {
+		"id": syn_id,
+		"name": def.get("name", syn_id),
+		"required_weapon": req_weapon,
+		"required_items": req_items,
+		"matches_active_weapon": is_active,
+		"equipped_count": equipped_count,
+		"total_required": req_items.size(),
+		"is_unlocked": GameData.is_synergy_unlocked(syn_id)
+	}
+
+func _list_has_item(items: Array, target_id: String) -> bool:
+	for it in items:
+		if str(it).to_lower() == target_id:
+			return true
+	return false
+
+func _is_synergy_weapon_matching(req_weapon: String, active_main: String, active_melee: String) -> bool:
+	if req_weapon == "":
+		return true
+	var r_w = req_weapon.to_lower()
+	if r_w == active_main.to_lower():
+		return true
+	if r_w == active_melee.to_lower():
+		return true
+	return false
+
+func _count_equipped_synergy_items(req_items: Array, equipment: Object, req_weapon: String, active_main: String) -> int:
+	if not equipment:
+		return 0
+	var is_main = req_weapon.to_lower() == active_main.to_lower()
+	var needed_counts = _calculate_needed_counts(req_items)
+	var count = 0
+	for it_id in needed_counts.keys():
+		var have = _count_item_equipped(equipment, it_id, is_main)
+		var needed = needed_counts[it_id]
+		count += mini(have, needed)
+	return count
+
+func _calculate_needed_counts(req_items: Array) -> Dictionary:
+	var dict = {}
+	for it in req_items:
+		var k = str(it).to_lower()
+		dict[k] = dict.get(k, 0) + 1
+	return dict
+
+func get_weapon_synergies_info(weapon_id: String, equipment: Object) -> Array[Dictionary]:
+	var results: Array[Dictionary] = []
+	var target_w = weapon_id.to_lower()
+	for syn_id in SYNERGIES.keys():
+		var info = _build_single_weapon_synergy_info(syn_id, target_w, equipment)
+		if not info.is_empty():
+			results.append(info)
+	return results
+
+func _build_single_weapon_synergy_info(syn_id: String, target_weapon: String, equipment: Object) -> Dictionary:
+	var def = SYNERGIES[syn_id]
+	var req_w = def.get("required_weapon", "").to_lower()
+	if req_w != target_weapon:
+		return {}
+	var req_items: Array = def.get("required_items", [])
+	var equipped_count = _count_equipped_synergy_items(req_items, equipment, req_w, target_weapon)
+	return {
+		"id": syn_id,
+		"name": def.get("name", syn_id),
+		"required_items": req_items,
+		"equipped_count": equipped_count,
+		"total_required": req_items.size(),
+		"is_unlocked": GameData.is_synergy_unlocked(syn_id)
+	}
+
+func get_synergy_recipe_string(syn_id: String) -> String:
+	var def = SYNERGIES.get(syn_id, {})
+	if def.is_empty():
+		return ""
+	var weapon = get_weapon_display_name(def.get("required_weapon", ""))
+	var item_names: Array[String] = []
+	for it in def.get("required_items", []):
+		item_names.append(get_item_display_name(str(it)))
+	return "%s + %s" % [weapon, ", ".join(item_names)]
