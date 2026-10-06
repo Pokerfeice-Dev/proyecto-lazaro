@@ -18,7 +18,18 @@
 [ext_resource type="Texture2D" uid="uid://dmpk1l0ky7dot" path="res://Art/Enemy_Boss_1/Fx/frame0010.png" id="16_smiad"]
 [ext_resource type="AudioStream" uid="uid://d1dpaiu1b8225" path="res://Audio/Enemy_snd/Boss1/Explosion.mp3" id="17_d28mi"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="18_shadow"]
+[ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="19_ioa2q"]
 
+[sub_resource type="Gradient" id="Gradient_25c3m"]
+offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_3mnni"]
+gradient = SubResource("Gradient_25c3m")
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kcty2"]
 size = Vector2(132, 137)
@@ -73,8 +84,12 @@ collision_mask = 7
 script = ExtResource("1_script")
 boss_damage = 25
 
-[node name="DropShadow" type="Sprite2D" parent="."]
+[node name="DropShadow" type="Sprite2D" parent="." unique_id=1348376287]
+modulate = Color(0, 0, 0, 0.48)
+show_behind_parent = true
 position = Vector2(0, 26)
+scale = Vector2(1, 0.875)
+texture = SubResource("GradientTexture2D_3mnni")
 script = ExtResource("18_shadow")
 shadow_size = Vector2(64, 28)
 shadow_offset = Vector2(0, 26)
@@ -118,3 +133,15 @@ frame_progress = 1.0
 
 [node name="Death_sound" type="AudioStreamPlayer2D" parent="." unique_id=1431288320]
 stream = ExtResource("17_d28mi")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1110303937]
+position = Vector2(-27, -29)
+energy = 1.2
+texture = ExtResource("19_ioa2q")
+texture_scale = 0.2
+
+[node name="PointLight2D2" type="PointLight2D" parent="." unique_id=752185016]
+position = Vector2(27, -28)
+energy = 1.2
+texture = ExtResource("19_ioa2q")
+texture_scale = 0.2

@@ -19,12 +19,12 @@
 [ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="15_ovjma"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="16_shadow"]
 
-[sub_resource type="Gradient" id="Gradient_g7gci"]
+[sub_resource type="Gradient" id="Gradient_25c3m"]
 offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_r6t50"]
-gradient = SubResource("Gradient_g7gci")
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_3mnni"]
+gradient = SubResource("Gradient_25c3m")
 height = 32
 fill = 1
 fill_from = Vector2(0.5, 0.5)
@@ -427,7 +427,7 @@ modulate = Color(0, 0, 0, 0.4)
 show_behind_parent = true
 position = Vector2(0, 14)
 scale = Vector2(0.40625, 0.375)
-texture = SubResource("GradientTexture2D_r6t50")
+texture = SubResource("GradientTexture2D_3mnni")
 script = ExtResource("16_shadow")
 shadow_alpha = 0.4
 

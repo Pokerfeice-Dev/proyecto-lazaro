@@ -303,14 +303,13 @@ func _set_room_n_config(config: Dictionary, room: int) -> void:
 	config.spawn_interval = maxf(0.3, new_interval)
 	
 	config.allowed_enemies = ["follower", "shooter"]
-	_add_tank_to_allowed_enemies_if_not_level_1(config)
+	_add_tank_to_allowed_enemies(config, room)
 	_add_turret_to_allowed_enemies_if_level_4(config, room)
 	_add_summoner_to_allowed_enemies_if_level_5(config, room)
 
-# El tank ("Mecha Constructor") por ahora solo aparece a partir del nivel 2, para que
-# el nivel 1 se quede solo con perro/carpintero/torreta/apicultora (pedido de Marcos).
-func _add_tank_to_allowed_enemies_if_not_level_1(config: Dictionary) -> void:
-	if current_level < 2: return
+func _add_tank_to_allowed_enemies(config: Dictionary, room: int) -> void:
+	if current_level <= 1 and room < 4:
+		return
 	config.allowed_enemies.append("tank")
 
 func _add_turret_to_allowed_enemies_if_level_4(config: Dictionary, room: int) -> void:

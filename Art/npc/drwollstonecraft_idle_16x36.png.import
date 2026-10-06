@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vtlosvww8q0n"
-path="res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"
+uid="uid://3woyldjbfigj"
+path="res://.godot/imported/drwollstonecraft_idle_16x36.png-381bf7902d2a164d4f76fd796d4e9dff.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/Lights/White_light.png"
-dest_files=["res://.godot/imported/White_light.png-86c744e29cbce7f174e6a19f557827fc.ctex"]
+source_file="res://Art/npc/drwollstonecraft_idle_16x36.png"
+dest_files=["res://.godot/imported/drwollstonecraft_idle_16x36.png-381bf7902d2a164d4f76fd796d4e9dff.ctex"]
 
 [params]
 
