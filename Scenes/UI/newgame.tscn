@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dwjkwwo80xt0n" path="res://Scripts/UI/newgame.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://Art/Menu/Logo lazaro.png" id="2_gu4kh"]
-[ext_resource type="Texture2D" uid="uid://duywrj8qr6s4u" path="res://Art/Menu/Wall.jpg" id="3_3ol4p"]
+[ext_resource type="Material" uid="uid://b0koyh6l5my1r" path="res://Art/Menu/Animado/menu_lazaro_idle_material.tres" id="3_bmwyk"]
 [ext_resource type="Theme" uid="uid://vjygo4dmal04" path="res://Art/Ui/game_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" uid="uid://cjghxl8dyp3s6" path="res://Art/Menu/Animado/menu_lazaro_cuerpo.png" id="4_jkl6y"]
+[ext_resource type="Texture2D" uid="uid://cbr53ikcsq5g8" path="res://Art/Menu/Animado/menu_lazaro_barrotes.png" id="5_rct4p"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gu4kh"]
 particle_flag_align_y = true
@@ -31,13 +33,6 @@ scale_min = 2.0
 scale_max = 4.0
 color = Color(1, 1, 1, 0.8)
 
-[sub_resource type="LabelSettings" id="LabelSettings_3ol4p"]
-font_size = 72
-outline_size = 1
-outline_color = Color(0, 0, 0, 1)
-shadow_size = 3
-shadow_color = Color(0, 0, 0, 0.5137255)
-
 [node name="newgame" type="Control" unique_id=1220767714]
 layout_mode = 3
 anchors_preset = 15
@@ -49,13 +44,22 @@ theme = ExtResource("3_theme")
 script = ExtResource("1_script")
 
 [node name="Background" type="TextureRect" parent="." unique_id=1199087739]
+material = ExtResource("3_bmwyk")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_3ol4p")
+mouse_filter = 2
+texture = ExtResource("4_jkl6y")
+
+[node name="Barrotes" type="TextureRect" parent="." unique_id=1602215936]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource("5_rct4p")
 
 [node name="RainParticles" type="GPUParticles2D" parent="." unique_id=2128081778]
 position = Vector2(960, -50)
@@ -72,15 +76,6 @@ lifetime = 10.0
 preprocess = 10.0
 process_material = SubResource("ParticleProcessMaterial_3ol4p")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1541732251]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(1.3957917e-06, 0.46087438, 0.49595743, 0.5372549)
-
 [node name="Logo" type="TextureRect" parent="." unique_id=1969163400]
 visible = false
 layout_mode = 0
@@ -90,19 +85,3 @@ offset_right = 690.0
 offset_bottom = 762.0
 texture = ExtResource("2_gu4kh")
 expand_mode = 1
-
-[node name="Label" type="Label" parent="." unique_id=1930841910]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -296.0
-offset_top = -498.0
-offset_right = 296.0
-offset_bottom = -399.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "Selecciona el slot"
-label_settings = SubResource("LabelSettings_3ol4p")

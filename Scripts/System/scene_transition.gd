@@ -15,6 +15,7 @@ var _zone1_tracks: Array[AudioStream] = []
 # Ost-Batalla.ogg anda en -14.9, asi que los bajamos un poco para que suenen parejos.
 var _music_trim_db := {
 	"res://Audio/Music/Asphodel_B.ogg": -0.9,
+	"res://Audio/Music/Ost-Batalla_master.ogg": -0.9,
 	"res://Audio/Music/Cripta_A.ogg": -0.9,
 }
 
@@ -39,7 +40,7 @@ func _ready():
 	add_child(mainmenu_music)
 
 	_zone1_tracks = [
-		preload("res://Audio/Music/Ost-Batalla.ogg"),
+		preload("res://Audio/Music/Ost-Batalla_master.ogg"), # remasterizado (EQ + master a -14 LUFS); el original queda en el proyecto
 		preload("res://Audio/Music/Asphodel_B.ogg"),
 	]
 	combat_music = AudioStreamPlayer.new()
@@ -313,6 +314,11 @@ func _handle_scene_music(path: String) -> void:
 	elif "level1_room" in scene_name:
 		play_combat_music()
 		stop_main_music()
+		stop_level2_music()
+	elif "level3_room" in scene_name:
+		# Zona 3 (El Núcleo) todavía no tiene tema propio: silencio en vez de arrastrar el de otra zona.
+		stop_main_music()
+		stop_combat_music()
 		stop_level2_music()
 
 func change_scene(path: String) -> void:

@@ -1,0 +1,74 @@
+[gd_scene format=3 uid="uid://cr3ha2jf51vuo"]
+
+[ext_resource type="Script" uid="uid://budwkooed1ajm" path="res://Scripts/Enemies/boss3_prometeo.gd" id="1_8j4s8"]
+[ext_resource type="SpriteFrames" uid="uid://dddms4iuglakq" path="res://Art/Enemies/Prometeo/prometeo_frames.tres" id="2_4wcex"]
+[ext_resource type="Script" uid="uid://bnky14gghs5b5" path="res://Scripts/Enemies/prometeo_arsenal.gd" id="3_4g00l"]
+[ext_resource type="AudioStream" uid="uid://cchgx2sxk0k7a" path="res://Audio/Dash_sound.wav" id="4_yyl21"]
+[ext_resource type="AudioStream" uid="uid://da1s21bkob4dy" path="res://Audio/Enemy_snd/Enemy_range_shoot.mp3" id="5_1d0v0"]
+[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="6_brfxp"]
+[ext_resource type="AudioStream" uid="uid://dp1yxm7gucqdt" path="res://Audio/Sfx/Melee/07_human_atk_sword_2.wav" id="7_t6aof"]
+[ext_resource type="AudioStream" uid="uid://cq2qyc5182gft" path="res://Audio/Sfx/Flamethrower_sfx.mp3" id="8_pntou"]
+[ext_resource type="AudioStream" uid="uid://wp1nyym5bcyu" path="res://Audio/Enemy_snd/Boss1/Laser.mp3" id="9_s2l4g"]
+[ext_resource type="AudioStream" uid="uid://b5u6k0ksvl64d" path="res://Audio/Sfx/Equipar_items.wav" id="10_l44jj"]
+[ext_resource type="AudioStream" uid="uid://gmjrilexsigq" path="res://Audio/Enemy_snd/Boss1/Retro Roar LoFi 08.wav" id="11_fyqo4"]
+[ext_resource type="AudioStream" uid="uid://75em1vgfqr3h" path="res://Audio/Sfx/Mecha_explosion.mp3" id="12_1aayy"]
+[ext_resource type="AudioStream" uid="uid://cv5n7p5nwrhpk" path="res://Audio/Sfx/Teleport/Teleport.wav" id="13_wlqgo"]
+[ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_v51sc"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b5cft"]
+size = Vector2(18, 50)
+
+[node name="Boss3_Prometeo" type="CharacterBody2D" unique_id=23777509]
+collision_layer = 2
+collision_mask = 7
+script = ExtResource("1_8j4s8")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1408444356]
+modulate = Color(0.2, 0.16, 0.26, 1)
+scale = Vector2(1.95, 1.95)
+sprite_frames = ExtResource("2_4wcex")
+animation = &"idle_down"
+autoplay = "idle_down"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1738336948]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_b5cft")
+
+[node name="Arsenal" type="Node2D" parent="." unique_id=1625819496]
+position = Vector2(0, -6)
+script = ExtResource("3_4g00l")
+
+[node name="Dash_sound" type="AudioStreamPlayer2D" parent="." unique_id=686821984]
+stream = ExtResource("4_yyl21")
+
+[node name="Shot_sound" type="AudioStreamPlayer2D" parent="." unique_id=1948352144]
+stream = ExtResource("5_1d0v0")
+max_polyphony = 4
+
+[node name="Shotgun_sound" type="AudioStreamPlayer2D" parent="." unique_id=1400476525]
+stream = ExtResource("6_brfxp")
+max_polyphony = 4
+
+[node name="Slash_sound" type="AudioStreamPlayer2D" parent="." unique_id=1775296874]
+stream = ExtResource("7_t6aof")
+
+[node name="Flame_sound" type="AudioStreamPlayer2D" parent="." unique_id=168424601]
+stream = ExtResource("8_pntou")
+
+[node name="Laser_sound" type="AudioStreamPlayer2D" parent="." unique_id=139660077]
+stream = ExtResource("9_s2l4g")
+
+[node name="Equip_sound" type="AudioStreamPlayer2D" parent="." unique_id=714425686]
+stream = ExtResource("10_l44jj")
+
+[node name="Roar_sound" type="AudioStreamPlayer2D" parent="." unique_id=121455803]
+stream = ExtResource("11_fyqo4")
+
+[node name="Slam_sound" type="AudioStreamPlayer2D" parent="." unique_id=1440894495]
+stream = ExtResource("12_1aayy")
+
+[node name="Teleport_sound" type="AudioStreamPlayer2D" parent="." unique_id=574825270]
+stream = ExtResource("13_wlqgo")
+
+[node name="Death_sound" type="AudioStreamPlayer2D" parent="." unique_id=1446321727]
+stream = ExtResource("14_v51sc")

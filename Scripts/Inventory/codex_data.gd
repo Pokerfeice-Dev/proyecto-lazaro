@@ -40,15 +40,21 @@ const DATA = {
 		},
 		"boss": {
 			"name": "Centinela Génesis",
-			"lore": "Guardián del Núcleo de Mutación. Barre la sala con un par de láseres giratorios y descarga anillos de proyectiles; al caer bajo el 50% de su vida entra en Modo Furia, regenerando salud y redoblando sus ataques.",
+			"lore": "Guardián del Distrito Asphodel. Barre la sala con un par de láseres giratorios y descarga anillos de proyectiles; al caer bajo el 50% de su vida entra en Modo Furia, regenerando salud y redoblando sus ataques.",
 			"stats": "Vida: 1000 | Daño: 15-20 | Fase 2: +20% vida, ataques más rápidos",
 			"icon": preload("res://Art/Enemy_Boss_1/Boss_sprite.png")
 		},
 		"boss2": {
-			"name": "??? (Jefe del Distrito 2)",
+			"name": "??? (Jefe de La Cripta)",
 			"lore": "Masa mutante colosal que domina su territorio a base de peso puro: salta para aplastar a quien esté debajo, escupe bilis corrosiva en abanico a distancia, y cuando se siente acorralado invoca a otras criaturas mutadas para que lo cubran. Todavía no tiene nombre ni arte final.",
 			"stats": "Vida: 1400 | Daño: 22 | Fase única | Ataques: Salto en área, escupitajo, invocación",
-			"icon": preload("res://Art/Enemy_Boss_2/boss2_codex_icon_placeholder.png")
+			"icon": preload("res://Art/Enemy_Boss_2/boss2_codex_icon.png")
+		},
+		"boss3": {
+			"name": "Prometeo",
+			"lore": "El reflejo oscuro de Lázaro y la última barrera del Núcleo. Pelea con todo lo que Lázaro aprendió en el camino: cambia de arma cada pocos ataques, esquiva con dash y castiga a quien gasta el suyo. Al verse herido se desdobla en un clon, y al final se prende con el fuego que robó.",
+			"stats": "Vida: 2600 | Daño: 14 a distancia, 22 cuerpo a cuerpo | 3 fases | Armas: todas las del jugador",
+			"icon": preload("res://Art/Enemies/Prometeo/prometeo_codex_icon.png")
 		}
 	},
 	"weapons": {
@@ -209,22 +215,22 @@ const DATA = {
 	},
 	"levels": {
 		"distrito_1": {
-			"name": "Distrito 1: Laboratorios Iniciales",
+			"name": "Zona 1: Distrito Asphodel",
 			"lore": "Sector de investigación genética de Lázaro Corp. Aquí comenzó la contaminación de los sujetos de prueba biológicos.",
 			"stats": "Rango de peligro: Bajo-Medio | Amenazas: Seguidores, Tiradores, Torretas",
-			"icon": preload("res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png")
+			"icon": preload("res://Art/Codex/zona1_codex_icon.png")
 		},
 		"distrito_2": {
-			"name": "Distrito 2: Núcleo de Mutación",
-			"lore": "Sector más profundo del complejo, donde la biomasa mutada escapó a todo control. Pocos exploradores vuelven de aquí con el mismo aspecto con el que entraron.",
+			"name": "Zona 2: La Cripta",
+			"lore": "Galerías bajo el complejo donde la biomasa mutada escapó a todo control. Pocos exploradores vuelven de aquí con el mismo aspecto con el que entraron.",
 			"stats": "Rango de peligro: Alto | Amenazas: Mutante Coloso, variantes nuevas",
-			"icon": preload("res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png")
+			"icon": preload("res://Art/Codex/zona2_codex_icon.png")
 		},
 		"distrito_3": {
-			"name": "???",
-			"lore": "???",
-			"stats": "???",
-			"icon": null
+			"name": "Zona 3: El Núcleo",
+			"lore": "El corazón del complejo, invadido por raíces que laten como venas. Acá espera Prometeo.",
+			"stats": "Rango de peligro: Extremo | Amenazas: Prometeo",
+			"icon": preload("res://Art/Codex/zona3_codex_icon.png")
 		}
 	}
 }

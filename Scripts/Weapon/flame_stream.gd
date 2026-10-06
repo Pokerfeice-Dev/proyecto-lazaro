@@ -3,7 +3,9 @@ extends Area2D
 
 ## Chorro continuo del Lanzallamas: un unico objeto pegado al arma mientras se
 ## mantiene presionado el disparo, en vez de disparar muchos proyectiles chicos.
-## Reproduce ignite -> burn (loop) mientras se dispara, y extinguish al soltar.
+## Por defecto se ve como la llamarada de particulas de Prometeo (boss 3) y quema
+## en un cono del mismo tamaño que el fuego. Con use_particle_flame apagado vuelve
+## al sprite viejo: ignite -> burn (loop) mientras se dispara, y extinguish al soltar.
 
 const FLAME_FRAMES := preload("res://Art/Effects/FlameStreamAnim.tres")
 const FLAME_SFX_PATH := "res://Audio/Sfx/Flamethrower_sfx.mp3"
@@ -15,6 +17,12 @@ const FLAME_BASE_Y := 349.45
 @export var range_ramp_time: float = 0.3
 @export var thickness: float = 22.0
 @export var tick_interval: float = 0.15
+
+@export_category("Llamarada de particulas")
+## Si esta prendido, usa la llamarada de particulas en vez del sprite.
+@export var use_particle_flame: bool = true
+## Apertura del cono hacia cada lado (grados). Define lo que se ve y lo que quema.
+@export var cone_half_angle_degrees: float = 22.0
 
 @export_category("Audio Settings")
 @export var target_volume_db: float = -2.0
@@ -28,6 +36,7 @@ var ignite_tick_interval: float = 0.4
 var ignite_duration: float = 1.6
 var hold_time: float = 0.0
 var is_extinguishing: bool = false
+var _particles: FlameConeParticles = null
 
 var audio_player: AudioStreamPlayer2D = null
 var audio_tween: Tween = null
@@ -42,13 +51,10 @@ func _ready() -> void:
 	monitoring = true
 	monitorable = false
 
-	sprite.sprite_frames = FLAME_FRAMES
-	sprite.centered = false
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.animation_finished.connect(_on_animation_finished)
-	sprite.play("ignite")
-
-	collision.shape = RectangleShape2D.new()
+	if use_particle_flame:
+		_setup_particle_flame()
+	else:
+		_setup_sprite_flame()
 
 	_update_visual_scale()
 	_setup_audio_player()
@@ -57,6 +63,22 @@ func _ready() -> void:
 	tick_timer.wait_time = tick_interval
 	tick_timer.timeout.connect(_on_tick)
 	tick_timer.start()
+
+func _setup_sprite_flame() -> void:
+	sprite.sprite_frames = FLAME_FRAMES
+	sprite.centered = false
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.animation_finished.connect(_on_animation_finished)
+	sprite.play("ignite")
+	collision.shape = RectangleShape2D.new()
+
+func _setup_particle_flame() -> void:
+	sprite.hide()
+	_particles = FlameConeParticles.new()
+	add_child(_particles)
+	_particles.emitting = true
+	collision.shape = ConvexPolygonShape2D.new()
+	collision.position = Vector2.ZERO
 
 func _exit_tree() -> void:
 	_cancel_audio_tween()
@@ -110,6 +132,9 @@ func _current_range() -> float:
 	return base_range + max_range_bonus * t
 
 func _update_visual_scale() -> void:
+	if use_particle_flame:
+		_update_particle_cone()
+		return
 	var range_now = _current_range()
 	var scale_factor = BASE_SCALE * (range_now / base_range)
 	sprite.scale = Vector2(scale_factor, scale_factor)
@@ -119,14 +144,38 @@ func _update_visual_scale() -> void:
 	shape.size = Vector2(range_now, thickness)
 	collision.position = Vector2(range_now * 0.5, 0)
 
+# La llamarada y la zona que quema crecen juntas mientras se mantiene el disparo.
+func _update_particle_cone() -> void:
+	var range_now = _current_range()
+	_particles.set_cone(range_now, cone_half_angle_degrees)
+	var shape: ConvexPolygonShape2D = collision.shape
+	shape.points = _cone_points(range_now)
+
+func _cone_points(range_now: float) -> PackedVector2Array:
+	var half = deg_to_rad(cone_half_angle_degrees)
+	var pts := PackedVector2Array([Vector2.ZERO])
+	var steps := 6
+	for i in range(steps + 1):
+		pts.append(Vector2(range_now, 0).rotated(lerpf(-half, half, float(i) / float(steps))))
+	return pts
+
 func start_extinguish() -> void:
 	if is_extinguishing:
 		return
 	is_extinguishing = true
 	monitoring = false
 	tick_timer.stop()
-	sprite.play("extinguish")
 	_start_audio_fade_out()
+	if use_particle_flame:
+		_extinguish_particles()
+	else:
+		sprite.play("extinguish")
+
+# Corta la emision y espera a que se apaguen las ultimas llamas antes de borrarse.
+func _extinguish_particles() -> void:
+	_particles.emitting = false
+	var wait = maxf(_particles.lifetime, fade_out_duration)
+	get_tree().create_timer(wait, false).timeout.connect(_stop_audio_and_free)
 
 func _on_animation_finished() -> void:
 	if sprite.animation == "ignite":

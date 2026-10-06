@@ -1,0 +1,84 @@
+[gd_scene format=3 uid="uid://beunkv8vw65vn"]
+
+[ext_resource type="Script" uid="uid://btpp46oe72qln" path="res://Scripts/Projectiles/prometeo_projectile.gd" id="1_fke14"]
+[ext_resource type="Texture2D" uid="uid://b3sfkuffxoep6" path="res://Art/Enemy_Shooter/enemy-explosion.png" id="2_0nh6c"]
+[ext_resource type="Texture2D" uid="uid://ceupttpu830fl" path="res://Art/Weapons/Distance/Pistol/enemyprojectile16x6.png" id="3_dmdj6"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_Light.png" id="4_60a5e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hqsr6"]
+atlas = ExtResource("2_0nh6c")
+region = Rect2(160, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mgxdm"]
+atlas = ExtResource("2_0nh6c")
+region = Rect2(240, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cd05x"]
+atlas = ExtResource("2_0nh6c")
+region = Rect2(320, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ie8o"]
+atlas = ExtResource("2_0nh6c")
+region = Rect2(400, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_78hnn"]
+atlas = ExtResource("2_0nh6c")
+region = Rect2(480, 0, 80, 80)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nsthf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hqsr6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mgxdm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cd05x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ie8o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_78hnn")
+}],
+"loop": 0,
+"name": &"explosion",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_dmdj6")
+}],
+"loop": 1,
+"name": &"shoot",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
+radius = 7.707283
+
+[node name="PrometeoProjectile" type="Area2D" unique_id=1932067551]
+collision_layer = 8
+collision_mask = 5
+script = ExtResource("1_fke14")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=806443049]
+position = Vector2(-1.1920929e-07, 0)
+sprite_frames = SubResource("SpriteFrames_nsthf")
+animation = &"shoot"
+autoplay = "shoot"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=123456789]
+position = Vector2(-0.99999994, 3.5527137e-15)
+scale = Vector2(0.648737, 0.648737)
+shape = SubResource("CircleShape2D_proj")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=1108462665]
+color = Color(0.87455374, 0, 0.12445616, 1)
+energy = 0.7
+texture = ExtResource("4_60a5e")
+texture_scale = 0.9
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

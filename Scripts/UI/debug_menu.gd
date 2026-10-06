@@ -46,6 +46,7 @@ const TELEPORTS: Array[Dictionary] = [
 	{"name": "💀 Jefe 1 (Génesis) - Sala 15", "path": "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"},
 	{"name": "💀 Jefe 1 (Génesis) - Sala 16", "path": "res://Scenes/Rooms/Level1_Room16-BossFight.tscn"},
 	{"name": "💀 Jefe 2 (Slime) - Sala 14", "path": "res://Scenes/Rooms/Level2_Room14BossFight.tscn"},
+	{"name": "💀 Jefe 3 (Prometeo) - Sala de prueba", "path": "res://Scenes/Rooms/Level3_BossPrometeo_Prueba.tscn"},
 	{"name": "🏢 Nivel 1 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level1_Room1.tscn"},
 	{"name": "🎁 Nivel 1 - Tesoro (Room 11)", "path": "res://Scenes/Rooms/Level1_Room11(treasure).tscn"},
 	{"name": "🛒 Nivel 1 - Tienda Ygor (Room 12)", "path": "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"},
@@ -64,7 +65,8 @@ const ENEMIES: Array[Dictionary] = [
 	{"name": "Abeja Robótica (Bee)", "path": "res://Scenes/Enemies/Enemy_bee_summon.tscn"},
 	{"name": "Dummy / Maniquí de Pruebas", "path": "res://Scenes/Enemies/Mannequin.tscn"},
 	{"name": "Jefe 1 (Génesis)", "path": "res://Scenes/Enemies/boss1.tscn"},
-	{"name": "Jefe 2 (Slime Gigante)", "path": "res://Scenes/Enemies/Boss2.tscn"}
+	{"name": "Jefe 2 (Slime Gigante)", "path": "res://Scenes/Enemies/Boss2.tscn"},
+	{"name": "Jefe 3 (Prometeo)", "path": "res://Scenes/Enemies/Boss3_Prometeo.tscn"}
 ]
 
 func _ready() -> void:

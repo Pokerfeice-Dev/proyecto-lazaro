@@ -355,24 +355,17 @@ func _get_pretty_room_name(path: String) -> String:
 		return _get_formatted_level_room_name(filename)
 	return "DISTRITO ASPHODEL"
 
+# "LA CRIPTA / SALA - 3": nombre de la zona (sale del número de LevelN_) y la
+# sala de la run. En la sala del jefe dice "SALA DEL JEFE".
 func _get_formatted_level_room_name(filename: String) -> String:
-	var parts = filename.split("_")
-	if parts.size() >= 2:
-		var lvl_part = parts[0]
-		var lvl_num = _get_digits(lvl_part)
-		if lvl_num != "":
-			var district_name = ""
-			if lvl_num == "1":
-				district_name = "DISTRITO ASPHODEL"
-			else:
-				district_name = "DISTRITO " + lvl_num
-				
-			var current_room = GameData.current_run_room
-			if current_room <= 0:
-				current_room = 1
-				
-			return "%s\nSALA - %d" % [district_name, current_room]
-	return "DISTRITO ASPHODEL"
+	var lvl_num = _get_digits(filename.split("_")[0])
+	if lvl_num == "":
+		return "DISTRITO ASPHODEL"
+	var zone_name = GameData.get_zone_name(int(lvl_num)).to_upper()
+	if "bossfight" in filename:
+		return "%s\nSALA DEL JEFE" % zone_name
+	var current_room = maxi(GameData.current_run_room, 1)
+	return "%s\nSALA - %d" % [zone_name, current_room]
 
 func _get_digits(text: String) -> String:
 	var digits = ""

@@ -48,8 +48,24 @@ var chosen_melee_weapon: String = "daga"
 var temporary_damage_multiplier: float = 1.0
 var vampiric_kills_counter: int = 0
 
-# ── Level Progression (placeholder: nivel 2 reutiliza el boss 1 hasta que tengamos un boss propio) ──
-const MAX_LEVEL_FOR_NOW: int = 2
+# ── Level Progression: zona 1 -> boss 1 -> zona 2 -> boss 2 -> zona 3 -> Prometeo -> gana la run ──
+const MAX_LEVEL_FOR_NOW: int = 3
+const BOSS_ROOMS := {
+	1: "res://Scenes/Rooms/Level1_Room15-BossFight.tscn",
+	2: "res://Scenes/Rooms/Level2_Room14BossFight.tscn",
+	3: "res://Scenes/Rooms/Level3_Room4BossFight.tscn",
+}
+## Nombre de cada zona (cartel de inicio de sala). El códice usa los mismos.
+const ZONE_NAMES := {
+	1: "Distrito Asphodel",
+	2: "La Cripta",
+	3: "El Núcleo",
+}
+## Tiendas de Ygor por zona. La zona 3 todavía no tiene la suya, así que ahí no aparece.
+const YGOR_ROOMS := {
+	1: "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn",
+	2: "res://Scenes/Rooms/Level2_Room13(Ygor1).tscn",
+}
 var current_level: int = 1
 var just_won_run: bool = false
 
@@ -150,12 +166,14 @@ var run_scrap_collected: int = 0
 var last_killer: String = "Infección Lázaro"
 var rooms_pool: Array[String] = []
 var rooms_pool_level2: Array[String] = []
+var rooms_pool_level3: Array[String] = []
 var last_room_path: String = ""
 var rooms_before_boss: int = 7
 
 func _load_level1_rooms() -> void:
 	rooms_pool = _scan_rooms_with_prefix("Level1_Room")
 	rooms_pool_level2 = _scan_rooms_with_prefix("Level2_Room")
+	rooms_pool_level3 = _scan_rooms_with_prefix("Level3_Room")
 
 func _scan_rooms_with_prefix(prefix: String) -> Array[String]:
 	var result: Array[String] = []
@@ -205,12 +223,10 @@ func determine_next_room() -> String:
 	return check_for_ygor_room()
 
 func get_boss_room() -> String:
-	if current_level >= 2:
-		return "res://Scenes/Rooms/Level2_Room14BossFight.tscn"
-	return "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"
+	return BOSS_ROOMS.get(clampi(current_level, 1, MAX_LEVEL_FOR_NOW), BOSS_ROOMS[1])
 
 # Se llama cuando el jugador cruza la puerta de salida del boss.
-# 1° vez (nivel 1 completo) -> arranca el nivel 2. 2° vez (nivel 2 completo) -> gana la run y vuelve al Lab.
+# Zonas 1 y 2 completas -> arranca la zona siguiente. Zona 3 completa -> gana la run y vuelve al Lab.
 func get_post_boss_scene() -> String:
 	if current_level < MAX_LEVEL_FOR_NOW:
 		current_level += 1
@@ -219,8 +235,8 @@ func get_post_boss_scene() -> String:
 		last_room_path = ""
 		if current_level > max_reached_level:
 			max_reached_level = current_level
-		# Distrito nuevo alcanzado: dispara el aviso de descubrimiento en el códice.
-		unlock_codex_entry("levels", "distrito_2")
+		# Zona nueva alcanzada: dispara el aviso de descubrimiento en el códice.
+		unlock_codex_entry("levels", "distrito_%d" % current_level)
 		save_game()
 		return get_random_room_from_pool()
 	just_won_run = true
@@ -229,7 +245,7 @@ func get_post_boss_scene() -> String:
 
 func check_for_ygor_room() -> String:
 	var is_multiple_of_three: bool = (current_run_room % 3 == 0)
-	if not is_multiple_of_three:
+	if not is_multiple_of_three or not YGOR_ROOMS.has(current_level):
 		return get_random_room_from_pool()
 	return roll_for_ygor_room()
 
@@ -239,13 +255,20 @@ func roll_for_ygor_room() -> String:
 		return get_ygor_room_for_current_level()
 	return get_random_room_from_pool()
 
+func get_zone_name(level: int) -> String:
+	return ZONE_NAMES.get(level, ZONE_NAMES[1])
+
 func get_ygor_room_for_current_level() -> String:
-	if current_level == 2:
-		return "res://Scenes/Rooms/Level2_Room13(Ygor1).tscn"
-	return "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"
+	return YGOR_ROOMS.get(current_level, YGOR_ROOMS[1])
+
+func _get_current_pool() -> Array[String]:
+	match current_level:
+		2: return rooms_pool_level2
+		3: return rooms_pool_level3
+	return rooms_pool
 
 func get_random_room_from_pool() -> String:
-	var pool: Array[String] = rooms_pool_level2 if current_level == 2 else rooms_pool
+	var pool: Array[String] = _get_current_pool()
 	if pool.is_empty():
 		return "res://Scenes/Rooms/lab_room.tscn"
 	
@@ -827,7 +850,7 @@ func unlock_all_omnia() -> void:
 			unlocked_protocols.append(p)
 			
 	codex_unlocks["weapons"] = ["pistol", "uzi", "shotgun", "daga", "maze", "hacha"]
-	codex_unlocks["levels"] = ["distrito_1", "distrito_2"]
+	codex_unlocks["levels"] = ["distrito_1", "distrito_2", "distrito_3"]
 	
 	scrap_changed.emit(scrap)
 	flesh_changed.emit(flesh)

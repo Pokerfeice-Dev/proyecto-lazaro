@@ -1,3 +1,121 @@
+## 2026-10-06 (zona 3 conectada, entrada de Prometeo y nombres de zonas)
+
+- **La zona 3 ya forma parte de la run.** Al cruzar la puerta del boss 2 se pasa a la zona 3, con la misma logica de 7 a 10 salas antes del jefe.
+  - Las salas salen de `Level3_Room1` a `Level3_Room3` (todo `Level3_Room*` que no sea de jefe entra solo al pool).
+  - Despues va `Level3_Room4BossFight` y, al ganarle a Prometeo, se gana la run y se vuelve al Lab.
+  - La zona 3 todavia no tiene tienda de Ygor ni musica propia: no aparece la tienda y las salas quedan en silencio en vez de arrastrar el tema de otra zona.
+- **Entrada de Prometeo**, armada igual que la cinematica del boss 2 (`Scripts/Enemies/prometeo_intro.gd`):
+  - Se congela al jugador y la camara va hasta el boss.
+  - El humo se junta en un remolino, el cuerpo sale de la sombra estirandose y Prometeo ruge con brasas y el titulo "PROMETEO", sin subtitulo.
+  - La camara vuelve al jugador con el zoom normal de la pelea (el que tenia antes de la cinematica), y recien ahi aparece la barra de vida y arranca la pelea.
+  - Se ajusta con `intro_delay`. `intro_subtitle` queda vacio; si se le pone texto, sale debajo del nombre.
+- Los carteles de cambio de fase de Prometeo dicen solo "FASE 2" y "FASE 3", sin subtitulo.
+- **Zonas con nombre propio:** Zona 1 "Distrito Asphodel", Zona 2 "La Cripta" y Zona 3 "El Núcleo".
+  - El cartel de inicio de sala ahora dice, por ejemplo, "LA CRIPTA / SALA - 3". En las salas de jefe dice "SALA DEL JEFE".
+  - En el codice, el aviso dice "¡NUEVA ZONA DESCUBIERTA!" y la zona 3 se descubre al llegar.
+  - La zona 2 ya no se llama "Núcleo de Mutación" para no chocar con la zona 3; tambien se ajusto la descripcion del boss 1, que la nombraba.
+- **Iconos nuevos del codice** (archivos nuevos, los viejos siguen en el proyecto):
+  - Zonas: un recorte del piso de cada zona (`Art/Codex/zona1..3_codex_icon.png`).
+  - Jefe 2: el slime de verdad, en vez del placeholder (`Art/Enemy_Boss_2/boss2_codex_icon.png`).
+  - Jefe 3: entrada nueva "Prometeo", con Lázaro en sombra (`Art/Enemies/Prometeo/prometeo_codex_icon.png`). Se desbloquea al vencerlo.
+
+## 2026-10-06 (lanzallamas del jugador con la llamarada de Prometeo)
+
+- **La sinergia Lanzallamas ahora usa la misma llamarada de particulas que el lanzallamas de Prometeo**, en vez del sprite descargado. El sprite (`Art/Effects/FlameStreamAnim.tres`) sigue en el proyecto.
+  - El fuego crece junto con el alcance mientras se mantiene el disparo (de 55 a 125 px en 0,3 s, igual que antes) y deja estela al girar el arma.
+  - Al soltar el disparo se corta la emision y las ultimas llamas se apagan solas antes de borrarse.
+- **La zona que quema ahora es un cono del mismo tamaño que el fuego** (22 grados hacia cada lado), en vez del rectangulo finito de 22 px. Pega a todo lo que se ve adentro de la llamarada, asi que agarra mas enemigos que antes. Se puede cerrar con `cone_half_angle_degrees` en `FlameStream.tscn`.
+- `use_particle_flame` en `FlameStream.tscn` vuelve al sprite viejo si hace falta.
+- La llamarada quedo en un script propio, `Scripts/Effects/flame_cone_particles.gd`, que usan el jugador y Prometeo. Si se retoca ahi, cambian los dos.
+
+## 2026-10-06 (boss 3: Prometeo)
+
+- **Nuevo boss final, Prometeo** (`Scenes/Enemies/Boss3_Prometeo.tscn`). Es un espejo de Lazaro: usa todas las armas del jugador, cambia de arma cada 2 o 3 ataques, dashea y esquiva. La pelea esta pensada para esquivar y sobrevivir, no para pegarle a una bolsa de vida.
+  - Sprite provisional: el de Lazaro teñido de negro (como una sombra) y 1,5 veces mas grande, con un aura de humo. Los frames son una copia aparte (`Art/Enemies/Prometeo/prometeo_frames.tres`), asi que cambiar el sprite del jugador no lo toca.
+  - **Armas a distancia:** pistola (apunta adonde vas a estar), escopeta (se acerca con un dash y tira un abanico), uzi (rafaga moviendose), minigun (carga, despues barre con limite de giro), lanzallamas (cono de fuego) y colmena (abejas que te siguen un rato).
+  - **Armas melee:** hacha (corte en arco), daga (estocadas encadenadas) y maza (salto con circulo de impacto, onda expansiva y anillo de balas).
+  - Todos los ataques tienen aviso: linea naranja para los disparos y zona roja para los golpes. El dash del jugador atraviesa todo, como con cualquier daño.
+- **IA:**
+  - Orbita al jugador a la distancia que le conviene al arma que tiene. Elige la proxima arma segun la distancia y la fase, y nunca repite la anterior.
+  - Castiga el dash: si el jugador gasta el dash, ataca enseguida.
+  - Si te le pegas cuando tiene un arma de distancia, se aleja con un dash.
+  - Esquiva algunas balas del jugador con un dash lateral invulnerable (35% / 50% / 65% de probabilidad segun la fase, con enfriamiento).
+- **Fases (2600 de vida):**
+  - **Fase 1:** pistola, escopeta, uzi, hacha y daga.
+  - **Fase 2 (65%), "Espejo":** se suman minigun, lanzallamas, colmena y maza. Prometeo se desdobla y aparece un clon violeta con barra propia. El clon tiene el 18% de la vida y dura 18 s; usa solo armas de distancia, pega el 75% y ataca mas lento. Mientras el clon esta vivo, el original prefiere el cuerpo a cuerpo.
+  - **Fase 3 (30%), "El fuego robado":** el clon se deshace y Prometeo se prende fuego. Va mas rapido, despues de cada golpe melee remata con la escopeta, y cada 4 acciones salta al centro y tira espirales de fuego.
+  - En cada cambio de fase aparece un titulo, se borran las balas en pantalla y tiene 2 s de invulnerabilidad. Se puede poner musica distinta para las fases 2 y 3 (`phase_two_music` / `phase_three_music`).
+- No recibe empuje y los golpes no lo frenan. El congelamiento le dura como mucho 0,8 s.
+- Scripts nuevos:
+  - `Scripts/Enemies/boss3_prometeo.gd`: el cerebro (movimiento, IA, fases y clon).
+  - `Scripts/Enemies/prometeo_arsenal.gd`: las armas y sus ataques.
+  - `Scripts/Enemies/boss_bar_helper.gd`: la barra grande de vida.
+  - `Scripts/Effects/prometeo_telegraph.gd`: los avisos.
+  - `Scripts/Effects/prometeo_flame_cone.gd`: el lanzallamas.
+  - `Scripts/Projectiles/prometeo_projectile.gd` y `Scenes/Enemies/prometeo_projectile.tscn`: las balas.
+- **Sala de prueba:** `Scenes/Rooms/Level3_BossPrometeo_Prueba.tscn`, una copia de la sala del boss 2 con musica provisional. Esta en el menu de debug, en teletransportes y en enemigos.
+- **Pendiente:**
+  - Musica propia.
+  - Entrada del codice.
+  - Ajustar `arena_half_extents` (por defecto 300x200 alrededor de donde aparece) a la sala final de la zona 3.
+
+## 2026-10-04 (zona 3: colisiones del tileset)
+
+- **Colisiones de `Tile_set_Area3_CursedLand.tres` armadas con la misma logica que las zonas 1 y 2.** Es el unico tileset que se va a usar en las salas de la zona 3. Las paredes y los objetos tienen colision de tile completo (16x16) y el piso no.
+  - **Piso, sin colision (315 tiles):** la tierra plana de las plataformas, en los dos tonos (claro y oscuro), de la parte de arriba del atlas.
+  - **Paredes, con colision (1078 tiles):** las caras de raices de los bordes, las raices que cuelgan debajo, los bordes de las plataformas que dan al vacio y los agujeros dentro del piso.
+  - **Objetos, con colision (1117 tiles):** plantas, rocas, huevos, raices grandes y la pared con boca, de la parte de abajo del atlas (fila 35 en adelante).
+  - **Sin colision:** los bordes finitos de los objetos (683 tiles con poco relleno, como puntas de raices y hojas sueltas), para que no frenen al jugador en el aire. Los 538 tiles vacios del atlas tampoco tienen colision.
+- La capa de fisica del tileset pasa de layer/mask 1 a **7**, igual que `Tile_set.tres` (zona 1) y `Tile_set_Area2.tres` (zona 2), asi el jugador, los enemigos y las balas chocan igual que en el resto del juego.
+
+## 2026-10-04 (master boss 1 fase 1)
+
+- **Boss 1 fase 1 remezclado y masterizado.** Se armo a partir de los 7 stems del proyecto de Cakewalk y quedo en `Audio/Music/Boss1_Fase1_master.ogg`, a -14 LUFS con pico real de -1 dBTP, como el resto de los temas. El `Boss-Fight.ogg` original queda en el proyecto.
+  - Graves: el bajo electrico tiene el sub y suma armonicos para que se escuche en parlantes chicos. Las cuerdas graves llevan el golpe ritmico y se les saco el barro de 250 Hz que chocaba con el piano.
+  - Pianos y coro: se recorto la zona de 300-420 Hz, donde se amontonaba todo.
+  - Melodia (cuerdas staccato) y leitmotiv: suben y tienen mas presencia en 2,5-3 kHz para quedar adelante.
+  - Las melodias, el coro y un poco de los pianos comparten una reverb.
+  - En el bus master hay compresion suave de pegamento y un poco de brillo arriba, porque el original sonaba muy oscuro.
+- La pista "Instrumento" (Vista Synth, compases 5 a 12) queda afuera, igual que en el proyecto (estaba fuera del solo) y en el `.ogg` original.
+- **Loop:** el tema dura 172 compases exactos (275,2 s) y repite desde el principio (`loop = true`, `loop_offset = 0`). La cola de los ultimos compases suena encima del arranque. El original duraba 0,16 s de mas y hacia un corte en cada vuelta.
+- `Level1_Room15-BossFight.tscn` y `Level1_Room16-BossFight2.tscn` usan el master nuevo, a -5 dB como la sala del boss 2 (antes -6 dB, con un archivo mucho mas bajo).
+- Los scripts de mezcla y de costura del loop quedaron en `Herramientas/` en la carpeta de musica (`mezcla_boss1_fase1.py`, `costura_inicio.py`).
+
+## 2026-10-03 (boss 2: vuelta al loop)
+
+- **Los temas del boss 2 ya no cortan de golpe al repetir.** Se agrego un remate en los dos ultimos compases que lleva de vuelta al principio del loop:
+  - Redoble de taiko en crescendo (corcheas y despues semicorcheas).
+  - Corrida de cuerdas que desemboca en la primera nota del loop (Sol# 4).
+  - Campanada que anuncia la vuelta.
+- Las notas estan en pistas nuevas de Cakewalk (Taiko 2, String Orchestra y Tubular Bells 2), asi que el resto del arreglo quedo igual.
+- Se exportaron dos compases de mas para que las colas y la reverb del remate suenen encima del arranque del loop, en vez de cortarse.
+- Los ultimos 10 ms de cada tema se funden con el audio que esta justo antes del `loop_offset`, asi la onda queda continua y no hace "click" en cada vuelta (`Herramientas/costura_loop.py` en la carpeta de musica).
+- `Audio/Music/Boss2_Fase1.ogg` y `Boss2_Fase2.ogg` se reemplazaron por los masters nuevos, a -14 LUFS con pico real <= -1 dBTP. Los `loop_offset` no cambian: 15,238 s y 5,714 s.
+
+## 2026-10-03 (master Ost Batalla)
+
+- **Ost Batalla remezclada y masterizada:** se mezclo a partir de los 9 stems del proyecto de Cakewalk y quedo en `Audio/Music/Ost-Batalla_master.ogg`, a -14 LUFS con pico real de -1 dBTP, igual que el resto de los temas. Antes picaba +1 dBFS, o sea que saturaba.
+- `scene_transition.gd` usa el master nuevo en la zona 1, con el mismo ajuste de -0,9 dB que Asphodel B, asi los dos temas suenan parejos. El `Ost-Batalla.ogg` original queda en el proyecto.
+- **Fix (pop raro en la bateria):** la pista Electro Pop tenia 412 notas de duracion cero, que no se ven en el piano roll pero el sampler las dispara igual. Eran bombos y toms a velocidad 127 fuera de la grilla (por ejemplo el compas 16, tiempo 4.27, cada 8 compases), hi-hats y notas en C-1. Se borraron en Cakewalk con Proceso > Deglitch (duracion < 10 ms), se reexportaron las baterias y se rehizo el master. El pop tambien estaba en el `Ost-Batalla.ogg` original; con la compresion de la bateria se notaba mas.
+- Se arreglo la costura del loop: el tema terminaba con la onda en -0,19 y volvia a arrancar en 0, lo que hacia un "click" en cada vuelta. Ahora tiene un micro fundido de 6 ms y la cola de la reverb suena sobre el arranque.
+
+## 2026-10-03 (menu de slots)
+
+- **Menu de seleccion de slot renovado** (`newgame.tscn` / `newgame.gd`):
+  - Usa el mismo fondo animado que el menu principal: Lazaro respirando detras de los barrotes, con lluvia y nieve.
+  - Un degrade oscuro hacia la derecha deja ver a Lazaro y hace legibles las tarjetas.
+  - Respeta las opciones "Lluvia y nieve del menu" y "Fondo animado del menu".
+- **Slots como tarjetas:**
+  - Cada tarjeta muestra el numero grande, "PARTIDA GUARDADA" o "SLOT LIBRE", el nivel maximo, el tiempo jugado, los despliegues y la fecha de guardado.
+  - Los slots libres muestran "Nueva partida" con un "+" que late.
+  - Las tarjetas entran en cascada desde la derecha con un rebote y tienen los FX de boton del menu principal (`ButtonFX`): brillo, borde electrico, chispas y destello.
+- **Borrar ahora pide confirmacion:** el primer click cambia el boton a "¿SEGURO?" durante 2,5 s y recien el segundo borra. La tarjeta sale hacia la derecha y vuelve como slot libre.
+- **Popup del tutorial con el estilo nuevo:**
+  - Panel oscuro con borde de acento, botones con FX y entrada con rebote.
+  - Se puede cancelar con un click afuera o con Esc; antes no habia forma de cerrarlo.
+- El titulo nuevo, "SELECCIONÁ UN SLOT", entra con una linea de acento que se estira, y "VOLVER" quedo abajo a la izquierda con FX.
+- Se sacaron del `.tscn` el tinte turquesa (`ColorRect`) y el `Label` viejo del titulo, que ahora se arma por codigo.
+
 ## 2026-10-02 (boss 2: fase 2 y musica)
 
 - **Musica nueva del boss 2** en `Audio/Music/`, masterizada a -14 LUFS. Esta en Do# frigio como la Cripta y usa recursos del boss 1: coro con acordes largos, pulso de octavas en cuerdas, arpegio de piano de 12 notas y una melodia de notas largas.
