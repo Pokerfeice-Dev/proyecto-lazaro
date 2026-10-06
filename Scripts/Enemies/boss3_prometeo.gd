@@ -18,6 +18,8 @@ class_name Boss3Prometeo
 ##      escopetazo y cada tanto gira espirales de fuego desde el centro.
 
 const SELF_SCENE_PATH := "res://Scenes/Enemies/Boss3_Prometeo.tscn"
+const VICTORY_TITLE := "¡GANASTE EL JUEGO!"
+const VICTORY_SUBTITLE := "VENCISTE A PROMETEO, EL ANDROIDE QUE AUTOMATIZÓ LA JUSTICIA Y LIDERÓ LA REBELIÓN.\nSIN SU LÍDER, LA REBELIÓN SE APAGA. VICTORIA TE ESPERA EN EL LABORATORIO."
 
 @export_group("Prometeo Base")
 @export var boss_max_health: int = 2600
@@ -53,6 +55,8 @@ const SELF_SCENE_PATH := "res://Scenes/Enemies/Boss3_Prometeo.tscn"
 @export var phase_three_threshold: float = 0.30
 @export var clone_health_ratio: float = 0.18
 @export var clone_lifetime: float = 18.0
+## Segundos entre que muere y aparece la pantalla de victoria (se gana la run).
+@export var victory_delay: float = 3.5
 ## Música de cada fase (opcional). Si están vacías sigue sonando la de la sala.
 @export var phase_two_music: AudioStream
 @export var phase_three_music: AudioStream
@@ -693,6 +697,21 @@ func die() -> void:
 		_clear_bullets()
 		_hide_hud_health()
 	super.die()
+	if not is_clone:
+		_win_run()
+
+# Prometeo es el jefe final: al caer se gana la run, sin importar desde dónde se
+# llegó (run normal, sala de prueba o menú de debug). Después de la explosión
+# sale la pantalla de victoria y su botón lleva al laboratorio.
+func _win_run() -> void:
+	await get_tree().create_timer(victory_delay, false).timeout
+	var next_scene = GameData.win_run()
+	GameData.just_won_run = false # la pantalla la mostramos acá, no la puerta
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("show_win_screen"):
+		player.show_win_screen(next_scene, VICTORY_TITLE, VICTORY_SUBTITLE)
+		return
+	SceneTransition.change_scene(next_scene)
 
 func _stop_auras() -> void:
 	for aura_name in ["ShadowAura", "EmberAura"]:
@@ -722,7 +741,9 @@ func _play_death_fx() -> void:
 	burst.emitting = true
 	if not is_clone:
 		shake(22.0, 1.2)
-	get_tree().create_timer(3.0, false).timeout.connect(queue_free)
+	# el original espera a mostrar la victoria antes de borrarse
+	var free_delay = 3.0 if is_clone else maxf(3.0, victory_delay + 0.5)
+	get_tree().create_timer(free_delay, false).timeout.connect(queue_free)
 
 # --- Sonido, cámara y textos ---
 

@@ -239,6 +239,10 @@ func get_post_boss_scene() -> String:
 		unlock_codex_entry("levels", "distrito_%d" % current_level)
 		save_game()
 		return get_random_room_from_pool()
+	return win_run()
+
+## Run ganada (cayó el jefe final): guarda y devuelve el laboratorio, a donde se vuelve.
+func win_run() -> String:
 	just_won_run = true
 	save_game()
 	return "res://Scenes/Rooms/lab_room.tscn"

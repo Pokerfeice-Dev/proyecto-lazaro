@@ -1807,10 +1807,11 @@ func _on_return_button_pressed(canvas: CanvasLayer, bg: ColorRect, main_vbox: VB
 		SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
 	)
 
-func show_win_screen(next_scene: String) -> void:
+## title / subtitle vacíos = textos de siempre ("¡HAS GANADO!" y completaste la run).
+func show_win_screen(next_scene: String, title: String = "", subtitle: String = "") -> void:
 	freeze_player()
 	_play_win_sound()
-	_build_win_screen(next_scene)
+	_build_win_screen(next_scene, title, subtitle)
 
 func _play_win_sound() -> void:
 	var stream_path = "res://Audio/Sfx/Room_clear/Room_clear.wav"
@@ -1822,7 +1823,7 @@ func _play_win_sound() -> void:
 	sfx_player.play()
 	sfx_player.finished.connect(sfx_player.queue_free)
 
-func _build_win_screen(next_scene: String) -> void:
+func _build_win_screen(next_scene: String, title: String = "", subtitle: String = "") -> void:
 	# Por si queda el juego pausado de algun popup anterior (ej. sinergia desbloqueada) que no
 	# se haya des-pauseado a tiempo, forzamos despausar y hacemos que este cartel sea inmune
 	# a la pausa, para que "Volver al laboratorio" siempre responda al click.
@@ -1857,7 +1858,7 @@ func _build_win_screen(next_scene: String) -> void:
 	main_vbox.add_child(header_vbox)
 	
 	var lbl_title = Label.new()
-	lbl_title.text = "¡HAS GANADO!"
+	lbl_title.text = title if title != "" else "¡HAS GANADO!"
 	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_title.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
 	lbl_title.add_theme_font_size_override("font_size", 64)
@@ -1867,7 +1868,7 @@ func _build_win_screen(next_scene: String) -> void:
 	header_vbox.add_child(lbl_title)
 	
 	var lbl_sub = Label.new()
-	lbl_sub.text = "COMPLETASTE LA RUN. VOLVE AL LABORATORIO A SEGUIR MEJORANDO"
+	lbl_sub.text = subtitle if subtitle != "" else "COMPLETASTE LA RUN. VOLVE AL LABORATORIO A SEGUIR MEJORANDO"
 	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
 	lbl_sub.add_theme_font_size_override("font_size", 18)

@@ -1,3 +1,11 @@
+## 2026-10-06 (victoria al vencer a Prometeo)
+
+- **Vencer a Prometeo gana el juego.** Unos segundos despues de que explota (`victory_delay`, 3,5 s), aparece la pantalla de victoria con las estadisticas de la run, y el boton "Volver al laboratorio" lleva al Lab.
+  - Funciona igual desde la run normal, la sala de prueba o el menu de debug, porque no depende de la zona en la que estes.
+- Texto de la pantalla, segun el lore del GDD: "¡GANASTE EL JUEGO!" y "Venciste a Prometeo, el androide que automatizó la justicia y lideró la rebelión. Sin su líder, la rebelión se apaga. Victoria te espera en el laboratorio."
+- `show_win_screen` del jugador ahora acepta titulo y subtitulo opcionales. Si no se pasan, muestra los textos de siempre.
+- `GameData.win_run()` junta en un solo lugar lo que pasa al ganar la run: marca la victoria, guarda y devuelve el Lab. La usan la puerta del ultimo jefe y Prometeo.
+
 ## 2026-10-06 (zona 3 conectada, entrada de Prometeo y nombres de zonas)
 
 - **La zona 3 ya forma parte de la run.** Al cruzar la puerta del boss 2 se pasa a la zona 3, con la misma logica de 7 a 10 salas antes del jefe.
