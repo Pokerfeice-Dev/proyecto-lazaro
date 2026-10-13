@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://cr87bw07f4f8c"]
+
+[ext_resource type="Script" uid="uid://bjo7lxn7gand5" path="res://Scripts/World/torch.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://ba8ilglm8jat0" path="res://Art/Miscellaneous/floorcandles_spritesheet.png" id="2_5vrtc"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="3_funrp"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_isjeg"]
+atlas = ExtResource("2_5vrtc")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lrtn3"]
+atlas = ExtResource("2_5vrtc")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pgnfk"]
+atlas = ExtResource("2_5vrtc")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_torch"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_isjeg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lrtn3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pgnfk")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_funrp"]
+
+[node name="Floor_candle" type="Node2D" unique_id=64839201]
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=64839202]
+texture_filter = 1
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_torch")
+autoplay = "default"
+frame_progress = 0.5848943
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=64839203]
+position = Vector2(0, -10)
+scale = Vector2(2.5, 2.5)
+color = Color(0.8801257, 0.7568092, 0.9388612, 1)
+energy = 1.4
+texture = ExtResource("3_funrp")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1163351078]
+collision_layer = 15
+collision_mask = 15
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1059177834]
+scale = Vector2(1.0537456, 1.0537456)
+shape = SubResource("RectangleShape2D_funrp")

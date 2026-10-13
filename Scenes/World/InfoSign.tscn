@@ -1,19 +1,20 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bvkvc7sigww2l"]
 
-[ext_resource type="Script" path="res://Scripts/World/info_sign.gd" id="1_infosign"]
-[ext_resource type="Texture2D" uid="uid://d3bqynch51qyn" path="res://Art/npc/Icon50.png" id="2_infosign"]
+[ext_resource type="Script" uid="uid://cf4ofhqc3v37g" path="res://Scripts/World/info_sign.gd" id="1_infosign"]
+[ext_resource type="Texture2D" uid="uid://dhrwtwmnq1rn1" path="res://Art/Miscellaneous/Cartel.png" id="2_cartel"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_infosign"]
-size = Vector2(64, 64)
+size = Vector2(157, 157)
 
-[node name="InfoSign" type="Node2D"]
+[node name="InfoSign" type="Node2D" unique_id=1952875278]
 script = ExtResource("1_infosign")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="Area2D" type="Area2D" parent="." unique_id=165698601]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=979181594]
+position = Vector2(0.5, 20.5)
 shape = SubResource("RectangleShape2D_infosign")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_infosign")
-modulate = Color(0.6, 0.9, 1, 1)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=345899822]
+texture_filter = 1
+texture = ExtResource("2_cartel")

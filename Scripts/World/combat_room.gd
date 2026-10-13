@@ -13,7 +13,7 @@ var enemy_pool: Array[PackedScene] = []
 @export_category("Rewards")
 ## Recompensa que se spawnea al limpiar la habitación (Ej. Cofre, Scrap gigante, etc.)
 @export var room_reward_scene: PackedScene
-@export var scrap_reward: int = 20
+@export var scrap_reward: int = 60
 
 @export_category("Aparición de sala")
 ## Si está prendido, los objetos sueltos de la sala (puerta, cofres, props)
@@ -295,6 +295,31 @@ func _clear_room() -> void:
 
 func _award_clear_scrap() -> void:
 	GameData.add_scrap(scrap_reward)
+	_show_clear_scrap_text()
+
+func _show_clear_scrap_text() -> void:
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		return
+	var label = Label.new()
+	label.text = "+%d CHATARRA" % scrap_reward
+	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+	label.add_theme_font_size_override("font_size", 22)
+	label.add_theme_color_override("font_outline_color", Color(0.2, 0.15, 0.0))
+	label.add_theme_constant_override("outline_size", 4)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.custom_minimum_size = Vector2(160, 30)
+	label.position = Vector2(-80, -15)
+
+	var floating_node = Node2D.new()
+	floating_node.global_position = player.global_position + Vector2(0.0, -60.0)
+	floating_node.add_child(label)
+	get_tree().current_scene.call_deferred("add_child", floating_node)
+
+	var tween = get_tree().create_tween().bind_node(floating_node).set_parallel(true)
+	tween.tween_property(floating_node, "global_position", floating_node.global_position + Vector2(0.0, -45.0), 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.7).set_delay(0.4)
+	tween.chain().tween_callback(floating_node.queue_free)
 
 func _play_room_clear_effects() -> void:
 	_play_room_clear_sound()

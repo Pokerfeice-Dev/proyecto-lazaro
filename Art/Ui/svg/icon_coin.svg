@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" shape-rendering="crispEdges">
+<polygon points="7,2 17,2 22,7 22,17 17,22 7,22 2,17 2,7" fill="#E5EEF0"/>
+<polyline points="8,6 16,6 18,8 18,16 16,18 8,18 6,16 6,8 8,6" fill="none" stroke="#171D22" stroke-width="2" stroke-linejoin="miter"/>
+<rect x="11" y="8" width="2" height="8" fill="#171D22"/>
+</svg>

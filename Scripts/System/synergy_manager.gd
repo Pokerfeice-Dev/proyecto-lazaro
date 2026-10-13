@@ -78,17 +78,17 @@ const SYNERGIES = {
 		"weapon_scene_override": "res://Scenes/Weapon/Flamethrower.tscn"
 	},
 	"hombre_lobo": {
-		"name": "Hombre Lobo",
-		"description": "Aparece un enemigo marcado en la sala. El hacha hace muchísimo más daño al enemigo marcado y, al golpearlo, la marca explota dañando a los enemigos cercanos y aparece en otro enemigo.",
+		"name": "Wolfsbane",
+		"description": "El hacha adopta el poder de Wolfsbane: aparece un enemigo marcado en la sala con una runa sobre su cabeza. El hacha inflige muchísimo más daño al objetivo marcado y, al golpearlo, la marca explota dañando en área y transfiriéndose a otro enemigo.",
 		"required_weapon": "hacha",
 		"required_items": ["cabeza_humana", "cabeza_de_perro", "aguijon_mecanico"],
 		"stat_modifiers": {}
 	},
 	"daga_del_odio": {
-		"name": "Daga del Odio",
-		"description": "Mientras menos vida tenés, más letal se vuelve la daga: gana muchísimo daño, velocidad de ataque, alcance y probabilidad/daño crítico a medida que baja tu salud. El filo se tiñe de rojo.",
+		"name": "Nemesis",
+		"description": "La daga adopta la furia de Nemesis: cuanto menos vida tenés, más descomunal es su tamaño, velocidad, alcance, probabilidad y daño crítico (efectos duplicados). Además, si eliminás a un enemigo teniendo menos del 50% de vida, regenerás salud.",
 		"required_weapon": "daga",
-		"required_items": ["pulmones", "cabeza_humana", "sierra_circular"],
+		"required_items": ["sierra_circular", "aguijon_mecanico", "cabeza_de_perro"],
 		"stat_modifiers": {}
 	},
 	"arrogancia": {
@@ -99,13 +99,14 @@ const SYNERGIES = {
 		"stat_modifiers": {}
 	},
 	"relampago": {
-		"name": "Relámpago",
-		"description": "La UZI dispara normal, pero cada bala tiene chance de salir como bala relámpago: electrifica al enemigo que impacta, lo aturde de forma notoria y contagia la marca en cadena a los enemigos cercanos.",
+		"name": "The Bride",
+		"description": "La UZI adopta el armazón electrificado de The Bride: cada bala tiene chance de salir cargada con alto voltaje, electrocutando al enemigo impactado, aturdiéndolo y contagiando la descarga en cadena.",
 		"required_weapon": "uzi",
-		"required_items": ["cerebro", "aguijon_mecanico", "motocicleta"],
+		"required_items": ["cabeza_humana", "bateria", "cerebro"],
 		"stat_modifiers": {},
 		"projectile_override": "res://Scenes/Projectiles/ElectroProjectile.tscn",
-		"projectile_override_chance": 0.35
+		"projectile_override_chance": 0.35,
+		"weapon_scene_override": "res://Scenes/Weapon/TheBride.tscn"
 	}
 }
 

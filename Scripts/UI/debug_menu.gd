@@ -39,7 +39,10 @@ const ITEMS: Array[Dictionary] = [
 	{"name": "Motocicleta", "path": "res://Art/Items/Weapons/Item6.tres"},
 	{"name": "Colmena", "path": "res://Art/Items/Weapons/Item7_Colmena.tres"},
 	{"name": "Cabeza Humana", "path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres"},
-	{"name": "Sierra Circular", "path": "res://Art/Items/Weapons/Item9_SierraCircular.tres"}
+	{"name": "Sierra Circular", "path": "res://Art/Items/Weapons/Item9_SierraCircular.tres"},
+	{"name": "Batería", "path": "res://Art/Items/Weapons/Item10_Bateria.tres"},
+	{"name": "Gasolina", "path": "res://Art/Items/Weapons/Item11_Gasolina.tres"},
+	{"name": "Nitrógeno", "path": "res://Art/Items/Weapons/Item12_Nitrogeno.tres"}
 ]
 
 const TELEPORTS: Array[Dictionary] = [
@@ -78,7 +81,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey: return
 	if not event.pressed or event.echo: return
-	if event.keycode == KEY_T:
+	if event.keycode == KEY_U or event.keycode == KEY_T:
 		_toggle_menu()
 		return
 	if is_open and event.keycode == KEY_ESCAPE:
@@ -95,7 +98,7 @@ func open_menu() -> void:
 	visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_update_god_mode_btn()
-	_show_status("Menú de depuración abierto (Tecla T)")
+	_show_status("Menú de depuración y cheats abierto (Tecla U / T)")
 
 func close_menu() -> void:
 	is_open = false
@@ -150,7 +153,7 @@ func _build_header(parent: Control) -> void:
 	parent.add_child(header_hbox)
 	
 	var title = Label.new()
-	title.text = "DEBUG RUN (TECLA T)"
+	title.text = "DEBUG & CHEATS (TECLA U)"
 	title.add_theme_font_size_override("font_size", 18)
 	title.add_theme_color_override("font_color", Color(0.25, 0.85, 1.0))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -275,7 +278,7 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_musculoso()
 	)
 
-	_add_synergy_card(tab, "Daga del Odio", "daga_del_odio", "Pulmones, Cabeza Humana, Sierra Circular", func():
+	_add_synergy_card(tab, "Nemesis", "daga_del_odio", "Sierra Circular, Aguijón Mecánico, Cabeza de Perro", func():
 		_activate_synergy_daga_del_odio()
 	)
 
@@ -283,15 +286,15 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_arrogancia()
 	)
 
-	_add_synergy_card(tab, "Hombre Lobo", "hombre_lobo", "Cabeza Humana, Cabeza de Perro, Aguijón Mecánico", func():
-		_activate_synergy_hombre_lobo()
+	_add_synergy_card(tab, "Wolfsbane", "hombre_lobo", "Cabeza Humana, Cabeza de Perro, Aguijón Mecánico", func():
+		_activate_synergy_wolfsbane()
 	)
 
-	_add_synergy_card(tab, "Relámpago", "relampago", "Cerebro, Aguijón Mecánico, Motocicleta", func():
-		_activate_synergy_relampago()
+	_add_synergy_card(tab, "The Bride", "relampago", "Cabeza Humana, Batería, Cerebro", func():
+		_activate_synergy_the_bride()
 	)
 
-func _add_synergy_card(parent: Control, syn_name: String, syn_id: String, req_desc: String, callback: Callable) -> void:
+func _add_synergy_card(parent: Control, syn_name: String, _syn_id: String, req_desc: String, callback: Callable) -> void:
 	var card = VBoxContainer.new()
 	card.add_theme_constant_override("separation", 3)
 	parent.add_child(card)
@@ -391,11 +394,11 @@ func _activate_synergy_musculoso() -> void:
 func _activate_synergy_daga_del_odio() -> void:
 	GameData.unlock_synergy("daga_del_odio")
 	_equip_melee_weapon_and_mods("res://Scenes/Weapon/dagger.tscn", [
-		{"path": "res://Art/Items/Weapons/Item5.tres", "slot": ItemData.ItemSlot.SEC_W1},
-		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.SEC_W2},
-		{"path": "res://Art/Items/Weapons/Item9_SierraCircular.tres", "slot": ItemData.ItemSlot.SEC_W3}
+		{"path": "res://Art/Items/Weapons/Item9_SierraCircular.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item2.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Weapons/Item4.tres", "slot": ItemData.ItemSlot.SEC_W3}
 	])
-	_show_status("Sinergia 'Daga del Odio' activada y equipada.")
+	_show_status("Sinergia 'Nemesis' activada y equipada.")
 
 func _activate_synergy_arrogancia() -> void:
 	GameData.unlock_synergy("arrogancia")
@@ -406,23 +409,23 @@ func _activate_synergy_arrogancia() -> void:
 	])
 	_show_status("Sinergia 'Arrogancia' activada y equipada.")
 
-func _activate_synergy_hombre_lobo() -> void:
+func _activate_synergy_wolfsbane() -> void:
 	GameData.unlock_synergy("hombre_lobo")
 	_equip_melee_weapon_and_mods("res://Scenes/Weapon/axe.tscn", [
 		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.SEC_W1},
 		{"path": "res://Art/Items/Weapons/Item4.tres", "slot": ItemData.ItemSlot.SEC_W2},
 		{"path": "res://Art/Items/Weapons/Item2.tres", "slot": ItemData.ItemSlot.SEC_W3}
 	])
-	_show_status("Sinergia 'Hombre Lobo' activada y equipada.")
+	_show_status("Sinergia 'Wolfsbane' activada y equipada.")
 
-func _activate_synergy_relampago() -> void:
+func _activate_synergy_the_bride() -> void:
 	GameData.unlock_synergy("relampago")
 	_equip_weapon_and_mods("res://Scenes/Weapon/uzi.tscn", [
-		{"path": "res://Art/Items/Weapons/Item3.tres", "slot": ItemData.ItemSlot.MAIN_W1},
-		{"path": "res://Art/Items/Weapons/Item2.tres", "slot": ItemData.ItemSlot.MAIN_W2},
-		{"path": "res://Art/Items/Weapons/Item6.tres", "slot": ItemData.ItemSlot.MAIN_W3}
+		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.MAIN_W1},
+		{"path": "res://Art/Items/Weapons/Item10_Bateria.tres", "slot": ItemData.ItemSlot.MAIN_W2},
+		{"path": "res://Art/Items/Weapons/Item3.tres", "slot": ItemData.ItemSlot.MAIN_W3}
 	])
-	_show_status("Sinergia 'Relámpago' activada y equipada.")
+	_show_status("Sinergia 'The Bride' activada y equipada.")
 
 func _equip_weapon_and_mods(weapon_path: String, mods: Array[Dictionary]) -> void:
 	var player = _get_player()
@@ -763,8 +766,8 @@ func _spawn_scene_near_player(scene_path: String, entity_name: String) -> void:
 		return
 	var inst = scene.instantiate()
 	var angle = randf_range(0, 2 * PI)
-	var offset = Vector2(160, 0).rotated(angle)
-	inst.global_position = player.global_position + offset
+	var spawn_offset = Vector2(160, 0).rotated(angle)
+	inst.global_position = player.global_position + spawn_offset
 	get_tree().current_scene.add_child(inst)
 	_show_status("Spawneado: " + entity_name)
 

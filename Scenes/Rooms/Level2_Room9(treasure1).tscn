@@ -4,7 +4,7 @@
 [ext_resource type="TileSet" uid="uid://b3edoflpinp6d" path="res://Art/Tileset/Tile_set_Area2.tres" id="2_u3s6e"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_gse16"]
 [ext_resource type="PackedScene" uid="uid://db1b1mm0vsoyc" path="res://Scenes/World/Chest.tscn" id="4_6emae"]
-[ext_resource type="PackedScene" path="res://Scenes/World/Torch.tscn" id="5_u3s6e"]
+[ext_resource type="PackedScene" uid="uid://cr87bw07f4f8c" path="res://Scenes/World/Floor_candle.tscn" id="5_u3s6e"]
 
 [node name="Room_11" type="Node2D" unique_id=708789417]
 script = ExtResource("1_6547h")

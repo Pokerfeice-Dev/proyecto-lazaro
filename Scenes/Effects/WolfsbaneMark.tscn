@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://c333333333334"]
+
+[ext_resource type="Texture2D" uid="uid://dfhhiaetl8cyc" path="res://Art/Enemy_Boss_1/Fx/statuseffect_wolfsbane_spritesheet.png" id="1_sheet"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f0"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 0, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f1"]
+atlas = ExtResource("1_sheet")
+region = Rect2(18, 0, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f2"]
+atlas = ExtResource("1_sheet")
+region = Rect2(36, 0, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f3"]
+atlas = ExtResource("1_sheet")
+region = Rect2(54, 0, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4"]
+atlas = ExtResource("1_sheet")
+region = Rect2(72, 0, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f5"]
+atlas = ExtResource("1_sheet")
+region = Rect2(90, 0, 17, 17)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wolfsbane"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f5")
+}],
+"loop": true,
+"name": &"marked",
+"speed": 8.0
+}]
+
+[node name="WolfsbaneMark" type="Node2D" unique_id=987123456]
+z_index = 10
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=987123457]
+texture_filter = 1
+position = Vector2(0, -36)
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_wolfsbane")
+animation = &"marked"
+autoplay = "marked"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bsodcadu4chv0"]
+
+[ext_resource type="Texture2D" uid="uid://d2vy11fboi86l" path="res://Art/Items/Weapons/Item12_Nitrogeno.png" id="1_tex"]
+[ext_resource type="Script" uid="uid://beneubyxi0san" path="res://Scripts/Items/item_data.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+id = "nitrogeno"
+item_name = "Cilindro de Nitrógeno Líquido"
+icon = ExtResource("1_tex")
+stats = {
+"slow_chance": 0.3
+}

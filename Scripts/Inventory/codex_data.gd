@@ -203,6 +203,24 @@ const DATA = {
 			"lore": "Un disco de acero dentado de alta velocidad para cortar metal y carne.",
 			"stats": "+20% Multiplicador de Daño, +20% Daño Crítico",
 			"icon": preload("res://Art/Items/Weapons/Item9_SierraCircular.png")
+		},
+		"bateria": {
+			"name": "Batería de Alto Voltaje",
+			"lore": "Condensador químico altamente inestable. Sobrecarga las balas con descargas eléctricas capaces de paralizar sistemas nerviosos y circuitos por 1 segundo.",
+			"stats": "+10% Probabilidad de Stun (1s), Proyectil Eléctrico Azul",
+			"icon": preload("res://Art/Items/Weapons/Item10_Bateria.png")
+		},
+		"gasolina": {
+			"name": "Bidón de Gasolina",
+			"lore": "Combustible refinado altamente inflamable. Impregna los disparos para prender fuego a los objetivos durante 3 segundos.",
+			"stats": "+20% Probabilidad de Quemadura (3s), Proyectil Ígneo Rojo",
+			"icon": preload("res://Art/Items/Weapons/Item11_Gasolina.png")
+		},
+		"nitrogeno": {
+			"name": "Cilindro de Nitrógeno Líquido",
+			"lore": "Cápsula criogénica a presión extrema. Congela parcialmente las articulaciones del enemigo al impacto, reduciendo su velocidad a la mitad durante 3 segundos.",
+			"stats": "+30% Probabilidad de Ralentización (3s), Proyectil Glacial Celeste",
+			"icon": preload("res://Art/Items/Weapons/Item12_Nitrogeno.png")
 		}
 	},
 	"npcs": {

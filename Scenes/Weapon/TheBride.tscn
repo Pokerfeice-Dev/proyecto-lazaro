@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://cfx8k1l4a5r3m"]
+
+[ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://8hl74imo4k71" path="res://Art/Weapons/Distance/Uzi/synergy_thebride_sprite.png" id="2_bride"]
+[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_sound"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_thebride"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_bride")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_bride")
+}],
+"loop": 0,
+"name": &"shoot",
+"speed": 12.0
+}]
+
+[node name="TheBride" type="Node2D" unique_id=1008034860 node_paths=PackedStringArray("sprite_anim", "shoot_sound")]
+script = ExtResource("1_script")
+sprite_anim = NodePath("Weapon_Sprites")
+shoot_sound = NodePath("Bullet_sound")
+id = "the_bride"
+damage = 4.0
+projectile_speed = 500.0
+lifetime = 1.5
+attack_speed = 2.0
+
+[node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013831]
+texture_filter = 1
+scale = Vector2(1.4, 1.4)
+sprite_frames = SubResource("SpriteFrames_thebride")
+animation = &"idle"
+
+[node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722065]
+stream = ExtResource("3_sound")
+pitch_scale = 1.4
+
+[node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1778873978]
+position = Vector2(16, -2)
+
+[node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=454493304]
+position = Vector2(-16, -2)
+
+[node name="Weapon_mark" type="Marker2D" parent="." unique_id=1276239139]
+position = Vector2(-6, 3)

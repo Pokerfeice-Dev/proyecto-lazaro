@@ -955,8 +955,28 @@ func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle:
 	if "lifetime" in proj: proj.lifetime = lifetime
 	if "fragmentation_chance" in proj:
 		proj.fragmentation_chance = _get_fragmentation_chance()
+	_apply_bullet_proc_status_if_supported(proj)
 	_configure_bee_swarm_if_supported(proj, i, count, final_dir)
 	_assign_homing_target_if_supported(proj, i)
+
+func _apply_bullet_proc_status_if_supported(proj: Node2D) -> void:
+	if not proj.has_method("set_status_effect"): return
+	var effect = _roll_bullet_status_effect()
+	if effect.is_empty(): return
+	proj.set_status_effect(effect)
+
+func _roll_bullet_status_effect() -> String:
+	var active_effects: Array[String] = []
+	if _should_proc_status("stun_chance"): active_effects.append("stun")
+	if _should_proc_status("burn_chance"): active_effects.append("burn")
+	if _should_proc_status("slow_chance"): active_effects.append("slow")
+	if active_effects.is_empty(): return ""
+	return active_effects.pick_random()
+
+func _should_proc_status(stat_name: String) -> bool:
+	var chance = _get_equip_stat(stat_name)
+	if chance <= 0.0: return false
+	return randf() <= chance
 
 func _calculate_final_bullet_count(current_bullets: int, p_scene: PackedScene, active_weapon_id: String) -> int:
 	if active_weapon_id == "hivemind_pistol":
@@ -2265,20 +2285,19 @@ func _get_daga_del_odio_bonus(stat_name: String) -> float:
 	var t = 1.0 - health_ratio
 	match stat_name:
 		"damage":
-			return 30.0 * t
+			return 60.0 * t
 		"attack_speed":
-			return 1.2 * t
+			return 2.4 * t
 		"attack_range_percent":
-			return 0.6 * t
+			return 1.2 * t
 		"crit_chance":
-			return 0.5 * t
+			return 1.0 * t
 		"crit_damage":
-			return 0.6 * t
+			return 1.2 * t
 	return 0.0
 
 ## Tiñe la hoja de la daga de rojo (mas intenso cuanta menos vida queda)
-## mientras la sinergia Daga del Odio este activa, para que el jugador
-## note visualmente el cambio ademas de sentirlo en las estadisticas.
+## mientras la sinergia Nemesis este activa.
 func _update_daga_del_odio_visual(_delta: float = 0.0) -> void:
 	if not second_weapon:
 		return
@@ -2295,9 +2314,8 @@ func _update_daga_del_odio_visual(_delta: float = 0.0) -> void:
 	var t = 1.0 - health_ratio
 	sprite.modulate = Color(1.0, 1.0 - 0.85 * t, 1.0 - 0.85 * t)
 
-## Version generalizada del efecto visual anterior: aplica color y escala
-## distintos segun que sinergia de arma cuerpo a cuerpo este activa, para
-## diferenciarlas visualmente de las armas normales.
+## Version generalizada del efecto visual anterior: aplica color, textura y escala
+## distintos segun que sinergia de arma cuerpo a cuerpo este activa.
 func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 	if not second_weapon:
 		return
@@ -2310,20 +2328,44 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 	if not sprite.has_meta("base_scale"):
 		sprite.set_meta("base_scale", sprite.scale)
 	var base_scale: Vector2 = sprite.get_meta("base_scale")
+	if not sprite.has_meta("base_texture"):
+		sprite.set_meta("base_texture", sprite.texture)
+	var base_texture: Texture2D = sprite.get_meta("base_texture")
+
 	if _is_daga_del_odio_active() and stats.max_health > 0:
 		var health_ratio = clamp(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
 		var t = 1.0 - health_ratio
-		sprite.modulate = Color(1.0, 1.0 - 0.85 * t, 1.0 - 0.85 * t)
-		sprite.scale = base_scale * (1.0 + 0.25 * t)
+		var nemesis_tex = preload("res://Art/Weapons/Melee/Dagger/synergy_nemesis_sprite.png")
+		sprite.texture = nemesis_tex
+		sprite.modulate = Color(1.0, 1.0 - 0.7 * t, 1.0 - 0.7 * t)
+		sprite.scale = base_scale * (1.0 + 0.6 * t)
 	elif _is_arrogancia_equipped():
+		sprite.texture = base_texture
 		sprite.modulate = Color(1.5, 1.15, 0.3)
 		sprite.scale = base_scale * 1.15
 	elif _is_hombre_lobo_active():
-		sprite.modulate = Color(0.75, 0.35, 1.3)
-		sprite.scale = base_scale * 1.15
-	else:
+		var wolf_tex = preload("res://Art/Weapons/Melee/Axe/synergy_wolfsbane_sprite.png")
+		sprite.texture = wolf_tex
 		sprite.modulate = Color(1.0, 1.0, 1.0)
 		sprite.scale = base_scale
+	else:
+		sprite.texture = base_texture
+		sprite.modulate = Color(1.0, 1.0, 1.0)
+		sprite.scale = base_scale
+
+## Si la sinergia Nemesis esta activa y el jugador tiene menos del 50% de vida,
+## matar a un enemigo regenera vida.
+func check_nemesis_kill_heal(_enemy: Node2D = null) -> void:
+	if not _is_daga_del_odio_active():
+		return
+	if stats.max_health <= 0:
+		return
+	if stats.current_health >= stats.max_health * 0.5:
+		return
+	var heal_amount = 8
+	stats.heal(heal_amount)
+	_show_heal_text(heal_amount)
+	_animate_heal_flash()
 
 ## Sinergia Arrogancia: mientras el swing de la maza esta activo, cualquier
 ## bala enemiga que te toque rebota devuelta (nerfeada) en vez de danarte.
@@ -2375,20 +2417,10 @@ func _ensure_werewolf_mark() -> void:
 	_spawn_werewolf_mark_visual(_werewolf_marked_enemy)
 
 func _spawn_werewolf_mark_visual(enemy: Node2D) -> void:
-	var marker = Node2D.new()
-	var glow = Sprite2D.new()
-	var tex_path = "res://Art/Lights/White_Light.png"
-	if ResourceLoader.exists(tex_path):
-		glow.texture = load(tex_path)
-	glow.modulate = Color(0.75, 0.2, 1.0, 0.9)
-	glow.scale = Vector2(0.35, 0.35)
-	glow.position = Vector2(0, -40)
-	marker.add_child(glow)
+	var mark_scene = preload("res://Scenes/Effects/WolfsbaneMark.tscn")
+	var marker = mark_scene.instantiate()
 	enemy.add_child(marker)
 	_werewolf_mark_visual = marker
-	var tween = marker.create_tween().set_loops()
-	tween.tween_property(glow, "scale", Vector2(0.42, 0.42), 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(glow, "scale", Vector2(0.35, 0.35), 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _clear_werewolf_mark_visual() -> void:
 	if is_instance_valid(_werewolf_mark_visual):
@@ -2543,7 +2575,7 @@ func _spawn_dash_hologram(start_pos: Vector2) -> void:
 	tween.tween_property(holo, "modulate:a", 0.0, 0.4)
 	tween.chain().tween_callback(holo.queue_free)
 
-## Sinergia Relampago: mientras este activa, la UZI en mano se tine de un
+## Sinergia The Bride (relampago): mientras este activa, la UZI en mano se tine de un
 ## color electrico para que se note visualmente que esta equipada.
 func _is_relampago_equipped() -> bool:
 	var equip = get_node_or_null("Equipment")

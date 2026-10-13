@@ -8,19 +8,27 @@ class_name InfoSign
 @export_multiline var sign_body: String = ""
 
 @onready var area_2d: Area2D = get_node_or_null("Area2D")
+@onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
+@onready var interact_label: Label = get_node_or_null("InteractLabel")
 
 var player_nearby: bool = false
-var interact_label: Label = null
 var ui_instance: CanvasLayer = null
 
 func _ready() -> void:
 	set_process_input(true)
-	if area_2d:
-		area_2d.body_entered.connect(_on_body_entered)
-		area_2d.body_exited.connect(_on_body_exited)
+	_connect_area_signals()
 	_setup_interact_label()
 
+func _connect_area_signals() -> void:
+	if not area_2d:
+		return
+	area_2d.body_entered.connect(_on_body_entered)
+	area_2d.body_exited.connect(_on_body_exited)
+
 func _setup_interact_label() -> void:
+	if interact_label:
+		interact_label.visible = false
+		return
 	interact_label = Label.new()
 	interact_label.text = "[E] Leer cartel"
 	interact_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

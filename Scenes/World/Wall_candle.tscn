@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://bib5wjls0cvw5"]
+
+[ext_resource type="Script" uid="uid://bjo7lxn7gand5" path="res://Scripts/World/torch.gd" id="1_6vquh"]
+[ext_resource type="Texture2D" uid="uid://btfyy05cd2e1i" path="res://Art/Miscellaneous/wallcandles_spritesheet.png" id="2_6vquh"]
+[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="3_6vquh"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u3w1y"]
+atlas = ExtResource("2_6vquh")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v4h5g"]
+atlas = ExtResource("2_6vquh")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y64ge"]
+atlas = ExtResource("2_6vquh")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_torch"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u3w1y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v4h5g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y64ge")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 10.0
+}]
+
+[node name="Floor_candle" type="Node2D" unique_id=64839201]
+script = ExtResource("1_6vquh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=64839202]
+texture_filter = 1
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_torch")
+autoplay = "default"
+frame_progress = 0.45811817
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=64839203]
+position = Vector2(0, -10)
+scale = Vector2(2.5, 2.5)
+color = Color(0.8689996, 0.5320808, 0.9322823, 1)
+energy = 0.9
+texture = ExtResource("3_6vquh")
+texture_scale = 0.6

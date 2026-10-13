@@ -17,6 +17,7 @@ var fragmentation_chance: float = 0.0
 var is_fragment: bool = false
 var is_destroyed: bool = false
 var trail_particles: CPUParticles2D = null
+var status_effect: String = ""
 
 func setup(dir: Vector2, dmg: float, target: String, crit: bool = false):
 	direction = dir.normalized()
@@ -24,6 +25,32 @@ func setup(dir: Vector2, dmg: float, target: String, crit: bool = false):
 	target_group = target
 	is_crit = crit
 	rotation = direction.angle()
+
+func set_status_effect(effect: String) -> void:
+	status_effect = effect
+	_apply_status_visuals()
+
+func _apply_status_visuals() -> void:
+	var color = _get_status_color()
+	if color == Color.WHITE:
+		return
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite:
+		sprite.modulate = color
+	var light = get_node_or_null("PointLight2D")
+	if light:
+		light.color = color
+
+func _get_status_color() -> Color:
+	match status_effect:
+		"stun":
+			return Color(0.1, 0.6, 2.5, 1.0) # Azul electrico
+		"burn":
+			return Color(2.5, 0.35, 0.1, 1.0) # Rojo fuego
+		"slow":
+			return Color(0.2, 1.2, 2.5, 1.0) # Celeste hielo
+		_:
+			return Color.WHITE
 
 func _ready() -> void:
 	z_index = 50
@@ -119,7 +146,13 @@ func _process_body_hit(body: Node2D) -> void:
 		_handle_wall_collision()
 		return
 	body.take_damage(damage, is_crit)
+	_apply_bullet_status_to_target(body)
 	_handle_piercing_or_destroy(body)
+
+func _apply_bullet_status_to_target(target: Node2D) -> void:
+	if status_effect.is_empty(): return
+	if not target.has_method("apply_status_effect"): return
+	target.apply_status_effect(status_effect)
 
 func _handle_wall_collision() -> void:
 	_spawn_wall_sparks()

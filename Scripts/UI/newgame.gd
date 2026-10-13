@@ -282,9 +282,10 @@ func _on_delete_pressed(slot: int, del: Button) -> void:
 	del.text = "¿SEGURO?"
 	del.add_theme_color_override("font_color", Color.WHITE)
 	_shake(del)
-	get_tree().create_timer(TIEMPO_CONFIRMAR_BORRADO).timeout.connect(_reset_delete_button.bind(del))
+	var timer = get_tree().create_timer(TIEMPO_CONFIRMAR_BORRADO)
+	timer.timeout.connect(func(): _reset_delete_button(del))
 
-func _reset_delete_button(del: Button) -> void:
+func _reset_delete_button(del: Variant) -> void:
 	if not is_instance_valid(del): return
 	del.remove_meta("confirmando")
 	del.text = "BORRAR"

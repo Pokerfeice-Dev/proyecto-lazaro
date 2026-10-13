@@ -11,6 +11,7 @@ script = ExtResource("3_flicker")
 position = Vector2(-3, 4)
 scale = Vector2(2.5, 2.5)
 color = Color(1, 1, 0.95, 1)
+energy = 0.9
 shadow_color = Color(0, 0, 0, 0.5294118)
 shadow_filter_smooth = 10.5
 texture = ExtResource("2_gg1gb")

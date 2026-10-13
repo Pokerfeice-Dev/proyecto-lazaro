@@ -13,7 +13,7 @@ config_version=5
 config/name="Franken-Gun"
 run/main_scene="res://Scenes/UI/IntroCinematic.tscn"
 config/features=PackedStringArray("4.8", "GL Compatibility")
-config/icon="uid://duywrj8qr6s4u"
+config/icon="uid://c8i8eiqrnnhjv"
 
 [autoload]
 

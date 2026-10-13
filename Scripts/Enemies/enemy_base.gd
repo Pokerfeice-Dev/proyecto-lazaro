@@ -20,6 +20,9 @@ class_name EnemyBase
 	preload("res://Art/Items/Weapons/Item7_Colmena.tres"),
 	preload("res://Art/Items/Weapons/Item8_CabezaHumana.tres"),
 	preload("res://Art/Items/Weapons/Item9_SierraCircular.tres"),
+	preload("res://Art/Items/Weapons/Item10_Bateria.tres"),
+	preload("res://Art/Items/Weapons/Item11_Gasolina.tres"),
+	preload("res://Art/Items/Weapons/Item12_Nitrogeno.tres"),
 	preload("res://Art/Items/Player/Body/Item2_TorsoBlindado.tres"),
 	preload("res://Art/Items/Player/Body/Item3_TorsoEspinado.tres"),
 	preload("res://Art/Items/Player/Body/Item4_TorsoLigero.tres"),
@@ -87,7 +90,7 @@ func _recalculate_move_speed() -> void:
 func _update_slow_visuals() -> void:
 	var spr = _get_sprite()
 	if not spr: return
-	if _speed_modifiers.has("ice_puddle"):
+	if _speed_modifiers.has("ice_puddle") or _speed_modifiers.has("nitrogen_slow"):
 		spr.modulate = Color(0.65, 0.85, 1.3, 1.0)
 		return
 	spr.modulate = _default_modulate
@@ -517,7 +520,46 @@ func _unfreeze_enemy(sprite: Node) -> void:
 		sprite.modulate = _default_modulate
 	set_physics_process(true)
 	set_process(true)
-	_update_slow_visuals()
+func apply_status_effect(effect_type: String) -> void:
+	if is_dying:
+		return
+	match effect_type:
+		"stun":
+			_apply_stun_effect(1.0)
+		"burn":
+			_apply_burn_effect(3.0)
+		"slow":
+			_apply_slow_effect(3.0, 0.5)
+
+func _apply_stun_effect(duration: float) -> void:
+	hit_stun_timer = maxf(hit_stun_timer, duration)
+	is_electrified = true
+	var sprite = _get_sprite()
+	if sprite:
+		sprite.modulate = Color(0.2, 0.7, 2.5, 1.0) # Azul electrico
+	var timer = get_tree().create_timer(duration)
+	timer.timeout.connect(func():
+		if not is_instance_valid(self) or is_dying:
+			return
+		is_electrified = false
+		if sprite and is_instance_valid(sprite):
+			sprite.modulate = _default_modulate
+		_update_slow_visuals()
+	)
+
+func _apply_burn_effect(duration: float) -> void:
+	var tick_interval = 0.5
+	var burn_dmg = maxi(1, int(float(damage) * 0.5))
+	IgniteEffect.apply_ignite(self, burn_dmg, tick_interval, duration)
+
+func _apply_slow_effect(duration: float, multiplier: float) -> void:
+	set_speed_modifier("nitrogen_slow", multiplier)
+	var timer = get_tree().create_timer(duration)
+	timer.timeout.connect(func():
+		if not is_instance_valid(self) or is_dying:
+			return
+		remove_speed_modifier("nitrogen_slow")
+	)
 
 func _flash_hit() -> void:
 	var sprite = _get_sprite()
@@ -539,7 +581,9 @@ func _get_flash_target_color() -> Color:
 	if is_frozen_by_ice:
 		return Color(0.3, 0.85, 1.8, 1.0)
 	if is_electrified:
-		return Color(2.2, 2.0, 0.2, 1.0)
+		return Color(0.2, 0.7, 2.5, 1.0)
+	if _speed_modifiers.has("ice_puddle") or _speed_modifiers.has("nitrogen_slow"):
+		return Color(0.65, 0.85, 1.3, 1.0)
 	return _default_modulate
 
 func _start_flash_tween(sprite: Node2D, target_col: Color) -> void:
@@ -613,7 +657,7 @@ func _attempt_drops() -> void:
 	var spawns_item = _should_drop_item()
 	
 	if is_elite:
-		var extra_scrap = randi_range(5, 10)
+		var extra_scrap = randi_range(15, 30)
 		GameData.add_scrap(extra_scrap)
 		
 		if spawns_flesh:

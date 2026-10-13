@@ -59,34 +59,34 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 	},
 	{
 		"id": "relampago",
-		"name": "Relámpago",
+		"name": "The Bride",
 		"weapon_type": "primary",
 		"weapon_id": "uzi",
-		"desc": "Uzi + Balas eléctricas en cadena",
+		"desc": "Uzi + The Bride (Balas eléctricas en cadena)",
 		"items": [
-			"res://Art/Items/Weapons/Item3.tres",
-			"res://Art/Items/Weapons/Item2.tres",
-			"res://Art/Items/Weapons/Item6.tres"
+			"res://Art/Items/Weapons/Item8_CabezaHumana.tres",
+			"res://Art/Items/Weapons/Item10_Bateria.tres",
+			"res://Art/Items/Weapons/Item3.tres"
 		]
 	},
 	{
 		"id": "daga_del_odio",
-		"name": "Daga del Odio",
+		"name": "Nemesis",
 		"weapon_type": "melee",
 		"weapon_id": "daga",
-		"desc": "Daga + Furia crítica y velocidad",
+		"desc": "Daga + Nemesis (Poder masivo a baja vida y robo de vida)",
 		"items": [
-			"res://Art/Items/Weapons/Item5.tres",
-			"res://Art/Items/Weapons/Item8_CabezaHumana.tres",
-			"res://Art/Items/Weapons/Item9_SierraCircular.tres"
+			"res://Art/Items/Weapons/Item9_SierraCircular.tres",
+			"res://Art/Items/Weapons/Item2.tres",
+			"res://Art/Items/Weapons/Item4.tres"
 		]
 	},
 	{
 		"id": "hombre_lobo",
-		"name": "Hombre Lobo",
+		"name": "Wolfsbane",
 		"weapon_type": "melee",
 		"weapon_id": "hacha",
-		"desc": "Hacha + Marca explosiva en enemigos",
+		"desc": "Hacha + Marca Wolfsbane explosiva en enemigos",
 		"items": [
 			"res://Art/Items/Weapons/Item8_CabezaHumana.tres",
 			"res://Art/Items/Weapons/Item4.tres",

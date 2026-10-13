@@ -114,7 +114,10 @@ func _on_body_entered(body: Node2D) -> void:
 			final_dmg = int(final_dmg * crit_damage)
 			is_crit = true
 			
+		var was_enemy_alive = not (body.get("is_dying") == true)
 		body.take_damage(final_dmg, is_crit)
+		if was_enemy_alive and body.get("is_dying") == true and p and p.has_method("check_nemesis_kill_heal"):
+			p.check_nemesis_kill_heal(body)
 		if final_kb > 0.0 and body.has_method("apply_knockback"):
 			var dir = (body.global_position - global_position).normalized()
 			body.apply_knockback(final_kb, dir)

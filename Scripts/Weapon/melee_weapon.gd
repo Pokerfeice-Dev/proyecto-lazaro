@@ -187,9 +187,12 @@ func _apply_damage_to_enemy(body: Node2D) -> void:
 	var is_marked_hit = false
 	if equip_owner and body.has_meta("werewolf_mark") and equip_owner.has_method("_is_hombre_lobo_active") and equip_owner._is_hombre_lobo_active():
 		is_marked_hit = true
-		final_dmg *= 4
+	var was_enemy_alive = not (body.get("is_dying") == true)
 	body.take_damage(final_dmg, is_crit)
 	_apply_knockback_to_enemy(body, final_kb)
+	
+	if was_enemy_alive and body.get("is_dying") == true and equip_owner and equip_owner.has_method("check_nemesis_kill_heal"):
+		equip_owner.check_nemesis_kill_heal(body)
 	
 	if equip_owner and equip_owner.get("is_furia_active") == true:
 		_trigger_furia_area_attack(body.global_position, final_dmg)

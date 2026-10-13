@@ -53,7 +53,7 @@ static func apply_electrify(target: Node, chain_damage: int, stun_duration: floa
 	var tree = target.get_tree()
 	if tree:
 		var revert_timer = tree.create_timer(stun_duration)
-		revert_timer.timeout.connect(_revert_stun_visual.bind(target))
+		revert_timer.timeout.connect(func(): _revert_stun_visual(target))
 
 	_spawn_zap_visual(target)
 	_play_zap_sound(target)
