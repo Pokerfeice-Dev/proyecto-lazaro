@@ -294,6 +294,14 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_the_bride()
 	)
 
+	_add_synergy_card(tab, "Speed Demon", "speed_demon", "Daga + Sierra Circular, Motocicleta, Batería", func():
+		_activate_synergy_speed_demon()
+	)
+
+	_add_synergy_card(tab, "Snowman", "snowman", "Escopeta + Mezcladora, Cabeza Humana, Nitrógeno", func():
+		_activate_synergy_snowman()
+	)
+
 func _add_synergy_card(parent: Control, syn_name: String, _syn_id: String, req_desc: String, callback: Callable) -> void:
 	var card = VBoxContainer.new()
 	card.add_theme_constant_override("separation", 3)
@@ -408,6 +416,24 @@ func _activate_synergy_arrogancia() -> void:
 		{"path": "res://Art/Items/Weapons/Item7_Colmena.tres", "slot": ItemData.ItemSlot.SEC_W3}
 	])
 	_show_status("Sinergia 'Arrogancia' activada y equipada.")
+
+func _activate_synergy_speed_demon() -> void:
+	GameData.unlock_synergy("speed_demon")
+	_equip_melee_weapon_and_mods("res://Scenes/Weapon/dagger.tscn", [
+		{"path": "res://Art/Items/Weapons/Item9_SierraCircular.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item6.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Weapons/Item10_Bateria.tres", "slot": ItemData.ItemSlot.SEC_W3}
+	])
+	_show_status("Sinergia 'Speed Demon' (Daga) activada y equipada.")
+
+func _activate_synergy_snowman() -> void:
+	GameData.unlock_synergy("snowman")
+	_equip_weapon_and_mods("res://Scenes/Weapon/shotgun.tscn", [
+		{"path": "res://Art/Items/Weapons/Item1.tres", "slot": ItemData.ItemSlot.MAIN_W1},
+		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.MAIN_W2},
+		{"path": "res://Art/Items/Weapons/Item12_Nitrogeno.tres", "slot": ItemData.ItemSlot.MAIN_W3}
+	])
+	_show_status("Sinergia 'Snowman' (Escopeta) activada y equipada.")
 
 func _activate_synergy_wolfsbane() -> void:
 	GameData.unlock_synergy("hombre_lobo")

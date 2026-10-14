@@ -18,6 +18,8 @@ func _ready() -> void:
 	set_process_input(true)
 	_connect_area_signals()
 	_setup_interact_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(interact_label)
 
 func _connect_area_signals() -> void:
 	if not area_2d:

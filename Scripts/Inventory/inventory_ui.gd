@@ -910,6 +910,7 @@ func _build_codex_panel() -> void:
 	_add_codex_cat_button(sub_tabs, "ITEMS", "items")
 	_add_codex_cat_button(sub_tabs, "NPCs", "npcs")
 	_add_codex_cat_button(sub_tabs, "ZONAS", "levels")
+	_add_codex_cat_button(sub_tabs, "SINERGIAS", "synergies")
 
 	codex_progress_label = Label.new()
 	codex_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1612,6 +1613,10 @@ func _refresh_codex_grid() -> void:
 		else:
 			_apply_secondary_button_style(btn)
 
+	if selected_codex_category == "synergies":
+		_fill_codex_synergies()
+		return
+	codex_grid.columns = 6
 	var cat_data = CodexData.DATA.get(selected_codex_category, {})
 	var unlocked_count = 0
 	for entry_id in cat_data.keys():
@@ -1636,6 +1641,19 @@ func _refresh_codex_grid() -> void:
 
 	if codex_progress_label:
 		codex_progress_label.text = "%d / %d registrados" % [unlocked_count, cat_data.size()]
+
+# Pestaña SINERGIAS: fichas grandes (CodexSynergyCard) en vez de slots chicos.
+# Las bloqueadas muestran solo para qué arma son; el resto queda tapado.
+func _fill_codex_synergies() -> void:
+	codex_grid.columns = 3
+	var ids = OmniaCatalog.synergy_ids()
+	var unlocked_count = 0
+	for syn_id in ids:
+		if GameData.is_synergy_unlocked(syn_id):
+			unlocked_count += 1
+		codex_grid.add_child(CodexSynergyCard.create(syn_id))
+	if codex_progress_label:
+		codex_progress_label.text = "%d / %d sinergias desbloqueadas" % [unlocked_count, ids.size()]
 
 # ── Tooltip Flotante ──────────────────────────────────────────────────────────
 

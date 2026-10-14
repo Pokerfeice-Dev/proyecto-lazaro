@@ -116,6 +116,8 @@ func _ready() -> void:
 	if item_sprite:
 		item_sprite.visible = false # el item no se ve hasta que se abre el cofre
 	_update_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(label)
 	_connect_signals()
 	_setup_shadow()
 

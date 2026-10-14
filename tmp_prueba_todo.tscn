@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bx1xktl834bu8"]
+
+[ext_resource type="Script" uid="uid://d2bebieorf63l" path="res://tmp_prueba_todo.gd" id="1_s2t4l"]
+
+[node name="PruebaTodo" type="Node" unique_id=2025814674]
+script = ExtResource("1_s2t4l")

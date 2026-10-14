@@ -503,7 +503,9 @@ func unlock_all_synergies() -> void:
 		"daga_del_odio",
 		"arrogancia",
 		"hombre_lobo",
-		"relampago"
+		"relampago",
+		"speed_demon",
+		"snowman"
 	]
 	for syn_id in all_ids:
 		unlock_synergy(syn_id)

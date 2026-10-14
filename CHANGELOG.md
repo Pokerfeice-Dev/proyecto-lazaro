@@ -1,3 +1,45 @@
+## 2026-10-13 (cartel nuevo al entrar a cada sala, a prueba)
+
+- **Cartel de entrada a la sala con el estilo de la UI nueva** (`Scripts/UI/room_title_card.gd`). Esta a prueba: se puede volver al texto de antes apagando `use_new_room_title` en el nodo raiz de `HUD.tscn`.
+  - Una franja oscura con filos de color se abre en el centro de la pantalla.
+  - Arriba aparece una linea dorada chica, por ejemplo "ZONA 2 · SALA 04".
+  - El nombre grande se "decodifica" como en una terminal: caracteres al azar que se van fijando de izquierda a derecha.
+  - Debajo se dibuja una linea turquesa con un rombo y aparece el subtitulo.
+  - Al irse, el nombre tiembla como con interferencia y la franja se cierra. Dura unos 3,5 s.
+- **Textos de cada sala:**
+  - Salas de combate: el nombre de la zona, con "Sector hostil".
+  - Tesoro: "Sala del tesoro", con "Cargamento sin vigilancia".
+  - Ygor: "Tienda de Ygor", con "Comercio clandestino".
+  - Jefe: la zona con "Amenaza detectada", en rojo.
+  - Laboratorio: "Base de operaciones", con "Zona segura".
+  - O.M.N.I.A.: "Terminal de mejoras", con "Mejoras permanentes".
+  - Entrenamiento: "Simulación".
+- En O.M.N.I.A., Biomasa Eficiente usa el icono minimalista del torso en vez del sprite de la carne.
+
+## 2026-10-13 (O.M.N.I.A. con el estilo del inventario y tileset nuevo en la zona 2)
+
+- **La terminal O.M.N.I.A. se rehizo con la misma linea visual que el inventario y el menu de pausa.**
+  - Arriba hay una pestaña por categoria (Estructura, Recursos, Arsenal, Sinergias, Protocolos), la chatarra y "Esc / Cerrar". Entra desde abajo como el inventario y se cierra con Esc.
+  - A la izquierda va la lista de la categoria, con el progreso (niveles comprados o cuantas hay desbloqueadas). A la derecha, el detalle de lo elegido con el boton para comprar, y abajo el protocolo activo.
+  - Las mejoras muestran el nivel con una barra de pasos. Los protocolos marcan cual esta activo.
+- **Sinergias y armas con sprite.** Las sinergias usan su sprite (Mente Colmena, Roadkill, Heavy Metal para la Minigun, Cerberus para el Lanzallamas, The Bride, Nemesis y Wolfsbane). Las que todavia no tienen sprite usan el arma o la pieza principal de la receta.
+  - **Lo que no esta desbloqueado se ve como silueta:** oscuro y algo borroso, con un borde turquesa que late y una linea de escaneo (`Art/Ui/shaders/silueta_bloqueada.gdshader`).
+  - **Al comprarlo,** la silueta se revela con un destello y la ficha da un salto.
+  - En el detalle de cada sinergia se ve la receta con los iconos del arma y las piezas. Las tres de cuerpo avisan que piden tener antes Mente Colmena y Roadkill.
+- Los nombres y descripciones de las sinergias ahora salen de `SynergyManager` (los mismos que se ven en la run): "Bestia de Caza" pasa a ser "Instinto Canino" y "Trituradora Biomecánica" pasa a ser "Impulso Ligero". Precios y reglas de compra iguales que antes.
+- Codigo: `Scripts/UI/omnia_catalog.gd` (`OmniaCatalog`) tiene que se vende, los precios y las compras; `Scripts/UI/omnia_menu.gd` (`OmniaMenu`) es la ventana. `npc_chatarra.gd` solo abre y cierra el menu. `UIStyle` suma estilos de slot y de barra de scroll.
+- **Zona 2:** de `Level2_Room2` a `Level2_Room14BossFight` (salas del tesoro y tienda de Ygor 1 incluidas) usan el tileset nuevo `Art/Tileset/Level2.tres`, igual que `Level2_Room1`. `Level2_Room13(Ygor2)` queda como estaba, con el tileset de la zona 1.
+
+## 2026-10-13 (menu de pausa con el estilo del inventario)
+
+- **El menu de pausa (Esc) se rehizo con la misma linea visual que el inventario nuevo:** los paneles SVG de `Art/Ui/svg`, la pestaña de titulo "PAUSA", el contador de chatarra, "Esc / Cerrar" arriba a la derecha y la barra de atajos abajo. Entra desde abajo, igual que el inventario.
+  - **Columna MENÚ:** Continuar (boton principal), Guardar partida, Más opciones y, separados abajo, Volver al menú principal y Salir del juego.
+  - **Columna AUDIO:** sliders de Música y Efectos con el porcentaje al lado, con la paleta de la UI.
+  - **Partida actual:** zona, sala, tiempo, enemigos eliminados y chatarra de la run. Solo aparece dentro de una sala de la run; en el Lab o en los menus se oculta.
+- Todo lo que hacia el menu viejo sigue igual: pausa el juego, apaga la musica con el filtro, guarda los volumenes en las opciones, abre la pantalla de "Más opciones" y le pone el sonido de hover a todos los botones del juego.
+- `options_menu.tscn` ahora es solo el nodo raiz: la ventana se arma por codigo, como el inventario.
+- Nuevo `Scripts/UI/ui_style.gd` (`UIStyle`): colores, paneles, botones, pestaña, teclas y sliders del estilo del inventario, para reusar en otros menus.
+
 ## 2026-10-06 (victoria al vencer a Prometeo)
 
 - **Vencer a Prometeo gana el juego.** Unos segundos despues de que explota (`victory_delay`, 3,5 s), aparece la pantalla de victoria con las estadisticas de la run, y el boton "Volver al laboratorio" lleva al Lab.

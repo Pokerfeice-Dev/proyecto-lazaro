@@ -41,6 +41,8 @@ func _ready() -> void:
 	_init_default_type_from_name()
 	_configure_stats_and_visuals()
 	_update_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(label)
 	_connect_signals()
 
 func _connect_signals() -> void:

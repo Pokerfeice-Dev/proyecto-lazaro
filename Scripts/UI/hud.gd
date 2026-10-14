@@ -41,6 +41,10 @@ var _dash_was_on_cooldown: bool = false
 @export var fallback_particles_gravity: Vector2 = Vector2(0, 0)
 @export var fallback_particles_position: Vector2 = Vector2(148, 98)
 
+@export_category("Cartel de entrada a la sala")
+## Prendido: cartel nuevo (RoomTitleCard). Apagado: el texto animado de antes.
+@export var use_new_room_title: bool = true
+
 func _ready():
 	add_to_group("hud")
 	_setup_health_label()
@@ -328,6 +332,11 @@ func _set_particles_state(color: Color, speed: float, vel_min: float, vel_max: f
 
 func _play_intro_room_animation() -> void:
 	var intro_node = get_node_or_null("Control/Intro_room")
+	if use_new_room_title:
+		_hide_old_room_intro(intro_node)
+		var scene = get_tree().current_scene
+		RoomTitleCard.show_in(self, _get_room_title_data(scene.scene_file_path if scene else ""))
+		return
 	if not intro_node: return
 	
 	var label = intro_node.get_node_or_null("Name_room") as Label
@@ -338,6 +347,41 @@ func _play_intro_room_animation() -> void:
 	var anim_player = intro_node.get_node_or_null("AnimationPlayer") as AnimationPlayer
 	if anim_player:
 		anim_player.play("Intro_room")
+
+# El AnimationPlayer viejo arranca solo (autoplay), así que hay que frenarlo.
+func _hide_old_room_intro(intro_node: Node) -> void:
+	if not intro_node: return
+	intro_node.visible = false
+	var anim_player = intro_node.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if anim_player:
+		anim_player.stop()
+
+# Textos del cartel nuevo: línea chica de arriba, nombre grande, subtítulo y color.
+func _get_room_title_data(path: String) -> Dictionary:
+	var filename = path.get_file().to_lower()
+	if "lab_room" in filename:
+		return _title_data("BASE DE OPERACIONES", "LABORATORIO", "ZONA SEGURA", UIStyle.COLOR_TEAL)
+	if "core_upgrade" in filename:
+		return _title_data("TERMINAL DE MEJORAS", "O.M.N.I.A.", "MEJORAS PERMANENTES", UIStyle.COLOR_TEAL)
+	if "training" in filename:
+		return _title_data("SIMULACIÓN", "ENTRENAMIENTO", "PROTOCOLO DE PRUEBA", UIStyle.COLOR_TEAL)
+	if "debug_scene" in filename:
+		return _title_data("ENTORNO DE PRUEBAS", "SALA DE DEBUG", "", UIStyle.COLOR_MUTED)
+	var lvl_num = _get_digits(filename.split("_")[0]) if filename.begins_with("level") else ""
+	if lvl_num == "":
+		return _title_data("", "DISTRITO ASPHODEL", "", UIStyle.COLOR_TEAL)
+	var zone_name = GameData.get_zone_name(int(lvl_num)).to_upper()
+	var room_tag = "ZONA %s · SALA %02d" % [lvl_num, maxi(GameData.current_run_room, 1)]
+	if "bossfight" in filename:
+		return _title_data("ZONA %s · ENCUENTRO" % lvl_num, zone_name, "AMENAZA DETECTADA", Color("#E5484D"))
+	if "ygor" in filename:
+		return _title_data(room_tag, "TIENDA DE YGOR", "COMERCIO CLANDESTINO", UIStyle.COLOR_GOLD)
+	if "treasure" in filename:
+		return _title_data(room_tag, "SALA DEL TESORO", "CARGAMENTO SIN VIGILANCIA", UIStyle.COLOR_GOLD)
+	return _title_data(room_tag, zone_name, "SECTOR HOSTIL", UIStyle.COLOR_TEAL)
+
+func _title_data(eyebrow: String, title: String, subtitle: String, accent: Color) -> Dictionary:
+	return {"eyebrow": eyebrow, "title": title, "subtitle": subtitle, "accent": accent}
 
 func _get_pretty_room_name(path: String) -> String:
 	var filename = path.get_file().to_lower()

@@ -107,6 +107,24 @@ const SYNERGIES = {
 		"projectile_override": "res://Scenes/Projectiles/ElectroProjectile.tscn",
 		"projectile_override_chance": 0.35,
 		"weapon_scene_override": "res://Scenes/Weapon/TheBride.tscn"
+	},
+	"speed_demon": {
+		"name": "Speed Demon",
+		"description": "La daga se vuelve una sierra motorizada: pega rapidísimo y se puede mantener apretado el ataque, pero cada golpe te empuja hacia adelante, así que hay que medir dónde te metes.",
+		"required_weapon": "daga",
+		"required_items": ["sierra_circular", "motocicleta", "bateria"],
+		"stat_modifiers": {
+			"attack_speed": 2.0
+		}
+	},
+	"snowman": {
+		"name": "Snowman",
+		"description": "La escopeta dispara una sola bola de nieve enorme y lenta que atraviesa a los enemigos y congela a cada uno que toca. Al chocar contra una pared estalla en escarcha.",
+		"required_weapon": "shotgun",
+		"required_items": ["mezcladora", "cabeza_humana", "nitrogeno"],
+		"stat_modifiers": {},
+		"projectile_override": "res://Scenes/Projectiles/SnowballProjectile.tscn",
+		"weapon_scene_override": "res://Scenes/Weapon/Snowman.tscn"
 	}
 }
 

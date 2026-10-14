@@ -21,6 +21,8 @@ func _ready() -> void:
 		grab.body_exited.connect(_on_grab_area_body_exited)
 		
 	_create_interaction_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(interaction_label)
 	_setup_shadow()
 
 func _setup_shadow() -> void:

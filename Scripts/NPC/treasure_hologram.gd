@@ -39,6 +39,8 @@ func _ready() -> void:
 	_roll_random_reward()
 	_configure_visuals()
 	_update_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(label)
 	_connect_signals()
 
 func _connect_signals() -> void:

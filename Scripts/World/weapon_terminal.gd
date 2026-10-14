@@ -16,6 +16,8 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	_setup_interaction_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(interaction_label)
 
 func _setup_interaction_label() -> void:
 	interaction_label = get_node_or_null("Label") as Label
@@ -58,7 +60,7 @@ func _input(event: InputEvent) -> void:
 	WeaponSelectionMenu.show_popup(
 		self,
 		"SELECCIÓN DE EQUIPO",
-		"Probá combinaciones de armas (no arranca una run)",
+		"Prueba combinaciones de armas (no inicia una run)",
 		"APLICAR",
 		func(_selections): _reequip_player()
 	)

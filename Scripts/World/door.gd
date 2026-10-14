@@ -29,6 +29,8 @@ func _ready() -> void:
 	area_2d.body_entered.connect(_on_body_entered)
 	area_2d.body_exited.connect(_on_body_exited)
 	_setup_interaction_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(interaction_label)
 
 func _init_lights_base_energy() -> void:
 	if close_light:

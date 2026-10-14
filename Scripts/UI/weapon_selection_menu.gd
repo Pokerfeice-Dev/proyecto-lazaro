@@ -1,329 +1,274 @@
-extends Node
+extends CanvasLayer
 class_name WeaponSelectionMenu
 
-## Popup de selección de arma primaria/secundaria, reutilizable. Nació como
-## parte de door.gd (la puerta de inicio de run) y se separó acá para poder
-## mostrarlo también desde la sala de entrenamiento sin duplicar ~250 líneas
-## de UI. La lógica y el look son idénticos al original; lo único que cambia
-## por caller es el texto y qué pasa al confirmar/cancelar.
+## Ventana de selección de arma primaria y secundaria, con el estilo de la UI
+## nueva (inventario/pausa). La usan la puerta de inicio de run y el terminal
+## de la sala de entrenamiento; cada uno pasa su título, el texto del botón de
+## confirmar y qué hacer al confirmar/cancelar.
+##
+## Prioriza íconos: cada arma es una ficha con su sprite, nombre, una línea
+## corta y los íconos de sus sinergias (en color si ya las desbloqueaste, en
+## silueta si no). Las armas bloqueadas quedan en silueta con un candado.
+## ESC cancela y Enter confirma.
 
-## Muestra el popup. "caller" es cualquier Node dentro del árbol (se usa
-## solo para llegar a get_tree()). "on_confirm" recibe el diccionario final
-## {"primary": id, "melee": id} después de guardarlo en GameData; "on_cancel"
-## se llama si el jugador cancela. Ambos son opcionales.
-static func show_popup(caller: Node, title_text: String, subtitle_text: String, confirm_text: String, on_confirm: Callable = Callable(), on_cancel: Callable = Callable()) -> void:
-	var tree = caller.get_tree()
-	tree.paused = true
+const LOCKED_SHADER := preload("res://Art/Ui/shaders/silueta_bloqueada.gdshader")
+const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
+const ICON_CHECK := preload("res://Art/Ui/svg/icon_check.svg")
+const ICON_RANGED := preload("res://Art/Ui/svg/icon_projectiles.svg")
+const ICON_MELEE := preload("res://Art/Ui/svg/icon_damage.svg")
+const CARD_SIZE := Vector2(360, 104)
 
-	var canvas = CanvasLayer.new()
-	canvas.name = "WeaponSelectionMenu"
-	canvas.process_mode = Node.PROCESS_MODE_ALWAYS
-	canvas.layer = 250
-	tree.root.add_child(canvas)
+const PRIMARY_WEAPONS := [
+	{"id": "pistol", "name": "Pistola", "desc": "Precisión y cadencia estable"},
+	{"id": "uzi", "name": "Uzi", "desc": "Fuego rápido a corta distancia"},
+	{"id": "shotgun", "name": "Escopeta", "desc": "Gran dispersión a quemarropa"},
+]
+const MELEE_WEAPONS := [
+	{"id": "daga", "name": "Daga", "desc": "Cortes veloces de corto alcance"},
+	{"id": "hacha", "name": "Hacha de Mano", "desc": "Golpes potentes de rango medio"},
+	{"id": "maze", "name": "Maza Pesada", "desc": "Lenta, con mucho empuje"},
+]
 
+var title_text: String = ""
+var subtitle_text: String = ""
+var confirm_text: String = ""
+var on_confirm: Callable
+var on_cancel: Callable
+var selections: Dictionary = {}
+var _window: Control
+
+## Muestra la ventana. "caller" es cualquier Node del árbol (solo se usa para
+## llegar a get_tree()). "on_confirm" recibe {"primary": id, "melee": id} ya
+## guardado en GameData; "on_cancel" se llama si el jugador cancela.
+static func show_popup(caller: Node, title: String, subtitle: String, confirm: String, confirm_cb: Callable = Callable(), cancel_cb: Callable = Callable()) -> void:
+	var menu = WeaponSelectionMenu.new()
+	menu.title_text = title
+	menu.subtitle_text = subtitle
+	menu.confirm_text = confirm
+	menu.on_confirm = confirm_cb
+	menu.on_cancel = cancel_cb
+	caller.get_tree().root.add_child(menu)
+
+func _ready() -> void:
+	name = "WeaponSelectionMenu"
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	layer = 250
+	get_tree().paused = true
+	selections = {"primary": GameData.chosen_primary_weapon, "melee": GameData.chosen_melee_weapon}
+	_build()
+	_animate_in()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_cancel()
+	elif event.is_action_pressed("ui_accept") and event is InputEventKey:
+		get_viewport().set_input_as_handled()
+		_confirm()
+
+# --- Armado ---
+
+func _build() -> void:
 	var bg = ColorRect.new()
-	bg.color = Color(0, 0, 0, 0.75)
+	bg.color = UIStyle.COLOR_BACKDROP
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	canvas.add_child(bg)
-
+	add_child(bg)
 	var center = CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	canvas.add_child(center)
+	add_child(center)
 
-	var panel = PanelContainer.new()
-	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.08, 0.08, 0.1, 0.95)
-	sb.border_color = Color(0.2, 0.6, 0.8, 0.8)
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(10)
-	sb.content_margin_left = 35
-	sb.content_margin_right = 35
-	sb.content_margin_top = 25
-	sb.content_margin_bottom = 25
-	panel.add_theme_stylebox_override("panel", sb)
-	center.add_child(panel)
+	_window = VBoxContainer.new()
+	_window.add_theme_constant_override("separation", 0)
+	center.add_child(_window)
+	var tab = UIStyle.title_tab(title_text)
+	tab.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_window.add_child(tab)
 
-	var main_vbox = VBoxContainer.new()
-	main_vbox.add_theme_constant_override("separation", 24)
-	panel.add_child(main_vbox)
+	var panel = UIStyle.panel(UIStyle.TEX_PANEL_MAIN)
+	_window.add_child(panel)
+	var m = UIStyle.padded(24)
+	panel.add_child(m)
+	var body = VBoxContainer.new()
+	body.add_theme_constant_override("separation", 18)
+	m.add_child(body)
 
-	var title = Label.new()
-	title.text = title_text
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	title.add_theme_font_size_override("font_size", 32)
-	title.add_theme_color_override("font_color", Color(0.2, 0.7, 1.0))
-	main_vbox.add_child(title)
+	if subtitle_text != "":
+		body.add_child(UIStyle.label(subtitle_text, 15, UIStyle.COLOR_MUTED))
+	var cols = HBoxContainer.new()
+	cols.add_theme_constant_override("separation", 28)
+	body.add_child(cols)
+	cols.add_child(_build_column("primary", "DISTANCIA", ICON_RANGED, PRIMARY_WEAPONS))
+	cols.add_child(_vertical_divider())
+	cols.add_child(_build_column("melee", "CUERPO A CUERPO", ICON_MELEE, MELEE_WEAPONS))
+	body.add_child(UIStyle.divider())
+	body.add_child(_build_footer())
 
-	var sub = Label.new()
-	sub.text = subtitle_text
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	sub.add_theme_font_size_override("font_size", 14)
-	sub.add_theme_color_override("font_color", Color(0.5, 0.5, 0.6))
-	main_vbox.add_child(sub)
+func _build_column(slot: String, header: String, header_icon: Texture2D, weapons: Array) -> Control:
+	var col = VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	var head = HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	var ic = UIStyle.icon(header_icon, 22)
+	ic.modulate = UIStyle.COLOR_TEAL
+	head.add_child(ic)
+	head.add_child(UIStyle.label(header, 16, UIStyle.COLOR_TEAL))
+	col.add_child(head)
+	var group = ButtonGroup.new()
+	for w in weapons:
+		col.add_child(_weapon_card(slot, w, group))
+	return col
 
-	var cols_hbox = HBoxContainer.new()
-	cols_hbox.add_theme_constant_override("separation", 40)
-	main_vbox.add_child(cols_hbox)
+func _vertical_divider() -> Control:
+	var line = ColorRect.new()
+	line.color = Color(UIStyle.COLOR_MUTED, 0.25)
+	line.custom_minimum_size = Vector2(2, 0)
+	return line
 
-	var selections = {
-		"primary": GameData.chosen_primary_weapon,
-		"melee": GameData.chosen_melee_weapon
-	}
+func _build_footer() -> Control:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	row.add_child(UIStyle.keycap("ESC"))
+	var cancel = UIStyle.button("CANCELAR", false, Vector2(160, 48), 18)
+	cancel.pressed.connect(_cancel)
+	row.add_child(cancel)
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+	var confirm = UIStyle.button(confirm_text, true, Vector2(240, 48), 20)
+	confirm.pressed.connect(_confirm)
+	row.add_child(confirm)
+	row.add_child(UIStyle.keycap("ENTER"))
+	return row
 
-	# Primary column
-	var prim_vbox = VBoxContainer.new()
-	prim_vbox.add_theme_constant_override("separation", 12)
-	cols_hbox.add_child(prim_vbox)
+# --- Ficha de un arma ---
 
-	var prim_title = Label.new()
-	prim_title.text = "DISTANCIA (PRIMARIA)"
-	prim_title.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	prim_title.add_theme_font_size_override("font_size", 16)
-	prim_title.add_theme_color_override("font_color", Color.WHITE)
-	prim_vbox.add_child(prim_title)
+func _weapon_card(slot: String, w: Dictionary, group: ButtonGroup) -> Control:
+	var unlocked = GameData.is_codex_unlocked("weapons", w.id)
+	var btn = Button.new()
+	btn.toggle_mode = true
+	btn.button_group = group
+	btn.custom_minimum_size = CARD_SIZE
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.disabled = not unlocked
+	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if unlocked else Control.CURSOR_ARROW
+	btn.tooltip_text = "" if unlocked else "Se desbloquea en el terminal de chatarra"
+	UIStyle.style_slot_button(btn, "normal" if unlocked else "disabled")
 
-	# Melee column
-	var melee_vbox = VBoxContainer.new()
-	melee_vbox.add_theme_constant_override("separation", 12)
-	cols_hbox.add_child(melee_vbox)
+	var m = UIStyle.padded(12)
+	m.set_anchors_preset(Control.PRESET_FULL_RECT)
+	m.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(m)
+	var row = HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 14)
+	m.add_child(row)
+	row.add_child(_weapon_art(w.id, unlocked))
+	row.add_child(_weapon_info(w, unlocked))
+	var check = _ignore(UIStyle.icon(ICON_CHECK, 26))
+	check.modulate = UIStyle.COLOR_GOLD
+	check.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(check)
 
-	var melee_title = Label.new()
-	melee_title.text = "MELEE (SECUNDARIA)"
-	melee_title.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	melee_title.add_theme_font_size_override("font_size", 16)
-	melee_title.add_theme_color_override("font_color", Color.WHITE)
-	melee_vbox.add_child(melee_title)
+	check.visible = unlocked and selections[slot] == w.id
+	if unlocked:
+		btn.button_pressed = selections[slot] == w.id
+		btn.toggled.connect(_on_card_toggled.bind(slot, w.id, check, btn))
+	return btn
 
-	var prim_btn_group = ButtonGroup.new()
-	var melee_btn_group = ButtonGroup.new()
+func _weapon_art(id: String, unlocked: bool) -> Control:
+	var frame = _ignore(UIStyle.panel(UIStyle.TEX_SLOT["normal" if unlocked else "disabled"]))
+	frame.custom_minimum_size = Vector2(76, 76)
+	var art = _ignore(UIStyle.icon(UIStyle.trimmed(_codex_icon(id)), 60))
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	frame.add_child(art)
+	if not unlocked:
+		var mat = ShaderMaterial.new()
+		mat.shader = LOCKED_SHADER
+		mat.set_shader_parameter("blur", 1.5)
+		art.material = mat
+		var center = _ignore(CenterContainer.new())
+		var lock = _ignore(UIStyle.icon(ICON_LOCK, 26))
+		lock.modulate = UIStyle.COLOR_GOLD
+		center.add_child(lock)
+		frame.add_child(center)
+	return frame
 
-	var prim_weapons = [
-		{"id": "pistol", "name": "Pistola Base", "desc": "Precisión y cadencia estable", "synergy": "Sinergias: Mente Colmena, Roadkill"},
-		{"id": "uzi", "name": "Uzi", "desc": "Fuego rápido a corta distancia", "synergy": "Sinergias: Minigun, Relámpago"},
-		{"id": "shotgun", "name": "Escopeta", "desc": "Gran dispersión a quemarropa", "synergy": "Sinergia: Lanzallamas"}
-	]
-	var melee_weapons = [
-		{"id": "daga", "name": "Daga Base", "desc": "Cortes veloces de corto alcance", "synergy": "Sinergia: Daga del Odio"},
-		{"id": "hacha", "name": "Hacha de Mano", "desc": "Ataques potentes de rango medio", "synergy": "Sinergia: Hombre Lobo"},
-		{"id": "maze", "name": "Maza Pesada", "desc": "Lento con gran fuerza de empuje", "synergy": "Sinergia: Arrogancia"}
-	]
+func _weapon_info(w: Dictionary, unlocked: bool) -> Control:
+	var box = _ignore(VBoxContainer.new())
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 4)
+	box.add_child(_ignore(UIStyle.label(w.name, 18, UIStyle.COLOR_TEXT if unlocked else UIStyle.COLOR_MUTED.darkened(0.3))))
+	if unlocked:
+		box.add_child(_ignore(UIStyle.label(w.desc, 12, UIStyle.COLOR_MUTED)))
+	box.add_child(_synergy_row(w.id, unlocked))
+	return box
 
-	# Styles
-	var sb_normal = StyleBoxFlat.new()
-	sb_normal.bg_color = Color(0.12, 0.12, 0.15)
-	sb_normal.border_color = Color(0.2, 0.2, 0.25)
-	sb_normal.set_border_width_all(1)
-	sb_normal.set_corner_radius_all(6)
-	sb_normal.content_margin_left = 12
-	sb_normal.content_margin_right = 12
-	sb_normal.content_margin_top = 8
-	sb_normal.content_margin_bottom = 8
+# Íconos de las sinergias del arma: en color las desbloqueadas, en silueta el resto.
+func _synergy_row(weapon_id: String, weapon_unlocked: bool) -> Control:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	for syn_id in OmniaCatalog.synergy_ids():
+		if SynergyManager.SYNERGIES.get(syn_id, {}).get("required_weapon", "") != weapon_id:
+			continue
+		var known = weapon_unlocked and GameData.is_synergy_unlocked(syn_id)
+		var chip = UIStyle.panel(UIStyle.TEX_SLOT["equipped" if known else "disabled"])
+		chip.custom_minimum_size = Vector2(28, 28)
+		chip.mouse_filter = Control.MOUSE_FILTER_PASS
+		chip.tooltip_text = SynergyManager.SYNERGIES[syn_id].get("name", "") if known else "Sinergia sin descubrir"
+		var ic = _ignore(UIStyle.icon(UIStyle.trimmed(OmniaCatalog.synergy_icon(syn_id)), 22))
+		ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		ic.self_modulate = OmniaCatalog.synergy_tint(syn_id)
+		if not known:
+			var mat = ShaderMaterial.new()
+			mat.shader = LOCKED_SHADER
+			mat.set_shader_parameter("blur", 1.0)
+			ic.material = mat
+		chip.add_child(ic)
+		row.add_child(chip)
+	return row
 
-	var sb_hover = StyleBoxFlat.new()
-	sb_hover.bg_color = Color(0.16, 0.16, 0.2)
-	sb_hover.border_color = Color(0.3, 0.6, 0.8)
-	sb_hover.set_border_width_all(1)
-	sb_hover.set_corner_radius_all(6)
+# --- Acciones ---
 
-	var sb_pressed = StyleBoxFlat.new()
-	sb_pressed.bg_color = Color(0.1, 0.22, 0.32)
-	sb_pressed.border_color = Color(0.2, 0.7, 1.0)
-	sb_pressed.set_border_width_all(2)
-	sb_pressed.set_corner_radius_all(6)
+func _on_card_toggled(on: bool, slot: String, id: String, check: Control, btn: Control) -> void:
+	check.visible = on
+	if not on: return
+	selections[slot] = id
+	btn.pivot_offset = btn.size / 2.0
+	btn.scale = Vector2(0.97, 0.97)
+	btn.create_tween().tween_property(btn, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-	var sb_disabled = StyleBoxFlat.new()
-	sb_disabled.bg_color = Color(0.05, 0.05, 0.06)
-	sb_disabled.border_color = Color(0.1, 0.1, 0.12)
-	sb_disabled.set_border_width_all(1)
-	sb_disabled.set_corner_radius_all(6)
+func _confirm() -> void:
+	GameData.chosen_primary_weapon = selections.primary
+	GameData.chosen_melee_weapon = selections.melee
+	GameData.save_game()
+	_close()
+	if on_confirm.is_valid():
+		on_confirm.call(selections)
 
-	# Spawn Primaries
-	for w in prim_weapons:
-		var btn = Button.new()
-		btn.toggle_mode = true
-		btn.button_group = prim_btn_group
-		btn.custom_minimum_size = Vector2(300, 72)
-		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn.add_theme_stylebox_override("normal", sb_normal)
-		btn.add_theme_stylebox_override("hover", sb_hover)
-		btn.add_theme_stylebox_override("pressed", sb_pressed)
-		btn.add_theme_stylebox_override("disabled", sb_disabled)
-		btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+func _cancel() -> void:
+	_close()
+	if on_cancel.is_valid():
+		on_cancel.call()
 
-		var box = VBoxContainer.new()
-		box.alignment = BoxContainer.ALIGNMENT_CENTER
-		box.set_anchors_preset(Control.PRESET_FULL_RECT)
-		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		btn.add_child(box)
+func _close() -> void:
+	get_tree().paused = false
+	queue_free()
 
-		var name_lbl = Label.new()
-		name_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-		name_lbl.add_theme_font_size_override("font_size", 14)
-		box.add_child(name_lbl)
+func _animate_in() -> void:
+	_window.modulate.a = 0.0
+	await get_tree().process_frame
+	_window.pivot_offset = _window.size / 2.0
+	_window.scale = Vector2(0.94, 0.94)
+	var t = _window.create_tween().set_parallel(true)
+	t.tween_property(_window, "modulate:a", 1.0, 0.18)
+	t.tween_property(_window, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-		var desc_lbl = Label.new()
-		desc_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-		desc_lbl.add_theme_font_size_override("font_size", 11)
-		box.add_child(desc_lbl)
+# --- Detalles ---
 
-		var syn_lbl = Label.new()
-		syn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-		syn_lbl.add_theme_font_size_override("font_size", 10)
-		syn_lbl.add_theme_color_override("font_color", Color(0.75, 0.5, 1.0))
-		syn_lbl.text = w.synergy
-		box.add_child(syn_lbl)
+func _ignore(c: Control) -> Control:
+	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return c
 
-		var is_unlocked = GameData.is_codex_unlocked("weapons", w.id)
-		if is_unlocked:
-			name_lbl.text = w.name
-			name_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-			desc_lbl.text = w.desc
-			desc_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-
-			btn.pressed.connect(func(): selections.primary = w.id)
-			if selections.primary == w.id:
-				btn.button_pressed = true
-		else:
-			btn.disabled = true
-			btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
-			name_lbl.text = w.name + " (Bloqueada)"
-			name_lbl.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
-			desc_lbl.text = "Desbloquéala en el terminal de chatarra"
-			desc_lbl.add_theme_color_override("font_color", Color(0.3, 0.3, 0.3))
-			syn_lbl.visible = false
-
-		prim_vbox.add_child(btn)
-
-	# Spawn Melees
-	for w in melee_weapons:
-		var btn = Button.new()
-		btn.toggle_mode = true
-		btn.button_group = melee_btn_group
-		btn.custom_minimum_size = Vector2(300, 72)
-		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn.add_theme_stylebox_override("normal", sb_normal)
-		btn.add_theme_stylebox_override("hover", sb_hover)
-		btn.add_theme_stylebox_override("pressed", sb_pressed)
-		btn.add_theme_stylebox_override("disabled", sb_disabled)
-		btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-
-		var box = VBoxContainer.new()
-		box.alignment = BoxContainer.ALIGNMENT_CENTER
-		box.set_anchors_preset(Control.PRESET_FULL_RECT)
-		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		btn.add_child(box)
-
-		var name_lbl = Label.new()
-		name_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-		name_lbl.add_theme_font_size_override("font_size", 14)
-		box.add_child(name_lbl)
-
-		var desc_lbl = Label.new()
-		desc_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-		desc_lbl.add_theme_font_size_override("font_size", 11)
-		box.add_child(desc_lbl)
-
-		var syn_lbl = Label.new()
-		syn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-		syn_lbl.add_theme_font_size_override("font_size", 10)
-		syn_lbl.add_theme_color_override("font_color", Color(0.75, 0.5, 1.0))
-		syn_lbl.text = w.synergy
-		box.add_child(syn_lbl)
-
-		var is_unlocked = GameData.is_codex_unlocked("weapons", w.id)
-		if is_unlocked:
-			name_lbl.text = w.name
-			name_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-			desc_lbl.text = w.desc
-			desc_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-
-			btn.pressed.connect(func(): selections.melee = w.id)
-			if selections.melee == w.id:
-				btn.button_pressed = true
-		else:
-			btn.disabled = true
-			btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
-			name_lbl.text = w.name + " (Bloqueada)"
-			name_lbl.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
-			desc_lbl.text = "Desbloquéala en el terminal de chatarra"
-			desc_lbl.add_theme_color_override("font_color", Color(0.3, 0.3, 0.3))
-			syn_lbl.visible = false
-
-		melee_vbox.add_child(btn)
-
-	# Action Buttons
-	var act_hbox = HBoxContainer.new()
-	act_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	act_hbox.add_theme_constant_override("separation", 24)
-	main_vbox.add_child(act_hbox)
-
-	# Cancel
-	var btn_cancel = Button.new()
-	btn_cancel.text = "CANCELAR"
-	btn_cancel.custom_minimum_size = Vector2(140, 42)
-	btn_cancel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	btn_cancel.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	btn_cancel.add_theme_font_size_override("font_size", 16)
-
-	var sb_c_normal = StyleBoxFlat.new()
-	sb_c_normal.bg_color = Color(0.18, 0.1, 0.1)
-	sb_c_normal.border_color = Color(0.3, 0.15, 0.15)
-	sb_c_normal.set_border_width_all(1)
-	sb_c_normal.set_corner_radius_all(5)
-
-	var sb_c_hover = StyleBoxFlat.new()
-	sb_c_hover.bg_color = Color(0.24, 0.12, 0.12)
-	sb_c_hover.border_color = Color(0.45, 0.2, 0.2)
-	sb_c_hover.set_border_width_all(1)
-	sb_c_hover.set_corner_radius_all(5)
-
-	btn_cancel.add_theme_stylebox_override("normal", sb_c_normal)
-	btn_cancel.add_theme_stylebox_override("hover", sb_c_hover)
-	btn_cancel.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	act_hbox.add_child(btn_cancel)
-
-	btn_cancel.pressed.connect(func():
-		tree.paused = false
-		canvas.queue_free()
-		if on_cancel.is_valid():
-			on_cancel.call()
-	)
-
-	# Confirm
-	var btn_confirm = Button.new()
-	btn_confirm.text = confirm_text
-	btn_confirm.custom_minimum_size = Vector2(220, 42)
-	btn_confirm.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	btn_confirm.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	btn_confirm.add_theme_font_size_override("font_size", 16)
-
-	var sb_ok_normal = StyleBoxFlat.new()
-	sb_ok_normal.bg_color = Color(0.1, 0.3, 0.2)
-	sb_ok_normal.border_color = Color(0.15, 0.45, 0.3)
-	sb_ok_normal.set_border_width_all(1)
-	sb_ok_normal.set_corner_radius_all(5)
-
-	var sb_ok_hover = StyleBoxFlat.new()
-	sb_ok_hover.bg_color = Color(0.12, 0.38, 0.25)
-	sb_ok_hover.border_color = Color(0.2, 0.6, 0.4)
-	sb_ok_hover.set_border_width_all(1)
-	sb_ok_hover.set_corner_radius_all(5)
-
-	btn_confirm.add_theme_stylebox_override("normal", sb_ok_normal)
-	btn_confirm.add_theme_stylebox_override("hover", sb_ok_hover)
-	btn_confirm.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	act_hbox.add_child(btn_confirm)
-
-	btn_confirm.pressed.connect(func():
-		GameData.chosen_primary_weapon = selections.primary
-		GameData.chosen_melee_weapon = selections.melee
-		GameData.save_game()
-
-		tree.paused = false
-		canvas.queue_free()
-
-		if on_confirm.is_valid():
-			on_confirm.call(selections)
-	)
+func _codex_icon(id: String) -> Texture2D:
+	return CodexData.DATA.get("weapons", {}).get(id, {}).get("icon", null)

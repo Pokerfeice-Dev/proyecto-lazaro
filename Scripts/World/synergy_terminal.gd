@@ -104,6 +104,30 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 			"res://Art/Items/Weapons/Item8_CabezaHumana.tres",
 			"res://Art/Items/Weapons/Item7_Colmena.tres"
 		]
+	},
+	{
+		"id": "speed_demon",
+		"name": "Speed Demon",
+		"weapon_type": "melee",
+		"weapon_id": "daga",
+		"desc": "Daga + Golpes rapidísimos que te empujan hacia adelante",
+		"items": [
+			"res://Art/Items/Weapons/Item9_SierraCircular.tres",
+			"res://Art/Items/Weapons/Item6.tres",
+			"res://Art/Items/Weapons/Item10_Bateria.tres"
+		]
+	},
+	{
+		"id": "snowman",
+		"name": "Snowman",
+		"weapon_type": "primary",
+		"weapon_id": "shotgun",
+		"desc": "Escopeta + Bola de nieve que congela",
+		"items": [
+			"res://Art/Items/Weapons/Item1.tres",
+			"res://Art/Items/Weapons/Item8_CabezaHumana.tres",
+			"res://Art/Items/Weapons/Item12_Nitrogeno.tres"
+		]
 	}
 ]
 
@@ -111,6 +135,8 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	_setup_interaction_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(interaction_label)
 
 func _setup_interaction_label() -> void:
 	interaction_label = get_node_or_null("Label") as Label

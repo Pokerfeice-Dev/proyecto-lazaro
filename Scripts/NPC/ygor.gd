@@ -31,6 +31,8 @@ func _ready() -> void:
 	interact_area.body_entered.connect(_on_body_entered)
 	interact_area.body_exited.connect(_on_body_exited)
 	_setup_interact_label()
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(interact_label)
 	_setup_dialogue_ui()
 	_setup_shadow()
 	anim_sprite.play("idle")

@@ -84,6 +84,14 @@ var trituradora_shockwave_ready: bool = false
 var _last_active_synergy_state: String = ""
 var _werewolf_marked_enemy: Node2D = null
 var _werewolf_mark_visual: Node2D = null
+# Sinergia Speed Demon: cada golpe de la daga tira al jugador un poco hacia adelante.
+const SPEED_DEMON_PUSH_SPEED: float = 420.0
+const SPEED_DEMON_PUSH_TIME: float = 0.1
+var _speed_demon_push_time: float = 0.0
+var _speed_demon_push_dir: Vector2 = Vector2.ZERO
+const SPEED_DEMON_SHEET := preload("res://Art/Weapons/Melee/Dagger/synergy_speeddemon_sprite.png")
+const SPEED_DEMON_FRAMES: int = 4
+const SPEED_DEMON_FPS: float = 18.0
 
 var first_hit_taken_in_room: bool = false
 var is_blindaje_reactivo_active: bool = false
@@ -486,6 +494,9 @@ func _process_movement(delta: float) -> void:
 		_apply_dash_movement()
 		_process_dash_ghosts(delta)
 		return
+	if _speed_demon_push_time > 0.0:
+		_apply_speed_demon_push(delta)
+		return
 	handle_movement(delta)
 	_accumulate_trituradora_energy(delta)
 
@@ -549,11 +560,17 @@ func _process_actions() -> void:
 	handle_melee()
 
 func handle_melee() -> void:
-	if not Input.is_action_just_pressed("attack_melee"): return
+	# con Speed Demon se puede mantener apretado: la daga vuelve a pegar apenas termina el golpe
+	var speed_demon = _is_speed_demon_active()
+	var pressed = Input.is_action_pressed("attack_melee") if speed_demon else Input.is_action_just_pressed("attack_melee")
+	if not pressed: return
 	if not second_weapon: return
 	if not second_weapon.has_method("attack"): return
+	var was_attacking = second_weapon.has_method("is_attacking") and second_weapon.is_attacking()
 	_show_secondary_weapon()
 	second_weapon.attack()
+	if speed_demon and not was_attacking:
+		_start_speed_demon_push()
 
 func setup_damage_effect() -> void:
 	damage_canvas = CanvasLayer.new()
@@ -981,6 +998,8 @@ func _should_proc_status(stat_name: String) -> bool:
 func _calculate_final_bullet_count(current_bullets: int, p_scene: PackedScene, active_weapon_id: String) -> int:
 	if active_weapon_id == "hivemind_pistol":
 		return 3
+	if _is_snowball(p_scene):
+		return 1 # Snowman: una sola bola grande, aunque las piezas sumen proyectiles
 	if p_scene and "beeprojectile" in p_scene.resource_path.to_lower():
 		return 3
 	return current_bullets
@@ -988,9 +1007,14 @@ func _calculate_final_bullet_count(current_bullets: int, p_scene: PackedScene, a
 func _calculate_final_spread(current_spread: float, p_scene: PackedScene, active_weapon_id: String) -> float:
 	if active_weapon_id == "hivemind_pistol":
 		return maxf(50.0, current_spread)
+	if _is_snowball(p_scene):
+		return 0.0
 	if p_scene and "beeprojectile" in p_scene.resource_path.to_lower():
 		return maxf(50.0, current_spread)
 	return current_spread
+
+func _is_snowball(p_scene: PackedScene) -> bool:
+	return p_scene != null and "snowball" in p_scene.resource_path.to_lower()
 
 func _configure_bee_swarm_if_supported(proj: Node2D, index: int, total: int, initial_dir: Vector2) -> void:
 	if not proj.has_method("setup_bee_swarm"):
@@ -2330,7 +2354,9 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 	var base_scale: Vector2 = sprite.get_meta("base_scale")
 	if not sprite.has_meta("base_texture"):
 		sprite.set_meta("base_texture", sprite.texture)
+		sprite.set_meta("base_rotation", sprite.rotation)
 	var base_texture: Texture2D = sprite.get_meta("base_texture")
+	_reset_sheet_sprite(sprite)
 
 	if _is_daga_del_odio_active() and stats.max_health > 0:
 		var health_ratio = clamp(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
@@ -2339,6 +2365,8 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 		sprite.texture = nemesis_tex
 		sprite.modulate = Color(1.0, 1.0 - 0.7 * t, 1.0 - 0.7 * t)
 		sprite.scale = base_scale * (1.0 + 0.6 * t)
+	elif _is_speed_demon_active():
+		_apply_speed_demon_sprite(sprite, base_scale)
 	elif _is_arrogancia_equipped():
 		sprite.texture = base_texture
 		sprite.modulate = Color(1.5, 1.15, 0.3)
@@ -2352,6 +2380,23 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 		sprite.texture = base_texture
 		sprite.modulate = Color(1.0, 1.0, 1.0)
 		sprite.scale = base_scale
+
+## Speed Demon: hoja de 4 cuadros (sierra girando) dibujada acostada; se gira
+## para que la sierra quede donde iría la hoja de la daga.
+func _apply_speed_demon_sprite(sprite: Sprite2D, base_scale: Vector2) -> void:
+	sprite.texture = SPEED_DEMON_SHEET
+	sprite.hframes = SPEED_DEMON_FRAMES
+	sprite.frame = int(Time.get_ticks_msec() / 1000.0 * SPEED_DEMON_FPS) % SPEED_DEMON_FRAMES
+	sprite.rotation = -PI / 2.0
+	sprite.modulate = Color(1.0, 1.0, 1.0)
+	sprite.scale = base_scale
+
+# Deja el sprite como un sprite común (por si antes tenía la hoja de Speed Demon).
+func _reset_sheet_sprite(sprite: Sprite2D) -> void:
+	if sprite.hframes == 1: return
+	sprite.hframes = 1
+	sprite.frame = 0
+	sprite.rotation = sprite.get_meta("base_rotation", 0.0)
 
 ## Si la sinergia Nemesis esta activa y el jugador tiene menos del 50% de vida,
 ## matar a un enemigo regenera vida.
@@ -2379,6 +2424,24 @@ func _is_arrogancia_reflect_active() -> bool:
 	var active_weapon_id = get_active_melee_weapon_id()
 	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
 	return active_syns.has("arrogancia")
+
+## Sinergia Speed Demon: la daga pega rapidísimo (ver stat_modifiers en
+## SynergyManager) y cada golpe empuja al jugador hacia donde apunta.
+func _is_speed_demon_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
+	return active_syns.has("speed_demon")
+
+func _start_speed_demon_push() -> void:
+	var dir = (get_global_mouse_position() - global_position).normalized()
+	if dir == Vector2.ZERO: return
+	_speed_demon_push_dir = dir
+	_speed_demon_push_time = SPEED_DEMON_PUSH_TIME
+
+func _apply_speed_demon_push(delta: float) -> void:
+	_speed_demon_push_time -= delta
+	velocity = _speed_demon_push_dir * SPEED_DEMON_PUSH_SPEED
 
 func _is_arrogancia_equipped() -> bool:
 	var equip = get_node_or_null("Equipment")
