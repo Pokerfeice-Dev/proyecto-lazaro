@@ -138,12 +138,25 @@ func _ready() -> void:
 			body_slots[node.slot_type] = node
 	for button in %CodexCategories.get_children():
 		codex_category_buttons[button.get_meta("category")] = button
+	_ensure_synergies_button()
 	if inventory:
 		inventory.inventory_updated.connect(update_items_list)
 	if equipment:
 		equipment.equipment_changed.connect(update_ui)
 	_default_margin_pos_y = window_margin.position.y
 	update_ui()
+
+# La escena no trae el botón de SINERGIAS: se arma copiando el estilo de otro.
+func _ensure_synergies_button() -> void:
+	if codex_category_buttons.has("synergies") or codex_category_buttons.is_empty(): return
+	var template: Button = codex_category_buttons.values()[0]
+	var btn: Button = template.duplicate(Node.DUPLICATE_GROUPS | Node.DUPLICATE_SCRIPTS)
+	btn.name = "SynergiesBtn"
+	btn.text = "SINERGIAS"
+	btn.set_meta("category", "synergies")
+	btn.pressed.connect(_on_codex_category_pressed.bind("synergies"))
+	%CodexCategories.add_child(btn)
+	codex_category_buttons["synergies"] = btn
 
 func _apply_tab_style(btn: Button, is_active: bool) -> void:
 	btn.theme_type_variation = "InventoryTabActive" if is_active else "InventoryTab"
@@ -153,12 +166,6 @@ func _apply_secondary_button_style(btn: Button) -> void:
 
 func _apply_primary_button_style(btn: Button) -> void:
 	btn.theme_type_variation = "InventoryPrimary"
-	btn.add_theme_stylebox_override("normal", _create_9slice_style(tex_btn_primary_normal, 8.0))
-	btn.add_theme_stylebox_override("hover", _create_9slice_style(tex_btn_primary_hover, 8.0))
-	btn.add_theme_stylebox_override("pressed", _create_9slice_style(tex_btn_primary_pressed, 8.0))
-	btn.add_theme_stylebox_override("disabled", _create_9slice_style(tex_btn_primary_disabled, 8.0))
-	btn.add_theme_stylebox_override("focus", _create_9slice_style(tex_btn_primary_hover, 8.0))
-	btn.add_theme_color_override("font_color", Color("#171D22"))
 
 func toggle_visibility() -> void:
 	if _is_animating: return
@@ -763,31 +770,27 @@ func _refresh_codex_grid() -> void:
 	if selected_codex_category == "synergies":
 		_fill_codex_synergies()
 		return
-	codex_grid.columns = 6
+	# Cada pestaña tiene su propio diseño (ver Scripts/UI/Codex/)
+	codex_grid.columns = 1
 	var cat_data = CodexData.DATA.get(selected_codex_category, {})
 	var unlocked_count = 0
 	for entry_id in cat_data.keys():
-		var entry = cat_data[entry_id]
-		var is_unlocked = GameData.is_codex_unlocked(selected_codex_category, entry_id)
-		if is_unlocked: unlocked_count += 1
-
-		var fake_item = ItemData.new()
-		fake_item.id = entry_id
-		if is_unlocked:
-			fake_item.item_name = entry.name
-			fake_item.icon = entry.icon
-		else:
-			fake_item.item_name = "???"
-
-		var slot: UISlot = SLOT_SCENE.instantiate()
-		slot.custom_minimum_size = Vector2(72, 72)
-		slot.slot_hovered.connect(_on_slot_hovered)
-		slot.slot_unhovered.connect(_on_slot_unhovered)
-		codex_grid.add_child(slot)
-		slot.update_slot(fake_item)
+		if GameData.is_codex_unlocked(selected_codex_category, entry_id): unlocked_count += 1
+	var page = _codex_page(selected_codex_category)
+	if page:
+		codex_grid.add_child(page)
 
 	if codex_progress_label:
 		codex_progress_label.text = "%d / %d registrados" % [unlocked_count, cat_data.size()]
+
+func _codex_page(category: String) -> Control:
+	match category:
+		"enemies": return CodexBestiary.new()
+		"weapons": return CodexArmory.new()
+		"items": return CodexItems.new()
+		"npcs": return CodexNpcs.new()
+		"levels": return CodexZones.new()
+	return null
 
 # Pestaña SINERGIAS: fichas grandes (CodexSynergyCard) en vez de slots chicos.
 # Las bloqueadas muestran solo para qué arma son; el resto queda tapado.

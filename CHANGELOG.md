@@ -1,3 +1,28 @@
+## 2026-10-14 (arreglo del inventario, códice nuevo y menu de seleccion de armas)
+
+- **Arreglo: el juego crasheaba al arrancar.** En `inventory_ui.gd`, `_apply_primary_button_style` seguia llamando a `_create_9slice_style` y a las texturas `tex_btn_primary_*`, que ya no existen desde que la UI paso a `inventory_ui.tscn` con el tema. Se borraron esas lineas: ahora el boton usa solo `theme_type_variation = "InventoryPrimary"`.
+- **La escena nueva del inventario no traia el boton SINERGIAS del codice.** Si falta, `_ensure_synergies_button()` lo agrega copiando el estilo de los otros botones (no hace falta tocar la escena).
+- **Codice: cada pestaña tiene su propio diseño** (`Scripts/UI/Codex/`):
+  - **Bestiario:** grilla de especimenes con su idle animado en miniatura y una vitrina grande a la derecha con el idle, la descripcion y los stats en chips. Los jefes tienen marco dorado.
+  - **Armamento:** un estante por tipo (distancia y cuerpo a cuerpo) con fichas anchas: el arma en grande, stats en chips y los iconos de sus sinergias (en silueta las que faltan).
+  - **Items:** casilleros separados en Protesis y Piezas de arma, con una ficha al costado que muestra el objeto que tengas bajo el mouse. Los "+" van en verde y los "-" en naranja.
+  - **NPCs:** retratos grandes sobre un pedestal con el idle animado. Se agrego a **Victoria** (la NPC de O.M.N.I.A.): se registra al abrir la terminal por primera vez.
+  - **Zonas:** una franja por zona con el numero grande, el arte, un medidor de peligro y las caras de sus enemigos y su jefe.
+  - Lo bloqueado se ve en silueta con candado, el nombre cifrado y la descripcion tachada en bloques.
+  - Piezas comunes en `CodexKit`; la animacion idle sale de la escena de cada enemigo/NPC (`CodexAnim`), sin duplicar sprites.
+- **Menu de seleccion de armas ("PREPARACIÓN DE INVASIÓN" y el terminal de entrenamiento)** con el estilo de la UI nueva: fichas con el sprite del arma, una linea corta e iconos de sus sinergias. Las armas bloqueadas quedan en silueta con candado. ESC cancela y Enter confirma.
+- **Speed Demon usa su sprite** (`Art/Weapons/Melee/Dagger/synergy_speeddemon_sprite.png`, 4 cuadros con la sierra girando), tambien en O.M.N.I.A. y en el codice.
+- `UIStyle.trimmed()` recorta el borde transparente de un sprite para mostrarlo grande en un marco.
+
+## 2026-10-13 (sinergias Speed Demon y Snowman, pestaña de sinergias y carteles in-game)
+
+- **Speed Demon (daga):** Sierra Circular + Motocicleta + Bateria. Pega muy rapido (se puede mantener apretado el ataque) y cada golpe empuja al jugador hacia donde apunta.
+- **Snowman (escopeta):** Mezcladora + Cabeza Humana + Nitrogeno Liquido. Dispara una bola de nieve grande y lenta que atraviesa enemigos y congela a cada uno que toca; se rompe contra las paredes.
+- Las dos estan en O.M.N.I.A., en el menu de debug y en el terminal de sinergias.
+- **Pestaña SINERGIAS en el codice:** fichas grandes que muestran para que arma es cada sinergia. Las bloqueadas quedan en silueta, con el nombre cifrado, la receta tapada y un sello de rayas encima.
+- **Carteles de interaccion nuevos** (`InteractPrompt`): placa oscura con la tecla dibujada e iconos en vez de texto (mano para agarrar, candado para desbloquear, carne + precio, aviso en rojo si falta carne). Los usan cofres, puertas, carteles, terminales, Ygor, hologramas, objetos y Victoria.
+- Arreglo: los carteles de los hologramas de Ygor se agrandaban al acercarse y alejarse varias veces.
+
 ## 2026-10-13 (cartel nuevo al entrar a cada sala, a prueba)
 
 - **Cartel de entrada a la sala con el estilo de la UI nueva** (`Scripts/UI/room_title_card.gd`). Esta a prueba: se puede volver al texto de antes apagando `use_new_room_title` en el nodo raiz de `HUD.tscn`.

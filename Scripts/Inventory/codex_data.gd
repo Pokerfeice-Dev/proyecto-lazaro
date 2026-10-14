@@ -229,6 +229,12 @@ const DATA = {
 			"lore": "Un enigmático sobreviviente que comercia con chatarra y componentes biológicos en las ruinas del complejo Lázaro.",
 			"stats": "Rol: Comerciante / Proveedor de Mejoras",
 			"icon": preload("res://Scenes/Ygor/Ygor-removebg-preview.png")
+		},
+		"victoria": {
+			"name": "Victoria",
+			"lore": "La científica que liberó a Lázaro para devolverle el bienestar a la humanidad. Desde el laboratorio opera O.M.N.I.A. y convierte lo que traes de cada run en mejoras permanentes.",
+			"stats": "Rol: Científica / Terminal O.M.N.I.A.",
+			"icon": preload("res://Art/Codex/victoria_codex_icon.tres")
 		}
 	},
 	"levels": {
