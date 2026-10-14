@@ -1,5 +1,25 @@
 extends Node
 
+# Serialize celebrations so simultaneous recipes cannot stack modal windows.
+var _presentation_queue: Array[Dictionary] = []
+var _presentation_active: bool = false
+
+func present_activation(synergy_id: String, first_discovery: bool = false) -> void:
+	_presentation_queue.append({"id": synergy_id, "first": first_discovery})
+	if not _presentation_active:
+		_presentation_active = true
+		_show_next_activation.call_deferred()
+
+func _show_next_activation() -> void:
+	if _presentation_queue.is_empty():
+		_presentation_active = false
+		return
+	var next: Dictionary = _presentation_queue.pop_front()
+	var popup = load("res://Scenes/UI/synergy_activation.tscn").instantiate()
+	popup.setup(next.id, next.first)
+	popup.tree_exited.connect(_show_next_activation, CONNECT_DEFERRED)
+	get_tree().root.add_child(popup)
+
 const SYNERGIES = {
 	"pistola_mente_colmena": {
 		"name": "Mente Colmena",

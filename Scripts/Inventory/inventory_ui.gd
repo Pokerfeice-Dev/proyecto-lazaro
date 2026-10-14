@@ -13,10 +13,10 @@ var body_slots: Dictionary = {} # ItemData.ItemSlot -> UISlot
 # Referencias a slots de armas
 var main_weapon_slots: Array[UISlot] = []
 var sec_weapon_slots: Array[UISlot] = []
-var primary_weapon_slot_panel: PanelContainer
-var primary_weapon_icon: TextureRect
-var secondary_weapon_slot_panel: PanelContainer
-var secondary_weapon_icon: TextureRect
+@onready var primary_weapon_slot_panel: PanelContainer = %PrimaryWeaponSlotPanel
+@onready var primary_weapon_icon: TextureRect = %PrimaryWeaponIcon
+@onready var secondary_weapon_slot_panel: PanelContainer = %SecondaryWeaponSlotPanel
+@onready var secondary_weapon_icon: TextureRect = %SecondaryWeaponIcon
 
 # Estado de UI
 var current_tab: String = "INVENTORY" # "INVENTORY" o "CODEX"
@@ -31,112 +31,77 @@ var selected_source_slot: UISlot = null
 var is_comparing: bool = false
 
 # Nodos principales
-@onready var dark_backdrop: ColorRect = $DarkBackdrop
-@onready var window_margin: MarginContainer = $WindowMargin
-@onready var window_panel: PanelContainer = $WindowMargin/WindowPanel
-@onready var top_bar: HBoxContainer = $WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/TopBar
-@onready var content_area: Control = $WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea
-@onready var bottom_bar: PanelContainer = $WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/BottomBar
+@onready var dark_backdrop: ColorRect = %DarkBackdrop
+@onready var window_margin: MarginContainer = %WindowMargin
+@onready var window_panel: PanelContainer = %WindowPanel
+@onready var top_bar: HBoxContainer = %TopBar
+@onready var content_area: Control = %ContentArea
+@onready var bottom_bar: PanelContainer = %BottomBar
 
-# Contenedores dinámicos
-var main_three_columns: HBoxContainer
-var codex_view: Control
+# Vistas guardadas en inventory_ui.tscn
+@onready var main_three_columns: HBoxContainer = %MainThreeColumns
+@onready var codex_view: Control = %CodexView
 
-# Pestañas superiores y monedas
-var tab_inventory_btn: Button
-var tab_codex_btn: Button
-var coin_label: Label
-var capacity_label: Label
+# Pestañas superiores
+@onready var tab_inventory_btn: Button = %TabInventoryBtn
+@onready var tab_codex_btn: Button = %TabCodexBtn
+@onready var capacity_label: Label = %CapacityLabel
 
 # Columna 1: Inventario
-var inventory_grid: GridContainer
-var filter_all_btn: Button
-var filter_weapons_btn: Button
-var filter_body_btn: Button
-var sort_option_btn: OptionButton
+@onready var inventory_grid: GridContainer = %InventoryGrid
+@onready var filter_all_btn: Button = %FilterAllBtn
+@onready var filter_weapons_btn: Button = %FilterWeaponsBtn
+@onready var filter_body_btn: Button = %FilterBodyBtn
+@onready var sort_option_btn: OptionButton = %SortOptionBtn
 
 # Ficha de detalle inferior (columna 1)
-var detail_panel: PanelContainer
-var detail_empty_label: Label
-var detail_content_box: VBoxContainer
-var detail_icon_rect: TextureRect
-var detail_name_label: Label
-var detail_meta_label: Label
-var detail_desc_label: Label
-var detail_stats_label: RichTextLabel
-var detail_equip_btn: Button
-var detail_compare_btn: Button
+@onready var detail_panel: PanelContainer = %DetailPanel
+@onready var detail_empty_label: Label = %DetailEmptyLabel
+@onready var detail_content_box: VBoxContainer = %DetailContentBox
+@onready var detail_icon_rect: TextureRect = %DetailIconRect
+@onready var detail_name_label: Label = %DetailNameLabel
+@onready var detail_meta_label: Label = %DetailMetaLabel
+@onready var detail_desc_label: Label = %DetailDescLabel
+@onready var detail_stats_label: RichTextLabel = %DetailStatsLabel
+@onready var detail_equip_btn: Button = %DetailEquipBtn
+@onready var detail_compare_btn: Button = %DetailCompareBtn
 
 # Columna 2: Equipamiento
-var character_name_label: Label
-var portrait_container: Control
-var portrait_anim_sprite: AnimatedSprite2D
+@onready var character_name_label: Label = %CharacterNameLabel
+@onready var portrait_container: Control = %PortraitContainer
+@onready var portrait_anim_sprite: AnimatedSprite2D = %PortraitAnimSprite
 
 # Columna 3: Atributos
-var stats_char_vbox: VBoxContainer
-var stats_weapon_vbox: VBoxContainer
-var stats_weapon_header_box: HBoxContainer
-var stats_weapon_icon: TextureRect
-var stats_weapon_name: Label
-var stats_preview_badge: HBoxContainer
-var stats_tab_primary_btn: Button
-var stats_tab_secondary_btn: Button
+@onready var stats_char_vbox: VBoxContainer = %StatsCharVbox
+@onready var stats_weapon_vbox: VBoxContainer = %StatsWeaponVbox
+@onready var stats_weapon_header_box: HBoxContainer = %StatsWeaponHeaderBox
+@onready var stats_weapon_icon: TextureRect = %StatsWeaponIcon
+@onready var stats_weapon_name: Label = %StatsWeaponName
+@onready var stats_preview_badge: HBoxContainer = %StatsPreviewBadge
+@onready var stats_tab_primary_btn: Button = %StatsTabPrimaryBtn
+@onready var stats_tab_secondary_btn: Button = %StatsTabSecondaryBtn
 var active_weapon_stats_tab: String = "PRIMARY"
 
 # Tooltip flotante (para Códice y slots)
-var tooltip_panel: PanelContainer
-var tooltip_name: Label
-var tooltip_rarity: Label
-var tooltip_type: Label
-var tooltip_desc: RichTextLabel
-var tooltip_stats: RichTextLabel
-var tooltip_action: Label
+@onready var tooltip_panel: PanelContainer = %TooltipPanel
+@onready var tooltip_name: Label = %TooltipName
+@onready var tooltip_rarity: Label = %TooltipRarity
+@onready var tooltip_type: Label = %TooltipType
+@onready var tooltip_desc: RichTextLabel = %TooltipDesc
+@onready var tooltip_stats: RichTextLabel = %TooltipStats
+@onready var tooltip_action: Label = %TooltipAction
 
 # Códice
 var selected_codex_category: String = "enemies"
-var codex_grid: GridContainer
+@onready var codex_grid: GridContainer = %CodexGrid
 var codex_category_buttons: Dictionary = {}
-var codex_progress_label: Label
+@onready var codex_progress_label: Label = %CodexProgressLabel
 
-# Texturas SVG precargadas
-static var tex_panel_main: Texture2D = preload("res://Art/Ui/svg/panel_main.svg")
-static var tex_panel_inset: Texture2D = preload("res://Art/Ui/svg/panel_inset.svg")
-static var tex_panel_footer: Texture2D = preload("res://Art/Ui/svg/panel_footer.svg")
-static var tex_panel_tooltip: Texture2D = preload("res://Art/Ui/svg/panel_tooltip.svg")
+const SLOT_SCENE = preload("res://Scenes/UI/inventory_slot.tscn")
 
-static var tex_tab_normal: Texture2D = preload("res://Art/Ui/svg/tab_normal.svg")
-static var tex_tab_hover: Texture2D = preload("res://Art/Ui/svg/tab_hover.svg")
-static var tex_tab_active: Texture2D = preload("res://Art/Ui/svg/tab_active.svg")
 
-static var tex_btn_primary_normal: Texture2D = preload("res://Art/Ui/svg/primary_normal.svg")
-static var tex_btn_primary_hover: Texture2D = preload("res://Art/Ui/svg/primary_hover.svg")
-static var tex_btn_primary_pressed: Texture2D = preload("res://Art/Ui/svg/primary_pressed.svg")
-static var tex_btn_primary_disabled: Texture2D = preload("res://Art/Ui/svg/primary_disabled.svg")
 
-static var tex_btn_secondary_normal: Texture2D = preload("res://Art/Ui/svg/secondary_normal.svg")
-static var tex_btn_secondary_hover: Texture2D = preload("res://Art/Ui/svg/secondary_hover.svg")
-static var tex_btn_secondary_pressed: Texture2D = preload("res://Art/Ui/svg/secondary_pressed.svg")
-static var tex_btn_secondary_disabled: Texture2D = preload("res://Art/Ui/svg/secondary_disabled.svg")
 
-static var tex_keycap: Texture2D = preload("res://Art/Ui/svg/keycap.svg")
-static var tex_icon_coin: Texture2D = preload("res://Art/Ui/svg/icon_coin.svg")
-static var tex_icon_close: Texture2D = preload("res://Art/Ui/svg/icon_close.svg")
-static var tex_icon_check: Texture2D = preload("res://Art/Ui/svg/icon_check.svg")
-static var tex_icon_info: Texture2D = preload("res://Art/Ui/svg/icon_info.svg")
-static var tex_icon_warning: Texture2D = preload("res://Art/Ui/svg/icon_warning.svg")
-static var tex_icon_sort: Texture2D = preload("res://Art/Ui/svg/icon_sort.svg")
-static var tex_icon_mouse: Texture2D = preload("res://Art/Ui/svg/icon_mouse.svg")
-static var tex_icon_compare: Texture2D = preload("res://Art/Ui/svg/icon_compare.svg")
-static var tex_icon_damage: Texture2D = preload("res://Art/Ui/svg/icon_damage.svg")
-static var tex_icon_health: Texture2D = preload("res://Art/Ui/svg/icon_health.svg")
-static var tex_icon_energy: Texture2D = preload("res://Art/Ui/svg/icon_energy.svg")
-static var tex_icon_armor: Texture2D = preload("res://Art/Ui/svg/icon_armor.svg")
-static var tex_icon_fire_rate: Texture2D = preload("res://Art/Ui/svg/icon_fire_rate.svg")
-static var tex_icon_projectiles: Texture2D = preload("res://Art/Ui/svg/icon_projectiles.svg")
-static var tex_icon_critical: Texture2D = preload("res://Art/Ui/svg/icon_critical.svg")
-static var tex_icon_range: Texture2D = preload("res://Art/Ui/svg/icon_range.svg")
-static var tex_icon_ammo: Texture2D = preload("res://Art/Ui/svg/icon_ammo.svg")
-static var tex_icon_pierce: Texture2D = preload("res://Art/Ui/svg/icon_pierce.svg")
 
 # Diccionario de etiquetas legibles para atributos
 const STAT_LABELS: Dictionary = {
@@ -159,789 +124,35 @@ const STAT_LABELS: Dictionary = {
 }
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
 	_auto_fetch_player_nodes()
-	_apply_window_panel_style()
-	_build_top_bar()
-	_build_content_area()
-	_build_bottom_bar()
-	_create_tooltip_panel()
-	_build_codex_panel()
-
+	for slot in inventory_grid.get_children():
+		if slot is UISlot: inventory_slots.append(slot)
+	for node in main_three_columns.find_children("*", "PanelContainer", true, false):
+		if not node is UISlot or not node.is_equipped_slot: continue
+		ui_slots.append(node)
+		if node.slot_type <= ItemData.ItemSlot.MAIN_W3:
+			main_weapon_slots.append(node)
+		elif node.slot_type <= ItemData.ItemSlot.SEC_W3:
+			sec_weapon_slots.append(node)
+		else:
+			body_slots[node.slot_type] = node
+	for button in %CodexCategories.get_children():
+		codex_category_buttons[button.get_meta("category")] = button
 	if inventory:
 		inventory.inventory_updated.connect(update_items_list)
 	if equipment:
 		equipment.equipment_changed.connect(update_ui)
-
-	if window_margin:
-		_default_margin_pos_y = window_margin.position.y
-
-func _apply_window_panel_style() -> void:
-	var style = _create_9slice_style(tex_panel_main, 8.0)
-	window_panel.add_theme_stylebox_override("panel", style)
-
-func _create_9slice_style(tex: Texture2D, margin: float) -> StyleBoxTexture:
-	var style = StyleBoxTexture.new()
-	style.texture = tex
-	style.texture_margin_left = margin
-	style.texture_margin_top = margin
-	style.texture_margin_right = margin
-	style.texture_margin_bottom = margin
-	return style
-
-# ── Construcción de la Franja Superior ─────────────────────────────────────────
-
-func _build_top_bar() -> void:
-	for c in top_bar.get_children():
-		c.queue_free()
-
-	var tabs_box = HBoxContainer.new()
-	tabs_box.name = "TabsBox"
-	tabs_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tabs_box.add_theme_constant_override("separation", 8)
-	top_bar.add_child(tabs_box)
-
-	tab_inventory_btn = _create_tab_button("INVENTARIO", true)
-	tab_inventory_btn.pressed.connect(_on_inventory_tab_pressed)
-	tabs_box.add_child(tab_inventory_btn)
-
-	tab_codex_btn = _create_tab_button("CÓDICE", false)
-	tab_codex_btn.pressed.connect(_on_codex_tab_pressed)
-	tabs_box.add_child(tab_codex_btn)
-
-	var right_box = HBoxContainer.new()
-	right_box.alignment = BoxContainer.ALIGNMENT_END
-	right_box.add_theme_constant_override("separation", 24)
-	top_bar.add_child(right_box)
-
-	var coin_box = HBoxContainer.new()
-	coin_box.add_theme_constant_override("separation", 8)
-	right_box.add_child(coin_box)
-
-	var coin_icon = TextureRect.new()
-	coin_icon.texture = tex_icon_coin
-	coin_icon.custom_minimum_size = Vector2(24, 24)
-	coin_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	coin_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	coin_box.add_child(coin_icon)
-
-	coin_label = Label.new()
-	coin_label.text = _format_scrap_number(GameData.scrap)
-	coin_label.add_theme_font_size_override("font_size", 22)
-	coin_label.add_theme_color_override("font_color", Color("#F4C45E"))
-	coin_box.add_child(coin_label)
-
-	var close_box = HBoxContainer.new()
-	close_box.add_theme_constant_override("separation", 6)
-	right_box.add_child(close_box)
-
-	var keycap = _create_keycap_box("Esc")
-	close_box.add_child(keycap)
-
-	var close_btn = Button.new()
-	close_btn.text = "Cerrar"
-	close_btn.icon = tex_icon_close
-	close_btn.flat = true
-	close_btn.add_theme_font_size_override("font_size", 20)
-	close_btn.add_theme_color_override("font_color", Color("#8DAAB4"))
-	close_btn.add_theme_color_override("font_hover_color", Color("#E5EEF0"))
-	close_btn.pressed.connect(toggle_visibility)
-	close_box.add_child(close_btn)
-
-func _create_tab_button(label_text: String, is_active: bool) -> Button:
-	var btn = Button.new()
-	btn.text = label_text
-	btn.custom_minimum_size = Vector2(170, 44)
-	btn.add_theme_font_size_override("font_size", 22)
-	_apply_tab_style(btn, is_active)
-	return btn
+	_default_margin_pos_y = window_margin.position.y
+	update_ui()
 
 func _apply_tab_style(btn: Button, is_active: bool) -> void:
-	var tex = tex_tab_active if is_active else tex_tab_normal
-	var hover_tex = tex_tab_active if is_active else tex_tab_hover
-	var font_col = Color("#F4C45E") if is_active else Color("#8DAAB4")
-
-	btn.add_theme_stylebox_override("normal", _create_9slice_style(tex, 8.0))
-	btn.add_theme_stylebox_override("hover", _create_9slice_style(hover_tex, 8.0))
-	btn.add_theme_stylebox_override("pressed", _create_9slice_style(tex_tab_active, 8.0))
-	btn.add_theme_stylebox_override("focus", _create_9slice_style(hover_tex, 8.0))
-	btn.add_theme_color_override("font_color", font_col)
-	btn.add_theme_color_override("font_hover_color", Color("#E5EEF0"))
-
-func _create_keycap_box(key_text: String) -> PanelContainer:
-	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(32, 32)
-	panel.add_theme_stylebox_override("panel", _create_9slice_style(tex_keycap, 8.0))
-
-	var lbl = Label.new()
-	lbl.text = key_text
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 14)
-	lbl.add_theme_color_override("font_color", Color("#E5EEF0"))
-	panel.add_child(lbl)
-	return panel
-
-# ── Construcción de las Tres Columnas (39% / 34% / 27%) ────────────────────────
-
-func _build_content_area() -> void:
-	for c in content_area.get_children():
-		c.queue_free()
-
-	main_three_columns = HBoxContainer.new()
-	main_three_columns.set_anchors_preset(Control.PRESET_FULL_RECT)
-	main_three_columns.add_theme_constant_override("separation", 16)
-	content_area.add_child(main_three_columns)
-
-	# Columna Izquierda: 39%
-	var col_left = PanelContainer.new()
-	col_left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col_left.size_flags_stretch_ratio = 0.39
-	col_left.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_inset, 8.0))
-	main_three_columns.add_child(col_left)
-	_build_inventory_column(col_left)
-
-	_add_vertical_divider(main_three_columns)
-
-	# Columna Centro: 34%
-	var col_center = PanelContainer.new()
-	col_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col_center.size_flags_stretch_ratio = 0.34
-	col_center.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_inset, 8.0))
-	main_three_columns.add_child(col_center)
-	_build_equipment_column(col_center)
-
-	_add_vertical_divider(main_three_columns)
-
-	# Columna Derecha: 27%
-	var col_right = PanelContainer.new()
-	col_right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col_right.size_flags_stretch_ratio = 0.27
-	col_right.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_inset, 8.0))
-	main_three_columns.add_child(col_right)
-	_build_attributes_column(col_right)
-
-func _add_vertical_divider(parent: Control) -> void:
-	var div = TextureRect.new()
-	div.texture = preload("res://Art/Ui/svg/divider_vertical.svg")
-	div.custom_minimum_size = Vector2(2, 0)
-	div.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	div.stretch_mode = TextureRect.STRETCH_TILE
-	div.modulate = Color(1.0, 1.0, 1.0, 0.4)
-	parent.add_child(div)
-
-func _add_horizontal_divider(parent: Control) -> void:
-	var div = TextureRect.new()
-	div.texture = preload("res://Art/Ui/svg/divider_horizontal.svg")
-	div.custom_minimum_size = Vector2(0, 2)
-	div.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	div.stretch_mode = TextureRect.STRETCH_TILE
-	div.modulate = Color(1.0, 1.0, 1.0, 0.4)
-	parent.add_child(div)
-
-# ── Columna 1: Inventario ──────────────────────────────────────────────────────
-
-func _build_inventory_column(container: Control) -> void:
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	container.add_child(margin)
-
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 12)
-	margin.add_child(vbox)
-
-	# Encabezado
-	var header = HBoxContainer.new()
-	vbox.add_child(header)
-
-	var title = Label.new()
-	title.text = "INVENTARIO"
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color("#E5EEF0"))
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(title)
-
-	capacity_label = Label.new()
-	capacity_label.text = "0 / 24"
-	capacity_label.add_theme_font_size_override("font_size", 20)
-	capacity_label.add_theme_color_override("font_color", Color("#8DAAB4"))
-	header.add_child(capacity_label)
-
-	# Filtros y selector de orden
-	var filters_bar = HBoxContainer.new()
-	filters_bar.add_theme_constant_override("separation", 8)
-	vbox.add_child(filters_bar)
-
-	filter_all_btn = _create_filter_button("Todos", "ALL")
-	filter_weapons_btn = _create_filter_button("Armas", "WEAPON")
-	filter_body_btn = _create_filter_button("Cuerpo", "BODY")
-	filters_bar.add_child(filter_all_btn)
-	filters_bar.add_child(filter_weapons_btn)
-	filters_bar.add_child(filter_body_btn)
-
-	var spacer = Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	filters_bar.add_child(spacer)
-
-	sort_option_btn = OptionButton.new()
-	sort_option_btn.add_item("Reciente", 0)
-	sort_option_btn.add_item("Tipo", 1)
-	sort_option_btn.add_item("Nombre", 2)
-	sort_option_btn.custom_minimum_size = Vector2(130, 36)
-	sort_option_btn.item_selected.connect(_on_sort_option_selected)
-	filters_bar.add_child(sort_option_btn)
-
-	# Grilla de 6 x 4 con scroll si excede capacidad
-	var scroll = ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size = Vector2(0, 300)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(scroll)
-
-	inventory_grid = GridContainer.new()
-	inventory_grid.columns = 6
-	inventory_grid.add_theme_constant_override("h_separation", 10)
-	inventory_grid.add_theme_constant_override("v_separation", 10)
-	scroll.add_child(inventory_grid)
-
-	inventory_slots.clear()
-	for i in range(24):
-		var slot_ui = UISlot.new()
-		slot_ui.is_inventory_slot = true
-		slot_ui.custom_minimum_size = Vector2(80, 80)
-		slot_ui.empty_text = "+"
-		slot_ui.item_dropped.connect(_on_item_dropped)
-		slot_ui.slot_clicked.connect(_on_slot_clicked)
-		slot_ui.slot_double_clicked.connect(_on_slot_double_clicked)
-		slot_ui.slot_hovered.connect(_on_slot_hovered)
-		slot_ui.slot_unhovered.connect(_on_slot_unhovered)
-		slot_ui.drag_started.connect(_on_drag_started)
-		inventory_grid.add_child(slot_ui)
-		inventory_slots.append(slot_ui)
-
-	_add_horizontal_divider(vbox)
-
-	# Ficha fija del objeto seleccionado
-	detail_panel = PanelContainer.new()
-	detail_panel.custom_minimum_size = Vector2(0, 220)
-	detail_panel.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_footer, 8.0))
-	vbox.add_child(detail_panel)
-
-	_build_item_detail_panel(detail_panel)
-
-func _create_filter_button(label_text: String, filter_type: String) -> Button:
-	var btn = Button.new()
-	btn.text = label_text
-	btn.custom_minimum_size = Vector2(76, 36)
-	btn.add_theme_font_size_override("font_size", 16)
-	_apply_secondary_button_style(btn)
-	btn.pressed.connect(_on_filter_pressed.bind(filter_type))
-	return btn
+	btn.theme_type_variation = "InventoryTabActive" if is_active else "InventoryTab"
 
 func _apply_secondary_button_style(btn: Button) -> void:
-	btn.add_theme_stylebox_override("normal", _create_9slice_style(tex_btn_secondary_normal, 8.0))
-	btn.add_theme_stylebox_override("hover", _create_9slice_style(tex_btn_secondary_hover, 8.0))
-	btn.add_theme_stylebox_override("pressed", _create_9slice_style(tex_btn_secondary_pressed, 8.0))
-	btn.add_theme_stylebox_override("disabled", _create_9slice_style(tex_btn_secondary_disabled, 8.0))
-	btn.add_theme_stylebox_override("focus", _create_9slice_style(tex_btn_secondary_hover, 8.0))
-	btn.add_theme_color_override("font_color", Color("#E5EEF0"))
+	btn.theme_type_variation = "InventorySecondary"
 
 func _apply_primary_button_style(btn: Button) -> void:
-	btn.add_theme_stylebox_override("normal", _create_9slice_style(tex_btn_primary_normal, 8.0))
-	btn.add_theme_stylebox_override("hover", _create_9slice_style(tex_btn_primary_hover, 8.0))
-	btn.add_theme_stylebox_override("pressed", _create_9slice_style(tex_btn_primary_pressed, 8.0))
-	btn.add_theme_stylebox_override("disabled", _create_9slice_style(tex_btn_primary_disabled, 8.0))
-	btn.add_theme_stylebox_override("focus", _create_9slice_style(tex_btn_primary_hover, 8.0))
-	btn.add_theme_color_override("font_color", Color("#171D22"))
-
-func _build_item_detail_panel(parent: PanelContainer) -> void:
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	parent.add_child(margin)
-
-	detail_empty_label = Label.new()
-	detail_empty_label.text = "Seleccioná un objeto para ver sus detalles."
-	detail_empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	detail_empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	detail_empty_label.add_theme_font_size_override("font_size", 18)
-	detail_empty_label.add_theme_color_override("font_color", Color("#8DAAB4"))
-	margin.add_child(detail_empty_label)
-
-	detail_content_box = VBoxContainer.new()
-	detail_content_box.visible = false
-	detail_content_box.add_theme_constant_override("separation", 6)
-	margin.add_child(detail_content_box)
-
-	var top_hbox = HBoxContainer.new()
-	top_hbox.add_theme_constant_override("separation", 12)
-	detail_content_box.add_child(top_hbox)
-
-	detail_icon_rect = TextureRect.new()
-	detail_icon_rect.custom_minimum_size = Vector2(56, 56)
-	detail_icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	detail_icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	detail_icon_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	top_hbox.add_child(detail_icon_rect)
-
-	var meta_vbox = VBoxContainer.new()
-	meta_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_hbox.add_child(meta_vbox)
-
-	detail_name_label = Label.new()
-	detail_name_label.text = "Nombre del Objeto"
-	detail_name_label.add_theme_font_size_override("font_size", 24)
-	detail_name_label.add_theme_color_override("font_color", Color("#E5EEF0"))
-	meta_vbox.add_child(detail_name_label)
-
-	detail_meta_label = Label.new()
-	detail_meta_label.text = "Tipo • Rareza"
-	detail_meta_label.add_theme_font_size_override("font_size", 18)
-	detail_meta_label.add_theme_color_override("font_color", Color("#52D8C6"))
-	meta_vbox.add_child(detail_meta_label)
-
-	detail_desc_label = Label.new()
-	detail_desc_label.text = "Descripción del objeto..."
-	detail_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	detail_desc_label.add_theme_font_size_override("font_size", 17)
-	detail_desc_label.add_theme_color_override("font_color", Color("#8DAAB4"))
-	detail_content_box.add_child(detail_desc_label)
-
-	detail_stats_label = RichTextLabel.new()
-	detail_stats_label.bbcode_enabled = true
-	detail_stats_label.fit_content = true
-	detail_stats_label.scroll_active = false
-	detail_stats_label.add_theme_font_size_override("normal_font_size", 18)
-	detail_content_box.add_child(detail_stats_label)
-
-	var actions_hbox = HBoxContainer.new()
-	actions_hbox.add_theme_constant_override("separation", 12)
-	detail_content_box.add_child(actions_hbox)
-
-	detail_equip_btn = Button.new()
-	detail_equip_btn.text = "Equipar"
-	detail_equip_btn.custom_minimum_size = Vector2(130, 38)
-	detail_equip_btn.add_theme_font_size_override("font_size", 18)
-	_apply_primary_button_style(detail_equip_btn)
-	detail_equip_btn.pressed.connect(_on_detail_equip_pressed)
-	actions_hbox.add_child(detail_equip_btn)
-
-	detail_compare_btn = Button.new()
-	detail_compare_btn.text = "Comparar"
-	detail_compare_btn.custom_minimum_size = Vector2(120, 38)
-	detail_compare_btn.add_theme_font_size_override("font_size", 18)
-	_apply_secondary_button_style(detail_compare_btn)
-	detail_compare_btn.pressed.connect(_toggle_compare_mode)
-	actions_hbox.add_child(detail_compare_btn)
-
-# ── Columna 2: Equipamiento ────────────────────────────────────────────────────
-
-func _build_equipment_column(container: Control) -> void:
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	container.add_child(margin)
-
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-
-	# Encabezado
-	var title = Label.new()
-	title.text = "EQUIPAMIENTO"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color("#E5EEF0"))
-	vbox.add_child(title)
-
-	character_name_label = Label.new()
-	character_name_label.text = "LÁZARO"
-	character_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	character_name_label.add_theme_font_size_override("font_size", 20)
-	character_name_label.add_theme_color_override("font_color", Color("#F4C45E"))
-	vbox.add_child(character_name_label)
-
-	# Paperdoll del personaje con los 5 slots distribuidos
-	var paperdoll_area = Control.new()
-	paperdoll_area.custom_minimum_size = Vector2(0, 350)
-	paperdoll_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(paperdoll_area)
-
-	_setup_character_paperdoll(paperdoll_area)
-
-	_add_horizontal_divider(vbox)
-
-	# Sección de Armas: Principal y Secundaria
-	var weapons_box = VBoxContainer.new()
-	weapons_box.add_theme_constant_override("separation", 10)
-	vbox.add_child(weapons_box)
-
-	var weapons_title = Label.new()
-	weapons_title.text = "ARMAS"
-	weapons_title.add_theme_font_size_override("font_size", 22)
-	weapons_title.add_theme_color_override("font_color", Color("#E5EEF0"))
-	weapons_box.add_child(weapons_title)
-
-	_build_weapon_row(weapons_box, "Principal", true)
-	_build_weapon_row(weapons_box, "Secundaria", false)
-
-func _setup_character_paperdoll(parent: Control) -> void:
-	# Sprite grande del personaje en el centro
-	portrait_container = Control.new()
-	portrait_container.set_anchors_preset(Control.PRESET_FULL_RECT)
-	portrait_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(portrait_container)
-
-	portrait_anim_sprite = AnimatedSprite2D.new()
-	portrait_anim_sprite.process_mode = Node.PROCESS_MODE_ALWAYS
-	portrait_anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	portrait_anim_sprite.scale = Vector2(3.5, 3.5)
-	portrait_container.add_child(portrait_anim_sprite)
-
-	portrait_container.resized.connect(_center_portrait_sprite)
-
-	# 5 slots corporales: Torso (arriba centro), Brazo I / D, Pierna I / D
-	body_slots.clear()
-
-	_create_paperdoll_slot(parent, ItemData.ItemSlot.TORSO, "Torso", "icon_torso", Vector2(0.5, 0.12), Vector2(0, 0))
-	_create_paperdoll_slot(parent, ItemData.ItemSlot.ARM_L, "Brazo I", "icon_arm_left", Vector2(0.18, 0.28), Vector2(0, 0))
-	_create_paperdoll_slot(parent, ItemData.ItemSlot.ARM_R, "Brazo D", "icon_arm_right", Vector2(0.82, 0.28), Vector2(0, 0))
-	_create_paperdoll_slot(parent, ItemData.ItemSlot.LEG_L, "Pierna I", "icon_leg_left", Vector2(0.22, 0.72), Vector2(0, 0))
-	_create_paperdoll_slot(parent, ItemData.ItemSlot.LEG_R, "Pierna D", "icon_leg_right", Vector2(0.78, 0.72), Vector2(0, 0))
-
-func _create_paperdoll_slot(parent: Control, slot_type: ItemData.ItemSlot, label_text: String, icon_name: String, anchor: Vector2, offset: Vector2) -> void:
-	var container = VBoxContainer.new()
-	container.add_theme_constant_override("separation", 3)
-	container.alignment = BoxContainer.ALIGNMENT_CENTER
-	parent.add_child(container)
-
-	var lbl = Label.new()
-	lbl.text = label_text
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 16)
-	lbl.add_theme_color_override("font_color", Color("#8DAAB4"))
-	container.add_child(lbl)
-
-	var slot = UISlot.new()
-	slot.slot_type = slot_type
-	slot.is_equipped_slot = true
-	slot.empty_icon_name = icon_name
-	slot.custom_minimum_size = Vector2(78, 78)
-	slot.item_dropped.connect(_on_item_dropped)
-	slot.slot_clicked.connect(_on_slot_clicked)
-	slot.slot_double_clicked.connect(_on_slot_double_clicked)
-	slot.slot_hovered.connect(_on_slot_hovered)
-	slot.slot_unhovered.connect(_on_slot_unhovered)
-	slot.drag_started.connect(_on_drag_started)
-	container.add_child(slot)
-
-	# Posicionar centrado sobre el punto anchor
-	container.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	var reposition_slot = func(): _position_paperdoll_node(container, anchor, offset)
-	parent.resized.connect(reposition_slot)
-	container.resized.connect(reposition_slot)
-	reposition_slot.call_deferred()
-
-	body_slots[slot_type] = slot
-	ui_slots.append(slot)
-
-func _position_paperdoll_node(container: Control, anchor: Vector2, offset: Vector2) -> void:
-	var parent = container.get_parent() as Control
-	if not parent: return
-	var p_size = parent.size
-	container.position = Vector2(p_size.x * anchor.x - (container.size.x * 0.5), p_size.y * anchor.y - (container.size.y * 0.5)) + offset
-
-func _build_weapon_row(parent: Control, row_label: String, is_primary: bool) -> void:
-	var row_box = HBoxContainer.new()
-	row_box.add_theme_constant_override("separation", 10)
-	parent.add_child(row_box)
-
-	var lbl = Label.new()
-	lbl.text = row_label
-	lbl.custom_minimum_size = Vector2(95, 0)
-	lbl.add_theme_font_size_override("font_size", 19)
-	lbl.add_theme_color_override("font_color", Color("#8DAAB4"))
-	row_box.add_child(lbl)
-
-	var slot_keys = [
-		ItemData.ItemSlot.MAIN_W1, ItemData.ItemSlot.MAIN_W2, ItemData.ItemSlot.MAIN_W3
-	] if is_primary else [
-		ItemData.ItemSlot.SEC_W1, ItemData.ItemSlot.SEC_W2, ItemData.ItemSlot.SEC_W3
-	]
-
-	# Slot principal del arma (muestra el arma activa) + 3 slots de mejoras
-	var weapon_badge = _create_weapon_badge_panel(is_primary)
-	row_box.add_child(weapon_badge)
-
-	for k in slot_keys:
-		var slot = UISlot.new()
-		slot.slot_type = k
-		slot.is_equipped_slot = true
-		slot.custom_minimum_size = Vector2(74, 74)
-		slot.empty_text = "+"
-		slot.item_dropped.connect(_on_item_dropped)
-		slot.slot_clicked.connect(_on_slot_clicked)
-		slot.slot_double_clicked.connect(_on_slot_double_clicked)
-		slot.slot_hovered.connect(_on_slot_hovered)
-		slot.slot_unhovered.connect(_on_slot_unhovered)
-		slot.drag_started.connect(_on_drag_started)
-		row_box.add_child(slot)
-		ui_slots.append(slot)
-		if is_primary:
-			main_weapon_slots.append(slot)
-		else:
-			sec_weapon_slots.append(slot)
-
-func _create_weapon_badge_panel(is_main: bool) -> PanelContainer:
-	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(74, 74)
-	panel.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_inset, 8.0))
-
-	var trect = TextureRect.new()
-	trect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	trect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	trect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	panel.add_child(trect)
-
-	panel.mouse_entered.connect(_on_weapon_badge_hovered.bind(is_main))
-	panel.mouse_exited.connect(_on_weapon_badge_unhovered)
-
-	if is_main:
-		primary_weapon_slot_panel = panel
-		primary_weapon_icon = trect
-	else:
-		secondary_weapon_slot_panel = panel
-		secondary_weapon_icon = trect
-
-	return panel
-
-# ── Columna 3: Atributos ───────────────────────────────────────────────────────
-
-func _build_attributes_column(container: Control) -> void:
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	container.add_child(margin)
-
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 14)
-	margin.add_child(vbox)
-
-	var title = Label.new()
-	title.text = "ATRIBUTOS"
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color("#E5EEF0"))
-	vbox.add_child(title)
-
-	# Bloque 1: PERSONAJE
-	var sec_char = Label.new()
-	sec_char.text = "PERSONAJE"
-	sec_char.add_theme_font_size_override("font_size", 18)
-	sec_char.add_theme_color_override("font_color", Color("#F4C45E"))
-	vbox.add_child(sec_char)
-
-	stats_char_vbox = VBoxContainer.new()
-	stats_char_vbox.add_theme_constant_override("separation", 6)
-	vbox.add_child(stats_char_vbox)
-
-	_add_horizontal_divider(vbox)
-
-	# Bloque 2: Pestañas de ARMA PRINCIPAL y ARMA SECUNDARIA
-	var weapon_tabs_box = HBoxContainer.new()
-	weapon_tabs_box.add_theme_constant_override("separation", 8)
-	vbox.add_child(weapon_tabs_box)
-
-	stats_tab_primary_btn = Button.new()
-	stats_tab_primary_btn.text = "Principal"
-	stats_tab_primary_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	stats_tab_primary_btn.custom_minimum_size = Vector2(0, 36)
-	stats_tab_primary_btn.add_theme_font_size_override("font_size", 16)
-	stats_tab_primary_btn.pressed.connect(_on_stats_weapon_tab_pressed.bind("PRIMARY"))
-	weapon_tabs_box.add_child(stats_tab_primary_btn)
-
-	stats_tab_secondary_btn = Button.new()
-	stats_tab_secondary_btn.text = "Secundaria"
-	stats_tab_secondary_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	stats_tab_secondary_btn.custom_minimum_size = Vector2(0, 36)
-	stats_tab_secondary_btn.add_theme_font_size_override("font_size", 16)
-	stats_tab_secondary_btn.pressed.connect(_on_stats_weapon_tab_pressed.bind("SECONDARY"))
-	weapon_tabs_box.add_child(stats_tab_secondary_btn)
-
-	_update_stats_weapon_tab_buttons()
-
-	stats_weapon_header_box = HBoxContainer.new()
-	stats_weapon_header_box.add_theme_constant_override("separation", 10)
-	vbox.add_child(stats_weapon_header_box)
-
-	var icon_panel = PanelContainer.new()
-	icon_panel.custom_minimum_size = Vector2(48, 48)
-	icon_panel.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_inset, 8.0))
-	stats_weapon_header_box.add_child(icon_panel)
-
-	stats_weapon_icon = TextureRect.new()
-	stats_weapon_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	stats_weapon_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	stats_weapon_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon_panel.add_child(stats_weapon_icon)
-
-	stats_weapon_name = Label.new()
-	stats_weapon_name.text = "Pistola"
-	stats_weapon_name.add_theme_font_size_override("font_size", 20)
-	stats_weapon_name.add_theme_color_override("font_color", Color("#E5EEF0"))
-	stats_weapon_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	stats_weapon_header_box.add_child(stats_weapon_name)
-
-	stats_weapon_vbox = VBoxContainer.new()
-	stats_weapon_vbox.add_theme_constant_override("separation", 6)
-	vbox.add_child(stats_weapon_vbox)
-
-	var spacer = Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(spacer)
-
-	# Indicador "Vista previa al equipar"
-	stats_preview_badge = HBoxContainer.new()
-	stats_preview_badge.add_theme_constant_override("separation", 6)
-	stats_preview_badge.visible = false
-	vbox.add_child(stats_preview_badge)
-
-	var info_icon = TextureRect.new()
-	info_icon.texture = tex_icon_info
-	info_icon.custom_minimum_size = Vector2(20, 20)
-	info_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	info_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	stats_preview_badge.add_child(info_icon)
-
-	var preview_text = Label.new()
-	preview_text.text = "Vista previa al equipar"
-	preview_text.add_theme_font_size_override("font_size", 16)
-	preview_text.add_theme_color_override("font_color", Color("#52D8C6"))
-	stats_preview_badge.add_child(preview_text)
-
-# ── Construcción de la Franja Inferior (Atajos) ────────────────────────────────
-
-func _build_bottom_bar() -> void:
-	for c in bottom_bar.get_children():
-		c.queue_free()
-
-	bottom_bar.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_footer, 8.0))
-
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	bottom_bar.add_child(margin)
-
-	var hbox = HBoxContainer.new()
-	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox.add_theme_constant_override("separation", 36)
-	margin.add_child(hbox)
-
-	_add_bottom_shortcut(hbox, "icon_mouse", "Clic", "Seleccionar")
-	_add_bottom_shortcut(hbox, "keycap", "E", "Equipar")
-	_add_bottom_shortcut(hbox, "keycap", "Shift", "Comparar")
-	_add_bottom_shortcut(hbox, "keycap", "Esc", "Volver")
-
-func _add_bottom_shortcut(parent: HBoxContainer, icon_type: String, key_text: String, action_text: String) -> void:
-	var item_box = HBoxContainer.new()
-	item_box.add_theme_constant_override("separation", 8)
-	parent.add_child(item_box)
-
-	if icon_type == "icon_mouse":
-		var m_icon = TextureRect.new()
-		m_icon.texture = tex_icon_mouse
-		m_icon.custom_minimum_size = Vector2(24, 24)
-		m_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		m_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		item_box.add_child(m_icon)
-	else:
-		var kcap = _create_keycap_box(key_text)
-		item_box.add_child(kcap)
-
-	var lbl = Label.new()
-	lbl.text = action_text
-	lbl.add_theme_font_size_override("font_size", 18)
-	lbl.add_theme_color_override("font_color", Color("#8DAAB4"))
-	item_box.add_child(lbl)
-
-# ── Códice en Panel Overlay ───────────────────────────────────────────────────
-
-func _build_codex_panel() -> void:
-	codex_view = PanelContainer.new()
-	codex_view.visible = false
-	codex_view.set_anchors_preset(Control.PRESET_FULL_RECT)
-	codex_view.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_inset, 8.0))
-	content_area.add_child(codex_view)
-
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 24)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_right", 24)
-	margin.add_theme_constant_override("margin_bottom", 20)
-	codex_view.add_child(margin)
-
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 16)
-	margin.add_child(vbox)
-
-	var title = Label.new()
-	title.text = "CÓDICE DE COMPONENTES E HISTORIAL"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color("#52D8C6"))
-	vbox.add_child(title)
-
-	var sub_tabs = HBoxContainer.new()
-	sub_tabs.alignment = BoxContainer.ALIGNMENT_CENTER
-	sub_tabs.add_theme_constant_override("separation", 12)
-	vbox.add_child(sub_tabs)
-
-	codex_category_buttons.clear()
-	_add_codex_cat_button(sub_tabs, "BESTIARIO", "enemies")
-	_add_codex_cat_button(sub_tabs, "ARMAMENTO", "weapons")
-	_add_codex_cat_button(sub_tabs, "ITEMS", "items")
-	_add_codex_cat_button(sub_tabs, "NPCs", "npcs")
-	_add_codex_cat_button(sub_tabs, "ZONAS", "levels")
-
-	codex_progress_label = Label.new()
-	codex_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	codex_progress_label.add_theme_font_size_override("font_size", 16)
-	codex_progress_label.add_theme_color_override("font_color", Color("#8DAAB4"))
-	vbox.add_child(codex_progress_label)
-
-	var scroll = ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(scroll)
-
-	var center = CenterContainer.new()
-	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(center)
-
-	codex_grid = GridContainer.new()
-	codex_grid.columns = 6
-	codex_grid.add_theme_constant_override("h_separation", 16)
-	codex_grid.add_theme_constant_override("v_separation", 16)
-	center.add_child(codex_grid)
-
-func _add_codex_cat_button(parent: Control, text: String, cat_key: String) -> void:
-	var btn = Button.new()
-	btn.text = text
-	btn.custom_minimum_size = Vector2(130, 38)
-	btn.add_theme_font_size_override("font_size", 16)
-	_apply_secondary_button_style(btn)
-	btn.pressed.connect(_on_codex_category_pressed.bind(cat_key))
-	parent.add_child(btn)
-	codex_category_buttons[cat_key] = btn
-
-# ── Lógica de Menú, Visibilidad y Animación ───────────────────────────────────
+	btn.theme_type_variation = "InventoryPrimary"
 
 func toggle_visibility() -> void:
 	if _is_animating: return
@@ -1025,22 +236,10 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _play_cancel_sound() -> void:
-	var sfx_player = AudioStreamPlayer.new()
-	sfx_player.stream = load("res://Audio/Sfx/UI_cancelar.wav")
-	sfx_player.bus = "SFX"
-	get_tree().root.add_child(sfx_player)
-	sfx_player.play()
-	sfx_player.finished.connect(sfx_player.queue_free)
+	$CancelSound.play()
 
 func _play_equip_sound() -> void:
-	var sfx_player = AudioStreamPlayer.new()
-	sfx_player.stream = load("res://Audio/Sfx/Equipar_items.wav")
-	sfx_player.bus = "SFX"
-	get_tree().root.add_child(sfx_player)
-	sfx_player.play()
-	sfx_player.finished.connect(sfx_player.queue_free)
-
-# ── Actualización General ──────────────────────────────────────────────────────
+	$EquipSound.play()
 
 func update_if_visible() -> void:
 	if not visible: return
@@ -1060,21 +259,8 @@ func update_ui() -> void:
 		_refresh_codex_grid()
 
 func _update_header_data() -> void:
-	if coin_label:
-		coin_label.text = _format_scrap_number(GameData.scrap)
 	if capacity_label and inventory:
-		capacity_label.text = "%d / 24" % inventory.items.size()
-
-func _format_scrap_number(n: int) -> String:
-	var s = str(n)
-	var result = ""
-	var count = 0
-	for i in range(s.length() - 1, -1, -1):
-		result = s[i] + result
-		count += 1
-		if count % 3 == 0 and i > 0:
-			result = "." + result
-	return result
+		capacity_label.text = "%d / %d" % [inventory.items.size(), inventory_slots.size()]
 
 func _auto_fetch_player_nodes() -> void:
 	if inventory and equipment and player_sprite: return
@@ -1097,14 +283,6 @@ func _update_portrait() -> void:
 	var anim = &"idle_down"
 	if portrait_anim_sprite.sprite_frames.has_animation(anim):
 		portrait_anim_sprite.play(anim)
-	_center_portrait_sprite()
-
-func _center_portrait_sprite() -> void:
-	if not portrait_container or not portrait_anim_sprite: return
-	if portrait_container.size.x <= 0.0 or portrait_container.size.y <= 0.0: return
-	portrait_anim_sprite.position = portrait_container.size * 0.5
-
-# ── Manejo de Items y Filtrado ─────────────────────────────────────────────────
 
 func update_items_list() -> void:
 	if not inventory: return
@@ -1434,21 +612,9 @@ func _update_stats_weapon_tab_buttons() -> void:
 	_apply_subtab_button_style(stats_tab_secondary_btn, not is_primary)
 
 func _apply_subtab_button_style(btn: Button, is_active: bool) -> void:
-	var tex = tex_tab_active if is_active else tex_tab_normal
-	var hover_tex = tex_tab_active if is_active else tex_tab_hover
-	var font_col = Color("#F4C45E") if is_active else Color("#8DAAB4")
-	btn.add_theme_stylebox_override("normal", _create_9slice_style(tex, 8.0))
-	btn.add_theme_stylebox_override("hover", _create_9slice_style(hover_tex, 8.0))
-	btn.add_theme_stylebox_override("pressed", _create_9slice_style(tex_tab_active, 8.0))
-	btn.add_theme_stylebox_override("focus", _create_9slice_style(hover_tex, 8.0))
-	btn.add_theme_color_override("font_color", font_col)
-	btn.add_theme_color_override("font_hover_color", Color("#E5EEF0"))
-
-# ── Atributos del Personaje y Armas ──────────────────────────────────────────
+	_apply_tab_style(btn, is_active)
 
 func _update_attributes_display() -> void:
-	for c in stats_char_vbox.get_children(): c.queue_free()
-	for c in stats_weapon_vbox.get_children(): c.queue_free()
 
 	var players = get_tree().get_nodes_in_group("player")
 	if players.is_empty(): return
@@ -1456,12 +622,12 @@ func _update_attributes_display() -> void:
 
 	# Personaje
 	var max_hp = p.stats.max_health
-	var energy = int(p.trituradora_energy) if "trituradora_energy" in p else 100
 	var armor = int(p._get_equip_stat("armor", false))
-	_add_attribute_row(stats_char_vbox, tex_icon_health, "Vida máxima", str(max_hp))
-	_add_attribute_row(stats_char_vbox, tex_icon_energy, "Energía", str(energy))
-	_add_attribute_row(stats_char_vbox, tex_icon_armor, "Armadura", str(armor))
+	_set_attribute_value(stats_char_vbox.get_node("Health"), str(max_hp))
+	_set_attribute_value(stats_char_vbox.get_node("Armor"), str(armor))
 
+	for row in stats_weapon_vbox.get_children():
+		row.visible = (row.name not in ["Range", "Knockback"]) if active_weapon_stats_tab == "PRIMARY" else (row.name in ["Damage", "FireRate", "Range", "Knockback"])
 	if active_weapon_stats_tab == "PRIMARY":
 		_render_primary_weapon_stats(p)
 	else:
@@ -1488,13 +654,13 @@ func _render_primary_weapon_stats(p: Node2D) -> void:
 	var proj_speed = (p._get_weapon_proj_speed() if p.active_weapon else 600.0) + p._get_equip_stat("projectile_speed", true)
 	var piercing = (p._get_weapon_piercing() if p.active_weapon else 0) + int(p._get_equip_stat("piercing", true))
 
-	_add_attribute_row(stats_weapon_vbox, tex_icon_damage, "Daño", str(total_dmg), _get_preview_delta("damage"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_fire_rate, "Cadencia", "%.1f/s" % total_aps, _get_preview_delta("attack_speed"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_projectiles, "Proyectiles", str(bullets), _get_preview_delta("bullet_count"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_critical, "Prob. crítica", "%d%%" % int(crit_c * 100), _get_preview_delta("crit_chance"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_critical, "Daño crítico", "x%.1f" % crit_d, _get_preview_delta("crit_damage"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_range, "Vel. Proyectil", "%d" % int(proj_speed), _get_preview_delta("projectile_speed"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_pierce, "Perforación", str(piercing), _get_preview_delta("piercing"))
+	_set_attribute_value(stats_weapon_vbox.get_node("Damage"), str(total_dmg), _get_preview_delta("damage"))
+	_set_attribute_value(stats_weapon_vbox.get_node("FireRate"), "%.1f/s" % total_aps, _get_preview_delta("attack_speed"))
+	_set_attribute_value(stats_weapon_vbox.get_node("Projectiles"), str(bullets), _get_preview_delta("bullet_count"))
+	_set_attribute_value(stats_weapon_vbox.get_node("CritChance"), "%d%%" % int(crit_c * 100), _get_preview_delta("crit_chance"))
+	_set_attribute_value(stats_weapon_vbox.get_node("CritDamage"), "x%.1f" % crit_d, _get_preview_delta("crit_damage"))
+	_set_attribute_value(stats_weapon_vbox.get_node("ProjectileSpeed"), "%d" % int(proj_speed), _get_preview_delta("projectile_speed"))
+	_set_attribute_value(stats_weapon_vbox.get_node("Piercing"), str(piercing), _get_preview_delta("piercing"))
 
 func _render_secondary_weapon_stats(p: Node2D) -> void:
 	if stats_weapon_icon and p.second_weapon:
@@ -1517,41 +683,17 @@ func _render_secondary_weapon_stats(p: Node2D) -> void:
 	var base_kb = float(p.second_weapon.knockback_force) if p.second_weapon and "knockback_force" in p.second_weapon else 150.0
 	var total_kb = base_kb + p._get_equip_stat("knockback_force", false)
 
-	_add_attribute_row(stats_weapon_vbox, tex_icon_damage, "Daño cuerpo a cuerpo", str(total_dmg), _get_preview_delta("damage"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_fire_rate, "Velocidad de ataque", "%.1f/s" % total_aps, _get_preview_delta("attack_speed"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_range, "Alcance de golpe", "x%.2f" % total_range, _get_preview_delta("attack_range"))
-	_add_attribute_row(stats_weapon_vbox, tex_icon_armor, "Fuerza de empuje", "%d" % int(total_kb), _get_preview_delta("knockback_force"))
+	_set_attribute_value(stats_weapon_vbox.get_node("Damage"), str(total_dmg), _get_preview_delta("damage"))
+	_set_attribute_value(stats_weapon_vbox.get_node("FireRate"), "%.1f/s" % total_aps, _get_preview_delta("attack_speed"))
+	_set_attribute_value(stats_weapon_vbox.get_node("Range"), "x%.2f" % total_range, _get_preview_delta("attack_range"))
+	_set_attribute_value(stats_weapon_vbox.get_node("Knockback"), "%d" % int(total_kb), _get_preview_delta("knockback_force"))
 
-func _add_attribute_row(parent: Control, icon: Texture2D, label_text: String, value_text: String, delta_text: String = "") -> void:
-	var hbox = HBoxContainer.new()
-	parent.add_child(hbox)
-
-	var icon_rect = TextureRect.new()
-	icon_rect.texture = icon
-	icon_rect.custom_minimum_size = Vector2(20, 20)
-	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	hbox.add_child(icon_rect)
-
-	var name_lbl = Label.new()
-	name_lbl.text = label_text
-	name_lbl.add_theme_font_size_override("font_size", 20)
-	name_lbl.add_theme_color_override("font_color", Color("#8DAAB4"))
-	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(name_lbl)
-
-	var val_lbl = Label.new()
-	val_lbl.text = value_text
-	val_lbl.add_theme_font_size_override("font_size", 20)
-	val_lbl.add_theme_color_override("font_color", Color("#E5EEF0"))
-	hbox.add_child(val_lbl)
-
-	if not delta_text.is_empty():
-		var delta_lbl = Label.new()
-		delta_lbl.text = delta_text
-		delta_lbl.add_theme_font_size_override("font_size", 18)
-		delta_lbl.add_theme_color_override("font_color", Color("#52D8C6") if delta_text.begins_with("+") else Color("#EDB35B"))
-		hbox.add_child(delta_lbl)
+func _set_attribute_value(row: HBoxContainer, value_text: String, delta_text: String = "") -> void:
+	row.get_node("Value").text = value_text
+	var delta_label: Label = row.get_node("Delta")
+	delta_label.text = delta_text
+	delta_label.visible = not delta_text.is_empty()
+	delta_label.modulate = Color("#52D8C6") if delta_text.begins_with("+") else Color("#EDB35B")
 
 func _get_preview_delta(stat_name: String) -> String:
 	if selected_item == null: return ""
@@ -1627,69 +769,17 @@ func _refresh_codex_grid() -> void:
 		else:
 			fake_item.item_name = "???"
 
-		var slot = UISlot.new()
+		var slot: UISlot = SLOT_SCENE.instantiate()
 		slot.custom_minimum_size = Vector2(72, 72)
-		slot.update_slot(fake_item)
 		slot.slot_hovered.connect(_on_slot_hovered)
 		slot.slot_unhovered.connect(_on_slot_unhovered)
 		codex_grid.add_child(slot)
+		slot.update_slot(fake_item)
 
 	if codex_progress_label:
 		codex_progress_label.text = "%d / %d registrados" % [unlocked_count, cat_data.size()]
 
 # ── Tooltip Flotante ──────────────────────────────────────────────────────────
-
-func _create_tooltip_panel() -> void:
-	tooltip_panel = PanelContainer.new()
-	tooltip_panel.visible = false
-	tooltip_panel.custom_minimum_size = Vector2(300, 160)
-	tooltip_panel.z_index = 100
-	tooltip_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tooltip_panel.add_theme_stylebox_override("panel", _create_9slice_style(tex_panel_tooltip, 8.0))
-	add_child(tooltip_panel)
-
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 6)
-	tooltip_panel.add_child(vbox)
-
-	var header = HBoxContainer.new()
-	vbox.add_child(header)
-
-	tooltip_name = Label.new()
-	tooltip_name.add_theme_font_size_override("font_size", 18)
-	tooltip_name.add_theme_color_override("font_color", Color("#E5EEF0"))
-	tooltip_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(tooltip_name)
-
-	tooltip_rarity = Label.new()
-	tooltip_rarity.add_theme_font_size_override("font_size", 14)
-	tooltip_rarity.add_theme_color_override("font_color", Color("#52D8C6"))
-	header.add_child(tooltip_rarity)
-
-	tooltip_type = Label.new()
-	tooltip_type.add_theme_font_size_override("font_size", 14)
-	tooltip_type.add_theme_color_override("font_color", Color("#8DAAB4"))
-	vbox.add_child(tooltip_type)
-
-	var sep = HSeparator.new()
-	vbox.add_child(sep)
-
-	tooltip_desc = RichTextLabel.new()
-	tooltip_desc.fit_content = true
-	tooltip_desc.bbcode_enabled = true
-	tooltip_desc.add_theme_font_size_override("font_size", 14)
-	vbox.add_child(tooltip_desc)
-
-	tooltip_stats = RichTextLabel.new()
-	tooltip_stats.fit_content = true
-	tooltip_stats.bbcode_enabled = true
-	tooltip_stats.add_theme_font_size_override("font_size", 14)
-	vbox.add_child(tooltip_stats)
-
-	tooltip_action = Label.new()
-	tooltip_action.add_theme_font_size_override("font_size", 12)
-	tooltip_action.add_theme_color_override("font_color", Color("#F4C45E"))
-	vbox.add_child(tooltip_action)
 
 func _on_slot_hovered(item_data: ItemData, slot_rect: Rect2) -> void:
 	if not tooltip_panel: return

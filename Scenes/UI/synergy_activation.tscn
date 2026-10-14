@@ -1,0 +1,714 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/synergy_popup.gd" id="script"]
+[ext_resource type="Theme" path="res://Art/Ui/inventory_theme.tres" id="theme"]
+[ext_resource type="FontFile" path="res://Art/Fonts/Dekatron-SemiBold.otf" id="heading"]
+[ext_resource type="FontFile" path="res://Art/Fonts/Exo2-Regular.otf" id="body"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/SciFi reward.mp3" id="reward"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/Equipar_items.wav" id="charge"]
+[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_check.svg" id="check"]
+
+[ext_resource type="Texture2D" path="res://Art/Items/Weapons/Item7_Colmena.png" id="ingredient_0"]
+
+[ext_resource type="Texture2D" path="res://Art/Items/Weapons/Item3_Cerebro.png" id="ingredient_1"]
+
+[ext_resource type="Texture2D" path="res://Art/Items/Weapons/Item8_CabezaHumana.png" id="ingredient_2"]
+
+[sub_resource type="StyleBoxFlat" id="panel"]
+bg_color = Color(0.018, 0.045, 0.054, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32, 0.85, 0.78, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+shadow_color = Color(0.1, 0.8, 0.7, 0.16)
+shadow_size = 36
+
+[sub_resource type="StyleBoxFlat" id="card"]
+bg_color = Color(0.04, 0.10, 0.12, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.62, 0.61, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_left = 8
+corner_radius_bottom_right = 8
+
+[sub_resource type="Animation" id="activate"]
+resource_name = "activate"
+length = 1.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1,1,1,0), Color(1,1,1,1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Root/Center/Panel:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.32, 0.55),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0.92,0.92), Vector2(1.015,1.015), Vector2(1,1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Root/Center/Panel/Assembly/Ingredient1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(-420,-62), Vector2(-350,-62), Vector2(-242,-62)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Root/Center/Panel/Assembly/Ingredient3:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(288,-62), Vector2(218,-62), Vector2(110,-62)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Root/Center/Panel/Assembly/Ingredient2:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.7, 0.83),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.7,0.7), Vector2(0.7,0.7), Vector2(1.12,1.12), Vector2(1,1)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Root/Center/Panel/Assembly/Circuit:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.52, 0.78),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1,1,1,0), Color(1,1,1,0), Color(1,1,1,1)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Root/Center/Panel/Assembly/Pulse:scale")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.65, 1.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0.25,0.25), Vector2(0.25,0.25), Vector2(1.6,1.6)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Root/Center/Panel/Assembly/Pulse:modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.64, 0.73, 1.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1,1,1,0), Color(1,1,1,0), Color(1,1,1,0.85), Color(1,1,1,0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Root/Center/Panel/SynergyName:modulate")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 0.75, 1.15),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1,1,1,0), Color(1,1,1,0), Color(1,1,1,1)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Root/Center/Panel/Description:modulate")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 0.9, 1.35),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1,1,1,0), Color(1,1,1,0), Color(1,1,1,1)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Root/Center/Panel/ContinueButton:modulate")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 1.3, 1.8),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1,1,1,0), Color(1,1,1,0), Color(1,1,1,1)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Root/Center/Panel/Scan:position")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 0.3, 1.15),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(24,36), Vector2(24,36), Vector2(24,570)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Root/Center/Panel/Scan:modulate")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0, 0.28, 0.4, 1.15),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1,1,1,0), Color(1,1,1,0), Color(1,1,1,0.45), Color(1,1,1,0)]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Root/Center/Panel/Assembly/Sparks:emitting")
+tracks/13/interp = 0
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0, 0.72),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("ChargeSound:playing")
+tracks/14/interp = 0
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0.08),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("ActivationSound:playing")
+tracks/15/interp = 0
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0.73),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+
+[sub_resource type="Animation" id="idle"]
+resource_name = "idle"
+length = 2.4
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/Center/Panel/Assembly/Orbit:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0, 6.283185307179586]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Root/Center/Panel/Status:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.2, 2.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1,1,1,0.55), Color(1,1,1,1), Color(1,1,1,0.55)]
+}
+
+
+[sub_resource type="Animation" id="dismiss"]
+resource_name = "dismiss"
+length = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1,1,1,1), Color(1,1,1,0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Root/Center/Panel:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1,1), Vector2(0.97,0.97)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ActivationSound:volume_db")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [-9, -30]
+}
+
+
+[sub_resource type="Animation" id="RESET"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1,1,1,1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Root/Center/Panel:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1,1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Root/Center/Panel/Assembly/Ingredient1:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-242,-62)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Root/Center/Panel/Assembly/Ingredient3:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(110,-62)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Root/Center/Panel/Assembly/Ingredient2:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1,1)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Root/Center/Panel/Assembly/Pulse:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1,1,1,0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Root/Center/Panel/Assembly/Sparks:emitting")
+tracks/6/interp = 0
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Root/Center/Panel/Scan:modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1,1,1,0)]
+}
+
+
+[sub_resource type="AnimationLibrary" id="library"]
+_data = {
+&"RESET": SubResource("RESET"),
+&"activate": SubResource("activate"),
+&"idle": SubResource("idle"),
+&"dismiss": SubResource("dismiss")
+}
+
+[node name="SynergyActivation" type="CanvasLayer"]
+process_mode = 3
+layer = 250
+script = ExtResource("script")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1
+anchor_bottom = 1
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("theme")
+
+[node name="Backdrop" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1
+anchor_bottom = 1
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.003,0.012,0.018,0.86)
+
+[node name="Center" type="Control" parent="Root"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Root/Center"]
+offset_left = -500
+offset_top = -310
+offset_right = 500
+offset_bottom = 310
+pivot_offset = Vector2(500,310)
+theme_override_styles/panel = SubResource("panel")
+
+[node name="DiscoveryLabel" type="Label" parent="Root/Center/Panel"]
+offset_left = 60
+offset_top = 30
+offset_right = 940
+offset_bottom = 62
+mouse_filter = 2
+unique_name_in_owner = true
+theme_override_fonts/font = ExtResource("body")
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.96, 0.77, 0.37, 1)
+text = "NUEVA SINERGIA DESCUBIERTA"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Heading" type="Label" parent="Root/Center/Panel"]
+offset_left = 60
+offset_top = 69
+offset_right = 940
+offset_bottom = 111
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("heading")
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.89,0.94,0.94,1)
+text = "ENLACE ESTABLECIDO"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="SynergyName" type="Label" parent="Root/Center/Panel"]
+offset_left = 40
+offset_top = 120
+offset_right = 960
+offset_bottom = 188
+mouse_filter = 2
+unique_name_in_owner = true
+theme_override_fonts/font = ExtResource("heading")
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.32, 0.85, 0.78, 1)
+text = "MENTE COLMENA"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Assembly" type="Control" parent="Root/Center/Panel"]
+offset_left = 500
+offset_top = 287
+offset_right = 500
+offset_bottom = 287
+mouse_filter = 2
+
+[node name="Orbit" type="Line2D" parent="Root/Center/Panel/Assembly"]
+points = PackedVector2Array(112.000,0.000,111.693,8.286,110.774,16.527,109.248,24.677,107.122,32.692,104.410,40.528,101.126,48.142,97.287,55.491,92.915,62.537,88.033,69.240,82.669,75.563,76.852,81.472,70.614,86.935,63.989,91.921,57.013,96.403,49.724,100.357,42.163,103.761,34.371,106.596,26.390,108.846,18.265,110.501,10.040,111.549,1.759,111.986,-6.531,111.809,-14.785,111.020,-22.958,109.622,-31.006,107.623,-38.883,105.034,-46.547,101.869,-53.956,98.146,-61.070,93.885,-67.848,89.110,-74.255,83.846,-80.255,78.123,-85.815,71.971,-90.904,65.425,-95.496,58.520,-99.564,51.294,-103.086,43.788,-106.043,36.041,-108.419,28.097,-110.200,19.998,-111.378,11.791,-111.945,3.518,-111.898,-4.774,-111.238,-13.039,-109.969,-21.234,-108.096,-29.311,-105.632,-37.228,-102.588,-44.941,-98.982,-52.408,-94.833,-59.588,-90.165,-66.440,-85.002,-72.929,-79.373,-79.018,-73.310,-84.674,-66.844,-89.866,-60.013,-94.565,-52.852,-98.746,-45.401,-102.385,-37.702,-105.464,-29.796,-107.964,-21.727,-109.872,-13.538,-111.179,-5.276,-111.876,3.016,-111.959,11.291,-111.429,19.504,-110.289,27.610,-108.544,35.565,-106.203,43.325,-103.281,50.847,-99.793)
+width = 1.5
+default_color = Color(0.25,0.6,0.6,0.25)
+antialiased = true
+
+[node name="Pulse" type="Line2D" parent="Root/Center/Panel/Assembly"]
+points = PackedVector2Array(150.000,0.000,149.538,11.769,148.153,23.465,145.855,35.017,142.658,46.353,138.582,57.403,133.651,68.099,127.896,78.375,121.353,88.168,114.061,97.417,106.066,106.066,97.417,114.061,88.168,121.353,78.375,127.896,68.099,133.651,57.403,138.582,46.353,142.658,35.017,145.855,23.465,148.153,11.769,149.538,0.000,150.000,-11.769,149.538,-23.465,148.153,-35.017,145.855,-46.353,142.658,-57.403,138.582,-68.099,133.651,-78.375,127.896,-88.168,121.353,-97.417,114.061,-106.066,106.066,-114.061,97.417,-121.353,88.168,-127.896,78.375,-133.651,68.099,-138.582,57.403,-142.658,46.353,-145.855,35.017,-148.153,23.465,-149.538,11.769,-150.000,0.000,-149.538,-11.769,-148.153,-23.465,-145.855,-35.017,-142.658,-46.353,-138.582,-57.403,-133.651,-68.099,-127.896,-78.375,-121.353,-88.168,-114.061,-97.417,-106.066,-106.066,-97.417,-114.061,-88.168,-121.353,-78.375,-127.896,-68.099,-133.651,-57.403,-138.582,-46.353,-142.658,-35.017,-145.855,-23.465,-148.153,-11.769,-149.538,-0.000,-150.000,11.769,-149.538,23.465,-148.153,35.017,-145.855,46.353,-142.658,57.403,-138.582,68.099,-133.651,78.375,-127.896,88.168,-121.353,97.417,-114.061,106.066,-106.066,114.061,-97.417,121.353,-88.168,127.896,-78.375,133.651,-68.099,138.582,-57.403,142.658,-46.353,145.855,-35.017,148.153,-23.465,149.538,-11.769,150.000,-0.000)
+width = 2
+default_color = Color(0.32, 0.85, 0.78, 1)
+modulate = Color(1,1,1,0)
+antialiased = true
+
+[node name="Circuit" type="Line2D" parent="Root/Center/Panel/Assembly"]
+points = PackedVector2Array(-250,0,250,0)
+width = 2
+default_color = Color(0.32, 0.85, 0.78, 1)
+antialiased = true
+
+[node name="Sparks" type="CPUParticles2D" parent="Root/Center/Panel/Assembly"]
+emitting = false
+amount = 34
+lifetime = 0.65
+one_shot = true
+explosiveness = 1
+spread = 180
+gravity = Vector2(0,30)
+initial_velocity_min = 85
+initial_velocity_max = 260
+damping_min = 110
+damping_max = 180
+scale_amount_min = 1.5
+scale_amount_max = 3
+color = Color(0.32, 0.85, 0.78, 1)
+
+[node name="Ingredient1" type="Panel" parent="Root/Center/Panel/Assembly"]
+offset_left = -242
+offset_top = -62
+offset_right = -110
+offset_bottom = 62
+pivot_offset = Vector2(66,62)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("card")
+
+[node name="Icon" type="TextureRect" parent="Root/Center/Panel/Assembly/Ingredient1"]
+texture = ExtResource("ingredient_0")
+offset_left = 40
+offset_top = 14
+offset_right = 92
+offset_bottom = 66
+mouse_filter = 2
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="Root/Center/Panel/Assembly/Ingredient1"]
+offset_left = 8
+offset_top = 73
+offset_right = 124
+offset_bottom = 117
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("body")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.72,0.85,0.86,1)
+text = "Colmena"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Ingredient2" type="Panel" parent="Root/Center/Panel/Assembly"]
+offset_left = -66
+offset_top = -62
+offset_right = 66
+offset_bottom = 62
+pivot_offset = Vector2(66,62)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("card")
+
+[node name="Icon" type="TextureRect" parent="Root/Center/Panel/Assembly/Ingredient2"]
+texture = ExtResource("ingredient_1")
+offset_left = 40
+offset_top = 14
+offset_right = 92
+offset_bottom = 66
+mouse_filter = 2
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="Root/Center/Panel/Assembly/Ingredient2"]
+offset_left = 8
+offset_top = 73
+offset_right = 124
+offset_bottom = 117
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("body")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.72,0.85,0.86,1)
+text = "Cerebro"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Ingredient3" type="Panel" parent="Root/Center/Panel/Assembly"]
+offset_left = 110
+offset_top = -62
+offset_right = 242
+offset_bottom = 62
+pivot_offset = Vector2(66,62)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("card")
+
+[node name="Icon" type="TextureRect" parent="Root/Center/Panel/Assembly/Ingredient3"]
+texture = ExtResource("ingredient_2")
+offset_left = 40
+offset_top = 14
+offset_right = 92
+offset_bottom = 66
+mouse_filter = 2
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="Root/Center/Panel/Assembly/Ingredient3"]
+offset_left = 8
+offset_top = 73
+offset_right = 124
+offset_bottom = 117
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("body")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.72,0.85,0.86,1)
+text = "Cabeza humana"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Status" type="Label" parent="Root/Center/Panel"]
+offset_left = 60
+offset_top = 380
+offset_right = 940
+offset_bottom = 408
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("body")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.32, 0.85, 0.78, 1)
+text = "●  SISTEMAS SINCRONIZADOS"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Description" type="Label" parent="Root/Center/Panel"]
+offset_left = 90
+offset_top = 422
+offset_right = 910
+offset_bottom = 504
+mouse_filter = 2
+unique_name_in_owner = true
+theme_override_fonts/font = ExtResource("body")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.72,0.82,0.85,1)
+text = "Tus componentes se conectan y transforman tu armamento."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ContinueButton" type="Button" parent="Root/Center/Panel"]
+unique_name_in_owner = true
+offset_left = 355
+offset_top = 539
+offset_right = 645
+offset_bottom = 587
+theme_type_variation = &"InventoryPrimary"
+theme_override_font_sizes/font_size = 18
+text = "CONTINUAR   [E]"
+disabled = true
+mouse_default_cursor_shape = 2
+
+[node name="Scan" type="ColorRect" parent="Root/Center/Panel"]
+offset_left = 24
+offset_top = 36
+offset_right = 976
+offset_bottom = 38
+mouse_filter = 2
+color = Color(0.32, 0.85, 0.78, 1)
+modulate = Color(1,1,1,0)
+
+[node name="ChargeSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("charge")
+volume_db = -13
+pitch_scale = 0.8
+bus = &"SFX"
+
+[node name="ActivationSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("reward")
+volume_db = -9
+bus = &"SFX"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("library")
+}
+
+[connection signal="pressed" from="Root/Center/Panel/ContinueButton" to="." method="_on_continue_pressed"]
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_finished"]
