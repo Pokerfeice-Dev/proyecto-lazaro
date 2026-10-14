@@ -31,10 +31,15 @@ var mannequin_hits_received: int = 0
 var synergy_hits_received: int = 0
 
 func _ready() -> void:
+	# Lo que se desbloquee o equipe acá es de prueba: al salir se vuelve atrás.
+	GameData.begin_sandbox()
 	_spawn_player()
 	_setup_tutorial_ui()
 	_spawn_mannequin()
 	_update_dialogue_text()
+
+func _exit_tree() -> void:
+	GameData.end_sandbox()
 
 func _process(_delta: float) -> void:
 	_check_state_transitions()
@@ -278,12 +283,12 @@ func _update_dialogue_text() -> void:
 		TutorialState.COMBAT:
 			dialogue_label.text = "Los obstáculos bloquean los proyectiles, elimina a tu enemigo"
 		TutorialState.SYNERGY_EQUIP:
-			dialogue_label.text = "¡Sinergia! Recogé los 3 componentes del suelo [E] y equipalos en tu arma desde el inventario [I]"
+			dialogue_label.text = "¡Sinergia! Recoge los 3 componentes del suelo [E] y equípalos en tu arma desde el inventario [I]"
 		TutorialState.SYNERGY_ATTACK:
 			if synergy_hits_received == 0:
-				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Disparale al maniquí con tus abejas"
+				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Dispárale al maniquí con tus abejas"
 			else:
-				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Disparale al maniquí con tus abejas (%d/3)" % synergy_hits_received
+				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Dispárale al maniquí con tus abejas (%d/3)" % synergy_hits_received
 		TutorialState.COMPLETE:
 			dialogue_panel.visible = false
 

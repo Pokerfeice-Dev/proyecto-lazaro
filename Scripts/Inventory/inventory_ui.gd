@@ -240,7 +240,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if event is InputEventKey and event.pressed:
+	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E:
 			_on_detail_equip_pressed()
 			get_viewport().set_input_as_handled()
@@ -476,7 +476,11 @@ func _equip_item_direct(item: ItemData) -> void:
 	_equip_item_to_slot(item, target_slot_type)
 
 func _equip_item_to_slot(item: ItemData, target_slot_type: ItemData.ItemSlot) -> void:
+	# Solo se equipa lo que está en la mochila: si el objeto ya está puesto,
+	# equiparlo de nuevo lo duplicaba (quedaba en otro slot o volvía a la mochila).
+	if not inventory.items.has(item): return
 	var old_item = equipment.slots.get(target_slot_type)
+	if old_item == item: return
 	item.slot = target_slot_type
 	inventory.remove_item(item)
 
@@ -606,7 +610,7 @@ func _is_stat_improvement(stat_key: String, diff: float) -> bool:
 	return diff > 0.0
 
 func _on_detail_equip_pressed() -> void:
-	if selected_item == null: return
+	if selected_item == null or not inventory.items.has(selected_item): return
 	_equip_item_direct(selected_item)
 
 func _toggle_compare_mode() -> void:
@@ -799,11 +803,11 @@ func _fill_codex_synergies() -> void:
 	var ids = OmniaCatalog.synergy_ids()
 	var unlocked_count = 0
 	for syn_id in ids:
-		if GameData.is_synergy_unlocked(syn_id):
+		if GameData.is_synergy_discovered(syn_id):
 			unlocked_count += 1
 		codex_grid.add_child(CodexSynergyCard.create(syn_id))
 	if codex_progress_label:
-		codex_progress_label.text = "%d / %d sinergias desbloqueadas" % [unlocked_count, ids.size()]
+		codex_progress_label.text = "%d / %d sinergias descubiertas" % [unlocked_count, ids.size()]
 
 # ── Tooltip Flotante ──────────────────────────────────────────────────────────
 

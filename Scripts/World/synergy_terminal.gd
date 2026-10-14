@@ -222,7 +222,7 @@ func _open_synergy_menu() -> void:
 	vbox.add_child(title)
 
 	var sub = Label.new()
-	sub.text = "Elegí una sinergia para equiparla de inmediato y probarla en Manny"
+	sub.text = "Elige una sinergia para equiparla de inmediato y probarla en Manny"
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
 	sub.add_theme_font_size_override("font_size", 13)

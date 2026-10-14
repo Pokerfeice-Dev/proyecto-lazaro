@@ -487,6 +487,61 @@ func get_active_protocol() -> String:
 func is_synergy_unlocked(syn_id: String) -> bool:
 	return unlocked_synergies.has(syn_id)
 
+## Comprar una sinergia en O.M.N.I.A. da la receta (nombre, piezas y efecto).
+## Su sprite recién se ve cuando se arma por primera vez en una run (aparece la
+## animación de "nueva sinergia" y queda en activated_synergies).
+func is_synergy_discovered(syn_id: String) -> bool:
+	return activated_synergies.has(syn_id)
+
+# ── Sala de entrenamiento: todo lo que se desbloquea ahí es de prueba ─────────
+## Al entrar se guarda una copia del progreso; mientras dure, save_game escribe
+## esa copia; al salir se vuelve a ella. Así las sinergias, piezas y mejoras de
+## la sala de entrenamiento no quedan en la partida.
+const SANDBOX_KEYS: Array[String] = [
+	"scrap", "flesh", "core_upgrades", "unlocked_synergies", "activated_synergies",
+	"unlocked_protocols", "active_protocol", "chosen_primary_weapon", "chosen_melee_weapon",
+	"codex_unlocks", "inventory_items", "equipment_slots",
+	"weapon_damage", "weapon_fire_rate", "weapon_bullet_count", "weapon_bullet_speed",
+	"weapon_spread", "weapon_damage_multiplier", "weapon_crit_chance", "weapon_crit_damage",
+	"weapon_piercing", "melee_damage", "melee_speed", "melee_range", "melee_knockback",
+]
+var sandbox_active: bool = false
+var _sandbox_snapshot: Dictionary = {}
+
+func begin_sandbox() -> void:
+	if sandbox_active: return
+	_sandbox_snapshot.clear()
+	for key in SANDBOX_KEYS:
+		_sandbox_snapshot[key] = _copy_value(get(key))
+	sandbox_active = true
+
+func end_sandbox() -> void:
+	if not sandbox_active: return
+	sandbox_active = false
+	for key in SANDBOX_KEYS:
+		_restore_value(key, _sandbox_snapshot[key])
+	_sandbox_snapshot.clear()
+	scrap_changed.emit(scrap)
+	flesh_changed.emit(flesh)
+
+func _copy_value(value):
+	if value is Array or value is Dictionary:
+		return value.duplicate(true)
+	return value
+
+# Arrays y diccionarios se restauran "en el lugar": el inventario y el equipo
+# del jugador apuntan a los mismos objetos de GameData.
+func _restore_value(key: String, saved) -> void:
+	var current = get(key)
+	if current is Array:
+		current.clear()
+		current.append_array(saved)
+	elif current is Dictionary:
+		current.clear()
+		current.merge(saved.duplicate(true), true)
+	else:
+		set(key, saved)
+
 func unlock_synergy(syn_id: String) -> void:
 	if not unlocked_synergies.has(syn_id):
 		unlocked_synergies.append(syn_id)
@@ -624,11 +679,20 @@ func save_game(slot: int = -1) -> void:
 		"total_deployments": total_deployments,
 		"last_save_time": last_save_time
 	}
+	if sandbox_active:
+		_use_sandbox_snapshot(data)
 	var file = FileAccess.open(get_save_path(slot), FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(data))
 	
 	_save_global_settings(slot)
+
+# Guardando desde la sala de entrenamiento: se escribe el progreso de antes de entrar.
+func _use_sandbox_snapshot(data: Dictionary) -> void:
+	for key in _sandbox_snapshot:
+		if data.has(key):
+			data[key] = _sandbox_snapshot[key]
+	data["weapons_unlocked"] = _sandbox_snapshot["codex_unlocks"].get("weapons", [])
 
 func load_game(slot: int) -> bool:
 	if not FileAccess.file_exists(get_save_path(slot)):

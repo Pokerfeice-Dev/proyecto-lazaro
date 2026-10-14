@@ -153,7 +153,7 @@ static func _synergy_entries() -> Array:
 			"recipe": _recipe(def), "recipe_text": SynergyManager.get_synergy_recipe_string(s.id),
 			"requirement": "Requiere desbloquear Mente Colmena y Roadkill." if blocked else "",
 			"state": state,
-			"action": {"comprado": "DESBLOQUEADA", "bloqueado": "BLOQUEADA"}.get(state, "DESBLOQUEAR"),
+			"action": {"comprado": "RECETA COMPRADA", "bloqueado": "BLOQUEADA"}.get(state, "COMPRAR RECETA"),
 		})
 	return result
 

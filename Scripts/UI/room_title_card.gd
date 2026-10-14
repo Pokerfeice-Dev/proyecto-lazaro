@@ -26,6 +26,8 @@ var _line_right: ColorRect
 var _diamond: Control
 var _final_text: String = ""
 var _decode_t: float = -1.0
+var _leaving: bool = false
+var _tweens: Array[Tween] = []
 
 static func show_in(parent: Node, p_data: Dictionary) -> RoomTitleCard:
 	var card = RoomTitleCard.new()
@@ -34,12 +36,18 @@ static func show_in(parent: Node, p_data: Dictionary) -> RoomTitleCard:
 	return card
 
 func _ready() -> void:
+	# Sigue andando con el juego en pausa: si se abre el inventario o la pausa
+	# mientras está en pantalla, se va enseguida en vez de quedar congelado.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build()
 	_play()
 
 func _process(delta: float) -> void:
+	if not _leaving and get_tree().paused:
+		_vanish()
+		return
 	if _decode_t < 0.0: return
 	_decode_t += delta
 	var k = clampf(_decode_t / DECODE_TIME, 0.0, 1.0)
@@ -163,7 +171,7 @@ func _play() -> void:
 	_diamond.scale = Vector2.ZERO
 	var line_width = clampf(_final_text.length() * 22.0, 180.0, 420.0)
 
-	var t = create_tween()
+	var t = _own_tween()
 	# franja que se abre
 	t.tween_method(_set_band_height, 0.0, BAND_HEIGHT, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	t.parallel().tween_property(_eyebrow, "modulate:a", 1.0, 0.3).set_delay(0.12)
@@ -177,7 +185,8 @@ func _play() -> void:
 	t.tween_callback(_glitch_out)
 
 func _glitch_out() -> void:
-	var t = create_tween()
+	if _leaving: return
+	var t = _own_tween()
 	for i in 5:
 		t.tween_callback(_jitter.bind(i % 2 == 0))
 		t.tween_interval(0.05)
@@ -188,10 +197,27 @@ func _glitch_out() -> void:
 	t.parallel().tween_property(_line_right, "custom_minimum_size:x", 0.0, 0.3)
 	t.tween_callback(queue_free)
 
+# Salida rápida cuando se abre un menú: corta las animaciones y se desvanece.
+func _vanish() -> void:
+	_leaving = true
+	_decode_t = -1.0
+	for t in _tweens:
+		if t.is_valid():
+			t.kill()
+	var fade = create_tween()
+	fade.tween_property(self, "modulate:a", 0.0, 0.12)
+	fade.tween_callback(queue_free)
+
 # Interferencia: el nombre salta de costado y titila.
 func _jitter(strong: bool) -> void:
 	_title.position.x = randf_range(-14.0, 14.0) if strong else 0.0
 	_title.modulate.a = 0.45 if strong else 1.0
+
+# Tween guardado en la lista del cartel, para poder cortarlo en _vanish().
+func _own_tween() -> Tween:
+	var t = create_tween()
+	_tweens.append(t)
+	return t
 
 func _set_band_height(h: float) -> void:
 	_band.offset_top = -h / 2.0

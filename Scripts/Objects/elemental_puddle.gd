@@ -2,6 +2,7 @@ extends Area2D
 class_name ElementalPuddle
 
 # Charco elemental temporal (Fuego / Hielo) generado por la explosión de barriles.
+# El arte (mancha pixel y partículas) está en PuddleVisuals.
 # Fuego: Quema periódicamente a enemigos y al jugador mientras permanezcan dentro.
 # Hielo: Ralentiza un 40% a quienes lo pisen, restaurando la velocidad al salir.
 
@@ -15,20 +16,16 @@ enum PuddleType { FIRE, ICE }
 @export var slow_multiplier: float = 0.60 # 40% de reducción de velocidad
 
 const BURN_TICK_INTERVAL: float = 0.5
-const PUDDLE_OFFSETS: Array[Vector2] = [
-	Vector2(0, 0),
-	Vector2(-16, -6),
-	Vector2(14, 6),
-	Vector2(-8, 13),
-	Vector2(11, -11),
-	Vector2(20, -3),
-	Vector2(-19, 8)
-]
+## Cada cuánto sale una llamarada del charco de fuego (al azar entre estos valores).
+const FLAME_BURST_EVERY := Vector2(0.45, 1.1)
+const FLAME_BURST_TIME: float = 0.45
 
 var _burn_tick_timer: float = 0.0
 var _overlapping_bodies: Array[Node2D] = []
 var _light_node: PointLight2D = null
-var _particles: CPUParticles2D = null
+var _sprite: Sprite2D = null
+var _flame_timer: float = 0.4
+var _time: float = 0.0
 
 func setup(type: PuddleType, at_position: Vector2) -> void:
 	puddle_type = type
@@ -37,6 +34,7 @@ func setup(type: PuddleType, at_position: Vector2) -> void:
 func _ready() -> void:
 	_setup_area_properties()
 	_setup_collision_shape()
+	_setup_sprite()
 	_setup_particles()
 	_setup_light()
 	_start_lifecycle()
@@ -57,52 +55,23 @@ func _setup_collision_shape() -> void:
 	call_deferred("add_child", col)
 
 
+# Mancha pixel art (ver PuddleVisuals); cada charco sale un poco distinto.
+func _setup_sprite() -> void:
+	_sprite = Sprite2D.new()
+	_sprite.texture = PuddleVisuals.build_texture(puddle_type == PuddleType.FIRE, randi())
+	_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_sprite.scale = Vector2(PuddleVisuals.PIXEL, PuddleVisuals.PIXEL)
+	_sprite.z_as_relative = false
+	_sprite.z_index = 1
+	add_child(_sprite)
+
 func _setup_particles() -> void:
-	_particles = CPUParticles2D.new()
-	_particles.z_as_relative = false
-	_particles.z_index = 3
-	_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
-	_particles.emission_sphere_radius = 28.0
-	_configure_particles_by_type(_particles)
-	add_child(_particles)
-	_particles.emitting = true
-
-func _configure_particles_by_type(part: CPUParticles2D) -> void:
 	if puddle_type == PuddleType.FIRE:
-		_configure_fire_particles(part)
+		add_child(PuddleVisuals.fire_smoke())
+		add_child(PuddleVisuals.fire_embers())
 		return
-	_configure_ice_particles(part)
-
-func _configure_fire_particles(part: CPUParticles2D) -> void:
-	part.amount = 16
-	part.lifetime = 0.55
-	part.gravity = Vector2(0, -35)
-	part.initial_velocity_min = 8.0
-	part.initial_velocity_max = 24.0
-	part.scale_amount_min = 2.5
-	part.scale_amount_max = 4.8
-	
-	var grad = Gradient.new()
-	grad.set_color(0, Color(1.0, 0.9, 0.3, 0.9))
-	grad.add_point(0.35, Color(1.0, 0.38, 0.05, 0.85))
-	grad.add_point(0.75, Color(0.25, 0.1, 0.08, 0.35))
-	grad.set_color(1, Color(0.1, 0.1, 0.1, 0.0))
-	part.color_ramp = grad
-
-func _configure_ice_particles(part: CPUParticles2D) -> void:
-	part.amount = 12
-	part.lifetime = 0.70
-	part.gravity = Vector2(0, -8)
-	part.initial_velocity_min = 4.0
-	part.initial_velocity_max = 14.0
-	part.scale_amount_min = 2.0
-	part.scale_amount_max = 3.6
-	
-	var grad = Gradient.new()
-	grad.set_color(0, Color(0.85, 0.98, 1.0, 0.7))
-	grad.add_point(0.5, Color(0.4, 0.8, 1.0, 0.5))
-	grad.set_color(1, Color(0.15, 0.45, 0.85, 0.0))
-	part.color_ramp = grad
+	add_child(PuddleVisuals.ice_mist())
+	add_child(PuddleVisuals.ice_glints())
 
 func _setup_light() -> void:
 	_light_node = PointLight2D.new()
@@ -141,6 +110,47 @@ func _on_lifecycle_finished() -> void:
 
 func _exit_tree() -> void:
 	_clear_all_slow_effects()
+
+func _process(delta: float) -> void:
+	_time += delta
+	if puddle_type == PuddleType.FIRE:
+		_flicker()
+		_update_flame_bursts(delta)
+	else:
+		_shimmer()
+
+# El fuego titila: brillo y luz suben y bajan sin ritmo fijo.
+func _flicker() -> void:
+	var k = 0.5 + 0.25 * sin(_time * 9.0) + 0.25 * sin(_time * 23.0 + 1.3)
+	_sprite.self_modulate = Color(1.0 + 0.1 * k, 1.0 + 0.04 * k, 1.0)
+	if _light_node:
+		_light_node.texture_scale = 1.1 + 0.1 * k
+
+# El hielo brilla muy suave, como reflejo.
+func _shimmer() -> void:
+	var k = 0.5 + 0.5 * sin(_time * 2.2)
+	_sprite.self_modulate = Color(1.0 + 0.08 * k, 1.0 + 0.08 * k, 1.0 + 0.1 * k)
+
+# Cada tanto sale una llamarada corta (la del lanzallamas) desde un punto del charco.
+func _update_flame_bursts(delta: float) -> void:
+	_flame_timer -= delta
+	if _flame_timer > 0.0: return
+	_flame_timer = randf_range(FLAME_BURST_EVERY.x, FLAME_BURST_EVERY.y)
+	# a veces salen dos juntas
+	for i in (2 if randf() < 0.35 else 1):
+		_spawn_flame_burst()
+
+func _spawn_flame_burst() -> void:
+	var flame = PuddleVisuals.flame_burst()
+	var a = randf_range(0.0, TAU)
+	flame.position = Vector2(cos(a) * 22.0, sin(a) * 14.0) * sqrt(randf())
+	add_child(flame)
+	flame.emitting = true
+	var t = flame.create_tween()
+	t.tween_interval(FLAME_BURST_TIME)
+	t.tween_callback(func(): flame.emitting = false)
+	t.tween_interval(flame.lifetime + 0.1)
+	t.tween_callback(flame.queue_free)
 
 func _physics_process(delta: float) -> void:
 	if puddle_type != PuddleType.FIRE: return
@@ -215,40 +225,3 @@ func _clear_all_slow_effects() -> void:
 	for body in _overlapping_bodies:
 		_remove_ice_slow(body)
 	_overlapping_bodies.clear()
-
-# --- Dibujo Vectorial de los Charcos ---
-
-func _draw() -> void:
-	if puddle_type == PuddleType.FIRE:
-		_draw_fire_puddle()
-		return
-	_draw_ice_puddle()
-
-func _draw_fire_puddle() -> void:
-	var scorch_color = Color(0.20, 0.07, 0.04, 0.65)
-	var magma_color = Color(0.92, 0.32, 0.05, 0.75)
-	var core_color = Color(1.0, 0.85, 0.20, 0.85)
-	
-	_draw_puddle_layer(PUDDLE_OFFSETS, 24.0, scorch_color)
-	_draw_puddle_layer(PUDDLE_OFFSETS, 17.0, magma_color)
-	_draw_puddle_layer([Vector2.ZERO, Vector2(-6, 3), Vector2(6, -3)], 9.0, core_color)
-
-func _draw_ice_puddle() -> void:
-	var rim_color = Color(0.18, 0.50, 0.80, 0.50)
-	var sheet_color = Color(0.55, 0.88, 1.0, 0.70)
-	var core_color = Color(0.92, 0.98, 1.0, 0.85)
-	
-	_draw_puddle_layer(PUDDLE_OFFSETS, 24.0, rim_color)
-	_draw_puddle_layer(PUDDLE_OFFSETS, 17.0, sheet_color)
-	_draw_puddle_layer([Vector2.ZERO, Vector2(-7, 4), Vector2(7, -4)], 9.0, core_color)
-	_draw_ice_cracks()
-
-func _draw_puddle_layer(offsets: Array, radius_base: float, color: Color) -> void:
-	for offset in offsets:
-		draw_circle(offset, radius_base, color)
-
-func _draw_ice_cracks() -> void:
-	var crack_color = Color(1.0, 1.0, 1.0, 0.75)
-	draw_line(Vector2(-15, -8), Vector2(12, 10), crack_color, 1.2)
-	draw_line(Vector2(-5, 12), Vector2(8, -14), crack_color, 1.0)
-	draw_line(Vector2(0, 0), Vector2(-18, 5), crack_color, 1.0)

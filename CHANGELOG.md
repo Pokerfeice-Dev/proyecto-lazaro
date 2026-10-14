@@ -1,3 +1,28 @@
+## 2026-10-14 (charcos de los barriles en pixel art)
+
+- **Los charcos de los barriles ahora son pixel art**, en vez de circulos dibujados con `draw_circle`. La mancha se arma pixel a pixel (`Scripts/Effects/puddle_visuals.gd`, `PuddleVisuals`): borde irregular con ruido, bandas de color como una paleta de tiles y tramado. Se genera a media resolucion y se dibuja al doble, asi el tamaño de pixel coincide con el de los sprites. Cada charco sale un poco distinto.
+  - **Fuego:** quemado tramado alrededor, lava en bandas, brasas cuadradas que suben, un poco de humo y la luz titila. **Cada tanto sale una llamarada** con las mismas particulas del lanzallamas (`FlameConeParticles`) desde un punto al azar del charco (a veces dos juntas).
+  - **Hielo:** placa limpia con borde de escarcha, dos reflejos en diagonal y grietas de pixeles; destellos que titilan y una neblina fria muy suave.
+  - Las particulas son cuadraditos de tamaño fijo (2 o 4 px) para que no se mezclen tamaños.
+- La logica no cambio: el fuego sigue quemando cada 0,5 s y el hielo sigue ralentizando un 40%.
+
+## 2026-10-14 (recetas de sinergias, sinergia revelada al armarla y sala de entrenamiento de prueba)
+
+- **Comprar una sinergia en O.M.N.I.A. ahora es comprar su receta.**
+  - Antes de comprarla, la receta es secreta: solo se ve el arma, las demas piezas son "?" y el texto va tachado en bloques.
+  - Al comprarla se ven las piezas y que hace, pero el sprite sigue en silueta (estado "RECETA") hasta armarla en una run. El boton dice "COMPRAR RECETA".
+  - **Animacion al comprar la receta:** las piezas "?" se dan vuelta una por una, un escaneo recorre la silueta y cae un sello dorado de "RECETA OBTENIDA".
+  - Se arreglo que el destello de compra a veces apuntaba al detalle viejo (`_refresh_detail` ahora saca los nodos antes de liberarlos).
+- **La sinergia se revela al armarla en una run.** La animacion nueva de "nueva sinergia" (la de `synergy_activation.tscn`) suma un paso al final: las tres piezas se juntan en el centro con una onda y chispas, y aparece una ficha del mismo estilo con el sprite de la sinergia, que se revela como en O.M.N.I.A. (la silueta se aclara y la ficha salta con un destello). Desde ese momento se ve en O.M.N.I.A., en el codice, en el armamento del codice y en el menu de seleccion de armas (`GameData.is_synergy_discovered`, que usa `activated_synergies`).
+- **Codice, pestaña SINERGIAS:** tres estados. Bloqueada (como antes), receta (todo menos el sprite, con una lupa y "RECETA · ÁRMALA EN UNA RUN") y descubierta. El contador ahora cuenta las sinergias descubiertas.
+- **Arreglo: lo que se probaba en la sala de entrenamiento quedaba desbloqueado.** Al entrar, `GameData.begin_sandbox()` guarda una copia del progreso (sinergias, sinergias vistas, mejoras, chatarra, piezas, equipo, armas elegidas, codice y stats de armas); cualquier guardado mientras se esta adentro escribe esa copia, y al salir (`end_sandbox()`) se vuelve a ella. Esto tambien aplica al tutorial: la Mente Colmena del tutorial ya no queda desbloqueada.
+- Textos en español neutro en la sala de entrenamiento y en el terminal de sinergias ("Recoge", "equípalos", "Dispárale", "Elige").
+
+## 2026-10-14 (duplicado de objetos al equipar y cartel de sala congelado)
+
+- **Arreglo: los objetos se duplicaban al equiparlos con E.** El objeto quedaba seleccionado despues de equiparlo y, al volver a apretar E, se equipaba otra vez: las armas ocupaban el siguiente slot libre y las partes del cuerpo volvian a la mochila sin salir del slot. Ahora solo se equipa lo que esta en la mochila (`_equip_item_to_slot` y `_on_detail_equip_pressed` en `inventory_ui.gd`) y mantener E apretada ya no repite la accion.
+- **Arreglo: el cartel de entrada a la sala quedaba congelado en pantalla** si se abria el inventario o el menu de pausa mientras aparecia. El cartel (`room_title_card.gd`) ahora sigue andando con el juego en pausa y, apenas se abre un menu, se desvanece en un instante.
+
 ## 2026-10-14 (arreglo del inventario, códice nuevo y menu de seleccion de armas)
 
 - **Arreglo: el juego crasheaba al arrancar.** En `inventory_ui.gd`, `_apply_primary_button_style` seguia llamando a `_create_9slice_style` y a las texturas `tex_btn_primary_*`, que ya no existen desde que la UI paso a `inventory_ui.tscn` con el tema. Se borraron esas lineas: ahora el boton usa solo `theme_type_variation = "InventoryPrimary"`.

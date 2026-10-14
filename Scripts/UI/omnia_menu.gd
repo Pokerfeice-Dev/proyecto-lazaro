@@ -20,6 +20,7 @@ const ICON_MOUSE := preload("res://Art/Ui/svg/icon_mouse.svg")
 const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
 const ICON_CHECK := preload("res://Art/Ui/svg/icon_check.svg")
 const ICON_WARNING := preload("res://Art/Ui/svg/icon_warning.svg")
+const ICON_SEARCH := preload("res://Art/Ui/svg/icon_search.svg")
 const BUY_SOUND := "res://Audio/Sfx/Equipar_items.wav"
 const CANCEL_SOUND := "res://Audio/Sfx/UI_cancelar.wav"
 const TILE_SIZE := Vector2(196, 176)
@@ -377,7 +378,7 @@ func _price_tag(entry: Dictionary, centered: bool) -> HBoxContainer:
 		var check = UIStyle.icon(ICON_CHECK, 18)
 		check.modulate = UIStyle.COLOR_TEAL
 		tag.add_child(check)
-		tag.add_child(UIStyle.label(STATE_NAMES.get(entry.state, ""), 14, UIStyle.COLOR_TEAL))
+		tag.add_child(UIStyle.label(_state_name(entry), 14, UIStyle.COLOR_TEAL))
 	_ignore_mouse(tag)
 	return tag
 
@@ -393,11 +394,12 @@ func _level_pips(level: int, max_level: int, width: float) -> HBoxContainer:
 	return pips
 
 ## Ícono de la entrada. Si es un arma o sinergia sin desbloquear, va como silueta.
+## Una sinergia comprada sigue en silueta hasta descubrirla en una run.
 func _entry_icon(entry: Dictionary, size: float, index: int) -> TextureRect:
 	var art = UIStyle.icon(entry.icon, size)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.self_modulate = entry.get("tint", Color.WHITE)
-	if entry.kind in TILE_KINDS and not _is_owned(entry):
+	if entry.kind in TILE_KINDS and not _is_revealed(entry):
 		var mat = ShaderMaterial.new()
 		mat.shader = LOCKED_SHADER
 		mat.set_shader_parameter("phase", fmod(index * 0.137, 1.0))
@@ -406,6 +408,21 @@ func _entry_icon(entry: Dictionary, size: float, index: int) -> TextureRect:
 
 func _is_owned(entry: Dictionary) -> bool:
 	return entry.state in ["comprado", "activo", "maximo"]
+
+# ¿Se ve el sprite? Armas: al comprarlas. Sinergias: al armarlas en una run.
+func _is_revealed(entry: Dictionary) -> bool:
+	if entry.kind == "synergy":
+		return GameData.is_synergy_discovered(entry.id)
+	return _is_owned(entry)
+
+# Sinergia comprada pero sin descubrir: se tiene la receta, no la sinergia vista.
+func _is_recipe_only(entry: Dictionary) -> bool:
+	return entry.kind == "synergy" and _is_owned(entry) and not GameData.is_synergy_discovered(entry.id)
+
+func _state_name(entry: Dictionary) -> String:
+	if entry.kind == "synergy" and _is_owned(entry):
+		return "RECETA" if _is_recipe_only(entry) else "DESCUBIERTA"
+	return STATE_NAMES.get(entry.state, "")
 
 func _ignore_mouse(node: Control) -> void:
 	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -440,6 +457,7 @@ func _find_entry(id: String) -> Dictionary:
 
 func _refresh_detail() -> void:
 	for child in _detail_box.get_children():
+		_detail_box.remove_child(child)
 		child.queue_free()
 	var entry = _find_entry(_selected_id)
 	if entry.is_empty(): return
@@ -455,7 +473,7 @@ func _refresh_detail() -> void:
 	var title = UIStyle.label(entry.name, 26, UIStyle.COLOR_TEXT)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_detail_box.add_child(title)
-	var status = UIStyle.label("%s · %s" % [KIND_NAMES.get(entry.kind, ""), STATE_NAMES.get(entry.state, "")], 15, _state_color(entry))
+	var status = UIStyle.label("%s · %s" % [KIND_NAMES.get(entry.kind, ""), _state_name(entry)], 15, _state_color(entry))
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_detail_box.add_child(status)
 
@@ -485,27 +503,67 @@ func _add_kind_details(entry: Dictionary) -> void:
 			_add_recipe(entry)
 			if entry.requirement != "":
 				_add_warning(entry.requirement)
+			if _is_recipe_only(entry):
+				_add_hint("Ármala en una run para descubrir cómo se ve.")
 
+# La receta es secreta hasta comprarla: solo se ve el arma, el resto son "?"
+# y el texto va tachado en bloques.
 func _add_recipe(entry: Dictionary) -> void:
-	_detail_box.add_child(UIStyle.label("RECETA", 17, UIStyle.COLOR_TEXT))
+	var known = _is_owned(entry)
+	var head = HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	head.add_child(UIStyle.label("RECETA", 17, UIStyle.COLOR_TEXT))
+	if not known:
+		var lock = UIStyle.icon(ICON_LOCK, 18)
+		lock.modulate = UIStyle.COLOR_WARNING
+		head.add_child(lock)
+	_detail_box.add_child(head)
 	var chips = HBoxContainer.new()
+	chips.name = "RecipeChips"
 	chips.add_theme_constant_override("separation", 8)
-	for part in entry.recipe:
-		var chip = UIStyle.panel(UIStyle.TEX_SLOT["normal"])
-		chip.custom_minimum_size = Vector2(52, 52)
+	var has_weapon = SynergyManager.SYNERGIES.get(entry.id, {}).get("required_weapon", "") != ""
+	for i in entry.recipe.size():
+		var visible_part = known or (i == 0 and has_weapon)
+		chips.add_child(_recipe_chip(entry.recipe[i], visible_part))
+	_detail_box.add_child(chips)
+	if known:
+		var text = UIStyle.label(entry.recipe_text, 14, UIStyle.COLOR_MUTED)
+		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_detail_box.add_child(text)
+	else:
+		_detail_box.add_child(CodexKit.redacted(entry.id, 2))
+
+func _recipe_chip(part: Dictionary, visible_part: bool) -> Control:
+	var chip = UIStyle.panel(UIStyle.TEX_SLOT["normal" if visible_part else "disabled"])
+	chip.custom_minimum_size = Vector2(52, 52)
+	if visible_part:
 		chip.tooltip_text = part.name
 		chip.add_child(UIStyle.icon(part.icon, 34))
-		chips.add_child(chip)
-	_detail_box.add_child(chips)
-	var text = UIStyle.label(entry.recipe_text, 14, UIStyle.COLOR_MUTED)
-	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail_box.add_child(text)
+	else:
+		chip.tooltip_text = "Pieza secreta"
+		var q = UIStyle.label("?", 22, CodexKit.LOCKED_TEXT)
+		q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		q.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		chip.add_child(q)
+	return chip
 
 func _add_warning(text: String) -> void:
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	row.add_child(UIStyle.icon(ICON_WARNING, 20))
 	var lbl = UIStyle.label(text, 15, UIStyle.COLOR_WARNING)
+	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(lbl)
+	_detail_box.add_child(row)
+
+func _add_hint(text: String) -> void:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var ic = UIStyle.icon(ICON_SEARCH, 20)
+	ic.modulate = UIStyle.COLOR_TEAL
+	row.add_child(ic)
+	var lbl = UIStyle.label(text, 15, UIStyle.COLOR_TEAL)
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(lbl)
@@ -534,13 +592,18 @@ func _on_action_pressed() -> void:
 	if entry.is_empty() or not OmniaCatalog.can_act(entry):
 		_play_sound(CANCEL_SOUND)
 		return
-	var was_locked = entry.kind in TILE_KINDS and not _is_owned(entry)
+	# las sinergias no se revelan al comprarlas: solo se compra la receta
+	var was_locked = entry.kind == "weapon" and not _is_owned(entry)
+	var bought_recipe = entry.kind == "synergy" and not _is_owned(entry)
 	if not OmniaCatalog.purchase(entry):
 		_play_sound(CANCEL_SOUND)
 		return
 	_play_sound(BUY_SOUND)
 	_show_category(_category)
-	_celebrate(was_locked)
+	if bought_recipe:
+		_celebrate_recipe()
+	else:
+		_celebrate(was_locked)
 
 # Efecto de compra: la ficha y el ícono del detalle saltan con un destello; si
 # era una silueta, se revela con el shader en vez de aparecer de golpe.
@@ -555,6 +618,92 @@ func _celebrate(reveal: bool) -> void:
 		_pop(t)
 		if reveal:
 			_reveal_icons_in(t)
+
+# --- Animación al comprar una receta ---
+# Las piezas "?" se dan vuelta una por una, un escaneo recorre la silueta y cae
+# un sello dorado de "RECETA OBTENIDA" sobre el sprite (que sigue en silueta).
+func _celebrate_recipe() -> void:
+	await get_tree().process_frame # que el detalle nuevo ya tenga tamaño
+	if _cards.has(_selected_id):
+		_pop(_cards[_selected_id])
+	var detail = _detail_box.get_node_or_null("DetailIcon")
+	if detail:
+		_pop(detail)
+		_scan_sweep(detail)
+		_stamp(detail)
+	_cascade_chips()
+
+func _cascade_chips() -> void:
+	var chips = _detail_box.get_node_or_null("RecipeChips")
+	if not chips: return
+	var i = 0
+	for chip in chips.get_children():
+		chip.pivot_offset = chip.size / 2.0
+		chip.scale = Vector2(0.2, 0.2)
+		chip.modulate = Color(2.2, 2.2, 2.2, 0.0)
+		var t = chip.create_tween()
+		t.tween_interval(0.25 + i * 0.13)
+		t.tween_property(chip, "modulate:a", 1.0, 0.05)
+		t.parallel().tween_property(chip, "scale", Vector2(1.18, 1.18), 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.tween_property(chip, "scale", Vector2.ONE, 0.14)
+		t.parallel().tween_property(chip, "modulate", Color.WHITE, 0.3)
+		i += 1
+
+func _scan_sweep(frame: Control) -> void:
+	var holder = Control.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.clip_contents = true
+	frame.add_child(holder)
+	var line = ColorRect.new()
+	line.color = Color(UIStyle.COLOR_TEAL, 0.85)
+	line.size = Vector2(frame.size.x, 3)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(line)
+	var glow = ColorRect.new()
+	glow.color = Color(UIStyle.COLOR_TEAL, 0.18)
+	glow.size = Vector2(frame.size.x, 18)
+	glow.position.y = -18
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.add_child(glow)
+	var t = holder.create_tween()
+	t.tween_property(line, "position:y", frame.size.y, 0.6).set_trans(Tween.TRANS_SINE)
+	t.tween_callback(holder.queue_free)
+
+func _stamp(frame: Control) -> void:
+	var center = CenterContainer.new()
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(center)
+	var stamp = PanelContainer.new()
+	stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var box = StyleBoxFlat.new()
+	box.bg_color = Color(0.06, 0.05, 0.02, 0.85)
+	box.border_color = UIStyle.COLOR_GOLD
+	box.set_border_width_all(2)
+	box.set_corner_radius_all(4)
+	box.content_margin_left = 10
+	box.content_margin_right = 10
+	box.content_margin_top = 4
+	box.content_margin_bottom = 4
+	stamp.add_theme_stylebox_override("panel", box)
+	var lbl = UIStyle.label("RECETA\nOBTENIDA", 16, UIStyle.COLOR_GOLD)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stamp.add_child(lbl)
+	center.add_child(stamp)
+	await get_tree().process_frame
+	if not is_instance_valid(stamp): return
+	stamp.pivot_offset = stamp.size / 2.0
+	stamp.rotation = -0.22
+	stamp.scale = Vector2(2.4, 2.4)
+	stamp.modulate.a = 0.0
+	var t = stamp.create_tween()
+	t.tween_interval(0.45)
+	t.tween_property(stamp, "modulate:a", 1.0, 0.08)
+	t.parallel().tween_property(stamp, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	t.tween_callback(func(): _pop(frame))
+	t.tween_property(stamp, "rotation", -0.12, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.tween_interval(1.1)
+	t.tween_property(stamp, "modulate:a", 0.0, 0.35)
+	t.tween_callback(center.queue_free)
 
 func _pop(target: Control) -> void:
 	target.pivot_offset = target.size / 2.0

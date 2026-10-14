@@ -2,7 +2,9 @@ extends PanelContainer
 class_name CodexSynergyCard
 
 ## Ficha grande de una sinergia en la pestaña SINERGIAS del códice.
-## Desbloqueada: sprite, nombre, para qué arma es, receta y descripción.
+## Descubierta (ya armada en una run): sprite, nombre, arma, receta y descripción.
+## Receta comprada en O.M.N.I.A. pero sin descubrir: todo menos el sprite, que
+## queda en silueta con una lupa.
 ## Bloqueada: solo se ve para qué arma es. El sprite queda como silueta con un
 ## candado que late, el nombre son caracteres cifrados que cambian solos, las
 ## piezas de la receta están tapadas, la descripción está tachada en bloques y
@@ -12,13 +14,15 @@ class_name CodexSynergyCard
 const LOCKED_SHADER := preload("res://Art/Ui/shaders/silueta_bloqueada.gdshader")
 const SEAL_SHADER := preload("res://Art/Ui/shaders/sello_bloqueado.gdshader")
 const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
+const ICON_SEARCH := preload("res://Art/Ui/svg/icon_search.svg")
 const CARD_SIZE := Vector2(420, 236)
 const GLYPHS := "#%&@$*+=<>/?01"
 const GLYPH_INTERVAL := 0.12
 const LOCKED_TEXT := Color("#4E6B73")
 
 var syn_id: String = ""
-var _unlocked: bool = false
+var _unlocked: bool = false # receta comprada
+var _discovered: bool = false # armada en una run
 var _name_label: Label
 var _name_length: int = 8
 var _glyph_timer: float = 0.0
@@ -31,10 +35,12 @@ static func create(id: String) -> CodexSynergyCard:
 func _ready() -> void:
 	var def: Dictionary = SynergyManager.SYNERGIES.get(syn_id, {})
 	_unlocked = GameData.is_synergy_unlocked(syn_id)
+	_discovered = _unlocked and GameData.is_synergy_discovered(syn_id)
 	_name_length = String(def.get("name", "????????")).length()
 	custom_minimum_size = CARD_SIZE
 	mouse_filter = Control.MOUSE_FILTER_PASS
-	add_theme_stylebox_override("panel", UIStyle.nine_slice(UIStyle.TEX_SLOT["equipped" if _unlocked else "disabled"]))
+	var style = "equipped" if _discovered else ("normal" if _unlocked else "disabled")
+	add_theme_stylebox_override("panel", UIStyle.nine_slice(UIStyle.TEX_SLOT[style]))
 
 	var m = UIStyle.padded(16)
 	m.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -68,21 +74,25 @@ func _build_art() -> Control:
 	art.self_modulate = OmniaCatalog.synergy_tint(syn_id)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(art)
-	if not _unlocked:
+	if not _discovered:
 		var mat = ShaderMaterial.new()
 		mat.shader = LOCKED_SHADER
-		mat.set_shader_parameter("blur", 2.0)
+		mat.set_shader_parameter("blur", 2.0 if not _unlocked else 1.0)
 		mat.set_shader_parameter("phase", fmod(syn_id.hash() * 0.0001, 1.0))
 		art.material = mat
-		frame.add_child(_build_lock())
+		frame.add_child(_build_lock() if not _unlocked else _build_mark(ICON_SEARCH, UIStyle.COLOR_TEAL))
 	return frame
 
 # Candado al centro de la silueta que late despacio.
 func _build_lock() -> Control:
+	return _build_mark(ICON_LOCK, UIStyle.COLOR_GOLD)
+
+# Ícono que late sobre la silueta: candado (bloqueada) o lupa (falta descubrirla).
+func _build_mark(icon_tex: Texture2D, color: Color) -> Control:
 	var center = CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var lock = UIStyle.icon(ICON_LOCK, 34)
-	lock.modulate = UIStyle.COLOR_GOLD
+	var lock = UIStyle.icon(icon_tex, 34)
+	lock.modulate = color
 	lock.pivot_offset = Vector2(17, 17)
 	center.add_child(lock)
 	var t = lock.create_tween().set_loops()
@@ -103,9 +113,11 @@ func _build_info(def: Dictionary) -> Control:
 	if _unlocked:
 		var desc = UIStyle.label(def.get("description", ""), 13, UIStyle.COLOR_MUTED)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc.max_lines_visible = 3
+		desc.max_lines_visible = 3 if _discovered else 2
 		desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		box.add_child(desc)
+		if not _discovered:
+			box.add_child(_undiscovered_tag())
 	else:
 		box.add_child(_redacted_lines())
 	return box
@@ -145,6 +157,15 @@ func _recipe_chip(part: Dictionary, visible_part: bool) -> Control:
 	return chip
 
 # Texto "tachado": bloques de distinto largo en vez de la descripción.
+func _undiscovered_tag() -> Control:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var ic = UIStyle.icon(ICON_SEARCH, 16)
+	ic.modulate = UIStyle.COLOR_TEAL
+	row.add_child(ic)
+	row.add_child(UIStyle.label("RECETA · ÁRMALA EN UNA RUN", 12, UIStyle.COLOR_TEAL))
+	return row
+
 func _redacted_lines() -> Control:
 	var box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
