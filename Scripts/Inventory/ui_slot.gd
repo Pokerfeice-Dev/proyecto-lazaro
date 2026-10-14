@@ -7,7 +7,7 @@ extends PanelContainer
 @export var empty_icon_name: String = ""
 
 var item: ItemData = null
-var is_equipped_slot: bool = false
+@export var is_equipped_slot: bool = false
 var is_selected: bool = false
 var is_valid_drop_target: bool = false
 var is_invalid_drop_target: bool = false
@@ -24,20 +24,11 @@ signal slot_unhovered()
 signal drag_started(item_data: ItemData, source_slot: UISlot)
 
 # Texturas SVG de los 9-slice para slots
-static var tex_slot_empty: Texture2D = preload("res://Art/Ui/svg/slot_empty.svg")
-static var tex_slot_normal: Texture2D = preload("res://Art/Ui/svg/slot_normal.svg")
-static var tex_slot_hover: Texture2D = preload("res://Art/Ui/svg/slot_hover.svg")
-static var tex_slot_selected: Texture2D = preload("res://Art/Ui/svg/slot_selected.svg")
-static var tex_slot_equipped: Texture2D = preload("res://Art/Ui/svg/slot_equipped.svg")
-static var tex_slot_valid: Texture2D = preload("res://Art/Ui/svg/slot_valid.svg")
-static var tex_slot_invalid: Texture2D = preload("res://Art/Ui/svg/slot_invalid.svg")
-static var tex_badge_equipped: Texture2D = preload("res://Art/Ui/svg/badge_equipped.svg")
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(80, 80)
-	_setup_slot_style()
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	update_slot(item)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_DRAG_END:
@@ -72,151 +63,54 @@ func set_highlight(active: bool) -> void:
 	is_highlighted = active
 	_refresh_slot_style()
 
-func _setup_slot_style() -> void:
-	_refresh_slot_style()
-
 func _refresh_slot_style() -> void:
-	var tex = _pick_slot_texture()
-	var style = _create_slot_stylebox(tex)
+	theme_type_variation = _pick_slot_variation()
+	self_modulate = Color.WHITE
 	if is_highlighted or is_valid_drop_target:
-		style.modulate_color = Color(0.3, 1.2, 1.1, 1.0)
+		self_modulate = Color(0.3, 1.2, 1.1, 1.0)
 	elif is_invalid_drop_target:
-		style.modulate_color = Color(1.3, 0.4, 0.3, 1.0)
+		self_modulate = Color(1.3, 0.4, 0.3, 1.0)
 	elif has_synergy_affinity:
-		style.modulate_color = Color(0.85, 0.45, 1.35, 1.0)
-	add_theme_stylebox_override("panel", style)
+		self_modulate = Color(0.85, 0.45, 1.35, 1.0)
 
-func _pick_slot_texture() -> Texture2D:
+func _pick_slot_variation() -> String:
 	if is_selected:
-		return tex_slot_selected
+		return "InventorySlotSelected"
 	if is_valid_drop_target:
-		return tex_slot_valid
+		return "InventorySlotValid"
 	if is_invalid_drop_target:
-		return tex_slot_invalid
+		return "InventorySlotInvalid"
 	if is_hovered:
-		return tex_slot_hover
+		return "InventorySlotHover"
 	if is_equipped_slot:
-		return tex_slot_equipped
+		return "InventorySlotEquipped"
 	if item == null:
-		return tex_slot_empty
-	return tex_slot_normal
-
-func _create_slot_stylebox(tex: Texture2D) -> StyleBoxTexture:
-	var style = StyleBoxTexture.new()
-	style.texture = tex
-	style.texture_margin_left = 16.0
-	style.texture_margin_top = 16.0
-	style.texture_margin_right = 16.0
-	style.texture_margin_bottom = 16.0
-	return style
+		return "InventorySlotEmpty"
+	return "InventorySlotNormal"
 
 func update_slot(new_item: ItemData, qty: int = 1) -> void:
 	item = new_item
-	_clear_slot_children()
 	tooltip_text = ""
-	_render_slot_content(qty)
-	_refresh_slot_style()
-
-func _clear_slot_children() -> void:
-	for c in get_children():
-		remove_child(c)
-		c.queue_free()
-
-func _render_slot_content(qty: int) -> void:
-	if not item:
-		_render_empty_visuals()
-		return
-	_render_item_icon_or_name()
-	_render_item_quantity(qty)
-
-func _render_empty_visuals() -> void:
+	# Child nodes and their layout are authored in inventory_slot.tscn.
+	var empty_icon: TextureRect = $Visuals/EmptyIcon
+	var empty_label: Label = $Visuals/EmptyText
+	var icon: TextureRect = $Visuals/ItemIcon
+	var item_label: Label = $Visuals/ItemName
+	var badge: TextureRect = $Visuals/EquippedBadge
+	var quantity: Label = $Visuals/Quantity
 	if not empty_icon_name.is_empty():
-		_render_empty_body_icon()
-		return
-	if not empty_text.is_empty():
-		_render_empty_text()
-
-func _render_empty_body_icon() -> void:
-	var icon_path = "res://Art/Ui/svg/" + empty_icon_name + ".svg"
-	if not ResourceLoader.exists(icon_path):
-		_render_empty_text()
-		return
-	var trect = TextureRect.new()
-	trect.texture = load(icon_path)
-	trect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	trect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	trect.custom_minimum_size = Vector2(36, 36)
-	trect.modulate = Color(0.22, 0.38, 0.42, 0.5)
-	trect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	trect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(trect)
-
-func _render_empty_text() -> void:
-	var lbl = Label.new()
-	lbl.text = empty_text
-	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
-	lbl.add_theme_font_size_override("font_size", 16)
-	lbl.add_theme_color_override("font_color", Color(0.35, 0.45, 0.48))
-	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(lbl)
-
-func _render_item_icon_or_name() -> void:
-	if item.icon:
-		_render_texture_rect()
-		return
-	_render_item_name_label()
-
-func _render_texture_rect() -> void:
-	var margin_container = MarginContainer.new()
-	margin_container.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin_container.add_theme_constant_override("margin_left", 8)
-	margin_container.add_theme_constant_override("margin_top", 8)
-	margin_container.add_theme_constant_override("margin_right", 8)
-	margin_container.add_theme_constant_override("margin_bottom", 8)
-	add_child(margin_container)
-
-	var trect = TextureRect.new()
-	trect.texture = item.icon
-	trect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	trect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	trect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	trect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	trect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin_container.add_child(trect)
-
-func _render_item_name_label() -> void:
-	var lbl = Label.new()
-	lbl.text = item.item_name
-	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
-	lbl.add_theme_font_size_override("font_size", 14)
-	lbl.add_theme_color_override("font_color", Color(0.9, 0.93, 0.94))
-	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(lbl)
-
-func _render_item_quantity(qty: int) -> void:
-	if qty <= 1: return
-	var count_lbl = Label.new()
-	count_lbl.text = str(qty)
-	count_lbl.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	count_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	count_lbl.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	count_lbl.offset_left = -32
-	count_lbl.offset_top = -24
-	count_lbl.offset_right = -8
-	count_lbl.offset_bottom = -6
-	count_lbl.add_theme_font_size_override("font_size", 16)
-	count_lbl.add_theme_color_override("font_color", Color(0.32, 0.85, 0.78))
-	count_lbl.add_theme_color_override("font_outline_color", Color(0.09, 0.11, 0.13))
-	count_lbl.add_theme_constant_override("outline_size", 3)
-	count_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(count_lbl)
+		empty_icon.texture = load("res://Art/Ui/svg/%s.svg" % empty_icon_name)
+	empty_icon.visible = item == null and empty_icon.texture != null
+	empty_label.text = empty_text
+	empty_label.visible = item == null and not empty_icon.visible
+	icon.texture = item.icon if item else null
+	icon.visible = icon.texture != null
+	item_label.text = item.item_name if item else ""
+	item_label.visible = item != null and not icon.visible
+	badge.visible = false
+	quantity.text = str(qty)
+	quantity.visible = item != null and qty > 1
+	_refresh_slot_style()
 
 func _gui_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton: return

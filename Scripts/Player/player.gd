@@ -185,47 +185,30 @@ func _update_player_stats() -> void:
 			
 	_check_and_trigger_first_time_synergies()
 
+var _observed_synergies: Array[String] = []
+var _synergy_state_initialized: bool = false
+
 func _check_and_trigger_first_time_synergies() -> void:
 	var equip = get_node_or_null("Equipment")
-	if not equip:
+	if not equip: return
+	var active: Array[String] = SynergyManager.get_active_synergies(equip, get_active_ranged_weapon_id(), true)
+	for id in SynergyManager.get_active_synergies(equip, get_active_melee_weapon_id(), false):
+		if not active.has(id): active.append(id)
+	# Restoring equipment when entering a room is not a new activation.
+	if not _synergy_state_initialized:
+		_observed_synergies = active
+		_synergy_state_initialized = true
 		return
-	var active_weapon_id = get_active_ranged_weapon_id()
-	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, true)
-	
-	for syn_id in active_syns:
-		_process_potential_first_time_synergy(syn_id)
-	
-	var active_melee_weapon_id = get_active_melee_weapon_id()
-	var active_melee_syns = SynergyManager.get_active_synergies(equip, active_melee_weapon_id, false)
-	
-	for syn_id in active_melee_syns:
-		_process_potential_first_time_synergy(syn_id)
-
-func _process_potential_first_time_synergy(syn_id: String) -> void:
-	if GameData.activated_synergies.has(syn_id):
-		return
-	
-	GameData.activated_synergies.append(syn_id)
-	GameData.save_game()
-	
-	_spawn_synergy_popup(syn_id)
-
-func _spawn_synergy_popup(syn_id: String) -> void:
-	var def = SynergyManager.SYNERGIES.get(syn_id, {})
-	var syn_name = def.get("name", syn_id)
-	var syn_desc = def.get("description", "")
-	
-	var popup_script = load("res://Scripts/UI/synergy_popup.gd")
-	if not popup_script:
-		return
-		
-	var popup = CanvasLayer.new()
-	popup.layer = 250
-	popup.set_script(popup_script)
-	popup.setup(syn_name, syn_desc)
-	
-	get_tree().paused = true
-	get_tree().root.add_child(popup)
+	var newly_active: Array[String] = []
+	for id in active:
+		if not _observed_synergies.has(id): newly_active.append(id)
+	_observed_synergies = active
+	for id in newly_active:
+		var first_discovery = not GameData.activated_synergies.has(id)
+		if first_discovery:
+			GameData.activated_synergies.append(id)
+			GameData.save_game()
+		SynergyManager.present_activation(id, first_discovery)
 
 func _apply_synergy_weapon_override() -> void:
 	if not active_weapon:
