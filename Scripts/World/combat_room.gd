@@ -5,6 +5,12 @@ class_name CombatRoom
 ## Escena del jugador (si no hay uno en el árbol).
 @export var player_scene: PackedScene = preload("res://Scenes/Player/Player.tscn")
 
+@export_category("Ambiente de La Cripta")
+## Capa de niebla suave. La escena mantiene el material y sus parámetros
+## editables; se añade solamente a salas Level2.
+@export var crypt_fog_scene: PackedScene = preload("res://Scenes/Effects/crypt_fog.tscn")
+@export var enable_crypt_fog := true
+
 var total_enemies_to_spawn: int = 15
 var max_concurrent_enemies: int = 5
 var spawn_interval: float = 1.5
@@ -55,6 +61,7 @@ var _nav_cell_to_id: Dictionary = {}
 
 func _ready() -> void:
 	add_to_group("combat_room")
+	_setup_crypt_fog()
 	_apply_difficulty_settings()
 	_setup_player()
 	_setup_spawn_points()
@@ -72,6 +79,16 @@ func _ready() -> void:
 	
 	_ensure_room_music_bus()
 	_init_adaptive_music()
+
+func _setup_crypt_fog() -> void:
+	if not enable_crypt_fog or not _is_crypt_room() or crypt_fog_scene == null: return
+	if get_node_or_null("CryptFog"): return
+	var fog = crypt_fog_scene.instantiate()
+	fog.name = "CryptFog"
+	add_child(fog)
+
+func _is_crypt_room() -> bool:
+	return GameData.current_level == 2 or get_scene_file_path().get_file().begins_with("Level2_")
 
 func _ensure_room_music_bus() -> void:
 	var boss_music = get_node_or_null("Boss_Fight_Music") as AudioStreamPlayer
