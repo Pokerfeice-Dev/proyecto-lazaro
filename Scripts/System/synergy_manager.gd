@@ -138,7 +138,7 @@ const SYNERGIES = {
 		}
 	},
 	"snowman": {
-		"name": "Snowman",
+		"name": "Avalanche",
 		"description": "La escopeta dispara una sola bola de nieve enorme y lenta que atraviesa a los enemigos y congela a cada uno que toca. Al chocar contra una pared estalla en escarcha.",
 		"required_weapon": "shotgun",
 		"required_items": ["mezcladora", "cabeza_humana", "nitrogeno"],

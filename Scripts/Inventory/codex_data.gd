@@ -2,6 +2,15 @@ class_name CodexData
 
 const DATA = {
 	"enemies": {
+		"crypt_bell_keeper": {"name": "Campanero de Réquiem", "lore": "Cada campanada deja un eco en tu posición. Un segundo después estalla: evitá regresar a tus pasos. Tras tres campanadas queda expuesto.", "stats": "La Cripta | Vida: 95 | Daño: 16 | Eco: 1 segundo", "icon": preload("res://Art/Items/Crypt/badajo_requiem.svg")},
+		"crypt_gargoyle": {"name": "Gárgola", "lore": "Se aproxima para golpear y se vuelve piedra temporalmente. Atacá cuando abandone su defensa.", "stats": "La Cripta | Vida: 130 | Daño: 16 | Anticipación: 0.55s", "icon": preload("res://Art/Items/Crypt/corazon_petreo.svg")},
+		"crypt_ghoul": {"name": "Ghoul", "lore": "Depredador veloz que acelera cuando le das la espalda. Su mordida tiene una anticipación breve.", "stats": "La Cripta | Vida: 65 | Daño: 12 | Anticipación: 0.4s", "icon": preload("res://Art/Items/Crypt/tendon_necrotico.svg")},
+		"crypt_centipede": {"name": "Cienpiés tóxico", "lore": "Su tubo dorsal libera un cono de gas venenoso. Salí del área marcada antes de la descarga.", "stats": "La Cripta | Vida: 95 | Daño: 10 | Anticipación: 0.8s", "icon": preload("res://Art/Items/Crypt/glandula_toxica.svg")},
+		"crypt_death_squad": {"name": "Escuadrón de la muerte", "lore": "Soldado de armadura esquelética que fija una dirección y dispara tres proyectiles consecutivos.", "stats": "La Cripta | Vida: 100 | Daño: 13 | Anticipación: 0.65s", "icon": preload("res://Art/Items/Crypt/placa_funeraria.svg")},
+		"crypt_laser_eye": {"name": "Ojo torreta", "lore": "Marca tu posición con una línea que deja de seguirte antes de disparar. Movete lateralmente o buscá cobertura.", "stats": "La Cripta | Vida: 85 | Daño: 22 | Anticipación: 1.2s", "icon": preload("res://Art/Items/Crypt/lente_sepulcral.svg")},
+		"crypt_dead_beekeeper": {"name": "Apicultora muerta", "lore": "Invoca abejas carnívoras que disparan a distancia. Destruir a la invocadora elimina su enjambre.", "stats": "La Cripta | Vida: 120 | Daño: 8 | Anticipación: 1s", "icon": preload("res://Art/Items/Crypt/panal_cadaverico.svg")},
+		"crypt_flesh_bee": {"name": "Abeja carnívora", "lore": "Pequeño tirador del enjambre muerto. Se detiene, anticipa y dispara un proyectil.", "stats": "La Cripta | Vida: 22 | Daño: 6 | Anticipación: 0.65s", "icon": preload("res://Art/Items/Crypt/mandibula_carnivora.svg")},
+
 		"follower": {
 			"name": "Perro Mecánico",
 			"lore": "Unidad canina automatizada de Asphodel Laboratories. Rastrea cualquier señal de tejido vivo y ataca cuerpo a cuerpo en manada, sin detenerse hasta destrozar a su presa.",
@@ -96,6 +105,15 @@ const DATA = {
 		}
 	},
 	"items": {
+		"badajo_requiem": {"name": "Badajo de Réquiem", "lore": "El núcleo resonante de la campana de un guardián funerario.", "stats": "+30% daño crítico", "icon": preload("res://Art/Items/Crypt/badajo_requiem.svg")},
+		"corazon_petreo": {"name": "Corazón pétreo", "lore": "Componente recuperado de Gárgola. Material de la cripta con propiedades experimentales.", "stats": "+15% daño", "icon": preload("res://Art/Items/Crypt/corazon_petreo.svg")},
+		"tendon_necrotico": {"name": "Tendón necrótico", "lore": "Componente recuperado de Ghoul. Material de la cripta con propiedades experimentales.", "stats": "+15% cadencia", "icon": preload("res://Art/Items/Crypt/tendon_necrotico.svg")},
+		"glandula_toxica": {"name": "Glándula tóxica", "lore": "Componente recuperado de Cienpiés tóxico. Material de la cripta con propiedades experimentales.", "stats": "+25% daño crítico", "icon": preload("res://Art/Items/Crypt/glandula_toxica.svg")},
+		"placa_funeraria": {"name": "Placa funeraria", "lore": "Componente recuperado de Escuadrón de la muerte. Material de la cripta con propiedades experimentales.", "stats": "+18% daño", "icon": preload("res://Art/Items/Crypt/placa_funeraria.svg")},
+		"lente_sepulcral": {"name": "Lente sepulcral", "lore": "Componente recuperado de Ojo torreta. Material de la cripta con propiedades experimentales.", "stats": "+1 perforación", "icon": preload("res://Art/Items/Crypt/lente_sepulcral.svg")},
+		"panal_cadaverico": {"name": "Panal cadavérico", "lore": "Componente recuperado de Apicultora muerta. Material de la cripta con propiedades experimentales.", "stats": "+12% prob. crítica", "icon": preload("res://Art/Items/Crypt/panal_cadaverico.svg")},
+		"mandibula_carnivora": {"name": "Mandíbula carnívora", "lore": "Componente recuperado de Abeja carnívora. Material de la cripta con propiedades experimentales.", "stats": "+15% daño crítico", "icon": preload("res://Art/Items/Crypt/mandibula_carnivora.svg")},
+
 		"torso_blindado": {
 			"name": "Torso Musculoso",
 			"lore": "Un torso injertado con tejido muscular denso y placas subdérmicas acorazadas.",

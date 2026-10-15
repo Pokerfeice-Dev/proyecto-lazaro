@@ -9,6 +9,58 @@ const FROST_SOUND := "res://Audio/Sfx/Barril/frost.ogg"
 @export var freeze_duration: float = 2.5
 @export var spin_speed: float = 4.0
 
+var _frost_particles: CPUParticles2D = null
+
+func _ready() -> void:
+	super._ready()
+	_setup_frost_fx()
+
+func _setup_frost_fx() -> void:
+	_frost_particles = _create_frost_trail_particles()
+	add_child(_frost_particles)
+
+func _create_frost_trail_particles() -> CPUParticles2D:
+	var p = CPUParticles2D.new()
+	p.amount = 32
+	p.lifetime = 0.5
+	p.local_coords = false
+	p.z_index = 49
+	p.z_as_relative = false
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = 8.0
+	p.spread = 180.0
+	p.gravity = Vector2(0, 15)
+	p.initial_velocity_min = 8.0
+	p.initial_velocity_max = 24.0
+	p.damping_min = 10.0
+	p.damping_max = 20.0
+	p.scale_amount_min = 2.0
+	p.scale_amount_max = 4.5
+	p.scale_amount_curve = _create_frost_scale_curve()
+	p.color_ramp = _create_frost_color_gradient()
+	p.material = _create_frost_material()
+	p.emitting = true
+	return p
+
+func _create_frost_scale_curve() -> Curve:
+	var curve = Curve.new()
+	curve.add_point(Vector2(0.0, 0.6))
+	curve.add_point(Vector2(0.3, 1.0))
+	curve.add_point(Vector2(1.0, 0.0))
+	return curve
+
+func _create_frost_color_gradient() -> Gradient:
+	var g = Gradient.new()
+	g.set_color(0, Color(0.95, 1.0, 1.0, 0.9))
+	g.add_point(0.4, Color(0.55, 0.88, 1.0, 0.7))
+	g.set_color(1, Color(0.3, 0.6, 1.0, 0.0))
+	return g
+
+func _create_frost_material() -> CanvasItemMaterial:
+	var mat = CanvasItemMaterial.new()
+	mat.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+	return mat
+
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if is_destroyed: return
@@ -34,9 +86,14 @@ func _handle_wall_collision() -> void:
 
 func _destroy_projectile() -> void:
 	if is_destroyed: return
+	_stop_frost_particles()
 	_spawn_frost_burst(36, 0.6)
 	_play_frost_sound()
 	super._destroy_projectile()
+
+func _stop_frost_particles() -> void:
+	if _frost_particles and is_instance_valid(_frost_particles):
+		_frost_particles.emitting = false
 
 func _spawn_frost_burst(amount: int, life: float) -> void:
 	var p = CPUParticles2D.new()

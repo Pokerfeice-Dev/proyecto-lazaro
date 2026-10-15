@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
+[ext_resource type="Resource" path="res://Art/Items/Crypt/glandula_toxica.tres" id="2"]
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+
+[node name="CryptCentipede" instance=ExtResource("1")]
+kind = 2
+codex_id = "crypt_centipede"
+display_name = "Cienpiés tóxico"
+max_health = 95
+move_speed = 90.0
+damage = 10
+attack_range = 175.0
+anticipation_time = 0.8
+attack_duration = 1.4
+recovery_time = 1.6
+item_drop_chance = 0.18
+all_items = Array[ExtResource("3")]([ExtResource("2")])
+
+[node name="Body" parent="Sprite2D" index="0"]
+color = Color(0.6, 0.8509803921568627, 0.2980392156862745, 1)
+polygon = PackedVector2Array(-24, -10, 24, -10, 24, 10, -24, 10)
+[node name="Accent" parent="Sprite2D" index="1"]
+color = Color(0.6, 0.8509803921568627, 0.2980392156862745, 0.7)
+[node name="NameLabel" parent="." index="3"]
+text = "Cienpiés tóxico"
+
+[node name="ToxicTube" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-18, -18, 18, -18, 18, -8, -18, -8)
+color = Color(0.65, 1, 0.15, 1)

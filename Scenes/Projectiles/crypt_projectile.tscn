@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Script" path="res://Scripts/Projectiles/crypt_projectile.gd" id="1"]
+[sub_resource type="CircleShape2D" id="shape"]
+radius = 4.0
+[node name="CryptProjectile" type="Area2D" groups=["crypt_projectile"]]
+collision_layer = 8
+collision_mask = 5
+script = ExtResource("1")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("shape")
+[node name="Body" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-8, -3, 6, -3, 10, 0, 6, 3, -8, 3)
+color = Color(1, 0.3, 0.4, 1)
+[node name="Trail" type="Line2D" parent="."]
+points = PackedVector2Array(-16, 0, -5, 0)
+width = 3.0
+default_color = Color(1, 0.5, 0.35, 0.5)
+[node name="Lifetime" type="Timer" parent="."]
+wait_time = 4.0
+one_shot = true
+autostart = true

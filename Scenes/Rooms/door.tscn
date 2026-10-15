@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="1_door"]
 [ext_resource type="Texture2D" uid="uid://dk3hbwebxoro0" path="res://Art/Tileset/doorarea1_spritesheet.png" id="2_14duu"]
-[ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="3_8spo7"]
 [ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="4_14duu"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qqa5y"]
@@ -80,13 +79,6 @@ size = Vector2(21, 27.5)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b72a7"]
 size = Vector2(61, 80)
 
-[sub_resource type="LabelSettings" id="LabelSettings_14duu"]
-font = ExtResource("3_8spo7")
-font_size = 18
-outline_size = 1
-outline_color = Color(0, 0, 0, 1)
-shadow_color = Color(0, 0, 0, 0.64705884)
-
 [node name="Door" type="StaticBody2D" unique_id=201233454]
 script = ExtResource("1_door")
 
@@ -107,14 +99,6 @@ debug_color = Color(0.75379455, 0.4574384, 0, 0.41960785)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=335506372]
 position = Vector2(0.5, 0)
 shape = SubResource("RectangleShape2D_b72a7")
-
-[node name="Label" type="Label" parent="." unique_id=584098657]
-offset_left = -60.0
-offset_top = 44.0
-offset_right = 26.0
-offset_bottom = 73.0
-rotation = -1.5707964
-label_settings = SubResource("LabelSettings_14duu")
 
 [node name="Close" type="PointLight2D" parent="." unique_id=834699254]
 position = Vector2(-18, 0)

@@ -8,7 +8,7 @@
 [ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="6_wfxhr"]
 [ext_resource type="Script" uid="uid://crek2l7dbib5k" path="res://Scripts/World/weapon_terminal.gd" id="7_rb72t"]
 [ext_resource type="Texture2D" uid="uid://d3bqynch51qyn" path="res://Art/npc/Icon50.png" id="8_i88kh"]
-[ext_resource type="Script" uid="uid://synergyterm123" path="res://Scripts/World/synergy_terminal.gd" id="9_synterm"]
+[ext_resource type="Script" uid="uid://cqrqbcusn7k0a" path="res://Scripts/World/synergy_terminal.gd" id="9_synterm"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_v4dhf"]
 font = ExtResource("6_wfxhr")

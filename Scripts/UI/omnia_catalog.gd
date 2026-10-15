@@ -7,6 +7,8 @@ class_name OmniaCatalog
 ## sinergias salen de SynergyManager, para que coincidan con lo que se ve en
 ## la run.
 
+const RESEARCH = preload("res://Art/Ui/synergy_research_settings.tres")
+
 const CATEGORIES := ["ESTRUCTURA", "RECURSOS", "ARSENAL", "SINERGIAS", "PROTOCOLOS"]
 const CATEGORY_INFO := {
 	"ESTRUCTURA": "Mejoras permanentes del cuerpo de Lázaro.",
@@ -29,7 +31,7 @@ const ESTRUCTURA := [
 ]
 
 const RECURSOS := [
-	{"key": "compactador", "name": "Compactador", "desc": "Aumenta la chatarra obtenida en combate (+2% por nivel).", "max": 20, "step": 2.0, "value_desc": "+%d%% chatarra", "icon": "icon_coin"},
+	{"key": "compactador", "name": "Compactador", "desc": "Aumenta la chatarra obtenida en combate (+2% por nivel).", "max": 20, "step": 2.0, "value_desc": "+%d%% chatarra", "icon": "res://Art/Scrap/scrap_icon.png"},
 	{"key": "biomasa_eficiente", "name": "Biomasa Eficiente", "desc": "Aumenta la carne obtenida al derrotar enemigos (+2% por nivel).", "max": 20, "step": 2.0, "value_desc": "+%d%% carne", "icon": "icon_torso"},
 	{"key": "imanes_industriales", "name": "Imanes Industriales", "desc": "Aumenta el radio de atracción de chatarra y carne (+5% por nivel).", "max": 10, "step": 5.0, "value_desc": "+%d%% radio", "icon": "icon_range"},
 	{"key": "recuperacion_restos", "name": "Recuperación de Restos", "desc": "Aumenta la probabilidad de que caigan objetos y carne (+1% por nivel).", "max": 15, "step": 1.0, "value_desc": "+%d%% drop", "icon": "icon_plus"},
@@ -53,10 +55,9 @@ const SINERGIAS := [
 	{"id": "relampago", "cost": 300, "icon": "res://Art/Weapons/Distance/Uzi/synergy_thebride_sprite.png"},
 	{"id": "daga_del_odio", "cost": 300, "icon": "res://Art/Weapons/Melee/Dagger/synergy_nemesis_sprite.png"},
 	{"id": "hombre_lobo", "cost": 300, "icon": "res://Art/Weapons/Melee/Axe/synergy_wolfsbane_sprite.png"},
-	{"id": "arrogancia", "cost": 300, "icon": ""},
-	# Speed Demon y Snowman todavía no tienen sprite: usan el arma base teñida
+	{"id": "arrogancia", "cost": 300, "icon": "res://Art/Weapons/Melee/Mace/synergy_arrogance_sprite.png"},
 	{"id": "speed_demon", "cost": 300, "icon": "res://Art/Weapons/Melee/Dagger/synergy_speeddemon_icon.tres"},
-	{"id": "snowman", "cost": 300, "icon": "", "tint": Color(0.6, 0.95, 1.6)},
+	{"id": "snowman", "cost": 300, "icon": "res://Art/Weapons/Distance/Shotgun/synergy_avalanche_sprite.png"},
 	{"id": "bestia_de_caza", "cost": 500, "icon": "", "advanced": true},
 	{"id": "trituradora_biomecanica", "cost": 500, "icon": "", "advanced": true},
 	{"id": "acorazado_muscular", "cost": 500, "icon": "", "advanced": true},
@@ -73,7 +74,7 @@ const PROTOCOLOS := [
 	{"id": "enjambre_residual", "name": "Enjambre Residual", "desc": "Empiezas cada run con una abeja mecánica aliada.", "cost": 900, "icon": "icon_projectiles"},
 	{"id": "blindaje_reactivo", "name": "Blindaje Reactivo", "desc": "Al recibir daño ganas +2 de defensa durante 3 segundos.", "cost": 900, "icon": "icon_armor"},
 	{"id": "furia_de_titanio", "name": "Furia de Titanio", "desc": "Con menos del 30% de vida: +25% de velocidad de ataque.", "cost": 1000, "icon": "icon_fire_rate"},
-	{"id": "reciclaje_instantaneo", "name": "Reciclaje Instantáneo", "desc": "Cada jefe derrotado te da 50 de chatarra extra.", "cost": 1200, "icon": "icon_coin"},
+	{"id": "reciclaje_instantaneo", "name": "Reciclaje Instantáneo", "desc": "Cada jefe derrotado te da 50 de chatarra extra.", "cost": 1200, "icon": "res://Art/Scrap/scrap_icon.png"},
 ]
 
 # --- Entradas listas para mostrar ---
@@ -144,16 +145,18 @@ static func _synergy_entries() -> Array:
 	for s in SINERGIAS:
 		var def: Dictionary = SynergyManager.SYNERGIES.get(s.id, {})
 		var owned = GameData.is_synergy_unlocked(s.id)
+		var discovered = GameData.is_synergy_discovered(s.id)
 		var blocked = s.get("advanced", false) and not advanced_ready and not owned
 		var state = "comprado" if owned else ("bloqueado" if blocked else "disponible")
 		result.append({
-			"id": s.id, "name": def.get("name", s.id), "desc": def.get("description", ""),
-			"kind": "synergy", "icon": _synergy_icon(s, def), "cost": s.cost,
+			"id": s.id, "name": def.get("name", s.id) if discovered else "Investigación %02d" % (result.size() + 1),
+			"desc": def.get("description", "") if discovered else RESEARCH.clues.get(s.id, "Experimentá con componentes para descubrir esta combinación."),
+			"kind": "synergy", "icon": _synergy_icon(s, def) if discovered else load_icon("icon_lock"), "cost": s.cost,
 			"tint": s.get("tint", Color.WHITE),
 			"recipe": _recipe(def), "recipe_text": SynergyManager.get_synergy_recipe_string(s.id),
-			"requirement": "Requiere desbloquear Mente Colmena y Roadkill." if blocked else "",
+			"requirement": "Requiere desbloquear las investigaciones 01 y 02." if blocked else "",
 			"state": state,
-			"action": {"comprado": "RECETA COMPRADA", "bloqueado": "BLOQUEADA"}.get(state, "COMPRAR RECETA"),
+			"action": {"comprado": "DESBLOQUEADA", "bloqueado": "BLOQUEADA"}.get(state, "DESBLOQUEAR"),
 		})
 	return result
 
@@ -264,3 +267,27 @@ static func shown_cost(entry: Dictionary) -> int:
 	if entry.state != "disponible":
 		return 0
 	return entry.cost
+
+## Los índices distinguen componentes repetidos de una misma receta.
+static func is_ingredient_revealed(id: String, index: int) -> bool:
+	if not GameData.is_synergy_unlocked(id): return false
+	return GameData.is_synergy_discovered(id) or index == 0 or GameData.synergy_item_hints.get(id, []).has(index)
+
+static func hint_cost(index: int) -> int:
+	return RESEARCH.second_item_cost if index == 1 else RESEARCH.third_item_cost
+
+static func purchase_hint(id: String, index: int) -> bool:
+	var items: Array = SynergyManager.SYNERGIES.get(id, {}).get("required_items", [])
+	if index < 1 or index > 2 or index >= items.size(): return false
+	if not GameData.is_synergy_unlocked(id) or is_ingredient_revealed(id, index): return false
+	if not GameData.spend_scrap(maxi(0, hint_cost(index))): return false
+	var hints: Array = GameData.synergy_item_hints.get(id, []).duplicate()
+	hints.append(index)
+	GameData.synergy_item_hints[id] = hints
+	GameData.save_game()
+	return true
+
+static func synergy_ingredients(id: String) -> Array:
+	var definition: Dictionary = SynergyManager.SYNERGIES.get(id, {}).duplicate()
+	definition["required_weapon"] = ""
+	return _recipe(definition)

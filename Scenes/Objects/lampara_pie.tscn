@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bn5bjdd22602q"]
 
 [ext_resource type="Texture2D" uid="uid://ddilkqpxlbbpa" path="res://Art/Miscellaneous/Lamparapie.png" id="1_0vuib"]
-[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="2_ogcyp"]
+[ext_resource type="Texture2D" path="res://Art/Lights/candle_light_mask.svg" id="2_ogcyp"]
 [ext_resource type="Script" uid="uid://damc505tbc8qk" path="res://Scripts/Effects/flickering_light.gd" id="3_flicker"]
 
 [node name="Lampara_pie" type="Node2D" unique_id=1509059318]
@@ -15,7 +15,7 @@ texture = ExtResource("1_0vuib")
 position = Vector2(0, -11)
 scale = Vector2(2.5, 2.5)
 color = Color(1, 1, 0.9, 1)
-energy = 0.85
+energy = 0.72
 shadow_color = Color(0, 0, 0, 0.62352943)
 texture = ExtResource("2_ogcyp")
-texture_scale = 0.95
+texture_scale = 0.82

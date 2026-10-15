@@ -245,7 +245,10 @@ func _init_timers() -> void:
 	blindaje_reactivo_timer = Timer.new()
 	blindaje_reactivo_timer.one_shot = true
 	add_child(blindaje_reactivo_timer)
-	blindaje_reactivo_timer.timeout.connect(func(): is_blindaje_reactivo_active = false)
+	blindaje_reactivo_timer.timeout.connect(_on_blindaje_reactivo_timeout)
+
+func _on_blindaje_reactivo_timeout() -> void:
+	is_blindaje_reactivo_active = false
 
 func _create_shoot_timer() -> void:
 	shoot_timer = Timer.new()
@@ -1586,7 +1589,10 @@ func _on_scrap_changed(amount: int) -> void:
 	_update_hud_scrap(amount)
 
 func _update_hud_scrap(amount: int) -> void:
-	var huds = get_tree().get_nodes_in_group("hud")
+	if not is_inside_tree(): return
+	var tree = get_tree()
+	if not tree: return
+	var huds = tree.get_nodes_in_group("hud")
 	if huds.is_empty(): return
 	huds[0].update_scrap(amount)
 
@@ -1594,7 +1600,10 @@ func _on_flesh_changed(amount: int) -> void:
 	_update_hud_flesh(amount)
 
 func _update_hud_flesh(amount: int) -> void:
-	var huds = get_tree().get_nodes_in_group("hud")
+	if not is_inside_tree(): return
+	var tree = get_tree()
+	if not tree: return
+	var huds = tree.get_nodes_in_group("hud")
 	if huds.is_empty(): return
 	huds[0].update_flesh(amount)
 
@@ -2351,9 +2360,10 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 	elif _is_speed_demon_active():
 		_apply_speed_demon_sprite(sprite, base_scale)
 	elif _is_arrogancia_equipped():
-		sprite.texture = base_texture
-		sprite.modulate = Color(1.5, 1.15, 0.3)
-		sprite.scale = base_scale * 1.15
+		var arrogance_tex = preload("res://Art/Weapons/Melee/Mace/synergy_arrogance_sprite.png")
+		sprite.texture = arrogance_tex
+		sprite.modulate = Color(1.0, 1.0, 1.0)
+		sprite.scale = base_scale
 	elif _is_hombre_lobo_active():
 		var wolf_tex = preload("res://Art/Weapons/Melee/Axe/synergy_wolfsbane_sprite.png")
 		sprite.texture = wolf_tex

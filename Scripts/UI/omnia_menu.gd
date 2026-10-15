@@ -13,8 +13,10 @@ class_name OmniaMenu
 
 signal closed
 
+const RESEARCH_SCENE = preload("res://Scenes/UI/synergy_recipe_research.tscn")
+
 const LOCKED_SHADER := preload("res://Art/Ui/shaders/silueta_bloqueada.gdshader")
-const ICON_COIN := preload("res://Art/Ui/svg/icon_coin.svg")
+const ICON_COIN := preload("res://Art/Scrap/scrap_icon.png")
 const ICON_CLOSE := preload("res://Art/Ui/svg/icon_close.svg")
 const ICON_MOUSE := preload("res://Art/Ui/svg/icon_mouse.svg")
 const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
@@ -61,6 +63,10 @@ func _ready() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
+		var recipe = _detail_box.get_node_or_null("ResearchRecipe") if is_instance_valid(_detail_box) else null
+		if recipe and recipe.dismiss_confirmation():
+			get_viewport().set_input_as_handled()
+			return
 		get_viewport().set_input_as_handled()
 		_play_sound(CANCEL_SOUND)
 		close()
@@ -399,7 +405,7 @@ func _entry_icon(entry: Dictionary, size: float, index: int) -> TextureRect:
 	var art = UIStyle.icon(entry.icon, size)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.self_modulate = entry.get("tint", Color.WHITE)
-	if entry.kind in TILE_KINDS and not _is_revealed(entry):
+	if entry.kind == "weapon" and not _is_revealed(entry):
 		var mat = ShaderMaterial.new()
 		mat.shader = LOCKED_SHADER
 		mat.set_shader_parameter("phase", fmod(index * 0.137, 1.0))
@@ -409,19 +415,17 @@ func _entry_icon(entry: Dictionary, size: float, index: int) -> TextureRect:
 func _is_owned(entry: Dictionary) -> bool:
 	return entry.state in ["comprado", "activo", "maximo"]
 
-# ¿Se ve el sprite? Armas: al comprarlas. Sinergias: al armarlas en una run.
+# ¿Se ve el sprite? Al tener desbloqueada la sinergia o el objeto/arma.
 func _is_revealed(entry: Dictionary) -> bool:
-	if entry.kind == "synergy":
-		return GameData.is_synergy_discovered(entry.id)
-	return _is_owned(entry)
+	return GameData.is_synergy_discovered(entry.id) if entry.kind == "synergy" else _is_owned(entry)
 
-# Sinergia comprada pero sin descubrir: se tiene la receta, no la sinergia vista.
+# Sinergia comprada pero sin descubrir
 func _is_recipe_only(entry: Dictionary) -> bool:
-	return entry.kind == "synergy" and _is_owned(entry) and not GameData.is_synergy_discovered(entry.id)
+	return entry.kind == "synergy" and _is_owned(entry) and not _is_revealed(entry)
 
 func _state_name(entry: Dictionary) -> String:
 	if entry.kind == "synergy" and _is_owned(entry):
-		return "RECETA" if _is_recipe_only(entry) else "DESCUBIERTA"
+		return "DESBLOQUEADA"
 	return STATE_NAMES.get(entry.state, "")
 
 func _ignore_mouse(node: Control) -> void:
@@ -503,49 +507,16 @@ func _add_kind_details(entry: Dictionary) -> void:
 			_add_recipe(entry)
 			if entry.requirement != "":
 				_add_warning(entry.requirement)
-			if _is_recipe_only(entry):
-				_add_hint("Ármala en una run para descubrir cómo se ve.")
 
-# La receta es secreta hasta comprarla: solo se ve el arma, el resto son "?"
-# y el texto va tachado en bloques.
+# Componentes y confirmación editables en escenas de Godot.
 func _add_recipe(entry: Dictionary) -> void:
-	var known = _is_owned(entry)
-	var head = HBoxContainer.new()
-	head.add_theme_constant_override("separation", 8)
-	head.add_child(UIStyle.label("RECETA", 17, UIStyle.COLOR_TEXT))
-	if not known:
-		var lock = UIStyle.icon(ICON_LOCK, 18)
-		lock.modulate = UIStyle.COLOR_WARNING
-		head.add_child(lock)
-	_detail_box.add_child(head)
-	var chips = HBoxContainer.new()
-	chips.name = "RecipeChips"
-	chips.add_theme_constant_override("separation", 8)
-	var has_weapon = SynergyManager.SYNERGIES.get(entry.id, {}).get("required_weapon", "") != ""
-	for i in entry.recipe.size():
-		var visible_part = known or (i == 0 and has_weapon)
-		chips.add_child(_recipe_chip(entry.recipe[i], visible_part))
-	_detail_box.add_child(chips)
-	if known:
-		var text = UIStyle.label(entry.recipe_text, 14, UIStyle.COLOR_MUTED)
-		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_detail_box.add_child(text)
-	else:
-		_detail_box.add_child(CodexKit.redacted(entry.id, 2))
-
-func _recipe_chip(part: Dictionary, visible_part: bool) -> Control:
-	var chip = UIStyle.panel(UIStyle.TEX_SLOT["normal" if visible_part else "disabled"])
-	chip.custom_minimum_size = Vector2(52, 52)
-	if visible_part:
-		chip.tooltip_text = part.name
-		chip.add_child(UIStyle.icon(part.icon, 34))
-	else:
-		chip.tooltip_text = "Pieza secreta"
-		var q = UIStyle.label("?", 22, CodexKit.LOCKED_TEXT)
-		q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		q.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		chip.add_child(q)
-	return chip
+	var recipe = RESEARCH_SCENE.instantiate()
+	_detail_box.add_child(recipe)
+	recipe.configure(entry.id)
+	recipe.hint_purchased.connect(func():
+		_play_sound(BUY_SOUND)
+		_show_category(_category)
+	)
 
 func _add_warning(text: String) -> void:
 	var row = HBoxContainer.new()
@@ -592,18 +563,16 @@ func _on_action_pressed() -> void:
 	if entry.is_empty() or not OmniaCatalog.can_act(entry):
 		_play_sound(CANCEL_SOUND)
 		return
-	# las sinergias no se revelan al comprarlas: solo se compra la receta
-	var was_locked = entry.kind == "weapon" and not _is_owned(entry)
-	var bought_recipe = entry.kind == "synergy" and not _is_owned(entry)
+	var was_locked = (entry.kind in TILE_KINDS) and not _is_owned(entry)
+	var bought_synergy = entry.kind == "synergy" and not _is_owned(entry)
 	if not OmniaCatalog.purchase(entry):
 		_play_sound(CANCEL_SOUND)
 		return
 	_play_sound(BUY_SOUND)
 	_show_category(_category)
-	if bought_recipe:
-		_celebrate_recipe()
-	else:
-		_celebrate(was_locked)
+	_celebrate(was_locked and entry.kind != "synergy")
+	if bought_synergy:
+		_cascade_chips()
 
 # Efecto de compra: la ficha y el ícono del detalle saltan con un destello; si
 # era una silueta, se revela con el shader en vez de aparecer de golpe.
@@ -634,7 +603,7 @@ func _celebrate_recipe() -> void:
 	_cascade_chips()
 
 func _cascade_chips() -> void:
-	var chips = _detail_box.get_node_or_null("RecipeChips")
+	var chips = _detail_box.get_node_or_null("ResearchRecipe/RecipeChips")
 	if not chips: return
 	var i = 0
 	for chip in chips.get_children():

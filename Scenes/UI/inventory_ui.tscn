@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://iwiggne1g58n"]
 
+[ext_resource type="PackedScene" path="res://Scenes/UI/codex_browser.tscn" id="90_browser"]
+
 [ext_resource type="Script" path="res://Scripts/Inventory/inventory_ui.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://Art/Ui/svg/panel_main.svg" id="21_chqx1"]
 [ext_resource type="Texture2D" path="res://Art/Ui/svg/keycap.svg" id="22_otp3i"]
@@ -1343,6 +1345,14 @@ theme_type_variation = &"InventoryTab"
 theme_override_font_sizes/font_size = 22
 text = "CÓDICE"
 
+[node name="TabResearchBtn" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/TopBar/TabsBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+theme_type_variation = &"InventoryTab"
+theme_override_font_sizes/font_size = 20
+text = "SÍNTESIS"
+
 [node name="HBoxContainer" type="HBoxContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/TopBar" unique_id=1278879474]
 layout_mode = 2
 theme_override_constants/separation = 24
@@ -1782,7 +1792,7 @@ theme_override_constants/separation = 12
 
 [node name="DetailEquipBtn" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/MainThreeColumns/InventoryColumn/MarginContainer/VBoxContainer/DetailPanel/MarginContainer/DetailContentBox/HBoxContainer2" unique_id=43076716]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(130, 38)
+custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
 theme_type_variation = &"InventoryPrimary"
 theme_override_font_sizes/font_size = 18
@@ -2642,7 +2652,7 @@ theme_override_constants/separation = 12
 alignment = 1
 
 [node name="EnemiesCategory" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories" unique_id=1424771764]
-custom_minimum_size = Vector2(130, 38)
+custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
 theme_type_variation = &"InventorySecondary"
 theme_override_font_sizes/font_size = 16
@@ -2650,7 +2660,7 @@ text = "BESTIARIO"
 metadata/category = "enemies"
 
 [node name="WeaponsCategory" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories" unique_id=489273044]
-custom_minimum_size = Vector2(130, 38)
+custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
 theme_type_variation = &"InventorySecondary"
 theme_override_font_sizes/font_size = 16
@@ -2658,7 +2668,7 @@ text = "ARMAMENTO"
 metadata/category = "weapons"
 
 [node name="ItemsCategory" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories" unique_id=2036739214]
-custom_minimum_size = Vector2(130, 38)
+custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
 theme_type_variation = &"InventorySecondary"
 theme_override_font_sizes/font_size = 16
@@ -2666,7 +2676,7 @@ text = "ITEMS"
 metadata/category = "items"
 
 [node name="NpcsCategory" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories" unique_id=435981134]
-custom_minimum_size = Vector2(130, 38)
+custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
 theme_type_variation = &"InventorySecondary"
 theme_override_font_sizes/font_size = 16
@@ -2674,12 +2684,20 @@ text = "NPCs"
 metadata/category = "npcs"
 
 [node name="LevelsCategory" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories" unique_id=896185282]
-custom_minimum_size = Vector2(130, 38)
+custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
 theme_type_variation = &"InventorySecondary"
 theme_override_font_sizes/font_size = 16
 text = "ZONAS"
 metadata/category = "levels"
+
+[node name="SynergiesCategory" type="Button" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories"]
+custom_minimum_size = Vector2(150, 48)
+layout_mode = 2
+theme_type_variation = &"InventorySecondary"
+theme_override_font_sizes/font_size = 20
+text = "SINERGIAS"
+metadata/category = "synergies"
 
 [node name="CodexProgressLabel" type="Label" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer" unique_id=1962599499]
 unique_name_in_owner = true
@@ -2688,20 +2706,15 @@ theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.5529412, 0.6666667, 0.7058824, 1)
 horizontal_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer" unique_id=1199080816]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="CenterContainer" type="CenterContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/ScrollContainer" unique_id=421018071]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CodexGrid" type="GridContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/ScrollContainer/CenterContainer" unique_id=350131939]
+[node name="CodexBrowser" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer" instance=ExtResource("90_browser")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 16
-columns = 6
+
+[node name="ResearchBrowser" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea" instance=ExtResource("90_browser")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+research_only = true
 
 [node name="BottomBar" type="PanelContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox" unique_id=1952827254]
 unique_name_in_owner = true
@@ -3099,3 +3112,6 @@ bus = &"SFX"
 [connection signal="pressed" from="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories/ItemsCategory" to="." method="_on_codex_category_pressed" binds= ["items"]]
 [connection signal="pressed" from="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories/NpcsCategory" to="." method="_on_codex_category_pressed" binds= ["npcs"]]
 [connection signal="pressed" from="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories/LevelsCategory" to="." method="_on_codex_category_pressed" binds= ["levels"]]
+
+[connection signal="pressed" from="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/TopBar/TabsBox/TabResearchBtn" to="." method="_on_research_tab_pressed"]
+[connection signal="pressed" from="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/CodexCategories/SynergiesCategory" to="." method="_on_codex_category_pressed" binds= ["synergies"]]

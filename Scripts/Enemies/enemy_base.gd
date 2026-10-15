@@ -497,27 +497,86 @@ func _show_damage_text(amount: int, is_crit: bool) -> void:
 	tween.tween_property(label, "modulate:a", 0.0, 0.6).set_delay(0.2)
 	tween.chain().tween_callback(floating_node.queue_free)
 
+const FREEZE_COLOR := Color(0.35, 0.85, 2.2, 1.0)
 var is_frozen_by_ice: bool = false
 var is_electrified: bool = false # tinte amarillo mientras dura el stun de Relampago
+var _freeze_timer: Timer = null
+var _frozen_paused_timers: Array[Timer] = []
 
 func freeze_enemy(duration: float = 5.0) -> void:
 	if is_dying: return
 	is_frozen_by_ice = true
+	velocity = Vector2.ZERO
 	set_physics_process(false)
 	set_process(false)
-	
+	_pause_enemy_for_freeze()
+	_apply_freeze_visuals()
+	_schedule_unfreeze(duration)
+
+func _apply_freeze_visuals() -> void:
 	var sprite = _get_sprite()
 	if sprite:
-		sprite.modulate = Color(0.3, 0.85, 1.8, 1.0)
-		
-	var timer = get_tree().create_timer(duration)
-	timer.timeout.connect(func(): _unfreeze_enemy(sprite))
+		sprite.modulate = FREEZE_COLOR
 
-func _unfreeze_enemy(sprite: Node) -> void:
+func _pause_enemy_for_freeze() -> void:
+	_pause_enemy_animations()
+	_pause_enemy_internal_timers()
+
+func _pause_enemy_animations() -> void:
+	for anim_sprite in find_children("*", "AnimatedSprite2D", true, false):
+		if anim_sprite is AnimatedSprite2D:
+			anim_sprite.pause()
+	for anim_player in find_children("*", "AnimationPlayer", true, false):
+		if anim_player is AnimationPlayer:
+			anim_player.pause()
+
+func _pause_enemy_internal_timers() -> void:
+	_frozen_paused_timers.clear()
+	for child in find_children("*", "Timer", true, false):
+		var t = child as Timer
+		if t != _freeze_timer and not t.is_stopped() and t.paused == false:
+			t.paused = true
+			_frozen_paused_timers.append(t)
+
+func _resume_enemy_animations() -> void:
+	for anim_sprite in find_children("*", "AnimatedSprite2D", true, false):
+		if anim_sprite is AnimatedSprite2D and not anim_sprite.is_playing():
+			anim_sprite.play()
+	for anim_player in find_children("*", "AnimationPlayer", true, false):
+		if anim_player is AnimationPlayer and not anim_player.is_playing():
+			anim_player.play()
+
+func _resume_enemy_internal_timers() -> void:
+	for t in _frozen_paused_timers:
+		if is_instance_valid(t):
+			t.paused = false
+	_frozen_paused_timers.clear()
+
+func _schedule_unfreeze(duration: float) -> void:
+	if _freeze_timer and is_instance_valid(_freeze_timer):
+		_freeze_timer.stop()
+		_freeze_timer.queue_free()
+	_freeze_timer = Timer.new()
+	_freeze_timer.one_shot = true
+	_freeze_timer.wait_time = duration
+	_freeze_timer.timeout.connect(_on_freeze_timeout)
+	add_child(_freeze_timer)
+	_freeze_timer.start()
+
+func _on_freeze_timeout() -> void:
+	_unfreeze_enemy()
+
+func _unfreeze_enemy() -> void:
+	if _freeze_timer and is_instance_valid(_freeze_timer):
+		_freeze_timer.queue_free()
+		_freeze_timer = null
 	if not is_instance_valid(self) or is_dying: return
 	is_frozen_by_ice = false
+	var sprite = _get_sprite()
 	if sprite and is_instance_valid(sprite):
 		sprite.modulate = _default_modulate
+	_resume_enemy_animations()
+	_resume_enemy_internal_timers()
 	set_physics_process(true)
 	set_process(true)
 func apply_status_effect(effect_type: String) -> void:
@@ -538,14 +597,16 @@ func _apply_stun_effect(duration: float) -> void:
 	if sprite:
 		sprite.modulate = Color(0.2, 0.7, 2.5, 1.0) # Azul electrico
 	var timer = get_tree().create_timer(duration)
-	timer.timeout.connect(func():
-		if not is_instance_valid(self) or is_dying:
-			return
-		is_electrified = false
-		if sprite and is_instance_valid(sprite):
-			sprite.modulate = _default_modulate
-		_update_slow_visuals()
-	)
+	timer.timeout.connect(_on_stun_effect_timeout)
+
+func _on_stun_effect_timeout() -> void:
+	if not is_instance_valid(self) or is_dying:
+		return
+	is_electrified = false
+	var sprite = _get_sprite()
+	if sprite and is_instance_valid(sprite):
+		sprite.modulate = _default_modulate
+	_update_slow_visuals()
 
 func _apply_burn_effect(duration: float) -> void:
 	var tick_interval = 0.5
@@ -555,11 +616,12 @@ func _apply_burn_effect(duration: float) -> void:
 func _apply_slow_effect(duration: float, multiplier: float) -> void:
 	set_speed_modifier("nitrogen_slow", multiplier)
 	var timer = get_tree().create_timer(duration)
-	timer.timeout.connect(func():
-		if not is_instance_valid(self) or is_dying:
-			return
-		remove_speed_modifier("nitrogen_slow")
-	)
+	timer.timeout.connect(_on_slow_effect_timeout)
+
+func _on_slow_effect_timeout() -> void:
+	if not is_instance_valid(self) or is_dying:
+		return
+	remove_speed_modifier("nitrogen_slow")
 
 func _flash_hit() -> void:
 	var sprite = _get_sprite()
@@ -579,7 +641,7 @@ func _cancel_active_flash_tween() -> void:
 
 func _get_flash_target_color() -> Color:
 	if is_frozen_by_ice:
-		return Color(0.3, 0.85, 1.8, 1.0)
+		return FREEZE_COLOR
 	if is_electrified:
 		return Color(0.2, 0.7, 2.5, 1.0)
 	if _speed_modifiers.has("ice_puddle") or _speed_modifiers.has("nitrogen_slow"):

@@ -148,7 +148,7 @@ func _spawn_flame_burst() -> void:
 	flame.emitting = true
 	var t = flame.create_tween()
 	t.tween_interval(FLAME_BURST_TIME)
-	t.tween_callback(func(): flame.emitting = false)
+	t.tween_property(flame, "emitting", false, 0.0)
 	t.tween_interval(flame.lifetime + 0.1)
 	t.tween_callback(flame.queue_free)
 

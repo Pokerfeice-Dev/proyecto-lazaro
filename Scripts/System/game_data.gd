@@ -38,6 +38,7 @@ var core_upgrades: Dictionary = {
 
 var unlocked_synergies: Array[String] = []
 var activated_synergies: Array[String] = []
+var synergy_item_hints: Dictionary = {}
 var unlocked_protocols: Array[String] = []
 var active_protocol: String = ""
 var has_died_once: bool = false
@@ -290,6 +291,8 @@ func get_random_room_from_pool() -> String:
 func get_room_config() -> Dictionary:
 	var config: Dictionary = _create_base_config()
 	_apply_room_scaling(config, current_run_room)
+	if current_level == 2:
+		config.allowed_enemies = ["crypt_gargoyle", "crypt_ghoul", "crypt_centipede", "crypt_death_squad", "crypt_laser_eye", "crypt_dead_beekeeper", "crypt_bell_keeper"]
 	return config
 
 func _create_base_config() -> Dictionary:
@@ -487,7 +490,7 @@ func get_active_protocol() -> String:
 func is_synergy_unlocked(syn_id: String) -> bool:
 	return unlocked_synergies.has(syn_id)
 
-## Comprar una sinergia en O.M.N.I.A. da la receta (nombre, piezas y efecto).
+## Comprar una sinergia habilita su combinación y revela el primer componente.
 ## Su sprite recién se ve cuando se arma por primera vez en una run (aparece la
 ## animación de "nueva sinergia" y queda en activated_synergies).
 func is_synergy_discovered(syn_id: String) -> bool:
@@ -498,7 +501,7 @@ func is_synergy_discovered(syn_id: String) -> bool:
 ## esa copia; al salir se vuelve a ella. Así las sinergias, piezas y mejoras de
 ## la sala de entrenamiento no quedan en la partida.
 const SANDBOX_KEYS: Array[String] = [
-	"scrap", "flesh", "core_upgrades", "unlocked_synergies", "activated_synergies",
+	"scrap", "flesh", "core_upgrades", "unlocked_synergies", "activated_synergies", "synergy_item_hints",
 	"unlocked_protocols", "active_protocol", "chosen_primary_weapon", "chosen_melee_weapon",
 	"codex_unlocks", "inventory_items", "equipment_slots",
 	"weapon_damage", "weapon_fire_rate", "weapon_bullet_count", "weapon_bullet_speed",
@@ -666,6 +669,7 @@ func save_game(slot: int = -1) -> void:
 		"core_upgrades": core_upgrades,
 		"unlocked_synergies": unlocked_synergies,
 		"activated_synergies": activated_synergies,
+		"synergy_item_hints": synergy_item_hints,
 		"unlocked_protocols": unlocked_protocols,
 		"active_protocol": active_protocol,
 		"has_died_once": has_died_once,
@@ -744,6 +748,16 @@ func load_game(slot: int) -> bool:
 	unlocked_synergies.clear()
 	for s in raw_syns: unlocked_synergies.append(str(s))
 	
+	var raw_hints = json.get("synergy_item_hints", {})
+	synergy_item_hints.clear()
+	if raw_hints is Dictionary:
+		for id in raw_hints:
+			if not raw_hints[id] is Array: continue
+			var indices: Array = []
+			for index in raw_hints[id]:
+				if (index is float or index is int) and int(index) in [1, 2]:
+					if not indices.has(int(index)): indices.append(int(index))
+			synergy_item_hints[str(id)] = indices
 	var raw_act_syns = json.get("activated_synergies", [])
 	activated_synergies.clear()
 	for s in raw_act_syns: activated_synergies.append(str(s))
@@ -843,6 +857,7 @@ func reset_data() -> void:
 	}
 	unlocked_synergies.clear()
 	activated_synergies.clear()
+	synergy_item_hints.clear()
 	unlocked_protocols.clear()
 	active_protocol = ""
 	has_died_once = false

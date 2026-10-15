@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/synergy_research_settings.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+second_item_cost = 400
+third_item_cost = 600

@@ -217,8 +217,8 @@ func _synergy_row(weapon_id: String, weapon_unlocked: bool) -> Control:
 		var chip = UIStyle.panel(UIStyle.TEX_SLOT["equipped" if known else ("normal" if has_recipe else "disabled")])
 		chip.custom_minimum_size = Vector2(28, 28)
 		chip.mouse_filter = Control.MOUSE_FILTER_PASS
-		chip.tooltip_text = SynergyManager.SYNERGIES[syn_id].get("name", "") if has_recipe else "Sinergia sin descubrir"
-		var ic = _ignore(UIStyle.icon(UIStyle.trimmed(OmniaCatalog.synergy_icon(syn_id)), 22))
+		chip.tooltip_text = SynergyManager.SYNERGIES[syn_id].get("name", "") if known else "Sinergia sin descubrir"
+		var ic = _ignore(UIStyle.icon(UIStyle.trimmed(OmniaCatalog.synergy_icon(syn_id)) if known else preload("res://Art/Ui/svg/icon_lock.svg"), 22))
 		ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		ic.self_modulate = OmniaCatalog.synergy_tint(syn_id)
 		if not known:
