@@ -6,13 +6,13 @@
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="3_3enep"]
 [ext_resource type="PackedScene" uid="uid://dtc62xovhjm13" path="res://Scenes/Enemies/dummy.tscn" id="5_3enep"]
 [ext_resource type="Script" uid="uid://crek2l7dbib5k" path="res://Scripts/World/weapon_terminal.gd" id="7_rb72t"]
-[ext_resource type="Texture2D" path="res://Art/Props/Training/weapon_rack.png" id="8_rack"]
-[ext_resource type="Texture2D" path="res://Art/Props/Training/synergy_incubator.png" id="8_incubator"]
-[ext_resource type="Script" path="res://Scripts/World/station_sprite.gd" id="8_station"]
-[ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="10_door"]
-[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_chevron_left.svg" id="10_exit_icon"]
-[ext_resource type="PackedScene" path="res://Scenes/Npc/victoria_trainer.tscn" id="11_victoria"]
+[ext_resource type="Texture2D" uid="uid://cryqlqam1tt04" path="res://Art/Props/Training/synergy_incubator.png" id="8_incubator"]
+[ext_resource type="Texture2D" uid="uid://d0xj7xdyjlo2v" path="res://Art/Props/Training/weapon_rack.png" id="8_rack"]
+[ext_resource type="Script" uid="uid://dweovc7nlnqb8" path="res://Scripts/World/station_sprite.gd" id="8_station"]
 [ext_resource type="Script" uid="uid://cqrqbcusn7k0a" path="res://Scripts/World/synergy_terminal.gd" id="9_synterm"]
+[ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="10_door"]
+[ext_resource type="Texture2D" uid="uid://cwwymq8unj7q2" path="res://Art/Ui/svg/icon_chevron_left.svg" id="10_exit_icon"]
+[ext_resource type="PackedScene" path="res://Scenes/Npc/victoria_trainer.tscn" id="11_victoria"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xia3l"]
 size = Vector2(64, 64)
@@ -46,7 +46,7 @@ position = Vector2(-244, -150)
 position = Vector2(-96, -104)
 
 [node name="WeaponTerminal" type="Area2D" parent="." unique_id=1942696176]
-position = Vector2(-180, -192)
+position = Vector2(-119, -237)
 script = ExtResource("7_rb72t")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponTerminal" unique_id=1313883645]
@@ -61,7 +61,7 @@ script = ExtResource("8_station")
 glow_frame = 1
 
 [node name="SynergyTerminal" type="Area2D" parent="." unique_id=1942696177]
-position = Vector2(-75, -192)
+position = Vector2(-20, -242)
 script = ExtResource("9_synterm")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SynergyTerminal" unique_id=1313883646]
@@ -76,7 +76,7 @@ script = ExtResource("8_station")
 animated = true
 
 [node name="ExitDoor" parent="." unique_id=1462890511 instance=ExtResource("10_door")]
-position = Vector2(-244, -232)
+position = Vector2(-237, -253)
 rotation = 1.5707964
 start_locked = false
 custom_next_scene = "res://Scenes/Rooms/lab_room.tscn"
@@ -86,4 +86,4 @@ sign_offset = Vector2(0, -38)
 prompt_text = "[E] Salir"
 
 [node name="VictoriaTrainer" parent="." unique_id=1462890512 instance=ExtResource("11_victoria")]
-position = Vector2(30, -170)
+position = Vector2(-254, 21)
