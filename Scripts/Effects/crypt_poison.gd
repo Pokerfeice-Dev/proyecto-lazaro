@@ -16,4 +16,4 @@ func refresh(origin: Vector2) -> void:
 func _tick() -> void:
 	var player = get_parent()
 	if player.has_method("take_damage"):
-		player.take_damage(tick_damage, "Veneno del cienpiés", source_position)
+		player.take_damage(tick_damage, "Veneno del ciempiés", source_position)

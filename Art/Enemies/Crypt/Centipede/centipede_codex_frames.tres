@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://bssr4vsy114b4"]
+
+[ext_resource type="Texture2D" uid="uid://ch2k42cpc2pdg" path="res://Art/Enemies/Crypt/Centipede/centipede_codex_sheet.png" id="1_aqssr"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cobnj"]
+atlas = ExtResource("1_aqssr")
+region = Rect2(0, 0, 60, 60)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xxgxi"]
+atlas = ExtResource("1_aqssr")
+region = Rect2(60, 0, 60, 60)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w7d6b"]
+atlas = ExtResource("1_aqssr")
+region = Rect2(120, 0, 60, 60)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rt1fi"]
+atlas = ExtResource("1_aqssr")
+region = Rect2(180, 0, 60, 60)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cobnj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xxgxi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w7d6b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rt1fi")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 6.0
+}]

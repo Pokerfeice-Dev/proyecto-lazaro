@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
 [ext_resource type="Resource" path="res://Art/Items/Crypt/lente_sepulcral.tres" id="2"]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/LaserEye/laser_eye_frames.tres" id="5_frames"]
 
 [node name="CryptLaserEye" instance=ExtResource("1")]
 kind = 4
@@ -16,11 +17,17 @@ attack_duration = 0.4
 recovery_time = 1.8
 item_drop_chance = 0.18
 all_items = Array[ExtResource("3")]([ExtResource("2")])
+hover_amplitude = 2.5
 
 [node name="Body" parent="Sprite2D" index="0"]
 color = Color(0.9372549019607843, 0.4117647058823529, 0.3333333333333333, 1)
 
 [node name="Accent" parent="Sprite2D" index="1"]
 color = Color(0.9372549019607843, 0.4117647058823529, 0.3333333333333333, 0.7)
-[node name="NameLabel" parent="." index="3"]
-text = "Ojo torreta"
+
+[node name="ArtSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -10)
+sprite_frames = ExtResource("5_frames")
+animation = &"idle"
+autoplay = "idle"

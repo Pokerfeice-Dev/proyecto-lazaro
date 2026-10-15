@@ -13,7 +13,11 @@ const TITLE_FONT := preload("res://Art/Fonts/Dekatron-SemiBold.otf")
 const GLYPHS := "#%&@$*+=<>/?01"
 const DECODE_TIME := 0.7
 const HOLD_TIME := 1.6
-const BAND_HEIGHT := 220.0
+## Tamaño general del cartel (1.0 = original) y altura en pantalla (0 = arriba,
+## 1 = abajo). Más chico y más arriba para no tapar a Lázaro.
+const CARD_SCALE := 0.85
+const Y_RATIO := 0.25
+const BAND_HEIGHT := 220.0 * CARD_SCALE
 
 var data: Dictionary = {}
 
@@ -64,19 +68,19 @@ func _build() -> void:
 	_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_band.color = Color(0.02, 0.06, 0.08, 0.8)
 	_band.clip_contents = true
-	_place(_band, 0.38, 0.0)
+	_place(_band, Y_RATIO, 0.0)
 	_add_band_edge(accent, true)
 	_add_band_edge(accent, false)
 	add_child(_band)
 
 	var box = VBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_place(box, 0.38, BAND_HEIGHT)
+	_place(box, Y_RATIO, BAND_HEIGHT)
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 6)
+	box.add_theme_constant_override("separation", int(6 * CARD_SCALE))
 	add_child(box)
 
-	_eyebrow = _spaced_label(data.get("eyebrow", ""), 18, UIStyle.COLOR_GOLD, 5)
+	_eyebrow = _spaced_label(data.get("eyebrow", ""), _sized(18), UIStyle.COLOR_GOLD, 5)
 	box.add_child(_eyebrow)
 
 	_final_text = String(data.get("title", ""))
@@ -84,7 +88,7 @@ func _build() -> void:
 	_title.text = ""
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.add_theme_font_override("font", TITLE_FONT)
-	_title.add_theme_font_size_override("font_size", 72)
+	_title.add_theme_font_size_override("font_size", _sized(72))
 	_title.add_theme_color_override("font_color", UIStyle.COLOR_TEXT)
 	_title.add_theme_color_override("font_shadow_color", Color(accent, 0.55))
 	_title.add_theme_constant_override("shadow_offset_x", 3)
@@ -94,7 +98,7 @@ func _build() -> void:
 	box.add_child(_title)
 
 	box.add_child(_build_rule(accent))
-	_subtitle = _spaced_label(data.get("subtitle", ""), 16, UIStyle.COLOR_MUTED, 6)
+	_subtitle = _spaced_label(data.get("subtitle", ""), _sized(16), UIStyle.COLOR_MUTED, 6)
 	box.add_child(_subtitle)
 
 # Filo fino arriba o abajo de la franja, del color de la sala.
@@ -169,7 +173,7 @@ func _play() -> void:
 	for node in [_eyebrow, _subtitle, _diamond]:
 		node.modulate.a = 0.0
 	_diamond.scale = Vector2.ZERO
-	var line_width = clampf(_final_text.length() * 22.0, 180.0, 420.0)
+	var line_width = clampf(_final_text.length() * 22.0, 180.0, 420.0) * CARD_SCALE
 
 	var t = _own_tween()
 	# franja que se abre
@@ -218,6 +222,9 @@ func _own_tween() -> Tween:
 	var t = create_tween()
 	_tweens.append(t)
 	return t
+
+func _sized(font_size: int) -> int:
+	return int(round(font_size * CARD_SCALE))
 
 func _set_band_height(h: float) -> void:
 	_band.offset_top = -h / 2.0

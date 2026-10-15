@@ -9,6 +9,11 @@
 [ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="9_4wq7d"]
 [ext_resource type="PackedScene" uid="uid://bvkvc7sigww2l" path="res://Scenes/World/InfoSign.tscn" id="20_infosign"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
+[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_damage.svg" id="sign_icon_run"]
+[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_chevron_up.svg" id="sign_icon_omnia"]
+[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_range.svg" id="sign_icon_training"]
+[ext_resource type="Texture2D" path="res://Art/Props/Doors/door_icon_invasion.png" id="door_icon_invasion"]
+[ext_resource type="Texture2D" path="res://Art/Props/Doors/door_icon_training.png" id="door_icon_training"]
 
 [node name="Lab_room" type="Node2D" unique_id=377400053]
 script = ExtResource("1_lab_room_gd")
@@ -43,25 +48,46 @@ position = Vector2(398, -257)
 scale = Vector2(0.61769056, 0.61769056)
 sign_body = "[b]Optimización y Mantenimiento de Núcleos Individuales Adaptativos[/b]
 
-Este terminal administra el PROTOCOLO LÁZARO: convertí la chatarra que recuperes en el campo en mejoras permanentes para tu chasis, tus armas y tus sistemas de soporte.
+Este terminal administra el PROTOCOLO LÁZARO: convierte la chatarra que recuperes en el campo en mejoras permanentes para tu chasis, tus armas y tus sistemas de soporte.
 
-Las mejoras que compres acá se mantienen entre cada despliegue, incluso si caés en combate. Volvé cuando quieras para seguir invirtiendo tu chatarra."
+Las mejoras que compres aquí se mantienen entre cada despliegue, incluso si caes en combate.
+
+También puedes investigar sinergias y comprar pistas de sus componentes. Vuelve cuando quieras para seguir invirtiendo tu chatarra."
 
 [node name="Door" parent="." unique_id=1038942087 instance=ExtResource("new_door_1")]
 position = Vector2(-321, 9)
 start_locked = false
 is_start_run_door = true
+sign_text = "INVASIÓN"
+sign_icon = ExtResource("sign_icon_run")
+sign_color = Color(0.898, 0.282, 0.302, 1)
+sign_offset = Vector2(0, -92)
+door_icon = ExtResource("door_icon_invasion")
 
 [node name="Door_CoreUpgrades" parent="." unique_id=201233454 instance=ExtResource("7_cwij8")]
 position = Vector2(513, -257)
 rotation = 1.5707964
 is_open = true
+sign_text = "O.M.N.I.A."
+sign_icon = ExtResource("sign_icon_omnia")
+sign_color = Color(0.957, 0.769, 0.369, 1)
+sign_offset = Vector2(0, -92)
 
 [node name="Door_TrainingRoom" parent="." unique_id=2141127837 instance=ExtResource("new_door_1")]
 position = Vector2(-148, 321)
 rotation = -1.5707964
 start_locked = false
 custom_next_scene = "res://Scenes/Rooms/training_room.tscn"
+sign_text = "ENTRENAMIENTO"
+sign_icon = ExtResource("sign_icon_training")
+sign_color = Color(0.322, 0.847, 0.776, 1)
+sign_offset = Vector2(0, -92)
+door_icon = ExtResource("door_icon_training")
+door_icon_offset = Vector2(0, 56)
+prompt_text = "[E] Entrar"
+
+[node name="player_spawn_training" type="Marker2D" parent="." unique_id=1462890441]
+position = Vector2(-148, 180)
 
 [node name="Lights" type="Node2D" parent="." unique_id=1339319423]
 

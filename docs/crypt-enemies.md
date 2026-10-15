@@ -2,7 +2,7 @@
 
 El nivel 2 selecciona siete enemigos propios. El nivel 1 conserva su selección anterior. Las abejas carnívoras aparecen por invocación y no forman parte de la selección normal de las salas.
 
-Las escenas están en `Scenes/Enemies/Crypt/`. Todas heredan `crypt_enemy_base.tscn`, con colisión, figuras provisionales, barra de vida, etiquetas, anticipación, efecto de ataque, escudo, temporizadores, sonidos y AnimationPlayer editables. El script común es `Scripts/Enemies/crypt_enemy.gd`.
+Las escenas están en `Scenes/Enemies/Crypt/`. Todas heredan `crypt_enemy_base.tscn`, con colisión, figuras de respaldo (se ocultan cuando hay arte), barra de vida, avisos de ataque, escudo, temporizadores, sonidos, efecto de muerte y AnimationPlayer editables. El script común es `Scripts/Enemies/crypt_enemy.gd`; lo visual del arte está en `Scripts/Enemies/crypt_enemy_art.gd`.
 
 | Escena | Comportamiento | Componente propio |
 | --- | --- | --- |
@@ -16,6 +16,35 @@ Las escenas están en `Scenes/Enemies/Crypt/`. Todas heredan `crypt_enemy_base.t
 | CryptFleshBee | Se acerca, anticipa y dispara un proyectil. | Mandíbula carnívora, disponible como recurso para variantes no invocadas |
 
 Los componentes están en `Art/Items/Crypt/`, como recursos ItemData con íconos SVG provisionales. Los enemigos principales tienen 18% de probabilidad base de soltar su componente. Los efectos actuales usan estadísticas que ya soporta el juego; nombres y valores son una primera propuesta de balance. No se añadieron recetas nuevas de sinergias para estos componentes.
+
+## Avisos, movimiento y arte
+
+`Telegraph` (en `crypt_enemy_base.tscn`) usa `Scripts/Effects/crypt_telegraph.gd` y dibuja cada aviso por código. El enemigo elige el estilo según su tipo y le pasa el avance de la anticipación en cada frame:
+
+| Estilo | Enemigos | Qué se ve |
+| --- | --- | --- |
+| Cono | Gárgola, Ghoul, Ciempiés | Cono tenue con bordes punteados, un relleno que crece desde el enemigo, el frente de carga y chevrones que avanzan. Parpadea en el último 30%. Al golpear sale una onda blanca; el gas del ciempiés deja el cono verde encendido mientras dura. |
+| Rayo | Ojo torreta | Mientras apunta, línea punteada ámbar con mira. Al fijarse, línea roja que engrosa y marca el ancho real del rayo. El rayo tiene halo, cuerpo y núcleo blanco, y termina donde choca. |
+| Mira | Escuadrón, Abeja | Línea punteada con flecha y casillas que se encienden (3 para la ráfaga del escuadrón). Cada disparo hace un destello en la boca y un pequeño retroceso. |
+| Ondas | Campanero | Anillos azules que se expanden; cada campanada suelta una onda. |
+| Invocación | Apicultora | Hexágonos en los dos puntos donde aparecerán las abejas; al invocar, cada punto suelta una onda. |
+
+`GasParticles` (solo en el ciempiés) dispara el gas dentro del cono. No hay textos sobre los enemigos: igual que en el área 1, solo se ven el sprite, la barra de vida y los avisos.
+
+En el Inspector, la sección **Arte** de cada escena tiene:
+
+- `art_faces_left`: activarlo si el sprite original mira hacia la izquierda (como las abejas).
+- `art_rotates` y `art_forward_degrees`: girar el sprite hacia donde va en vez de espejarlo, e indicar hacia dónde mira el dibujo original (el ciempiés usa 135°).
+- `hover_amplitude`: flotación en píxeles (abeja y ojo).
+- `turn_rate`: qué tan rápido gira al perseguir; con valores bajos traza curvas más amplias.
+
+Para darle arte a un enemigo, agregar un `AnimatedSprite2D` llamado `ArtSprite`. `Scripts/Enemies/crypt_enemy_art.gd` se encarga de lo visual y busca estas animaciones: `idle`, `walk`, `attack_windup` (o `attack`) para la anticipación, `attack_cone` (o `attack`) para el golpe, `hurt`, `death`, `summon`, `petrify` y `stone_shield`. Si existen versiones por dirección (`walk_down`, `walk_side`, `walk_up`, etc.) elige sola la que corresponde. Si hay `death`, el cadáver queda en la sala; si no, el cuerpo se aplasta y se desvanece. En los dos casos explota con el efecto azul del área 1 (`Death_fx`). La barra de vida se ubica sola encima del sprite.
+
+El ciempiés tiene además `CentipedeBody` (`Scripts/Enemies/crypt_centipede_body.gd`): las piezas siguen el camino de la cabeza; en el Inspector se cambian la cantidad y el orden de las piezas, la separación y el paso de las patas.
+
+Las hojas de sprites salen de packs CC0 (ver `Art/Enemies/Crypt/CREDITOS.md`). La gárgola usa `GargoyleSprite`; la apicultora muerta y la abeja carnívora usan versiones zombis de los sprites originales del nivel 1.
+
+El ghoul deja una estela rosa cuando acelera por la espalda.
 
 ## Ajustes en Godot
 

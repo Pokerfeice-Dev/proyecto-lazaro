@@ -2,13 +2,14 @@ extends CanvasLayer
 class_name InventoryTutorialPopup
 
 const UI_SOUND_PATH = "res://Audio/Sfx/Piano_Ui (2).wav"
+const ICON_INFO := preload("res://Art/Ui/svg/icon_info.svg")
 
 var _blur_rect: ColorRect
-var _panel: PanelContainer
+var _panel: Control
 var _title_lbl: Label
 var _desc_lbl: Label
 var _continue_btn: Button
-var _continue_prompt: Label
+var _open_btn: Button
 var _vbox: VBoxContainer
 
 func _ready() -> void:
@@ -84,97 +85,82 @@ void fragment() {
 }
 """
 
+# Ventana con el estilo de la UI del juego: pestaña de título, panel principal,
+# una tecla "I" grande que se aprieta sola y los dos botones con su tecla.
 func _create_center_panel(parent: Control) -> void:
-	_panel = PanelContainer.new()
-	_panel.custom_minimum_size = Vector2(500, 250)
-	_panel.anchor_left = 0.5
-	_panel.anchor_top = 0.5
-	_panel.anchor_right = 0.5
-	_panel.anchor_bottom = 0.5
-	_panel.offset_left = -250
-	_panel.offset_top = -125
-	_panel.offset_right = 250
-	_panel.offset_bottom = 125
-	_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_panel.pivot_offset = Vector2(250, 125)
-	
-	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.06, 0.06, 0.08, 0.95)
-	sb.border_color = Color(0.0, 0.8, 0.5, 1.0)
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(12)
-	sb.shadow_color = Color(0, 0.8, 0.5, 0.15)
-	sb.shadow_size = 20
-	sb.content_margin_left = 32
-	sb.content_margin_right = 32
-	sb.content_margin_top = 24
-	sb.content_margin_bottom = 24
-	_panel.add_theme_stylebox_override("panel", sb)
-	
-	parent.add_child(_panel)
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(center)
+	var window = VBoxContainer.new()
+	window.add_theme_constant_override("separation", 0)
+	window.custom_minimum_size.x = 540
+	center.add_child(window)
+	var tab = UIStyle.title_tab("  TUTORIAL")
+	tab.icon = ICON_INFO
+	tab.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	window.add_child(tab)
+	var panel = UIStyle.panel(UIStyle.TEX_PANEL_MAIN)
+	window.add_child(panel)
+	var m = UIStyle.padded(24)
+	panel.add_child(m)
+	_vbox = VBoxContainer.new()
+	_vbox.add_theme_constant_override("separation", 16)
+	m.add_child(_vbox)
+	_panel = window
 
 func _create_content_labels() -> void:
-	_vbox = VBoxContainer.new()
-	_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	_vbox.add_theme_constant_override("separation", 16)
-	_panel.add_child(_vbox)
-	
-	_title_lbl = Label.new()
-	_title_lbl.text = "TUTORIAL"
-	_title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_title_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	_title_lbl.add_theme_font_size_override("font_size", 28)
-	_title_lbl.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
-	_vbox.add_child(_title_lbl)
-	
-	_desc_lbl = Label.new()
-	_desc_lbl.text = "Abrí el inventario con la tecla I, podés equipar ítems"
-	_desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 20)
+	_vbox.add_child(row)
+	row.add_child(_key_illustration())
+	var texts = VBoxContainer.new()
+	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texts.alignment = BoxContainer.ALIGNMENT_CENTER
+	texts.add_theme_constant_override("separation", 8)
+	row.add_child(texts)
+	_title_lbl = UIStyle.label("INVENTARIO", 24, UIStyle.COLOR_GOLD)
+	texts.add_child(_title_lbl)
+	_desc_lbl = UIStyle.label("Abre el inventario con la tecla I para equipar los objetos que encuentres en tus armas y en tu cuerpo.", 16, UIStyle.COLOR_TEXT)
 	_desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_desc_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	_desc_lbl.add_theme_font_size_override("font_size", 16)
-	_desc_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	_vbox.add_child(_desc_lbl)
-	
-	_continue_prompt = Label.new()
-	_continue_prompt.text = "Presiona [I] para abrir el inventario o [E] para cerrar"
-	_continue_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_continue_prompt.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	_continue_prompt.add_theme_font_size_override("font_size", 12)
-	_continue_prompt.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-	_vbox.add_child(_continue_prompt)
+	texts.add_child(_desc_lbl)
+	_vbox.add_child(UIStyle.divider())
+
+# Tecla "I" grande dentro de un casillero; cada tanto se hunde como si la apretaran.
+func _key_illustration() -> Control:
+	var frame = UIStyle.panel(UIStyle.TEX_SLOT["equipped"])
+	frame.custom_minimum_size = Vector2(112, 112)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var center = CenterContainer.new()
+	frame.add_child(center)
+	var key = UIStyle.keycap("I")
+	key.custom_minimum_size = Vector2(64, 64)
+	key.get_child(0).add_theme_font_size_override("font_size", 30)
+	center.add_child(key)
+	key.resized.connect(func(): key.pivot_offset = key.size / 2.0)
+	var t = key.create_tween().set_loops()
+	t.tween_interval(0.8)
+	t.tween_property(key, "scale", Vector2(0.86, 0.86), 0.08).set_trans(Tween.TRANS_QUAD)
+	t.parallel().tween_property(key, "modulate", Color(1.5, 1.5, 1.5), 0.08)
+	t.tween_property(key, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.parallel().tween_property(key, "modulate", Color.WHITE, 0.25)
+	return frame
 
 func _create_continue_button() -> void:
-	if not _vbox:
-		return
-		
-	_continue_btn = Button.new()
-	_continue_btn.text = "ENTENDIDO"
-	_continue_btn.custom_minimum_size = Vector2(150, 36)
-	_continue_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_continue_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	_continue_btn.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	_continue_btn.add_theme_font_size_override("font_size", 14)
-	
-	var sb_norm = StyleBoxFlat.new()
-	sb_norm.bg_color = Color(0.0, 0.6, 0.4)
-	sb_norm.set_border_width_all(1)
-	sb_norm.border_color = Color(0.0, 0.8, 0.5)
-	sb_norm.set_corner_radius_all(6)
-	
-	var sb_hov = StyleBoxFlat.new()
-	sb_hov.bg_color = Color(0.0, 0.8, 0.5)
-	sb_hov.set_border_width_all(1)
-	sb_hov.border_color = Color(0.0, 1.0, 0.6)
-	sb_hov.set_corner_radius_all(6)
-	
-	_continue_btn.add_theme_stylebox_override("normal", sb_norm)
-	_continue_btn.add_theme_stylebox_override("hover", sb_hov)
-	_continue_btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	
+	var footer = HBoxContainer.new()
+	footer.add_theme_constant_override("separation", 10)
+	_vbox.add_child(footer)
+	footer.add_child(UIStyle.keycap("E"))
+	_continue_btn = UIStyle.button("ENTENDIDO", false, Vector2(150, 46), 17)
 	_continue_btn.pressed.connect(func(): _dismiss_popup(false))
-	_vbox.add_child(_continue_btn)
+	footer.add_child(_continue_btn)
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(spacer)
+	_open_btn = UIStyle.button("ABRIR INVENTARIO", true, Vector2(220, 46), 18)
+	_open_btn.pressed.connect(func(): _dismiss_popup(true))
+	footer.add_child(_open_btn)
+	footer.add_child(UIStyle.keycap("I"))
 
 func _play_activation_sound() -> void:
 	if ResourceLoader.exists(UI_SOUND_PATH):
@@ -190,10 +176,13 @@ func _animate_entrance() -> void:
 	tween.tween_method(_set_blur_intensity, 0.0, 3.5, 0.6)
 	tween.tween_method(_set_brightness_intensity, 1.0, 0.4, 0.6)
 	
-	_panel.scale = Vector2(0.3, 0.3)
 	_panel.modulate.a = 0.0
-	tween.tween_property(_panel, "scale", Vector2.ONE, 0.6)
-	tween.tween_property(_panel, "modulate:a", 1.0, 0.6)
+	tween.tween_property(_panel, "modulate:a", 1.0, 0.25)
+	await get_tree().process_frame
+	_panel.pivot_offset = _panel.size / 2.0
+	_panel.scale = Vector2(0.9, 0.9)
+	var pop = _panel.create_tween()
+	pop.tween_property(_panel, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _set_blur_intensity(val: float) -> void:
 	if _blur_rect and _blur_rect.material:
@@ -206,12 +195,14 @@ func _set_brightness_intensity(val: float) -> void:
 func _dismiss_popup(open_inventory: bool) -> void:
 	set_process_input(false)
 	_continue_btn.disabled = true
+	_open_btn.disabled = true
+	_panel.pivot_offset = _panel.size / 2.0
 	
 	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_method(_set_blur_intensity, 3.5, 0.0, 0.4)
 	tween.tween_method(_set_brightness_intensity, 0.4, 1.0, 0.4)
-	tween.tween_property(_panel, "scale", Vector2(0.5, 0.5), 0.4)
-	tween.tween_property(_panel, "modulate:a", 0.0, 0.4)
+	tween.tween_property(_panel, "scale", Vector2(0.94, 0.94), 0.25)
+	tween.tween_property(_panel, "modulate:a", 0.0, 0.25)
 	
 	tween.chain().tween_callback(func():
 		get_tree().paused = false

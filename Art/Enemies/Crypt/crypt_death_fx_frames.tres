@@ -1,0 +1,53 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cfi1n7wpb8i2s"]
+
+[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="1_8y5kh"]
+[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="2_7fxqj"]
+[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="3_j054f"]
+[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="4_ab5ei"]
+[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="5_n5lai"]
+[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="6_i8a5l"]
+[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="7_hejtm"]
+[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="8_kp14b"]
+[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="9_sn50e"]
+[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="10_r3l1a"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_8y5kh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_7fxqj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_j054f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_ab5ei")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_n5lai")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_i8a5l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_hejtm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_kp14b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_sn50e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_r3l1a")
+}, {
+"duration": 1.0,
+"texture": null
+}],
+"loop": 0,
+"name": &"death",
+"speed": 30.0
+}]

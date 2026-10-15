@@ -3,24 +3,23 @@ class_name PrometeoIntro
 
 ## Cinemática de entrada de Prometeo (boss 3). Sigue la misma estructura que la
 ## del boss 2: congela al jugador, la cámara va hasta el boss, pasa algo, y la
-## cámara vuelve. Acá el "algo" es que Prometeo se arma de las sombras: el humo
-## se junta, aparece el cuerpo, ruge y sale el título.
-## Uso: var intro = PrometeoIntro.new(); add_child(intro); await intro.play(boss, delay)
+## cámara vuelve. Aquí el "algo" es que Prometeo se arma de las sombras: el humo
+## se junta, aparece el cuerpo y ruge. Al rugir emite "roared": ahí el jefe crea
+## su barra (BossHealthBar), que entra con el título y se convierte en la barra.
+## Uso: var intro = PrometeoIntro.new(); add_child(intro); intro.roared.connect(...); await intro.play(boss, delay, "")
 
-const FONT_PATH := "res://Art/Fonts/Dekatron-SemiBold.otf"
-const BOSS_ZOOM := Vector2(1.35, 1.35)
-const TITLE_COLOR := Color(1.0, 0.25, 0.3)
-const SUBTITLE_COLOR := Color(1.0, 0.6, 0.25)
+signal roared
+
+## Zoom relativo al de la pelea (la cámara del jugador no siempre está en 1.0).
+const ZOOM_FACTOR := 1.3
 
 var boss: Node2D
 var _player: Node
 var _camera: Camera2D
 var _base_zoom: Vector2 = Vector2.ONE
 var _base_position: Vector2 = Vector2.ZERO
-var _layer: CanvasLayer
-var _title: Control
 
-func play(p_boss: Node2D, start_delay: float, subtitle: String) -> void:
+func play(p_boss: Node2D, start_delay: float, _subtitle: String = "") -> void:
 	boss = p_boss
 	_hide_boss()
 	# espera a que termine el fundido de entrada a la sala (y a que la sala ponga al jugador)
@@ -31,7 +30,6 @@ func play(p_boss: Node2D, start_delay: float, subtitle: String) -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	_set_player_frozen(true)
 	_capture_camera()
-	_build_title(subtitle)
 	_move_camera_to_boss(1.0)
 	await _wait(0.8)
 	_gather_shadows(1.4)
@@ -41,9 +39,7 @@ func play(p_boss: Node2D, start_delay: float, subtitle: String) -> void:
 	_roar()
 	await _wait(2.2)
 	_move_camera_back(1.0)
-	await _wait(0.8)
-	_fade_title(0.4)
-	await _wait(0.4)
+	await _wait(1.0)
 	_finish()
 
 func _wait(seconds: float) -> Signal:
@@ -117,7 +113,7 @@ func _roar() -> void:
 	boss.shake(18.0, 1.4)
 	boss.flash(Color(2.2, 0.3, 0.5))
 	_burst_embers()
-	_show_title()
+	roared.emit()
 
 func _burst_embers() -> void:
 	var p = CPUParticles2D.new()
@@ -158,7 +154,7 @@ func _move_camera_to_boss(duration: float) -> void:
 	if not _camera or not _camera.get_parent(): return
 	var offset = boss.global_position - _camera.get_parent().global_position
 	var t = create_tween().set_parallel(true)
-	t.tween_property(_camera, "zoom", BOSS_ZOOM, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	t.tween_property(_camera, "zoom", _base_zoom * ZOOM_FACTOR, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	t.tween_property(_camera, "position", offset, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _move_camera_back(duration: float) -> void:
@@ -173,50 +169,9 @@ func _set_player_frozen(frozen: bool) -> void:
 	if _player.has_method(method):
 		_player.call(method)
 
-# --- Título ---
-
-func _build_title(subtitle: String) -> void:
-	_layer = CanvasLayer.new()
-	_layer.layer = 10
-	get_tree().current_scene.add_child(_layer)
-	var box = VBoxContainer.new()
-	box.set_anchors_preset(Control.PRESET_FULL_RECT)
-	box.alignment = BoxContainer.ALIGNMENT_END
-	box.offset_bottom = -150.0
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.modulate.a = 0.0
-	_layer.add_child(box)
-	var font_res = load(FONT_PATH) as Font
-	box.add_child(_make_label(boss.boss_display_name.to_upper(), 46, TITLE_COLOR, 12, font_res))
-	if subtitle != "":
-		box.add_child(_make_label(subtitle, 20, SUBTITLE_COLOR, 8, font_res))
-	_title = box
-
-func _make_label(text: String, size: int, color: Color, outline: int, font_res: Font) -> Label:
-	var label = Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if font_res:
-		label.add_theme_font_override("font", font_res)
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", color)
-	label.add_theme_color_override("font_outline_color", Color.BLACK)
-	label.add_theme_constant_override("outline_size", outline)
-	return label
-
-func _show_title() -> void:
-	if not _title: return
-	create_tween().tween_property(_title, "modulate:a", 1.0, 0.35).set_trans(Tween.TRANS_SINE)
-
-func _fade_title(duration: float) -> void:
-	if not _title or not is_instance_valid(_title): return
-	create_tween().tween_property(_title, "modulate:a", 0.0, duration)
-
 # --- Cierre ---
 
 func _finish() -> void:
-	if _layer and is_instance_valid(_layer):
-		_layer.queue_free()
 	if is_instance_valid(_camera):
 		_camera.zoom = _base_zoom
 		_camera.position = _base_position

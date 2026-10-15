@@ -77,7 +77,7 @@ const ENEMIES: Array[Dictionary] = [
 const CRYPT_ENEMIES: Array[Dictionary] = [
 	{"name": "Gárgola (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptGargoyle.tscn"},
 	{"name": "Ghoul Acechante (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptGhoul.tscn"},
-	{"name": "Cienpiés Tóxico (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptCentipede.tscn"},
+	{"name": "Ciempiés Tóxico (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptCentipede.tscn"},
 	{"name": "Escuadrón de la Muerte (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptDeathSquad.tscn"},
 	{"name": "Ojo Torreta (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptLaserEye.tscn"},
 	{"name": "Apicultora Muerta (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptDeadBeekeeperSummoner.tscn"},

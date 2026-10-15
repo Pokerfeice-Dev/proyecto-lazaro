@@ -18,12 +18,22 @@ enum TutorialState {
 
 var current_state: TutorialState = TutorialState.MOVE
 
-var hud_layer: CanvasLayer = null
-var dialogue_panel: PanelContainer = null
-var dialogue_label: Label = null
+const ICON_CHECK := preload("res://Art/Ui/svg/icon_check.svg")
+const STEP_TOTAL := 8 # pasos antes de COMPLETE
+const LEARNED := [
+	"Moverte y esquivar",
+	"Disparar y golpear cuerpo a cuerpo",
+	"Pelear con obstáculos de por medio",
+	"Combinar piezas en una sinergia",
+]
 
-var center_layer: CanvasLayer = null
-var center_label: Label = null
+# Tarjeta del paso (abajo) y manito/círculo/teclas en el mundo.
+var tutorial_hud: TutorialHud = null
+var pointer: TutorialPointer = null
+var _synergy_drops: Array = []
+var _drops_picked := 0
+var _last_step_text := ""
+var _mannequin_home := Vector2(-96, -104)
 
 var mannequin_inst: Node2D = null
 var shooter_inst: Node = null
@@ -31,11 +41,15 @@ var mannequin_hits_received: int = 0
 var synergy_hits_received: int = 0
 
 func _ready() -> void:
-	# Lo que se desbloquee o equipe acá es de prueba: al salir se vuelve atrás.
+	# Lo que se desbloquee o equipe aquí es de prueba: al salir se vuelve atrás.
 	GameData.begin_sandbox()
 	_spawn_player()
-	_setup_tutorial_ui()
 	_spawn_mannequin()
+	# Tutorial ya hecho: la sala queda libre (armería, incubadora, Victoria y el maniquí).
+	if GameData.has_completed_tutorial:
+		current_state = TutorialState.COMPLETE
+		return
+	_setup_tutorial_ui()
 	_update_dialogue_text()
 
 func _exit_tree() -> void:
@@ -43,6 +57,7 @@ func _exit_tree() -> void:
 
 func _process(_delta: float) -> void:
 	_check_state_transitions()
+	_check_drops_picked()
 
 func _is_move_input_pressed() -> bool:
 	return Input.is_action_pressed("move_left") or \
@@ -93,8 +108,7 @@ func _check_synergy_equip_transition() -> void:
 
 func _transition_to_state(new_state: TutorialState) -> void:
 	current_state = new_state
-	_update_dialogue_text()
-	
+	# primero se arma el paso (enemigo, piezas) para que la manito tenga a quién señalar
 	if current_state == TutorialState.COMBAT:
 		_spawn_shooter()
 	elif current_state == TutorialState.SYNERGY_EQUIP:
@@ -103,6 +117,7 @@ func _transition_to_state(new_state: TutorialState) -> void:
 		_setup_synergy_attack_step()
 	elif current_state == TutorialState.COMPLETE:
 		_show_complete_screen()
+	_update_dialogue_text()
 
 func _spawn_player() -> void:
 	var spawn_node = get_node_or_null("player_spawn")
@@ -149,10 +164,11 @@ func _spawn_mannequin() -> void:
 			break
 			
 	if mannequin_inst:
+		_mannequin_home = mannequin_inst.global_position
 		mannequin_inst.hit_received.connect(_on_mannequin_hit)
 	elif mannequin_scene:
 		mannequin_inst = mannequin_scene.instantiate()
-		mannequin_inst.global_position = Vector2(0, -100) # Centered in the arena map
+		mannequin_inst.global_position = _mannequin_home
 		mannequin_inst.hit_received.connect(_on_mannequin_hit)
 		get_tree().current_scene.call_deferred("add_child", mannequin_inst)
 
@@ -180,8 +196,8 @@ func _spawn_synergy_items() -> void:
 		preload("res://Art/Items/Weapons/Item3.tres"),
 		preload("res://Art/Items/Weapons/Item8_CabezaHumana.tres")
 	]
-	var base_pos = Vector2(0, -90)
-	var offsets = [Vector2(-35, 0), Vector2(0, 0), Vector2(35, 0)]
+	var base_pos = Vector2(-120, -40) # piso libre, lejos de las jardineras
+	var offsets = [Vector2(-50, 0), Vector2(0, 0), Vector2(50, 0)]
 	for i in range(items.size()):
 		_spawn_single_synergy_drop(item_drop_scene, items[i], base_pos + offsets[i])
 
@@ -192,6 +208,15 @@ func _spawn_single_synergy_drop(scene: PackedScene, data: ItemData, pos: Vector2
 	inst.item_data = data
 	inst.global_position = pos
 	get_tree().current_scene.call_deferred("add_child", inst)
+	_synergy_drops.append(inst)
+
+# Cuenta las piezas que ya se levantaron del suelo para avanzar el sub-paso.
+func _check_drops_picked() -> void:
+	if current_state != TutorialState.SYNERGY_EQUIP or _synergy_drops.is_empty(): return
+	var picked = _synergy_drops.filter(func(d): return not is_instance_valid(d)).size()
+	if picked == _drops_picked: return
+	_drops_picked = picked
+	_update_dialogue_text()
 
 func _setup_synergy_attack_step() -> void:
 	synergy_hits_received = 0
@@ -201,7 +226,7 @@ func _respawn_or_reset_mannequin() -> void:
 	if not mannequin_inst or not is_instance_valid(mannequin_inst):
 		_spawn_mannequin()
 		return
-	mannequin_inst.global_position = Vector2(0, -100)
+	mannequin_inst.global_position = _mannequin_home
 
 func _spawn_shooter() -> void:
 	if not shooter_scene:
@@ -225,101 +250,101 @@ func _on_shooter_died(_enemy: Node) -> void:
 		_transition_to_state(TutorialState.SYNERGY_EQUIP)
 
 func _setup_tutorial_ui() -> void:
-	hud_layer = CanvasLayer.new()
-	hud_layer.layer = 95
-	add_child(hud_layer)
-	
-	dialogue_panel = PanelContainer.new()
-	dialogue_panel.custom_minimum_size = Vector2(0, 100)
-	dialogue_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	dialogue_panel.offset_left = 100
-	dialogue_panel.offset_right = -100
-	dialogue_panel.offset_bottom = -30
-	dialogue_panel.offset_top = -130
-	
-	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.05, 0.05, 0.05, 0.9)
-	sb.border_color = Color(0.0, 0.8, 0.5)
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(12)
-	dialogue_panel.add_theme_stylebox_override("panel", sb)
-	
-	hud_layer.add_child(dialogue_panel)
-	
-	var margin_container = MarginContainer.new()
-	margin_container.add_theme_constant_override("margin_left", 20)
-	margin_container.add_theme_constant_override("margin_right", 20)
-	margin_container.add_theme_constant_override("margin_top", 10)
-	margin_container.add_theme_constant_override("margin_bottom", 10)
-	dialogue_panel.add_child(margin_container)
-	
-	dialogue_label = Label.new()
-	dialogue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	dialogue_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	dialogue_label.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	dialogue_label.add_theme_font_size_override("font_size", 24)
-	dialogue_label.add_theme_color_override("font_color", Color(0, 1, 0.8))
-	margin_container.add_child(dialogue_label)
+	tutorial_hud = TutorialHud.new()
+	add_child(tutorial_hud)
+	pointer = TutorialPointer.new()
+	add_child(pointer)
 
+# Cada paso: tarjeta con las teclas, teclas sobre el jugador para los pasos
+# de control, y manito + círculo sobre el objetivo cuando hay que ir a algún lado.
 func _update_dialogue_text() -> void:
-	if not dialogue_label:
+	if not tutorial_hud:
 		return
-		
 	match current_state:
 		TutorialState.MOVE:
-			dialogue_label.text = "Movimiento con WASD"
+			_show_step(0, "Muévete por la sala", ["W", "A", "S", "D"], true)
 		TutorialState.DASH:
-			dialogue_label.text = "Esquiva con ESPACIO"
+			_show_step(1, "Esquiva: por un instante eres intangible", ["ESPACIO"], true)
 		TutorialState.SHOOT:
-			dialogue_label.text = "Click izquierdo disparar arma a distancia"
+			_show_step(2, "Dispara con tu arma a distancia", ["MOUSE_L"], true)
 		TutorialState.MELEE:
-			dialogue_label.text = "Click derecho arma melee"
+			_show_step(3, "Golpea con tu arma cuerpo a cuerpo", ["MOUSE_R"], true)
 		TutorialState.MANNEQUIN:
-			if mannequin_hits_received == 0:
-				dialogue_label.text = "Bien, ve a golpear al maniqui"
-			else:
-				dialogue_label.text = "Bien, ve a golpear al maniqui (%d/3)" % mannequin_hits_received
+			_show_step(4, "Golpea al maniquí", ["MOUSE_L", "MOUSE_R"], false, [mannequin_inst], "%d/3" % mannequin_hits_received)
 		TutorialState.COMBAT:
-			dialogue_label.text = "Los obstáculos bloquean los proyectiles, elimina a tu enemigo"
+			_show_step(5, "Elimina al enemigo. Los obstáculos bloquean sus disparos", ["MOUSE_L"], false, [shooter_inst])
 		TutorialState.SYNERGY_EQUIP:
-			dialogue_label.text = "¡Sinergia! Recoge los 3 componentes del suelo [E] y equípalos en tu arma desde el inventario [I]"
+			_show_synergy_equip_step()
 		TutorialState.SYNERGY_ATTACK:
-			if synergy_hits_received == 0:
-				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Dispárale al maniquí con tus abejas"
-			else:
-				dialogue_label.text = "¡Tu Pistola mutó en Mente Colmena! Dispárale al maniquí con tus abejas (%d/3)" % synergy_hits_received
+			_show_step(7, "¡Tu pistola mutó en Mente Colmena! Dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % synergy_hits_received)
 		TutorialState.COMPLETE:
-			dialogue_panel.visible = false
+			tutorial_hud.hide_card()
+			pointer.clear()
+
+# Dos partes: levantar las 3 piezas del suelo (E) y equiparlas en el inventario (I).
+func _show_synergy_equip_step() -> void:
+	if _drops_picked < _synergy_drops.size():
+		var remaining = _synergy_drops.filter(func(d): return is_instance_valid(d))
+		_show_step(6, "Recoge las 3 piezas del suelo", ["E"], false, remaining, "%d/3" % _drops_picked, 26.0)
+		return
+	_show_step(6, "Abre el inventario y equipa las 3 piezas en tu pistola", ["I"], true)
+
+func _show_step(index: int, text: String, inputs: Array, inputs_over_player: bool, targets: Array = [], counter := "", hand_height := 44.0) -> void:
+	# mismo paso y mismo texto: solo se actualiza el contador (sin re-animar la tarjeta)
+	if text == _last_step_text:
+		tutorial_hud.set_counter(counter)
+	else:
+		tutorial_hud.set_step(index, STEP_TOTAL, text, inputs, counter)
+	_last_step_text = text
+	var valid_targets = targets.filter(func(t): return t != null and is_instance_valid(t))
+	pointer.point_at(valid_targets, hand_height)
+	pointer.show_inputs(inputs if inputs_over_player else [])
+	tutorial_hud.track(valid_targets[0] if not valid_targets.is_empty() else null)
+
+# --- Fin del tutorial ---
 
 func _show_complete_screen() -> void:
-	_setup_center_ui()
-	center_label.text = "¡Sinergia aprendida!\nTutorial completado"
-	
-	var t = get_tree().create_timer(3.0)
-	t.timeout.connect(_complete_tutorial_and_exit)
+	GameData.has_completed_tutorial = true
+	GameData.save_game(GameData.current_slot)
+	var window = UIWindow.open("  ENTRENAMIENTO", ICON_CHECK, 640)
+	window.body.add_child(_complete_header())
+	window.body.add_child(UIStyle.divider())
+	for skill in LEARNED:
+		window.body.add_child(_learned_row(skill))
+	var note = UIStyle.label("Puedes seguir practicando: la armería, la incubadora y Victoria siguen aquí.", 16, UIStyle.COLOR_MUTED)
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	window.body.add_child(note)
+	window.add_button("SEGUIR PRACTICANDO", false, "ESC", window.close)
+	window.add_button("VOLVER AL LABORATORIO", true, "E", func():
+		window.close()
+		_complete_tutorial_and_exit())
 
-func _setup_center_ui() -> void:
-	center_layer = CanvasLayer.new()
-	center_layer.layer = 96
-	add_child(center_layer)
-	
-	center_label = Label.new()
-	center_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	center_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	center_label.grow_vertical = Control.GROW_DIRECTION_BOTH
-	center_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	center_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	center_label.text = ""
-	center_label.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	center_label.add_theme_font_size_override("font_size", 48)
-	center_label.add_theme_color_override("font_color", Color(0, 1, 0.8))
-	center_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	center_label.add_theme_constant_override("outline_size", 6)
-	
-	center_layer.add_child(center_label)
+func _complete_header() -> Control:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 18)
+	var badge = UIStyle.panel(UIStyle.TEX_SLOT["equipped"])
+	badge.custom_minimum_size = Vector2(76, 76)
+	var check = UIStyle.icon(ICON_CHECK, 44)
+	check.modulate = UIStyle.COLOR_TEAL
+	badge.add_child(check)
+	row.add_child(badge)
+	var col = VBoxContainer.new()
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	col.add_child(UIStyle.label("TUTORIAL COMPLETADO", 34, UIStyle.COLOR_GOLD))
+	col.add_child(UIStyle.label("Sinergia aprendida: Mente Colmena", 18, UIStyle.COLOR_TEAL))
+	row.add_child(col)
+	return row
+
+func _learned_row(text: String) -> Control:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var check = UIStyle.icon(ICON_CHECK, 20)
+	check.modulate = UIStyle.COLOR_TEAL
+	row.add_child(check)
+	row.add_child(UIStyle.label(text, 18, UIStyle.COLOR_TEXT))
+	return row
 
 func _complete_tutorial_and_exit() -> void:
-	GameData.current_slot = GameData.current_slot
-	GameData.save_game(GameData.current_slot)
+	get_tree().paused = false
+	GameData.last_room_name = name # el laboratorio aparece junto a la puerta de entrenamiento
 	SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")

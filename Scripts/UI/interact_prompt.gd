@@ -30,7 +30,7 @@ const KEY_REGEX := "^\\s*(?:\\[([A-Za-z0-9]+)\\]|Presiona\\s+([A-Za-z0-9]+)\\s*:
 const FLESH_REGEX := "(?i)(\\d+)\\s*carne|carne\\s*\\((\\d+)\\)"
 const ICON_DIR := "res://Art/Ui/svg/"
 const FLESH_ICON := "res://Art/Flesh/Flesh_icon.png"
-const SCRAP_ICON := "res://Art/Scrap/scrap_icon.png"
+const SCRAP_ICON := "res://Art/Scrap/Scrap_icon.png"
 ## palabra de la acción -> ícono (el primero que aparezca en el texto)
 const ACTION_ICONS := [
 	["desbloquear", "icon_lock"],
@@ -43,6 +43,7 @@ const ACTION_ICONS := [
 	["equipo", "icon_damage"],
 	["siguiente", "icon_chevron_right"],
 	["entrar", "icon_chevron_right"],
+	["salir", "icon_chevron_left"],
 ]
 
 var source: Label

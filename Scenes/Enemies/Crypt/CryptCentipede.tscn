@@ -1,12 +1,22 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=8 format=3]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
 [ext_resource type="Resource" path="res://Art/Items/Crypt/glandula_toxica.tres" id="2"]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+[ext_resource type="Script" path="res://Scripts/Enemies/crypt_centipede_body.gd" id="6_body"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/Centipede/centipede_head_frames.tres" id="5_frames"]
+
+[sub_resource type="Gradient" id="gas_ramp"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.9, 1, 0.45, 0, 0.62, 1, 0.2, 0.8, 0.3, 0.55, 0.08, 0)
+
+[sub_resource type="Curve" id="gas_size"]
+_data = [Vector2(0, 0.45), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [node name="CryptCentipede" instance=ExtResource("1")]
 kind = 2
 codex_id = "crypt_centipede"
-display_name = "Cienpiés tóxico"
+display_name = "Ciempiés tóxico"
 max_health = 95
 move_speed = 90.0
 damage = 10
@@ -16,15 +26,42 @@ attack_duration = 1.4
 recovery_time = 1.6
 item_drop_chance = 0.18
 all_items = Array[ExtResource("3")]([ExtResource("2")])
+art_rotates = true
+art_forward_degrees = 135.0
+turn_rate = 6.0
 
 [node name="Body" parent="Sprite2D" index="0"]
 color = Color(0.6, 0.8509803921568627, 0.2980392156862745, 1)
 polygon = PackedVector2Array(-24, -10, 24, -10, 24, 10, -24, 10)
 [node name="Accent" parent="Sprite2D" index="1"]
 color = Color(0.6, 0.8509803921568627, 0.2980392156862745, 0.7)
-[node name="NameLabel" parent="." index="3"]
-text = "Cienpiés tóxico"
-
 [node name="ToxicTube" type="Polygon2D" parent="Sprite2D"]
 polygon = PackedVector2Array(-18, -18, 18, -18, 18, -8, -18, -8)
 color = Color(0.65, 1, 0.15, 1)
+
+[node name="GasParticles" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 96
+lifetime = 0.6
+local_coords = false
+direction = Vector2(1, 0)
+spread = 28.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 280.0
+initial_velocity_max = 360.0
+damping_min = 60.0
+damping_max = 100.0
+scale_amount_min = 4.0
+scale_amount_max = 9.0
+scale_amount_curve = SubResource("gas_size")
+color_ramp = SubResource("gas_ramp")
+
+[node name="CentipedeBody" type="Node2D" parent="."]
+script = ExtResource("6_body")
+
+[node name="ArtSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(1.6, 1.6)
+sprite_frames = ExtResource("5_frames")
+animation = &"idle"
+autoplay = "idle"

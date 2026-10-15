@@ -9,6 +9,21 @@ class_name Door
 ## le pregunta a GameData a donde corresponde ir (siguiente nivel, o Lab si ya se gano la run).
 @export var is_boss_exit_door: bool = false
 
+@export_group("Cartel")
+## Nombre que se muestra siempre sobre la puerta (vacío = sin cartel).
+@export var sign_text: String = ""
+@export var sign_icon: Texture2D
+## Color del cartel y de las luces de la puerta, para distinguirla de las demás.
+@export var sign_color: Color = Color("#52D8C6")
+@export var sign_offset: Vector2 = Vector2(0, -62)
+## Distancia a la que aparece el cartel (0 = siempre visible).
+@export var sign_reveal_radius: float = 130.0
+## Ícono fijo sobre la puerta, como el cerebro de O.M.N.I.A. (vacío = sin ícono).
+@export var door_icon: Texture2D
+@export var door_icon_offset: Vector2 = Vector2(0, -52)
+## Texto del cartel de interacción al acercarse.
+@export var prompt_text: String = "Presiona E"
+
 @onready var anim_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var area_2d: Area2D = $Area2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -31,6 +46,27 @@ func _ready() -> void:
 	_setup_interaction_label()
 	# cartel de interacción con el estilo de la UI nueva (copia este Label)
 	InteractPrompt.mirror(interaction_label)
+	_setup_sign()
+
+# Cartel fijo con ícono y luces del mismo color, para que cada puerta se reconozca.
+func _setup_sign() -> void:
+	_setup_door_icon()
+	if sign_text == "": return
+	DoorSign.create(self, sign_text, sign_icon, sign_color, sign_offset, sign_reveal_radius)
+	for light in [close_light, open_light]:
+		if light: light.color = sign_color
+
+# Ícono siempre recto (top_level), con un leve tinte del color de la puerta.
+func _setup_door_icon() -> void:
+	if not door_icon: return
+	var icon_sprite = Sprite2D.new()
+	icon_sprite.texture = door_icon
+	icon_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	add_child(icon_sprite)
+	icon_sprite.top_level = true
+	icon_sprite.global_position = global_position + door_icon_offset
+	icon_sprite.scale = Vector2(0.7, 0.7)
+	icon_sprite.modulate = Color.WHITE.lerp(sign_color, 0.25)
 
 func _init_lights_base_energy() -> void:
 	if close_light:
@@ -121,8 +157,10 @@ func _setup_interaction_label() -> void:
 	interaction_label.top_level = true
 	interaction_label.rotation = 0.0
 	interaction_label.scale = Vector2.ONE
-	interaction_label.position = global_position + Vector2(-100, -70)
-	interaction_label.text = "Presiona E"
+	# con cartel, el aviso de interacción va justo encima del cartel (no se pisan)
+	var prompt_y = -70.0 if sign_text == "" else sign_offset.y - 40.0
+	interaction_label.position = global_position + Vector2(-100, prompt_y)
+	interaction_label.text = prompt_text
 	interaction_label.visible = false
 
 func _hide_interaction_label() -> void:

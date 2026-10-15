@@ -11,7 +11,6 @@ func _ready() -> void:
 	$AnimationPlayer.play("warning", -1, 1.0 / maxf(warning_duration, 0.01))
 
 func _explode() -> void:
-	$Label.text = ""
 	$AnimationPlayer.play("burst")
 	for player in get_tree().get_nodes_in_group("player"):
 		if global_position.distance_to(player.global_position) > radius: continue

@@ -1,6 +1,8 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 [ext_resource type="Script" path="res://Scripts/Enemies/crypt_enemy.gd" id="1"]
 [ext_resource type="AudioStream" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="2"]
+[ext_resource type="Script" path="res://Scripts/Effects/crypt_telegraph.gd" id="3"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/crypt_death_fx_frames.tres" id="4"]
 [sub_resource type="CircleShape2D" id="body"]
 radius = 14.0
 [sub_resource type="Animation" id="anticipation"]
@@ -24,8 +26,18 @@ tracks/0/path = NodePath("Sprite2D:scale")
 tracks/0/keys = {"times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [Vector2(1,1)]}
 [sub_resource type="AnimationLibrary" id="library"]
 _data = {&"anticipation": SubResource("anticipation"), &"attack": SubResource("attack"), &"RESET": SubResource("reset")}
+[sub_resource type="StyleBoxFlat" id="health_bg"]
+bg_color = Color(0.1, 0.1, 0.1, 0.8)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 [sub_resource type="StyleBoxFlat" id="health"]
-bg_color = Color(0.8, 0.2, 0.24, 1)
+bg_color = Color(0.8, 0.1, 0.1, 0.9)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 [node name="CryptEnemy" type="CharacterBody2D" groups=["enemy"]]
 collision_layer = 2
 collision_mask = 7
@@ -44,57 +56,22 @@ color = Color(0.8, 0.8, 1, 0.7)
 polygon = PackedVector2Array(-5, -4, 5, -4, 5, 3, -5, 3)
 color = Color(0.1, 0.12, 0.15, 1)
 [node name="HealthBar" type="ProgressBar" parent="."]
-offset_left = -20.0
-offset_top = -32.0
-offset_right = 20.0
-offset_bottom = -28.0
+offset_left = -15.0
+offset_top = -30.0
+offset_right = 15.0
+offset_bottom = -26.0
+mouse_filter = 2
 show_percentage = false
+theme_override_styles/background = SubResource("health_bg")
 theme_override_styles/fill = SubResource("health")
-[node name="NameLabel" type="Label" parent="."]
-offset_left = -65.0
-offset_top = -49.0
-offset_right = 65.0
-offset_bottom = -33.0
-theme_override_font_sizes/font_size = 11
-text = "Gárgola"
-horizontal_alignment = 1
-[node name="StateLabel" type="Label" parent="."]
-offset_left = -70.0
-offset_top = 25.0
-offset_right = 70.0
-offset_bottom = 42.0
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-horizontal_alignment = 1
 [node name="Telegraph" type="Node2D" parent="."]
 visible = false
 z_index = -1
-[node name="Cone" type="Polygon2D" parent="Telegraph"]
-color = Color(1, 0.7, 0.15, 0.25)
-polygon = PackedVector2Array(0,0, 50,-40, 65,0, 50,40)
-[node name="Line" type="Line2D" parent="Telegraph"]
-points = PackedVector2Array(0,0, 180,0)
-width = 2.0
-default_color = Color(1, 0.75, 0.2, 0.8)
-[node name="AttackVisual" type="Node2D" parent="."]
-visible = false
-z_index = -1
-[node name="Cone" type="Polygon2D" parent="AttackVisual"]
-color = Color(0.5, 1, 0.15, 0.45)
-polygon = PackedVector2Array(0,0, 50,-40, 65,0, 50,40)
-[node name="Line" type="Line2D" parent="AttackVisual"]
-points = PackedVector2Array(0,0, 180,0)
-width = 20.0
-default_color = Color(1, 0.2, 0.2, 0.85)
+script = ExtResource("3")
 [node name="StoneShield" type="Polygon2D" parent="."]
 visible = false
 polygon = PackedVector2Array(-23,-16,0,-29,23,-16,25,16,0,28,-25,16)
 color = Color(0.7, 0.78, 0.85, 0.85)
-[node name="RearRush" type="Line2D" parent="."]
-visible = false
-points = PackedVector2Array(-24,-12,-30,0,-24,12)
-width = 3.0
-default_color = Color(1, 0.4, 0.65, 1)
 [node name="PhaseTimer" type="Timer" parent="."]
 one_shot = true
 [node name="BurstTimer" type="Timer" parent="."]
@@ -111,3 +88,8 @@ bus = &"SFX"
 stream = ExtResource("2")
 volume_db = -12.0
 bus = &"SFX"
+[node name="Death_fx" type="AnimatedSprite2D" parent="."]
+visible = false
+scale = Vector2(0.6, 0.6)
+sprite_frames = ExtResource("4")
+animation = &"death"

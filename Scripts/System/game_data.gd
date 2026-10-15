@@ -43,6 +43,7 @@ var unlocked_protocols: Array[String] = []
 var active_protocol: String = ""
 var has_died_once: bool = false
 var has_shown_inventory_tutorial: bool = false
+var has_completed_tutorial: bool = false # la sala de entrenamiento ya no repite los pasos
 var last_room_name: String = "" # nombre de la última sala de la que salimos, usado para elegir el spawn correcto
 var chosen_primary_weapon: String = "pistol"
 var chosen_melee_weapon: String = "daga"
@@ -674,6 +675,7 @@ func save_game(slot: int = -1) -> void:
 		"active_protocol": active_protocol,
 		"has_died_once": has_died_once,
 		"has_shown_inventory_tutorial": has_shown_inventory_tutorial,
+		"has_completed_tutorial": has_completed_tutorial,
 		"chosen_primary_weapon": chosen_primary_weapon,
 		"chosen_melee_weapon": chosen_melee_weapon,
 		"weapons_unlocked": codex_unlocks["weapons"],
@@ -769,6 +771,7 @@ func load_game(slot: int) -> bool:
 	active_protocol = str(json.get("active_protocol", ""))
 	has_died_once = bool(json.get("has_died_once", false))
 	has_shown_inventory_tutorial = bool(json.get("has_shown_inventory_tutorial", false))
+	has_completed_tutorial = bool(json.get("has_completed_tutorial", false))
 	chosen_primary_weapon = str(json.get("chosen_primary_weapon", "pistol"))
 	chosen_melee_weapon = str(json.get("chosen_melee_weapon", "daga"))
 	
@@ -862,6 +865,7 @@ func reset_data() -> void:
 	active_protocol = ""
 	has_died_once = false
 	has_shown_inventory_tutorial = false
+	has_completed_tutorial = false
 	chosen_primary_weapon = "pistol"
 	chosen_melee_weapon = "daga"
 	codex_unlocks["weapons"] = ["pistol", "daga"]

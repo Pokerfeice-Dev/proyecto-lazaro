@@ -31,7 +31,7 @@ const ESTRUCTURA := [
 ]
 
 const RECURSOS := [
-	{"key": "compactador", "name": "Compactador", "desc": "Aumenta la chatarra obtenida en combate (+2% por nivel).", "max": 20, "step": 2.0, "value_desc": "+%d%% chatarra", "icon": "res://Art/Scrap/scrap_icon.png"},
+	{"key": "compactador", "name": "Compactador", "desc": "Aumenta la chatarra obtenida en combate (+2% por nivel).", "max": 20, "step": 2.0, "value_desc": "+%d%% chatarra", "icon": "res://Art/Scrap/Scrap_icon.png"},
 	{"key": "biomasa_eficiente", "name": "Biomasa Eficiente", "desc": "Aumenta la carne obtenida al derrotar enemigos (+2% por nivel).", "max": 20, "step": 2.0, "value_desc": "+%d%% carne", "icon": "icon_torso"},
 	{"key": "imanes_industriales", "name": "Imanes Industriales", "desc": "Aumenta el radio de atracción de chatarra y carne (+5% por nivel).", "max": 10, "step": 5.0, "value_desc": "+%d%% radio", "icon": "icon_range"},
 	{"key": "recuperacion_restos", "name": "Recuperación de Restos", "desc": "Aumenta la probabilidad de que caigan objetos y carne (+1% por nivel).", "max": 15, "step": 1.0, "value_desc": "+%d%% drop", "icon": "icon_plus"},
@@ -74,7 +74,7 @@ const PROTOCOLOS := [
 	{"id": "enjambre_residual", "name": "Enjambre Residual", "desc": "Empiezas cada run con una abeja mecánica aliada.", "cost": 900, "icon": "icon_projectiles"},
 	{"id": "blindaje_reactivo", "name": "Blindaje Reactivo", "desc": "Al recibir daño ganas +2 de defensa durante 3 segundos.", "cost": 900, "icon": "icon_armor"},
 	{"id": "furia_de_titanio", "name": "Furia de Titanio", "desc": "Con menos del 30% de vida: +25% de velocidad de ataque.", "cost": 1000, "icon": "icon_fire_rate"},
-	{"id": "reciclaje_instantaneo", "name": "Reciclaje Instantáneo", "desc": "Cada jefe derrotado te da 50 de chatarra extra.", "cost": 1200, "icon": "res://Art/Scrap/scrap_icon.png"},
+	{"id": "reciclaje_instantaneo", "name": "Reciclaje Instantáneo", "desc": "Cada jefe derrotado te da 50 de chatarra extra.", "cost": 1200, "icon": "res://Art/Scrap/Scrap_icon.png"},
 ]
 
 # --- Entradas listas para mostrar ---
@@ -150,7 +150,7 @@ static func _synergy_entries() -> Array:
 		var state = "comprado" if owned else ("bloqueado" if blocked else "disponible")
 		result.append({
 			"id": s.id, "name": def.get("name", s.id) if discovered else "Investigación %02d" % (result.size() + 1),
-			"desc": def.get("description", "") if discovered else RESEARCH.clues.get(s.id, "Experimentá con componentes para descubrir esta combinación."),
+			"desc": def.get("description", "") if discovered else RESEARCH.clues.get(s.id, "Experimenta con componentes para descubrir esta combinación."),
 			"kind": "synergy", "icon": _synergy_icon(s, def) if discovered else load_icon("icon_lock"), "cost": s.cost,
 			"tint": s.get("tint", Color.WHITE),
 			"recipe": _recipe(def), "recipe_text": SynergyManager.get_synergy_recipe_string(s.id),

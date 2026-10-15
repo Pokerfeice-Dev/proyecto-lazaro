@@ -35,6 +35,23 @@ enum Phase { CHASE, ANTICIPATION, ATTACK, RECOVERY, STONE_WARNING, STONE }
 @export_category("Campanero")
 @export var echo_scene: PackedScene = preload("res://Scenes/Effects/crypt_echo.tscn")
 @export var echo_count := 3
+@export_category("Arte")
+## Activar si el sprite original mira hacia la izquierda.
+@export var art_faces_left := false
+## Girar el sprite hacia donde va en vez de espejarlo (ciempiés).
+@export var art_rotates := false
+## Hacia dónde mira el dibujo original, en grados (0 = derecha, 90 = abajo).
+@export var art_forward_degrees := 0.0
+## Flotación vertical en píxeles (abejas y ojos).
+@export var hover_amplitude := 0.0
+## Qué tan rápido gira al perseguir; valores bajos dan curvas más amplias.
+@export var turn_rate := 9.0
+
+const TOXIC_TINT := Color(0.62, 1.0, 0.2)
+const BELL_TINT := Color(0.5, 0.92, 1.0)
+const HIVE_TINT := Color(1.0, 0.55, 0.42)
+const GHOST_TINT := Color(1.0, 0.45, 0.75, 0.55)
+const HEALTH_BAR_GAP := 6.0
 
 var phase: Phase = Phase.CHASE
 var locked_direction := Vector2.RIGHT
@@ -45,26 +62,52 @@ var _spray_tick := 0.0
 var _summons: Array[Node] = []
 var _echoes: Array[Node] = []
 var is_summoned := false
+var _move_dir := Vector2.ZERO
+var _visual_time := 0.0
+var _rushing := false
 
-@onready var gargoyle_sprite: AnimatedSprite2D = get_node_or_null("GargoyleSprite") as AnimatedSprite2D
+@onready var art_sprite: AnimatedSprite2D = _find_art_sprite()
+@onready var art := CryptEnemyArt.new(self, art_sprite)
+@onready var telegraph: CryptTelegraph = $Telegraph
+@onready var gas: CPUParticles2D = get_node_or_null("GasParticles") as CPUParticles2D
 
 func _ready() -> void:
 	super._ready()
 	has_footstep_fx = false
 	$PhaseTimer.timeout.connect(_next_phase)
 	$BurstTimer.timeout.connect(_fire_burst_shot)
-	$NameLabel.text = display_name
 	$HealthBar.max_value = max_health
 	$HealthBar.value = current_health
 	if kind == Kind.DEAD_BEEKEEPER: add_to_group("crypt_summoner")
-	if gargoyle_sprite:
+	if art_sprite:
 		$Sprite2D.hide()
-		gargoyle_sprite.play(&"idle")
-	_update_telegraph_geometry()
+		art.play([&"idle"])
+		_place_health_bar()
+	_visual_time = randf() * TAU
+	_configure_telegraph()
 
 # Las barras y el arte provisional son nodos de la escena, no se crean al ejecutar.
 func _setup_health_bar() -> void:
 	pass
+
+# La barra queda justo encima del sprite, como en los enemigos del área 1.
+func _place_health_bar() -> void:
+	var texture := art_sprite.sprite_frames.get_frame_texture(art_sprite.animation, 0)
+	if texture == null: return
+	var half_height := texture.get_size().y * absf(art_sprite.scale.y) * 0.5
+	if art_rotates: half_height = texture.get_size().length() * absf(art_sprite.scale.y) * 0.4
+	var top := art_sprite.position.y - half_height - HEALTH_BAR_GAP
+	$HealthBar.offset_top = top - 4.0
+	$HealthBar.offset_bottom = top
+
+func _process(delta: float) -> void:
+	_visual_time += delta
+	if phase == Phase.ANTICIPATION:
+		telegraph.direction = locked_direction
+		telegraph.charge(_phase_progress())
+	var shaking := phase == Phase.ANTICIPATION or phase == Phase.STONE_WARNING
+	art.update(delta, _visual_time, _phase_progress() if shaking else 0.0)
+	art.afterimages(delta, _rushing and phase == Phase.CHASE and velocity.length_squared() > 100.0, GHOST_TINT)
 
 func process_movement(delta: float) -> void:
 	velocity = Vector2.ZERO
@@ -81,19 +124,32 @@ func process_movement(delta: float) -> void:
 			if _spray_tick <= 0.0:
 				_spray_tick = 0.3
 				_apply_poison_in_cone()
-	if phase != Phase.CHASE or not has_detected_player: return
+	if phase != Phase.CHASE: return
+	if not has_detected_player:
+		art.walk(Vector2.ZERO)
+		return
 	var distance = global_position.distance_to(target.global_position)
 	if distance <= attack_range and _clear_path_to(target.global_position):
 		if kind != Kind.DEAD_BEEKEEPER or _live_summons() < max_summons:
 			_begin_attack()
 		return
-	if kind == Kind.LASER_EYE: return
+	if kind == Kind.LASER_EYE:
+		art.face(global_position.direction_to(target.global_position))
+		art.walk(Vector2.ZERO)
+		return
 	var speed_multiplier = rear_speed_multiplier if kind == Kind.GHOUL and player_has_back_turned() else 1.0
-	velocity = get_nav_direction_to_target() * move_speed * speed_multiplier
-	if gargoyle_sprite:
-		gargoyle_sprite.flip_h = velocity.x < 0.0
-		_play_gargoyle_animation(&"walk" if velocity.length_squared() > 1.0 else &"idle")
-	$RearRush.visible = speed_multiplier > 1.0
+	_steer(get_nav_direction_to_target(), delta)
+	velocity = _move_dir * move_speed * speed_multiplier
+	art.walk(velocity)
+	_rushing = speed_multiplier > 1.0
+
+# Gira de forma gradual hacia la dirección deseada, sin perder velocidad.
+func _steer(desired: Vector2, delta: float) -> void:
+	if desired == Vector2.ZERO:
+		_move_dir = Vector2.ZERO
+		return
+	_move_dir = _move_dir.lerp(desired, minf(1.0, turn_rate * delta))
+	_move_dir = _move_dir.normalized() if _move_dir.length_squared() > 0.0001 else desired
 
 func player_has_back_turned() -> bool:
 	if not is_instance_valid(target): return false
@@ -107,17 +163,15 @@ func player_has_back_turned() -> bool:
 func _begin_attack() -> void:
 	locked_direction = global_position.direction_to(target.global_position)
 	_attack_hit = false
-	$RearRush.hide()
+	_rushing = false
 	_update_aim()
+	telegraph.summon_points = PackedVector2Array([_summon_offset(0), _summon_offset(1)])
 	_enter_phase(Phase.ANTICIPATION, anticipation_time)
 
 func _enter_phase(next: Phase, duration: float) -> void:
 	phase = next
 	velocity = Vector2.ZERO
-	$Telegraph.visible = phase == Phase.ANTICIPATION
-	$AttackVisual.visible = phase == Phase.ATTACK
-	$StoneShield.visible = (phase == Phase.STONE or phase == Phase.STONE_WARNING) and gargoyle_sprite == null
-	$StateLabel.text = {Phase.ANTICIPATION: "¡CUIDADO!", Phase.RECOVERY: "", Phase.STONE_WARNING: "PETRIFICANDO", Phase.STONE: "INMUNE"}.get(phase, "")
+	$StoneShield.visible = (phase == Phase.STONE or phase == Phase.STONE_WARNING) and art_sprite == null
 	$StoneShield.modulate.a = 1.0 if phase == Phase.STONE else 0.4
 	if phase == Phase.ANTICIPATION or phase == Phase.STONE_WARNING:
 		$AnimationPlayer.play("anticipation")
@@ -125,19 +179,46 @@ func _enter_phase(next: Phase, duration: float) -> void:
 		$AnimationPlayer.play("attack")
 	else:
 		$AnimationPlayer.play("RESET")
-	if gargoyle_sprite:
-		match phase:
-			Phase.ANTICIPATION: _play_gargoyle_animation(&"attack_windup")
-			Phase.ATTACK: _play_gargoyle_animation(&"attack_cone", true)
-			Phase.STONE_WARNING: _play_gargoyle_animation(&"petrify", true)
-			Phase.STONE: _play_gargoyle_animation(&"stone_shield")
-			Phase.RECOVERY: _play_gargoyle_animation(&"idle")
+	_update_phase_fx(duration)
+	_update_phase_art()
 	$PhaseTimer.start(maxf(duration, 0.01))
 
-func _play_gargoyle_animation(animation_name: StringName, restart := false) -> void:
-	if not gargoyle_sprite: return
-	if restart or gargoyle_sprite.animation != animation_name:
-		gargoyle_sprite.play(animation_name)
+func _update_phase_fx(duration: float) -> void:
+	if gas: gas.emitting = phase == Phase.ATTACK
+	match phase:
+		Phase.ANTICIPATION:
+			telegraph.direction = locked_direction
+			telegraph.charge(0.0)
+		Phase.ATTACK:
+			telegraph.direction = locked_direction
+			if kind in [Kind.GARGOYLE, Kind.GHOUL, Kind.CENTIPEDE, Kind.LASER_EYE]:
+				telegraph.strike(duration)
+			else:
+				telegraph.stop()
+			if kind in [Kind.GARGOYLE, Kind.GHOUL]: art.recoil = locked_direction * 7.0
+			if gas: gas.rotation = locked_direction.angle()
+		_:
+			telegraph.stop()
+
+func _update_phase_art() -> void:
+	if not art_sprite: return
+	art.face(locked_direction)
+	match phase:
+		Phase.ANTICIPATION: art.play([&"attack_windup", &"attack"], true)
+		Phase.ATTACK: art.play([&"attack_cone", &"attack"], true)
+		Phase.STONE_WARNING: art.play([&"petrify"], true)
+		Phase.STONE: art.play([&"stone_shield"])
+		Phase.RECOVERY: art.play([&"idle"])
+
+func _find_art_sprite() -> AnimatedSprite2D:
+	var node = get_node_or_null("ArtSprite")
+	if node == null: node = get_node_or_null("GargoyleSprite")
+	return node as AnimatedSprite2D
+
+func _phase_progress() -> float:
+	var total: float = $PhaseTimer.wait_time
+	if total <= 0.0: return 1.0
+	return clampf(1.0 - $PhaseTimer.time_left / total, 0.0, 1.0)
 
 func _next_phase() -> void:
 	if is_dying: return
@@ -191,7 +272,7 @@ func _fire_burst_shot() -> void:
 
 func _place_echo() -> void:
 	if not is_instance_valid(target) or not _clear_path_to(target.global_position): return
-	_echoes = _echoes.filter(func(echo): return is_instance_valid(echo))
+	_echoes = _echoes.filter(func(mark): return is_instance_valid(mark))
 	if _echoes.size() >= 3: return
 	var echo = echo_scene.instantiate()
 	echo.damage = damage
@@ -199,6 +280,8 @@ func _place_echo() -> void:
 	echo.global_position = target.global_position
 	_echoes.append(echo)
 	$AttackSound.play()
+	telegraph.ring_at(Vector2.ZERO, 54.0)
+	art.recoil = Vector2(0, -3)
 
 func _spawn_projectile() -> void:
 	var projectile = projectile_scene.instantiate()
@@ -208,6 +291,9 @@ func _spawn_projectile() -> void:
 	projectile.source_name = display_name
 	get_parent().add_child(projectile)
 	projectile.global_position = global_position + locked_direction * 20.0
+	telegraph.direction = locked_direction
+	telegraph.flash_at(locked_direction * 18.0, 7.0 if kind == Kind.FLESH_BEE else 9.0)
+	art.recoil = -locked_direction * 4.0
 
 func _target_in_cone(reach: float, angle_degrees: float) -> bool:
 	if not is_instance_valid(target): return false
@@ -243,27 +329,31 @@ func _clear_path_to(point: Vector2) -> bool:
 	return get_world_2d().direct_space_state.intersect_ray(query).is_empty()
 
 func _update_aim() -> void:
-	$Telegraph.rotation = locked_direction.angle()
-	$AttackVisual.rotation = locked_direction.angle()
+	telegraph.direction = locked_direction
 	if kind == Kind.LASER_EYE:
-		var length = global_position.distance_to(_beam_end())
-		$Telegraph/Line.points = PackedVector2Array([Vector2.ZERO, Vector2(length, 0)])
-		$AttackVisual/Line.points = $Telegraph/Line.points
+		telegraph.beam_length = global_position.distance_to(_beam_end())
 
-func _update_telegraph_geometry() -> void:
-	var cone = PackedVector2Array([Vector2.ZERO])
-	var angle = spray_angle_degrees if kind == Kind.CENTIPEDE else 100.0
-	for step in 13:
-		cone.append(Vector2.from_angle(deg_to_rad(-angle * 0.5 + angle * step / 12.0)) * attack_range)
-	$Telegraph/Cone.polygon = cone
-	$AttackVisual/Cone.polygon = cone
-	var use_cone = kind in [Kind.GARGOYLE, Kind.GHOUL, Kind.CENTIPEDE]
-	$Telegraph/Cone.visible = use_cone
-	$AttackVisual/Cone.visible = use_cone
-	$Telegraph/Line.visible = not use_cone
-	$AttackVisual/Line.visible = kind == Kind.LASER_EYE
-	$Telegraph/Line.points = PackedVector2Array([Vector2.ZERO, Vector2(attack_range, 0)])
-	$AttackVisual/Line.width = laser_half_width * 2.0
+# Cada tipo de enemigo usa un estilo de aviso distinto.
+func _configure_telegraph() -> void:
+	var styles := {
+		Kind.GARGOYLE: CryptTelegraph.Style.CONE, Kind.GHOUL: CryptTelegraph.Style.CONE,
+		Kind.CENTIPEDE: CryptTelegraph.Style.CONE, Kind.LASER_EYE: CryptTelegraph.Style.BEAM,
+		Kind.DEATH_SQUAD: CryptTelegraph.Style.AIM, Kind.FLESH_BEE: CryptTelegraph.Style.AIM,
+		Kind.BELL_KEEPER: CryptTelegraph.Style.RINGS, Kind.DEAD_BEEKEEPER: CryptTelegraph.Style.SUMMON,
+	}
+	var tints := {Kind.CENTIPEDE: TOXIC_TINT, Kind.BELL_KEEPER: BELL_TINT, Kind.DEAD_BEEKEEPER: HIVE_TINT}
+	telegraph.setup(styles[kind], attack_range, tints.get(kind, CryptTelegraph.DANGER))
+	telegraph.angle_degrees = spray_angle_degrees if kind == Kind.CENTIPEDE else 100.0
+	telegraph.sustained = kind == Kind.CENTIPEDE
+	telegraph.pips = 3 if kind == Kind.DEATH_SQUAD else 1
+	telegraph.beam_half_width = laser_half_width
+	telegraph.beam_length = attack_range
+	telegraph.lock_ratio = clampf(1.0 - laser_lock_time / maxf(anticipation_time, 0.01), 0.0, 1.0)
+	telegraph.summon_points = PackedVector2Array([_summon_offset(0), _summon_offset(1)])
+	if gas: gas.spread = spray_angle_degrees * 0.5
+
+func _summon_offset(index: int) -> Vector2:
+	return Vector2(44.0, 0).rotated(locked_direction.angle() + (PI * 0.5 if index % 2 == 0 else -PI * 0.5))
 
 func _live_summons() -> int:
 	_summons = _summons.filter(func(bee): return is_instance_valid(bee) and not bee.is_dying)
@@ -271,8 +361,9 @@ func _live_summons() -> int:
 
 func _spawn_bee(index: int) -> void:
 	if summon_scene == null: return
-	var offset = Vector2(44.0, 0).rotated(locked_direction.angle() + (PI * 0.5 if index % 2 == 0 else -PI * 0.5))
+	var offset = _summon_offset(index)
 	var position_to_use = global_position + offset
+	telegraph.ring_at(offset, 22.0)
 	if not _clear_path_to(position_to_use): return
 	var bee = summon_scene.instantiate()
 	bee.is_summoned = true
@@ -287,6 +378,7 @@ func _spawn_bee(index: int) -> void:
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	if is_dying or phase == Phase.STONE: return
 	super.take_damage(amount, is_crit)
+	if not is_dying and (phase == Phase.CHASE or phase == Phase.RECOVERY): art.hurt()
 	if not is_dying and kind == Kind.GARGOYLE and phase == Phase.CHASE and _shield_cooldown <= 0.0:
 		_enter_phase(Phase.STONE_WARNING, stone_warning_time)
 
@@ -301,19 +393,30 @@ func _attempt_drops() -> void:
 	if is_summoned: return
 	super._attempt_drops()
 
+func _get_sprite() -> Node2D:
+	var node := _find_art_sprite()
+	return node if node else get_node_or_null("Sprite2D") as Node2D
+
+func spawn_appear() -> void:
+	super.spawn_appear()
+	art.play([&"summon"], true)
+
+# Queda el cadáver en la sala; el estallido azul (Death_fx) es el mismo del área 1.
 func _hide_sprite() -> void:
+	_cancel_active_flash_tween()
+	art.leave_corpse()
 	$Sprite2D.hide()
-	$NameLabel.hide()
-	$StateLabel.hide()
+	for node in get_children():
+		if node.has_method("crypt_death"): node.crypt_death()
 
 func die() -> void:
 	if is_dying: return
 	$PhaseTimer.stop()
 	$BurstTimer.stop()
-	$Telegraph.hide()
-	$AttackVisual.hide()
+	telegraph.clear()
+	if gas: gas.emitting = false
 	$StoneShield.hide()
-	$RearRush.hide()
+	_rushing = false
 	for bee in _summons:
 		if is_instance_valid(bee): bee.queue_free()
 	_summons.clear()

@@ -54,7 +54,8 @@ func _ready():
 	update_scrap(GameData.scrap)
 	update_flesh(GameData.flesh)
 	_initialize_health()
-	_play_intro_room_animation()
+	# diferido: así ya están en el árbol los jefes de la sala (ver más abajo)
+	_play_intro_room_animation.call_deferred()
 
 func _setup_weapon_hud() -> void:
 	var circle_bg = _create_filled_circle_texture(Color(0.05, 0.05, 0.1, 0.7), Color(0.2, 0.8, 1.0, 0.8))
@@ -334,6 +335,9 @@ func _play_intro_room_animation() -> void:
 	var intro_node = get_node_or_null("Control/Intro_room")
 	if use_new_room_title:
 		_hide_old_room_intro(intro_node)
+		# los jefes con entrada propia muestran su título (que se convierte en su barra)
+		if not get_tree().get_nodes_in_group("boss_entrance").is_empty():
+			return
 		var scene = get_tree().current_scene
 		RoomTitleCard.show_in(self, _get_room_title_data(scene.scene_file_path if scene else ""))
 		return

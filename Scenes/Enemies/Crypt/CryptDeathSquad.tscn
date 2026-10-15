@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
 [ext_resource type="Resource" path="res://Art/Items/Crypt/placa_funeraria.tres" id="2"]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/DeathSquad/death_squad_frames.tres" id="5_frames"]
 
 [node name="CryptDeathSquad" instance=ExtResource("1")]
 kind = 3
@@ -22,5 +23,11 @@ color = Color(0.796078431372549, 0.40784313725490196, 0.5176470588235295, 1)
 
 [node name="Accent" parent="Sprite2D" index="1"]
 color = Color(0.796078431372549, 0.40784313725490196, 0.5176470588235295, 0.7)
-[node name="NameLabel" parent="." index="3"]
-text = "Escuadrón de la muerte"
+
+[node name="ArtSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -7)
+scale = Vector2(1.3, 1.3)
+sprite_frames = ExtResource("5_frames")
+animation = &"idle_down"
+autoplay = "idle_down"

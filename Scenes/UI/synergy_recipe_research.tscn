@@ -29,15 +29,5 @@ layout_mode = 2
 [node name="Help" type="Label" parent="."]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "Experimentá para descubrir esta combinación."
+text = "Experimenta para descubrir esta combinación."
 autowrap_mode = 2
-
-[node name="HintConfirmation" type="ConfirmationDialog" parent="."]
-title = "Revelar componente"
-initial_position = 2
-size = Vector2i(480, 210)
-exclusive = true
-popup_window = true
-dialog_text = "¿Querés ver una pista de este ítem?"
-ok_button_text = "Comprar pista"
-cancel_button_text = "Seguir explorando"

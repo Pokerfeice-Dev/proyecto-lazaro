@@ -1,0 +1,82 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://datr6fdup6ljc"]
+
+[ext_resource type="Texture2D" uid="uid://kpw68hqd54ws" path="res://Art/Enemies/Crypt/Centipede/centipede_head_sheet.png" id="1_vwirt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_48308"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_utana"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vushg"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mesi6"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_87buf"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jt4xm"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lw06n"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w8j2i"]
+atlas = ExtResource("1_vwirt")
+region = Rect2(0, 0, 16, 16)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_48308")
+}],
+"loop": 1,
+"name": &"attack_cone",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_utana")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vushg")
+}],
+"loop": 1,
+"name": &"attack_windup",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mesi6")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_87buf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jt4xm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lw06n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w8j2i")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 6.0
+}]

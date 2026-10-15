@@ -48,6 +48,11 @@ func _spawn_or_reposition_player() -> void:
 		var omnia_spawn = get_node_or_null("player_spawn_omnia")
 		if omnia_spawn:
 			p_spawn = omnia_spawn
+	# Y si volvemos de la sala de entrenamiento, junto a su puerta
+	elif GameData.last_room_name == "Training_Room":
+		var training_spawn = get_node_or_null("player_spawn_training")
+		if training_spawn:
+			p_spawn = training_spawn
 	GameData.last_room_name = ""
 	if not p_spawn:
 		return

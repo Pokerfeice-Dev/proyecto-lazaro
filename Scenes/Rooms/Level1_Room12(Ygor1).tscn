@@ -78,9 +78,6 @@ position = Vector2(197, -163)
 [node name="lampara_pared8" parent="Walls/CanvasModulate" unique_id=616508487 instance=ExtResource("8_uw3uw")]
 position = Vector2(193, -536)
 
-[node name="lampara_pared9" parent="Walls/CanvasModulate" unique_id=45818620 instance=ExtResource("8_uw3uw")]
-position = Vector2(193, -536)
-
 [node name="player_spawn" type="Marker2D" parent="." unique_id=710814380]
 position = Vector2(686, -332)
 

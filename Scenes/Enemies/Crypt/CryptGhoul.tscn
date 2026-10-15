@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
 [ext_resource type="Resource" path="res://Art/Items/Crypt/tendon_necrotico.tres" id="2"]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/Ghoul/ghoul_frames.tres" id="5_frames"]
 
 [node name="CryptGhoul" instance=ExtResource("1")]
 kind = 1
@@ -22,5 +23,11 @@ color = Color(0.7450980392156863, 0.5450980392156862, 0.807843137254902, 1)
 
 [node name="Accent" parent="Sprite2D" index="1"]
 color = Color(0.7450980392156863, 0.5450980392156862, 0.807843137254902, 0.7)
-[node name="NameLabel" parent="." index="3"]
-text = "Ghoul"
+
+[node name="ArtSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -6)
+scale = Vector2(2.4, 2.4)
+sprite_frames = ExtResource("5_frames")
+animation = &"idle"
+autoplay = "idle"

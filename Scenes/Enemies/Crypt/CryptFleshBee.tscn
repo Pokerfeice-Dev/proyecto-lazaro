@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
 [ext_resource type="Resource" path="res://Art/Items/Crypt/mandibula_carnivora.tres" id="2"]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/FleshBee/flesh_bee_frames.tres" id="4_frames"]
 
 [node name="CryptFleshBee" instance=ExtResource("1")]
 kind = 6
@@ -16,11 +17,25 @@ attack_duration = 0.25
 recovery_time = 1.5
 item_drop_chance = 0.18
 all_items = Array[ExtResource("3")]([ExtResource("2")])
+art_faces_left = true
+hover_amplitude = 2.0
+turn_rate = 6.0
 
 [node name="Body" parent="Sprite2D" index="0"]
 color = Color(0.7215686274509804, 0.6431372549019608, 0.2784313725490196, 1)
 
 [node name="Accent" parent="Sprite2D" index="1"]
 color = Color(0.7215686274509804, 0.6431372549019608, 0.2784313725490196, 0.7)
-[node name="NameLabel" parent="." index="3"]
-text = "Abeja carnívora"
+[node name="ArtSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -6)
+scale = Vector2(1.4, 1.4)
+sprite_frames = ExtResource("4_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="HealthBar" parent="." index="2"]
+offset_left = -12.0
+offset_top = -24.0
+offset_right = 12.0
+offset_bottom = -21.0

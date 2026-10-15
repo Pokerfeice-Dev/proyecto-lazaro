@@ -98,7 +98,7 @@ var _player_was_dashing: bool = false
 var _too_close_time: float = 0.0
 
 var _clones: Array[Node2D] = []
-var _bar_instance: Node = null
+var _bar_instance: BossHealthBar = null
 var _bar: Range = null
 var _sounds: Dictionary = {}
 
@@ -119,6 +119,7 @@ func _ready() -> void:
 	_apply_phase_stats()
 	if is_clone:
 		return # el original lo arranca con begin_as_clone()
+	add_to_group("boss_entrance") # el HUD no muestra el cartel de sala: lo hace el jefe
 	_play_intro()
 
 # --- Base de EnemyBase que el boss no usa igual ---
@@ -498,15 +499,17 @@ func _build_shadow_aura() -> void:
 
 # --- Intro, fases y clon ---
 
-# Cinemática de entrada (ver PrometeoIntro). La barra de vida aparece recién
-# cuando termina, como arranque de la pelea.
+# Cinemática de entrada (ver PrometeoIntro). La barra de vida entra cuando
+# Prometeo ruge: el título aparece en grande y se convierte en la barra.
 func _play_intro() -> void:
 	state = State.INTRO
 	var intro = PrometeoIntro.new()
 	add_child(intro)
-	await intro.play(self, intro_delay, intro_subtitle)
+	intro.roared.connect(_connect_to_hud)
+	await intro.play(self, intro_delay)
 	if is_dying: return
-	_connect_to_hud()
+	if not _bar_instance:
+		_connect_to_hud()
 	state = State.NEUTRAL
 	_action_timer = 0.6
 
@@ -545,9 +548,9 @@ func _enter_phase(new_phase: int) -> void:
 	shake(18.0, 1.0)
 	_flash_sprite(Color(2.2, 0.3, 0.5))
 	if new_phase == 2:
-		_show_title("FASE 2", "", Color(0.75, 0.4, 1.0))
+		BossPhaseBanner.show_phase(get_tree(), 2, "EL REFLEJO SE DIVIDE", "UN ECO DE PROMETEO PELEA A SU LADO", Color(0.75, 0.4, 1.0))
 	else:
-		_show_title("FASE 3", "", Color(1.0, 0.45, 0.1))
+		BossPhaseBanner.show_phase(get_tree(), 3, "LA LLAMA ROBADA", "PROMETEO ARDE Y YA NO SE CONTIENE", Color(1.0, 0.45, 0.1))
 		_dissolve_all_clones()
 	_swap_phase_music(new_phase)
 	await get_tree().create_timer(2.0, false).timeout
@@ -790,38 +793,6 @@ func _show_floating_text(text: String) -> void:
 	t.tween_property(label, "modulate:a", 0.0, 0.5)
 	t.chain().tween_callback(label.queue_free)
 
-func _show_title(title: String, subtitle: String, color: Color) -> void:
-	var layer = CanvasLayer.new()
-	layer.layer = 100
-	get_tree().current_scene.add_child(layer)
-	var box = VBoxContainer.new()
-	box.set_anchors_preset(Control.PRESET_FULL_RECT)
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(box)
-	var font_res = load("res://Art/Fonts/Dekatron-SemiBold.otf")
-	box.add_child(_make_title_label(title, 46, color, font_res))
-	if subtitle != "":
-		box.add_child(_make_title_label(subtitle, 20, Color(0.85, 0.85, 0.9), font_res))
-	box.modulate.a = 0.0
-	var t = create_tween()
-	t.tween_property(box, "modulate:a", 1.0, 0.35)
-	t.tween_interval(1.3)
-	t.tween_property(box, "modulate:a", 0.0, 0.6)
-	t.tween_callback(layer.queue_free)
-
-func _make_title_label(text: String, size: int, color: Color, font_res: Font) -> Label:
-	var label = Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if font_res:
-		label.add_theme_font_override("font", font_res)
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", color)
-	label.add_theme_color_override("font_outline_color", Color.BLACK)
-	label.add_theme_constant_override("outline_size", 10)
-	return label
-
 # --- Música (nodo Boss_Fight_Music de la sala, como el boss 2) ---
 
 func _swap_phase_music(new_phase: int) -> void:
@@ -841,7 +812,11 @@ func _get_boss_music() -> AudioStreamPlayer:
 # --- Barra grande de vida ---
 
 func _connect_to_hud() -> void:
-	var created = BossBarHelper.create(get_tree(), boss_display_name, max_health, current_health)
+	if _bar_instance and is_instance_valid(_bar_instance): return
+	var options = {"phase_marks": [phase_two_threshold, phase_three_threshold]}
+	if intro_subtitle != "":
+		options["subtitle"] = intro_subtitle.to_upper()
+	var created = BossBarHelper.create(get_tree(), boss_display_name, max_health, current_health, options)
 	_bar_instance = created.get("instance")
 	_bar = created.get("bar")
 
@@ -851,6 +826,6 @@ func _update_hud_health() -> void:
 
 func _hide_hud_health() -> void:
 	if _bar_instance and is_instance_valid(_bar_instance):
-		_bar_instance.queue_free()
+		_bar_instance.close()
 	_bar_instance = null
 	_bar = null

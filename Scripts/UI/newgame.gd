@@ -171,7 +171,7 @@ func _make_empty_info() -> VBoxContainer:
 	var box = _make_info_box()
 	box.add_child(_make_label("SLOT LIBRE", 15, COLOR_VACIO, FONT_TITULO))
 	box.add_child(_make_label("Nueva partida", 30, Color(0.85, 0.9, 0.9)))
-	box.add_child(_make_label("Empezá desde cero, con tutorial si querés.", 17, Color(0.6, 0.68, 0.68)))
+	box.add_child(_make_label("Empieza desde cero, con tutorial si quieres.", 17, Color(0.6, 0.68, 0.68)))
 	return box
 
 func _make_info_box() -> VBoxContainer:
@@ -404,10 +404,10 @@ func _show_tutorial_prompt(slot: int) -> void:
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 26)
 	panel.add_child(vbox)
-	var title = _make_label("¿Querés hacer el tutorial?", 26, COLOR_ACENTO, FONT_TITULO)
+	var title = _make_label("¿Quieres hacer el tutorial?", 26, COLOR_ACENTO, FONT_TITULO)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
-	var sub = _make_label("Slot %02d · partida nueva   (click afuera o Esc para cancelar)" % slot, 16, Color(0.68, 0.78, 0.78))
+	var sub = _make_label("Slot %02d · partida nueva   (clic fuera o Esc para cancelar)" % slot, 16, Color(0.68, 0.78, 0.78))
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(sub)
 
@@ -416,7 +416,7 @@ func _show_tutorial_prompt(slot: int) -> void:
 	hbox.add_theme_constant_override("separation", 22)
 	vbox.add_child(hbox)
 	var yes_btn = _make_popup_button("SÍ", COLOR_ACENTO, 0)
-	var no_btn = _make_popup_button("NO, SOY UN CAPO", Color(1.0, 0.55, 0.35), 1)
+	var no_btn = _make_popup_button("NO, SOY UN EXPERTO", Color(1.0, 0.55, 0.35), 1)
 	yes_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/training_room.tscn"))
 	no_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/lab_room.tscn"))
 	hbox.add_child(yes_btn)

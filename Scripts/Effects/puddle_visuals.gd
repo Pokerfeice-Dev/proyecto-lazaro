@@ -19,6 +19,10 @@ const FIRE_PALETTE := [
 const ICE_PALETTE := [
 	Color("#2f6f9e"), Color("#4fa3d6"), Color("#93d9f2"), Color("#c9f1fb"), Color("#ffffff"),
 ]
+## Bilis del jefe de La Cripta (El Primogénito).
+const BILE_PALETTE := [
+	Color("#1d2a0e"), Color("#3e5a14"), Color("#6f9a1c"), Color("#a6cf2e"), Color("#e4f78a"),
+]
 
 ## Textura de la mancha. fire = true para el charco de fuego.
 static func build_texture(fire: bool, seed_value: int) -> ImageTexture:
@@ -40,6 +44,23 @@ static func build_texture(fire: bool, seed_value: int) -> ImageTexture:
 	else:
 		_add_cracks(img, rng, pal[4])
 		_add_speckles(img, rng, pal[4], 4, 0.4)
+	return ImageTexture.create_from_image(img)
+
+## Mancha de bilis: mismas bandas que el fuego, con burbujas claras sueltas.
+static func build_bile_texture(seed_value: int) -> ImageTexture:
+	var img = Image.create(SIZE.x, SIZE.y, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var noise = FastNoiseLite.new()
+	noise.seed = seed_value
+	noise.frequency = 0.16
+	var rng = RandomNumberGenerator.new()
+	rng.seed = seed_value
+	for y in SIZE.y:
+		for x in SIZE.x:
+			var c = _pixel_color(x, y, noise, BILE_PALETTE, true)
+			if c.a > 0.0:
+				img.set_pixel(x, y, c)
+	_add_speckles(img, rng, BILE_PALETTE[4], 9, 0.42)
 	return ImageTexture.create_from_image(img)
 
 # Banda de color según qué tan adentro del charco está el pixel (con un poco de
@@ -157,6 +178,19 @@ static func flame_burst() -> FlameConeParticles:
 	f.emission_sphere_radius = 7.0
 	f.set_cone(randf_range(48.0, 72.0), randf_range(18.0, 26.0))
 	return f
+
+## Burbujas que suben de la bilis.
+static func bile_bubbles() -> CPUParticles2D:
+	var p = _base_particles(12, 0.8, Vector2(30, 18))
+	p.direction = Vector2(0, -1)
+	p.spread = 12.0
+	p.gravity = Vector2(0, -18)
+	p.initial_velocity_min = 6.0
+	p.initial_velocity_max = 16.0
+	p.scale_amount_min = 2.0
+	p.scale_amount_max = 3.0
+	p.color_ramp = _gradient([Color(BILE_PALETTE[4], 0.0), Color(BILE_PALETTE[3], 0.9), Color(BILE_PALETTE[2], 0.0)])
+	return p
 
 static func _base_particles(amount: int, lifetime: float, extents: Vector2) -> CPUParticles2D:
 	var p = CPUParticles2D.new()

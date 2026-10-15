@@ -20,8 +20,18 @@ func _set_radius(r: float) -> void:
 	current_radius = r
 	queue_redraw()
 
+var _time: float = 0.0
+
+func _process(delta: float) -> void:
+	_time += delta
+	queue_redraw()
+
+# Sombra con un borde rojo que late, para que se lea bien en salas oscuras.
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, current_radius, Color(0, 0, 0, 0.35))
+	draw_circle(Vector2.ZERO, current_radius, Color(0, 0, 0, 0.4))
+	var pulse = 0.55 + 0.45 * sin(_time * 12.0)
+	draw_arc(Vector2.ZERO, current_radius, 0.0, TAU, 40, Color(1.0, 0.3, 0.25, 0.75 * pulse), 3.0)
+	draw_arc(Vector2.ZERO, current_radius * 0.55, 0.0, TAU, 32, Color(1.0, 0.3, 0.25, 0.3 * pulse), 2.0)
 
 func fade_and_free() -> void:
 	var t = create_tween()

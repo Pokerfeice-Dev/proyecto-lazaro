@@ -1,3 +1,104 @@
+## 2026-10-15 (Apariciones de jefes, carteles de fase y ajustes del lab y el entrenamiento)
+
+- **El tutorial no se repite:** al completarlo queda guardado en la partida (`has_completed_tutorial`). Al volver a la sala de entrenamiento están la armería, la incubadora, Victoria y el maniquí, pero sin los pasos, la tarjeta ni las manitos.
+- **Puertas del laboratorio:**
+  - El cartel con el nombre (INVASIÓN, O.M.N.I.A., ENTRENAMIENTO) aparece solo cuando te acercas a la puerta, con un saltito, y se va al alejarte.
+  - INVASIÓN y ENTRENAMIENTO tienen ahora un ícono fijo sobre la puerta, como el cerebro de O.M.N.I.A.: una calavera con mira y un maniquí con diana (`Art/Props/Doors/`).
+  - Lo mismo vale para la puerta de salida del entrenamiento.
+- **Aparición propia de cada jefe** (ganchos `_intro_prepare` / `_intro_appear` de `BossIntro`):
+  - **Centinela Génesis:** se abre una grieta roja en la pared y el cuerpo sale de ella hacia abajo entre polvo y temblor (shader `Art/Effects/emerge_clip.gdshader`). Al final titilan y se le prenden los ojos.
+  - **El Primogénito:** primero crece su sombra en el piso, después cae desde arriba, aplasta el suelo con onda, polvo y temblor, y da dos rebotes cada vez más chicos.
+  - Recién después rugen y entra el título que se convierte en la barra.
+- **Cartel de cambio de fase nuevo** (`Scripts/UI/boss_phase_banner.gd`), igual en los tres jefes: destello del color del jefe, una franja que cruza la pantalla como un tajo, el número romano que cae grande y hace temblar todo, "FASE II" y el nombre de la fase que se decodifica. La barra de vida se sacude y destella en el mismo momento.
+  - Centinela Génesis, fase II: "PROTOCOLO ÓMEGA" (antes "MODO FURIA").
+  - El Primogénito, fase II: "EL HAMBRE DESPIERTA" (antes "DESPERTAR").
+  - Prometeo, fase II: "EL REFLEJO SE DIVIDE"; fase III: "LA LLAMA ROBADA" (antes solo "FASE 2" y "FASE 3").
+  - Se borraron los textos y títulos viejos de fase de los tres jefes.
+- **Códice revisado:**
+  - Los nombres de las armas coinciden con los del juego: Escopeta, Uzi, Daga, Maza Pesada y Hacha de Mano.
+  - Centinela Génesis: el daño real es 25 (los misiles hacen 30), se aclaran las fases y Modo Furia pasó a Protocolo Ómega.
+  - Se agregaron los porcentajes de las fases de El Primogénito y Prometeo.
+  - Ygor figura con su rol de mercader de prótesis y órganos. Victoria menciona la sala de entrenamiento.
+  - Zona 1 suma a las Robo-Abejas. Zona 2 suma a la Apicultora muerta y las Abejas carnívoras (también en la ficha de amenazas).
+  - Se verificó que todo lo que el juego desbloquea en el códice (enemigos, armas, objetos, NPC y zonas) tenga su entrada.
+- El daño del Centinela figuraba como "Mutante Génesis (Boss)"; ahora dice "Centinela Génesis".
+- Pantalla de partida nueva en español neutro: "¿Quieres hacer el tutorial?", "clic fuera" y el botón "NO, SOY UN EXPERTO".
+
+## 2026-10-15 (Barras de jefe nuevas, sala de entrenamiento renovada y carteles de puertas)
+
+- **Barra de vida de los jefes, nueva** (`Scripts/UI/boss_health_bar.gd` y `boss_bar_gauge.gd`):
+  - El nombre usa una fuente nueva, Cinzel Decorative Bold (OFL, licencia en `Art/Fonts/CinzelDecorative-OFL.txt`).
+  - La barra está dibujada por código: marco dorado con puntas biseladas, relleno carmesí con degradé y brillo, marcas cada 10% y muescas en los umbrales de fase (se ponen rojas al pasarlas).
+  - Al recibir daño queda un tramo claro ("chip") que baja un momento después. Destella con cada golpe y late cuando al jefe le queda poca vida. Al curarse brilla turquesa.
+  - Debajo de la barra aparece la zona ("ZONA 2 · LA CRIPTA") y arriba hay una sombra para que se lea sobre cualquier piso.
+- **Entrada de los jefes con título que se convierte en la barra.** Cuando el jefe ruge se abre una franja como la de las salas: la zona, el nombre del jefe que se decodifica en grande, una línea dorada y "JEFE DE ZONA". Después todo sube: el nombre se achica sobre la barra, la línea se engrosa hasta ser la barra y se llena de izquierda a derecha. En las salas de jefe ya no aparece el cartel común.
+  - Centinela Génesis y El Primogénito estrenan cinemática de entrada (`Scripts/Enemies/boss_intro.gd`), igual en estructura a la de Prometeo: el jefe espera, se congela al jugador, la cámara va hasta el jefe, ruge, aparece el título y la cámara vuelve.
+  - Prometeo usa la barra nueva. Su cinemática ahora hace el zoom relativo al de la pelea (antes era fijo en 1.35).
+  - Cuando el Centinela vuelve en la fase 2, en otra sala, la barra baja directo, sin título.
+  - `BossBarHelper.create(...)` devuelve la barra nueva. Los jefes la siguen actualizando igual (`bar.value`).
+- **Sala de entrenamiento:**
+  - Se sacaron los NPC genéricos. Ahora hay una **armería** (estante con armas que se ilumina al acercarte) y una **incubadora de sinergias** (tubo con líquido animado), dibujadas para el juego (`Art/Props/Training/`). Cada una tiene su cartel ("ARMERÍA", "SINERGIAS").
+  - La incubadora abre una ventana con el estilo del juego en vez del menú violeta.
+  - **Victoria** está en la sala: da consejos y charla con el mismo cuadro de diálogo que Ygor, ahora con su retrato (`Scripts/UI/npc_dialogue_box.gd`, compartido con Ygor).
+  - **Puerta "SALIR DEL ENTRENAMIENTO"** con cartel. Al volver, apareces junto a la puerta de entrenamiento del laboratorio.
+  - Se sacó el cartel "Manny" del maniquí.
+- **Tutorial con indicador del próximo paso** (`tutorial_hud.gd`, `tutorial_input_icon.gd`, `tutorial_pointer.gd`):
+  - Abajo se muestra una tarjeta con "ENTRENAMIENTO · PASO X/8", las teclas o el mouse dibujados (se presionan solos para mostrar qué tocar), el texto corto, un contador (0/3) y puntos de progreso.
+  - En los pasos de control, las mismas teclas aparecen sobre la cabeza de Lázaro.
+  - Cuando hay que ir a algún lado (el maniquí, el enemigo, las piezas del suelo), aparecen un círculo que late en el piso y una manito que rebota encima. Si el objetivo queda fuera de pantalla, una flecha con la manito lo señala desde el borde.
+  - El paso de sinergia se divide en dos: recoger las 3 piezas (E) y equiparlas en el inventario (I). Las piezas ahora caen en piso libre, no sobre la jardinera.
+  - **Tutorial completado:** ventana nueva con el sello, "Sinergia aprendida: Mente Colmena" y la lista de lo aprendido. Ya no te saca sola de la sala: puedes seguir practicando (ESC) o volver al laboratorio (E).
+- **Laboratorio:**
+  - **Cartel de O.M.N.I.A.** con el estilo del juego: pestaña con ícono, título, subtítulo y cada párrafo como punto (`Scripts/UI/ui_window.gd`, ventana reutilizable).
+  - **Puertas con cartel e ícono propios** (`Scripts/World/door_sign.gd`): INVASIÓN en rojo, O.M.N.I.A. en dorado y ENTRENAMIENTO en turquesa. Las luces de cada puerta toman su color. El aviso "[E]" aparece encima del cartel, sin taparlo.
+- **Gárgola con sprite nuevo:** el ángel de GothicVania (CC0) en lugar del sprite hecho con IA, con animaciones de reposo, caminata, carga, ataque, petrificación y muerte. Actualizado en el códice y en `Art/Enemies/Crypt/CREDITOS.md`.
+- **Arreglos:**
+  - El ícono de chatarra se pedía como `scrap_icon.png` y el archivo es `Scrap_icon.png`. En Windows andaba, pero al exportar a otras plataformas no iba a cargar. Se corrigió en el HUD, las opciones, la sala de combate, O.M.N.I.A. y los avisos.
+  - "Empezá desde cero, con tutorial si querés." pasó a "Empieza desde cero, con tutorial si quieres.".
+
+## 2026-10-15 (La Cripta con arte, El Primogénito y arreglo de la cinemática de los jefes)
+
+- **Los enemigos de La Cripta ya tienen sprites** (todos CC0, créditos en `Art/Enemies/Crypt/CREDITOS.md`):
+  - **Ghoul:** zombi de Stealthix, con caminata, mordida, golpe recibido y muerte.
+  - **Ciempiés tóxico:** Chain Insect. La cabeza gira hacia donde va y el cuerpo se arma por segmentos que la siguen como una cadena, con las patas moviéndose (`crypt_centipede_body.gd`). El tubo dorsal es verde tóxico.
+  - **Escuadrón de la muerte:** esqueleto de Skeletons Rework con un fusil dibujado encima, en 4 direcciones; apunta, retrocede al disparar y al morir se desarma en una pila de huesos.
+  - **Ojo torreta:** Flying Eye de LuizMelo. Flota, se encoge para cargar, se abre al disparar el rayo, reacciona a los golpes y cae al morir.
+  - **Campanero de Réquiem:** nigromante de Cheb Gonaz con una campana en lugar del cráneo del bastón y brillo cian al tocarla.
+- **Misma limpieza que en el área 1:** se sacaron los nombres sobre los enemigos, los textos de estado ("PETRIFICANDO", "INMUNE"), el "!" de alerta, el "ECO" de las campanadas y el "VENENO" sobre el jugador (ahora salen burbujas verdes). La barra de vida tiene el mismo estilo que en el área 1 y se ubica sola encima de cada sprite. Al morir explotan con el mismo efecto azul del área 1 y el cadáver queda unos segundos en la sala.
+- Lo visual de estos enemigos se separó en `Scripts/Enemies/crypt_enemy_art.gd` (animaciones por dirección, giro, flotación, estelas y cadáver). Para darle arte a un enemigo nuevo basta con un `AnimatedSprite2D` llamado `ArtSprite` (ver `docs/crypt-enemies.md`).
+- **Códice:**
+  - El bestiario muestra los idles animados de todos los enemigos de La Cripta; el orden ahora es área 1, La Cripta y jefes.
+  - Descripciones nuevas para los enemigos de La Cripta y sus componentes.
+  - La zona 2 muestra sus amenazas reales (antes mostraba perros, mechas y la apicultora).
+  - Se corrigieron las amenazas de la zona 1 y un "Acá" en la zona 3.
+- **Jefe de La Cripta: El Primogénito** (nombre, descripción del códice y cartel de la pelea).
+  - **Gran salto:** desaparece hacia arriba, su sombra (con borde rojo que late) persigue al jugador, se queda quieta un instante y cae aplastando con un anillo de huesos. Cuando estás muy lejos lo usa para acercarse.
+  - **Bilis:** escupe en abanico; cada escupitajo cae en arco y deja un charco de bilis que quema (`bile_glob.gd`, `bile_puddle.gd`, mismo pixel art que los charcos de los barriles).
+  - **Invocación:** vomita ghouls y abejas carnívoras; también lo hace si te quedas pegado a él unos segundos.
+  - **Fase 2 al 40%** (antes al 50%): además de lo que ya hacía, la sombra te alcanza más rápido, encadena dos grandes saltos, suelta más huesos y la bilis dura más.
+- **Arreglo: en la cinemática de fase 2 de los jefes 1 y 2 la cámara se alejaba de más** y se veía el vacío negro con la niebla moviéndose. El zoom era fijo (1.35 y después 1.0) pero la cámara del jugador está en 2.4; ahora se acerca un 25% sobre el zoom de la pelea y vuelve exactamente al que tenía.
+
+## 2026-10-15 (La Cripta: avisos de ataque, arte zombi, popups de O.M.N.I.A. y arreglos)
+
+- **Arreglo: no cargaba `Level2_Room2.tscn`.** Un merge dejó la línea del TileSet `Level2.tres` sin cerrar y con un id que no coincidía. Se restauró la línea del rediseño de Uriel. Se revisaron todas las escenas y recursos: no hay más líneas rotas.
+- **Enemigos de La Cripta más pulidos** (`crypt_enemy.gd`, nuevo `Scripts/Effects/crypt_telegraph.gd`):
+  - Los conos y líneas planas se reemplazaron por avisos dibujados por código, con un estilo para cada enemigo: cono que se carga (gárgola, ghoul, ciempiés), rayo que apunta, se fija y dispara (ojo), mira con casillas (escuadrón y abeja), ondas de campana (campanero) y hexágonos donde van a salir las abejas (apicultora). Detalles en `docs/crypt-enemies.md`.
+  - El "¡CUIDADO!" ahora es un "!" que salta sobre la barra de vida.
+  - El ciempiés suelta gas de verdad (partículas) dentro del cono.
+  - Destello y retroceso en cada disparo; el campanero suelta una onda en cada campanada.
+  - Persiguen girando de forma gradual en vez de cambiar de dirección de golpe. El ghoul deja una estela cuando acelera por la espalda. La abeja y el ojo flotan.
+  - Los enemigos con arte ahora parpadean al recibir daño (antes la gárgola no lo hacía) y al morir el cuerpo se aplasta y se desvanece (antes la gárgola quedaba visible hasta que terminaba el sonido).
+  - "Ciempiés" bien escrito en la escena, el códice, el veneno y el menú de depuración.
+- **Apicultora muerta y abeja carnívora con sprite propio**, hechos a partir de los originales: piel verdosa, ropa rota y manchada, ojos que brillan; la abeja es de carne con alas de hueso. Están en `Art/Enemies/Crypt/DeadBeekeeper/` y `Art/Enemies/Crypt/FleshBee/` (los originales no se tocaron). Las escenas usan un `ArtSprite` y el script elige sola la animación de caminar, atacar o invocar.
+- **Popups de O.M.N.I.A. con el estilo del juego** (`Scripts/UI/omnia_reveal_popup.gd`):
+  - Comprar una pista ya no usa el diálogo nativo de Godot: aparece una ventana con la ficha secreta, "PIEZA X DE Y", el costo y tu chatarra. Al comprar, la ficha se da vuelta, se revela el componente y cae el sello "PISTA OBTENIDA".
+  - Al desbloquear una investigación aparece una ventana con su nombre, la pista evocativa, las piezas ya reveladas y el sello "INVESTIGACIÓN DESBLOQUEADA".
+  - ESC cierra y Enter confirma.
+- **Cartel de la sala** un 15% más chico y más arriba, para que no tape a Lázaro.
+- **Cartel del tutorial del inventario** con el estilo nuevo: pestaña de título, tecla "I" animada y botones ENTENDIDO / ABRIR INVENTARIO.
+- Textos en español neutro en el códice de La Cripta y en las investigaciones de sinergias.
+- Se borró `tmp_prueba_bugs.gd`, un archivo de prueba que se había subido por error.
+
 ## 2026-10-14 (charcos de los barriles en pixel art)
 
 - **Los charcos de los barriles ahora son pixel art**, en vez de circulos dibujados con `draw_circle`. La mancha se arma pixel a pixel (`Scripts/Effects/puddle_visuals.gd`, `PuddleVisuals`): borde irregular con ruido, bandas de color como una paleta de tiles y tramado. Se genera a media resolucion y se dibuja al doble, asi el tamaño de pixel coincide con el de los sprites. Cada charco sale un poco distinto.

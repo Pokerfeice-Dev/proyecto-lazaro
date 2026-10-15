@@ -4,11 +4,9 @@ signal hint_purchased
 
 @export var allow_purchase := true
 var synergy_id: String
-var _pending_index := -1
-@onready var confirmation: ConfirmationDialog = $HintConfirmation
+var _popup: OmniaRevealPopup = null
 
 func _ready() -> void:
-	confirmation.confirmed.connect(_buy_hint)
 	for index in 3:
 		$RecipeChips.get_child(index).get_node("Reveal").pressed.connect(_ask_hint.bind(index))
 
@@ -23,31 +21,29 @@ func configure(id: String) -> void:
 		slot.get_node("Frame/Icon").texture = ingredients[index].icon if revealed else null
 		slot.get_node("Frame/Unknown").visible = not revealed
 		slot.get_node("ItemName").text = ingredients[index].name if revealed else "Componente oculto"
-		slot.tooltip_text = ingredients[index].name if revealed else "Investigá esta pieza"
+		slot.tooltip_text = ingredients[index].name if revealed else "Investiga esta pieza"
 		var eye: Button = slot.get_node("Reveal")
 		eye.visible = allow_purchase and not revealed and index > 0
 		eye.disabled = not GameData.is_synergy_unlocked(id)
 		eye.text = "%d" % OmniaCatalog.hint_cost(index)
 		eye.tooltip_text = "Ver pista por %d de chatarra" % OmniaCatalog.hint_cost(index)
-	$Help.text = "Probá combinaciones durante la partida o comprá pistas para revelar los componentes." if GameData.is_synergy_unlocked(id) else "Desbloqueá la investigación para ver el primer componente."
+	$Help.text = "Prueba combinaciones durante la partida o compra pistas para revelar los componentes." if GameData.is_synergy_unlocked(id) else "Desbloquea la investigación para ver el primer componente."
 	if not allow_purchase:
-		$Help.text = "Probá combinaciones durante la partida. Podés revelar componentes comprando pistas en O.M.N.I.A."
+		$Help.text = "Prueba combinaciones durante la partida. Puedes revelar componentes comprando pistas en O.M.N.I.A."
 
+# La compra de la pista la hace la ventana de O.M.N.I.A. (OmniaRevealPopup),
+# con el mismo estilo que el resto de la UI.
 func _ask_hint(index: int) -> void:
-	if not allow_purchase: return
-	_pending_index = index
-	var cost = OmniaCatalog.hint_cost(index)
-	confirmation.dialog_text = "¿Querés ver una pista de este ítem?\nRevela su nombre e imagen de forma permanente.\n\nCosto: %d de chatarra · Disponible: %d" % [cost, GameData.scrap]
-	confirmation.get_ok_button().disabled = GameData.scrap < cost
-	confirmation.ok_button_text = "Comprar pista" if GameData.scrap >= cost else "Chatarra insuficiente"
-	confirmation.popup_centered()
+	if not allow_purchase or is_instance_valid(_popup): return
+	_popup = OmniaRevealPopup.ask_hint(synergy_id, index)
+	_popup.hint_bought.connect(_on_hint_bought)
 
-func _buy_hint() -> void:
-	if OmniaCatalog.purchase_hint(synergy_id, _pending_index):
-		configure(synergy_id)
-		hint_purchased.emit()
+func _on_hint_bought() -> void:
+	if not is_inside_tree(): return
+	configure(synergy_id)
+	hint_purchased.emit()
 
 func dismiss_confirmation() -> bool:
-	if not confirmation.visible: return false
-	confirmation.hide()
+	if not is_instance_valid(_popup): return false
+	_popup.close()
 	return true

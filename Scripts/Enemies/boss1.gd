@@ -37,7 +37,14 @@ var laser_sweep_speed: float = 1.2
 var laser_sweep_dir: float = 1.0
 var laser_damage_cooldown: float = 0.0
 
-var healthbar_instance: Node = null
+const BOSS_NAME := "Centinela Génesis"
+const EMERGE_SHADER := preload("res://Art/Effects/emerge_clip.gdshader")
+const EMERGE_TIME := 2.0
+const PHASE_TWO_TITLE := "PROTOCOLO ÓMEGA"
+const PHASE_TWO_SUBTITLE := "REPARACIÓN DE EMERGENCIA +20%"
+const PHASE_TWO_RATIO := 0.5
+
+var healthbar_instance: BossHealthBar = null
 var boss_health_bar_node: Range = null
 var is_phase_two: bool = false
 var is_transitioning_phase: bool = false
@@ -56,7 +63,9 @@ func _ready() -> void:
 	_init_boss_phase_state()
 	_setup_lasers()
 	_setup_pattern_timer()
-	_connect_to_hud.call_deferred()
+	if not is_phase_two:
+		add_to_group("boss_entrance") # el HUD no muestra el cartel de sala: lo hace el jefe
+	_start_entrance.call_deferred()
 	_assign_sfx_bus()
 
 # manda todos los sonidos del boss al bus de efectos
@@ -85,12 +94,10 @@ func _start_phase_two_cinematic() -> void:
 	var cinema_layer = CanvasLayer.new()
 	cinema_layer.layer = 10
 	get_tree().current_scene.add_child(cinema_layer)
-	
-	var title_container = _create_cinematic_title_container(cinema_layer)
+	# cartel de fase animado (BossPhaseBanner), igual en los tres jefes
+	BossPhaseBanner.show_phase(get_tree(), 2, PHASE_TWO_TITLE, PHASE_TWO_SUBTITLE)
 	var camera = get_viewport().get_camera_2d()
-	
-	_animate_cinematic_entrance(title_container)
-	_run_cinematic_timeline(cinema_layer, title_container, player, camera)
+	_run_cinematic_timeline(cinema_layer, player, camera)
 
 func _freeze_player_completely(player: Node) -> void:
 	if not player or not is_instance_valid(player): return
@@ -119,42 +126,9 @@ func _ensure_boss_music_playing() -> void:
 	if music and not music.playing:
 		music.play()
 
-func _create_cinematic_title_container(parent: CanvasLayer) -> VBoxContainer:
-	var container = VBoxContainer.new()
-	container.set_anchors_preset(Control.PRESET_CENTER)
-	container.position = Vector2(960 - 350, 540 - 65)
-	container.custom_minimum_size = Vector2(700, 130)
-	container.modulate.a = 0.0
-	parent.add_child(container)
-	
-	var title_label = Label.new()
-	title_label.text = "CENTINELA GÉNESIS"
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	title_label.add_theme_font_size_override("font_size", 42)
-	title_label.add_theme_color_override("font_color", Color(1.0, 0.25, 0.25))
-	title_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	title_label.add_theme_constant_override("outline_size", 12)
-	container.add_child(title_label)
-	
-	var sub_label = Label.new()
-	sub_label.text = "◆ FASE 2: MODO FURIA ◆\n[ REGENERACIÓN BIOLÓGICA +20% ]"
-	sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub_label.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	sub_label.add_theme_font_size_override("font_size", 20)
-	sub_label.add_theme_color_override("font_color", Color(0.3, 0.9, 1.0))
-	sub_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	sub_label.add_theme_constant_override("outline_size", 8)
-	container.add_child(sub_label)
-	return container
-
-func _animate_cinematic_entrance(title: Control) -> void:
-	var t = create_tween()
-	t.tween_property(title, "modulate:a", 1.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-
-func _run_cinematic_timeline(cinema_layer: CanvasLayer, title: Control, player: Node, camera: Camera2D) -> void:
+func _run_cinematic_timeline(cinema_layer: CanvasLayer, player: Node, camera: Camera2D) -> void:
 	var t_seq = create_tween()
-	# 1s: Focused start with title fade in
+	# 1s: entra el cartel de fase
 	t_seq.tween_interval(1.0)
 	
 	# 1s: Camera zooms in to boss
@@ -169,25 +143,31 @@ func _run_cinematic_timeline(cinema_layer: CanvasLayer, title: Control, player: 
 	t_seq.tween_callback(func(): _zoom_camera_to_player(camera, 1.0))
 	t_seq.tween_interval(1.0)
 	
-	# 1s: Title fades out
-	t_seq.tween_callback(func(): _animate_cinematic_exit(title))
+	# 1s: margen antes de devolver el control
 	t_seq.tween_interval(1.0)
 	
 	# Finish & start fight
 	t_seq.tween_callback(func(): _finish_cinematic_and_start_fight(cinema_layer, player))
 
+# El zoom es relativo al de la pelea (la cámara del jugador no está en 1x), así
+# no se aleja de más ni queda distinta al terminar la cinemática.
+var _camera_rest_zoom: Vector2 = Vector2.ONE
+var _camera_rest_offset: Vector2 = Vector2.ZERO
+
 func _zoom_camera_to_boss(camera: Camera2D, duration: float) -> void:
 	if not camera: return
+	_camera_rest_zoom = camera.zoom
+	_camera_rest_offset = camera.position
 	var target_offset = global_position - camera.get_parent().global_position
 	var t = create_tween().set_parallel(true)
-	t.tween_property(camera, "zoom", Vector2(1.35, 1.35), duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	t.tween_property(camera, "zoom", _camera_rest_zoom * 1.25, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	t.tween_property(camera, "position", target_offset, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _zoom_camera_to_player(camera: Camera2D, duration: float) -> void:
 	if not camera: return
 	var t = create_tween().set_parallel(true)
-	t.tween_property(camera, "zoom", Vector2(1.0, 1.0), duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	t.tween_property(camera, "position", Vector2.ZERO, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(camera, "zoom", _camera_rest_zoom, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(camera, "position", _camera_rest_offset, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 
 func _trigger_healing_phase_effects(player: Node) -> void:
 	_play_spawn_roar()
@@ -243,10 +223,6 @@ func _update_healing_step(val: float) -> void:
 	if boss_health_bar_node:
 		boss_health_bar_node.value = current_health
 
-func _animate_cinematic_exit(title: Control) -> void:
-	var t_out = create_tween()
-	t_out.tween_property(title, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-
 func _finish_cinematic_and_start_fight(cinema_layer: CanvasLayer, player: Node) -> void:
 	if cinema_layer and is_instance_valid(cinema_layer):
 		cinema_layer.queue_free()
@@ -289,34 +265,162 @@ func _setup_pattern_timer() -> void:
 	pattern_timer.timeout.connect(_on_pattern_timeout)
 	add_child(pattern_timer)
 
-func _connect_to_hud() -> void:
-	var scene = _load_healthbar_scene()
-	if not scene:
-		printerr("Boss1: No se pudo encontrar la escena Boss_health_bar.tscn en ninguna de las rutas esperadas.")
+# Entrada: cinemática (BossIntro) con el título que se convierte en la barra.
+# En la fase 2 (otra sala, con su propia cinemática) la barra entra directo.
+func _start_entrance() -> void:
+	if is_phase_two:
+		_connect_to_hud(false)
 		return
-		
-	healthbar_instance = scene.instantiate()
-	if healthbar_instance is CanvasLayer:
-		healthbar_instance.layer = 100
-	get_tree().current_scene.add_child(healthbar_instance)
-	
-	boss_health_bar_node = _find_progress_bar(healthbar_instance)
-	if boss_health_bar_node:
-		boss_health_bar_node.max_value = max_health
-		boss_health_bar_node.value = current_health
-		
-	var name_label = _find_label(healthbar_instance)
-	if name_label:
-		name_label.text = "Centinela Génesis"
-		
-	var anim_player = _find_animation_player(healthbar_instance)
-	if anim_player:
-		if anim_player.has_animation("Start_Fight"):
-			anim_player.play("Start_Fight")
-		elif anim_player.has_animation("start_fight"):
-			anim_player.play("start_fight")
-		elif anim_player.get_animation_list().size() > 0:
-			anim_player.play(anim_player.get_animation_list()[0])
+	var intro = BossIntro.new()
+	add_child(intro)
+	intro.roared.connect(_connect_to_hud)
+	await intro.play(self, 0.6)
+	if not is_dying:
+		_connect_to_hud()
+
+# --- Aparición: el Centinela sale de la pared ---
+# Se abre una grieta roja en la pared, el cuerpo baja recortado por esa línea
+# (shader emerge_clip) entre polvo y chispas, y al final se le prenden los ojos.
+
+var _emerge_sprite: Sprite2D
+var _emerge_base_y := 0.0
+var _emerge_material: Material
+var _eye_energy: Dictionary = {}
+
+func _intro_prepare() -> void:
+	_emerge_sprite = get_node_or_null("Sprite2D") as Sprite2D
+	if not _emerge_sprite: return
+	_emerge_base_y = _emerge_sprite.position.y
+	_emerge_material = _emerge_sprite.material
+	var mat = ShaderMaterial.new()
+	mat.shader = EMERGE_SHADER
+	_emerge_sprite.material = mat
+	_set_emerge(_emerge_height())
+	_set_emerge_shade(0.85)
+	for light in [get_node_or_null("PointLight2D"), get_node_or_null("PointLight2D2")]:
+		if light:
+			_eye_energy[light] = light.energy
+			light.energy = 0.0
+	var shadow = get_node_or_null("DropShadow") as CanvasItem
+	if shadow: shadow.self_modulate.a = 0.0
+
+func _intro_appear() -> void:
+	if not _emerge_sprite: return
+	var wall_y = _emerge_base_y + _emerge_sprite.get_rect().position.y * _emerge_sprite.scale.y
+	var width = _emerge_sprite.get_rect().size.x * _emerge_sprite.scale.x
+	var crack = _make_wall_crack(wall_y, width)
+	var dust = _make_wall_dust(wall_y, width)
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(6.0, EMERGE_TIME + 0.4)
+	SceneTransition.play_teleport_sound()
+	var t = create_tween()
+	t.tween_property(crack, "scale:x", 1.0, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	t.tween_callback(func(): dust.emitting = true)
+	t.tween_method(_set_emerge, _emerge_height(), 0.0, EMERGE_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	t.parallel().tween_method(_set_emerge_shade, 0.85, 0.0, EMERGE_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	t.tween_callback(func():
+		dust.emitting = false
+		_burst_wall_debris(wall_y, width))
+	t.tween_property(crack, "modulate:a", 0.0, 0.4)
+	await t.finished
+	crack.queue_free()
+	get_tree().create_timer(1.5, false).timeout.connect(dust.queue_free)
+	_emerge_sprite.material = _emerge_material
+	_light_up_eyes()
+
+# Sale como una silueta oscura que se va aclarando.
+func _set_emerge_shade(value: float) -> void:
+	var mat = _emerge_sprite.material as ShaderMaterial
+	if mat: mat.set_shader_parameter("shade", value)
+
+# Al terminar de salir, escombros que saltan de la pared.
+func _burst_wall_debris(wall_y: float, width: float) -> void:
+	var p = _make_wall_dust(wall_y, width)
+	p.one_shot = true
+	p.explosiveness = 0.9
+	p.amount = 40
+	p.initial_velocity_min = 80.0
+	p.initial_velocity_max = 200.0
+	p.spread = 70.0
+	p.emitting = true
+	p.finished.connect(p.queue_free)
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(14.0, 0.4)
+
+func _emerge_height() -> float:
+	return _emerge_sprite.get_rect().size.y * _emerge_sprite.scale.y
+
+# rise = cuánto le falta salir (en píxeles de pantalla del mundo).
+func _set_emerge(rise: float) -> void:
+	_emerge_sprite.position.y = _emerge_base_y - rise
+	var mat = _emerge_sprite.material as ShaderMaterial
+	if mat:
+		mat.set_shader_parameter("cutoff", _emerge_sprite.get_rect().position.y + rise / _emerge_sprite.scale.y)
+
+func _make_wall_crack(wall_y: float, width: float) -> Line2D:
+	var crack = Line2D.new()
+	crack.points = PackedVector2Array([Vector2(-width / 2.0, 0), Vector2(width / 2.0, 0)])
+	crack.width = 5.0
+	crack.default_color = Color(1.0, 0.3, 0.2, 0.9)
+	crack.position = Vector2(0, wall_y)
+	crack.scale.x = 0.0
+	crack.z_index = 1
+	var mat = CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	crack.material = mat
+	add_child(crack)
+	return crack
+
+func _make_wall_dust(wall_y: float, width: float) -> CPUParticles2D:
+	var p = CPUParticles2D.new()
+	p.emitting = false
+	p.amount = 46
+	p.lifetime = 1.0
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	p.emission_rect_extents = Vector2(width / 2.0, 2.0)
+	p.direction = Vector2(0, 1)
+	p.spread = 35.0
+	p.gravity = Vector2(0, 160)
+	p.initial_velocity_min = 20.0
+	p.initial_velocity_max = 70.0
+	p.scale_amount_min = 2.0
+	p.scale_amount_max = 4.0
+	var g = Gradient.new()
+	g.set_color(0, Color(0.75, 0.72, 0.7, 0.9))
+	g.set_color(1, Color(0.4, 0.38, 0.36, 0.0))
+	g.add_point(0.15, Color(1.0, 0.5, 0.3, 1.0))
+	p.color_ramp = g
+	p.position = Vector2(0, wall_y)
+	p.z_index = 2
+	add_child(p)
+	return p
+
+# Los ojos titilan y se prenden.
+func _light_up_eyes() -> void:
+	for light in _eye_energy:
+		var e = _eye_energy[light]
+		var t = create_tween()
+		t.tween_property(light, "energy", e * 1.8, 0.08)
+		t.tween_property(light, "energy", e * 0.2, 0.08)
+		t.tween_property(light, "energy", e * 1.4, 0.1)
+		t.tween_property(light, "energy", e, 0.3)
+	var shadow = get_node_or_null("DropShadow") as CanvasItem
+	if shadow: create_tween().tween_property(shadow, "self_modulate:a", 1.0, 0.4)
+
+# Lo llama BossIntro cuando la cámara llega al jefe.
+func _intro_roar() -> void:
+	_play_spawn_roar()
+	var t = create_tween()
+	t.tween_property(self, "modulate", Color(1.8, 0.6, 0.6), 0.15)
+	t.tween_property(self, "modulate", Color.WHITE, 0.8)
+
+func _connect_to_hud(with_intro: bool = true) -> void:
+	if healthbar_instance and is_instance_valid(healthbar_instance): return
+	var created = BossBarHelper.create(get_tree(), BOSS_NAME, max_health, current_health, {"intro": with_intro, "phase_marks": [PHASE_TWO_RATIO]})
+	healthbar_instance = created.get("instance")
+	boss_health_bar_node = created.get("bar")
 
 func _setup_health_bar() -> void:
 	pass # Overridden to prevent creating the small overhead health bar
@@ -399,7 +503,7 @@ func _check_laser_damage(collider: Object, delta: float) -> void:
 		
 	if collider and collider.is_in_group("player") and collider.has_method("take_damage"):
 		var tick_damage = maxi(1, int(float(damage) / 3.0))
-		collider.take_damage(tick_damage, "Mutante Génesis (Boss)", global_position)
+		collider.take_damage(tick_damage, BOSS_NAME, global_position)
 		var base_cooldown = laser_damage_tick_rate
 		laser_damage_cooldown = base_cooldown / 1.5 if is_phase_two else base_cooldown
 
@@ -470,7 +574,7 @@ func _spawn_single_missile_strike() -> void:
 func _spawn_projectile_at_angle(pos: Vector2, angle: float) -> void:
 	if not projectile_scene: return
 	var proj = projectile_scene.instantiate()
-	proj.source_name = "Mutante Génesis (Boss)"
+	proj.source_name = BOSS_NAME
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = pos
 	var base_dir = Vector2.from_angle(angle)
@@ -489,7 +593,7 @@ func _check_phase_transition() -> void:
 	if is_dying: return
 	if is_transitioning_phase: return
 	
-	var threshold = float(max_health) * 0.50
+	var threshold = float(max_health) * PHASE_TWO_RATIO
 	if float(current_health) <= threshold:
 		_trigger_phase_two_teleport()
 
@@ -509,7 +613,6 @@ func _trigger_phase_two_teleport() -> void:
 	GameData.boss_persisted_health = current_health
 	
 	_play_rage_effects()
-	_show_phase_two_message()
 	
 	var t = create_tween()
 	t.tween_interval(1.4)
@@ -524,33 +627,6 @@ func _play_rage_effects() -> void:
 
 func _change_to_phase_two_room() -> void:
 	SceneTransition.change_scene("res://Scenes/Rooms/Level1_Room16-BossFight.tscn")
-
-func _show_phase_two_message() -> void:
-	var label = Label.new()
-	label.text = "FASE 2: MODO FURIA"
-	label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))
-	label.add_theme_font_size_override("font_size", 48)
-	label.add_theme_color_override("font_outline_color", Color.BLACK)
-	label.add_theme_constant_override("outline_size", 12)
-	
-	var font_res = load("res://Art/Fonts/Dekatron-SemiBold.otf")
-	if font_res:
-		label.add_theme_font_override("font", font_res)
-		
-	var canvas_layer = CanvasLayer.new()
-	canvas_layer.layer = 100
-	get_tree().current_scene.add_child(canvas_layer)
-	canvas_layer.add_child(label)
-	
-	label.set_anchors_preset(Control.PRESET_CENTER)
-	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	label.grow_vertical = Control.GROW_DIRECTION_BOTH
-	label.position = Vector2(960 - 250, 540 - 40)
-	
-	var t = create_tween().set_parallel(true)
-	t.tween_property(label, "scale", Vector2(1.2, 1.2), 1.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.tween_property(label, "modulate:a", 0.0, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	t.chain().tween_callback(canvas_layer.queue_free)
 
 func _apply_phase_two_buffs() -> void:
 	laser_sweep_speed = laser_sweep_base_speed * 1.5
@@ -573,52 +649,10 @@ func die() -> void:
 		GameData.add_scrap(50)
 
 func _hide_hud_health() -> void:
-	if healthbar_instance:
-		healthbar_instance.queue_free()
+	if healthbar_instance and is_instance_valid(healthbar_instance):
+		healthbar_instance.close()
 		healthbar_instance = null
 		boss_health_bar_node = null
-
-func _find_label(node: Node) -> Label:
-	if node is Label:
-		return node
-	for i in range(node.get_child_count()):
-		var found = _find_label(node.get_child(i))
-		if found:
-			return found
-	return null
-
-func _find_animation_player(node: Node) -> AnimationPlayer:
-	if node is AnimationPlayer:
-		return node
-	for i in range(node.get_child_count()):
-		var found = _find_animation_player(node.get_child(i))
-		if found:
-			return found
-	return null
-
-func _find_progress_bar(node: Node) -> Range:
-	if node is Range:
-		return node
-	for i in range(node.get_child_count()):
-		var found = _find_progress_bar(node.get_child(i))
-		if found:
-			return found
-	return null
-
-func _load_healthbar_scene() -> PackedScene:
-	var paths = [
-		"res://Scenes/UI/boss_health_bar.tscn",
-		"res://Scenes/UI/Boss_healtbar.tscn",
-		"res://Scenes/UI/Boss_healthbar.tscn",
-		"res://Scenes/Enemies/Boss_healtbar.tscn",
-		"res://Scenes/Enemies/Boss_healthbar.tscn",
-		"res://Boss_healtbar.tscn",
-		"res://Boss_healthbar.tscn"
-	]
-	for path in paths:
-		if ResourceLoader.exists(path):
-			return load(path)
-	return null
 
 func _update_spawn_counter() -> void:
 	pattern_execute_count += 1

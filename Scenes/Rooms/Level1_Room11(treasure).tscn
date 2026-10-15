@@ -39,10 +39,6 @@ position = Vector2(516, -418)
 scale = Vector2(1.5, 1.5)
 color = Color(0.36, 0.38, 0.5, 1)
 
-[node name="Lampara_pie" parent="CanvasModulate" unique_id=1509059318 instance=ExtResource("4_sgqvj")]
-position = Vector2(2.666687, -94.666664)
-scale = Vector2(0.9696379, 0.9696379)
-
 [node name="Lampara_pie2" parent="CanvasModulate" unique_id=1983995399 instance=ExtResource("4_sgqvj")]
 position = Vector2(2.666687, 113.333336)
 scale = Vector2(0.9696379, 0.9696379)

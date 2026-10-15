@@ -2,7 +2,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
 [ext_resource type="Resource" path="res://Art/Items/Crypt/corazon_petreo.tres" id="2"]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
-[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/Gargoyle/crypt_gargoyle_frames.tres" id="4_frames"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/Gargoyle/gargoyle_angel_frames.tres" id="4_frames"]
 
 [node name="CryptGargoyle" instance=ExtResource("1")]
 kind = 0
@@ -25,10 +25,8 @@ color = Color(0.5372549019607843, 0.596078431372549, 0.6784313725490196, 1)
 color = Color(0.5372549019607843, 0.596078431372549, 0.6784313725490196, 0.7)
 
 [node name="GargoyleSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
 sprite_frames = ExtResource("4_frames")
 animation = &"idle"
 autoplay = "idle"
-scale = Vector2(0.16, 0.16)
-position = Vector2(0, -3)
-[node name="NameLabel" parent="." index="3"]
-text = "Gárgola"
+position = Vector2(0, -12)

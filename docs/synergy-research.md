@@ -8,7 +8,7 @@ Las pistas se guardan por índice, para soportar recetas con componentes repetid
 
 ## Escenas editables
 
-- `Scenes/UI/synergy_recipe_research.tscn`: tres componentes y diálogo de confirmación. `allow_purchase` permite usar la misma escena como consulta.
+- `Scenes/UI/synergy_recipe_research.tscn`: tres componentes. `allow_purchase` permite usar la misma escena como consulta. La compra de pistas y el aviso de investigación desbloqueada usan `Scripts/UI/omnia_reveal_popup.gd` (`OmniaRevealPopup.ask_hint` y `OmniaRevealPopup.research_unlocked`), con el mismo estilo que el resto de la UI.
 - `Scenes/UI/synergy_research_item.tscn`: ícono, nombre, incógnita y botón de ojo.
 - `Scenes/UI/codex_browser.tscn`: búsqueda, filtro, lista, ficha grande, descripción, estadísticas y AnimationPlayer para la transición de selección.
 - `Scenes/UI/codex_entry_card.tscn`: ficha seleccionable con estilos de foco y selección.

@@ -1,8 +1,14 @@
 extends Node2D
 class_name InfoSign
 
-## Cartel interactivo genérico: al acercarse y presionar E, muestra un panel
-## con información de introducción/lore (ej: cómo funciona O.M.N.I.A.)
+## Cartel interactivo genérico: al acercarse y presionar E, abre una ventana
+## con información de introducción o lore (por ejemplo, cómo funciona
+## O.M.N.I.A.), con el estilo de la UI del juego.
+## Formato de sign_body: el primer párrafo en [b]negrita[/b] es el subtítulo;
+## cada párrafo siguiente es un punto de la lista. Se acepta BBCode.
+
+const ICON_INFO := preload("res://Art/Ui/svg/icon_info.svg")
+const ICON_POINT := preload("res://Art/Ui/svg/icon_chevron_right.svg")
 
 @export_multiline var sign_title: String = "O.M.N.I.A."
 @export_multiline var sign_body: String = ""
@@ -12,7 +18,7 @@ class_name InfoSign
 @onready var interact_label: Label = get_node_or_null("InteractLabel")
 
 var player_nearby: bool = false
-var ui_instance: CanvasLayer = null
+var ui_instance: UIWindow = null
 
 func _ready() -> void:
 	set_process_input(true)
@@ -34,11 +40,6 @@ func _setup_interact_label() -> void:
 	interact_label = Label.new()
 	interact_label.text = "[E] Leer cartel"
 	interact_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	interact_label.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	interact_label.add_theme_font_size_override("font_size", 16)
-	interact_label.add_theme_color_override("font_color", Color(0.2, 0.7, 1.0))
-	interact_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	interact_label.add_theme_constant_override("outline_size", 4)
 	interact_label.position = Vector2(-70, -70)
 	interact_label.visible = false
 	add_child(interact_label)
@@ -46,7 +47,7 @@ func _setup_interact_label() -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		player_nearby = true
-		if interact_label:
+		if interact_label and not ui_instance:
 			interact_label.visible = true
 
 func _on_body_exited(body: Node2D) -> void:
@@ -54,108 +55,73 @@ func _on_body_exited(body: Node2D) -> void:
 		player_nearby = false
 		if interact_label:
 			interact_label.visible = false
-		_close_sign_ui()
 
 func _input(event: InputEvent) -> void:
-	if not player_nearby:
+	if not player_nearby or ui_instance:
 		return
-
 	var is_interact = event.is_action_pressed("interact")
 	if not is_interact and event is InputEventKey:
-		if event.physical_keycode == KEY_E and event.pressed and not event.echo:
-			is_interact = true
-
-	if is_interact and not ui_instance:
+		is_interact = event.physical_keycode == KEY_E and event.pressed and not event.echo
+	if is_interact:
+		get_viewport().set_input_as_handled()
 		_open_sign_ui()
 
+# --- Ventana ---
+
 func _open_sign_ui() -> void:
-	get_tree().paused = true
 	if interact_label:
 		interact_label.visible = false
+	ui_instance = UIWindow.open("  " + sign_title.to_upper(), ICON_INFO, 640.0)
+	ui_instance.closed.connect(_on_sign_closed)
+	var paragraphs = _paragraphs()
+	ui_instance.body.add_child(_header(paragraphs[0] if not paragraphs.is_empty() else ""))
+	for i in range(1, paragraphs.size()):
+		ui_instance.body.add_child(_point(paragraphs[i]))
+	ui_instance.add_button("ENTENDIDO", true, "E", ui_instance.close)
 
-	ui_instance = CanvasLayer.new()
-	ui_instance.name = "InfoSignPanel"
-	ui_instance.process_mode = Node.PROCESS_MODE_ALWAYS
-	ui_instance.layer = 220
-	get_tree().root.add_child(ui_instance)
+func _on_sign_closed() -> void:
+	ui_instance = null
+	if interact_label:
+		interact_label.visible = player_nearby
 
-	var bg = ColorRect.new()
-	bg.color = Color(0, 0, 0, 0.8)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	ui_instance.add_child(bg)
+func _paragraphs() -> PackedStringArray:
+	var out = PackedStringArray()
+	for p in sign_body.split("\n\n", false):
+		if p.strip_edges() != "":
+			out.append(p.strip_edges())
+	return out
 
-	var center = CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	ui_instance.add_child(center)
+# Título grande dorado y, debajo, el subtítulo (el primer párrafo) en turquesa.
+func _header(subtitle: String) -> Control:
+	var box = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	var title = UIStyle.label(sign_title, 34, UIStyle.COLOR_GOLD)
+	box.add_child(title)
+	if subtitle != "":
+		var sub = _rich(subtitle.replace("[b]", "").replace("[/b]", ""), 15, UIStyle.COLOR_TEAL)
+		box.add_child(sub)
+	return box
 
-	var panel = PanelContainer.new()
-	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.06, 0.06, 0.08, 0.95)
-	sb.border_color = Color(0.2, 0.7, 1.0, 0.8)
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(12)
-	sb.content_margin_left = 35
-	sb.content_margin_right = 35
-	sb.content_margin_top = 25
-	sb.content_margin_bottom = 25
-	panel.add_theme_stylebox_override("panel", sb)
-	panel.custom_minimum_size = Vector2(560, 0)
-	center.add_child(panel)
+func _point(text: String) -> Control:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var bullet = UIStyle.icon(ICON_POINT, 18)
+	bullet.modulate = UIStyle.COLOR_TEAL
+	bullet.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(bullet)
+	var label = _rich(text, 16, UIStyle.COLOR_TEXT)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	return row
 
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 16)
-	panel.add_child(vbox)
-
-	var title = Label.new()
-	title.text = sign_title
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0))
-	vbox.add_child(title)
-
-	var sep = HSeparator.new()
-	vbox.add_child(sep)
-
-	var body = RichTextLabel.new()
-	body.bbcode_enabled = true
-	body.fit_content = true
-	body.text = sign_body
-	body.add_theme_font_override("normal_font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	body.add_theme_font_size_override("normal_font_size", 15)
-	body.add_theme_color_override("default_color", Color(0.85, 0.85, 0.85))
-	vbox.add_child(body)
-
-	var close_btn = Button.new()
-	close_btn.text = "CERRAR"
-	close_btn.custom_minimum_size = Vector2(140, 40)
-	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	close_btn.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	close_btn.add_theme_font_size_override("font_size", 14)
-
-	var sb_c_normal = StyleBoxFlat.new()
-	sb_c_normal.bg_color = Color(0.1, 0.22, 0.32)
-	sb_c_normal.border_color = Color(0.2, 0.6, 0.8)
-	sb_c_normal.set_border_width_all(1)
-	sb_c_normal.set_corner_radius_all(5)
-
-	var sb_c_hover = StyleBoxFlat.new()
-	sb_c_hover.bg_color = Color(0.14, 0.28, 0.4)
-	sb_c_hover.border_color = Color(0.3, 0.7, 0.9)
-	sb_c_hover.set_border_width_all(1)
-	sb_c_hover.set_corner_radius_all(5)
-
-	close_btn.add_theme_stylebox_override("normal", sb_c_normal)
-	close_btn.add_theme_stylebox_override("hover", sb_c_hover)
-	close_btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	vbox.add_child(close_btn)
-	close_btn.pressed.connect(_close_sign_ui)
-
-func _close_sign_ui() -> void:
-	if ui_instance:
-		ui_instance.queue_free()
-		ui_instance = null
-		get_tree().paused = false
-		if interact_label:
-			interact_label.visible = player_nearby
+func _rich(text: String, size: int, color: Color) -> RichTextLabel:
+	var r = RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.fit_content = true
+	r.scroll_active = false
+	r.text = text
+	r.add_theme_font_size_override("normal_font_size", size)
+	r.add_theme_font_size_override("bold_font_size", size)
+	r.add_theme_color_override("default_color", color)
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return r

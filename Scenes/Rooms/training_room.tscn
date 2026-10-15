@@ -5,17 +5,14 @@
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_7b60e"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="3_3enep"]
 [ext_resource type="PackedScene" uid="uid://dtc62xovhjm13" path="res://Scenes/Enemies/dummy.tscn" id="5_3enep"]
-[ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="6_wfxhr"]
 [ext_resource type="Script" uid="uid://crek2l7dbib5k" path="res://Scripts/World/weapon_terminal.gd" id="7_rb72t"]
-[ext_resource type="Texture2D" uid="uid://d3bqynch51qyn" path="res://Art/npc/Icon50.png" id="8_i88kh"]
+[ext_resource type="Texture2D" path="res://Art/Props/Training/weapon_rack.png" id="8_rack"]
+[ext_resource type="Texture2D" path="res://Art/Props/Training/synergy_incubator.png" id="8_incubator"]
+[ext_resource type="Script" path="res://Scripts/World/station_sprite.gd" id="8_station"]
+[ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="10_door"]
+[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_chevron_left.svg" id="10_exit_icon"]
+[ext_resource type="PackedScene" path="res://Scenes/Npc/victoria_trainer.tscn" id="11_victoria"]
 [ext_resource type="Script" uid="uid://cqrqbcusn7k0a" path="res://Scripts/World/synergy_terminal.gd" id="9_synterm"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_v4dhf"]
-font = ExtResource("6_wfxhr")
-font_size = 14
-outline_size = 1
-outline_color = Color(0, 0, 0, 1)
-shadow_color = Color(0, 0, 0, 0.64705884)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xia3l"]
 size = Vector2(64, 64)
@@ -43,37 +40,50 @@ tile_set = ExtResource("3_3enep")
 position = Vector2(31, -97)
 
 [node name="player_spawn" type="Marker2D" parent="." unique_id=831626322]
-position = Vector2(-244, -190)
+position = Vector2(-244, -150)
 
 [node name="Dummy" parent="." unique_id=609782938 instance=ExtResource("5_3enep")]
 position = Vector2(-96, -104)
 
-[node name="Label" type="Label" parent="Dummy" unique_id=640807225]
-offset_left = -21.0
-offset_top = -41.0
-offset_right = 23.0
-offset_bottom = -24.0
-text = "Manny"
-label_settings = SubResource("LabelSettings_v4dhf")
-
 [node name="WeaponTerminal" type="Area2D" parent="." unique_id=1942696176]
-position = Vector2(-170, -140)
+position = Vector2(-180, -192)
 script = ExtResource("7_rb72t")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponTerminal" unique_id=1313883645]
 shape = SubResource("RectangleShape2D_xia3l")
 
 [node name="Sprite2D" type="Sprite2D" parent="WeaponTerminal" unique_id=793272766]
-modulate = Color(1, 0.75, 0.35, 1)
-texture = ExtResource("8_i88kh")
+texture_filter = 1
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("8_rack")
+hframes = 2
+script = ExtResource("8_station")
+glow_frame = 1
 
 [node name="SynergyTerminal" type="Area2D" parent="." unique_id=1942696177]
-position = Vector2(-220, -140)
+position = Vector2(-75, -192)
 script = ExtResource("9_synterm")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SynergyTerminal" unique_id=1313883646]
 shape = SubResource("RectangleShape2D_xia3l")
 
 [node name="Sprite2D" type="Sprite2D" parent="SynergyTerminal" unique_id=793272767]
-modulate = Color(0.85, 0.45, 1.3, 1)
-texture = ExtResource("8_i88kh")
+texture_filter = 1
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("8_incubator")
+hframes = 4
+script = ExtResource("8_station")
+animated = true
+
+[node name="ExitDoor" parent="." unique_id=1462890511 instance=ExtResource("10_door")]
+position = Vector2(-244, -232)
+rotation = 1.5707964
+start_locked = false
+custom_next_scene = "res://Scenes/Rooms/lab_room.tscn"
+sign_text = "SALIR DEL ENTRENAMIENTO"
+sign_icon = ExtResource("10_exit_icon")
+sign_offset = Vector2(0, -38)
+prompt_text = "[E] Salir"
+
+[node name="VictoriaTrainer" parent="." unique_id=1462890512 instance=ExtResource("11_victoria")]
+position = Vector2(30, -170)

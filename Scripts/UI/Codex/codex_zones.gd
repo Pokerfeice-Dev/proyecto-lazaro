@@ -14,7 +14,7 @@ const DANGER_STEPS := 5
 ## zona -> {peligro (1-5), amenazas comunes, jefe}
 const ZONE_INFO := {
 	"distrito_1": {"danger": 2, "threats": ["follower", "shooter", "turret", "tank", "charger", "spawner"], "boss": "boss"},
-	"distrito_2": {"danger": 4, "threats": ["follower", "tank", "spawner"], "boss": "boss2"},
+	"distrito_2": {"danger": 4, "threats": ["crypt_ghoul", "crypt_gargoyle", "crypt_centipede", "crypt_death_squad", "crypt_laser_eye", "crypt_dead_beekeeper", "crypt_flesh_bee", "crypt_bell_keeper"], "boss": "boss2"},
 	"distrito_3": {"danger": 5, "threats": [], "boss": "boss3"},
 }
 

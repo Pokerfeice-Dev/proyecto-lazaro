@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
 [ext_resource type="Resource" path="res://Art/Items/Crypt/badajo_requiem.tres" id="2"]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+[ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/BellKeeper/bell_keeper_frames.tres" id="5_frames"]
 [node name="CryptBellKeeper" instance=ExtResource("1")]
 kind = 7
 codex_id = "crypt_bell_keeper"
@@ -18,7 +19,13 @@ all_items = Array[ExtResource("3")]([ExtResource("2")])
 [node name="Body" parent="Sprite2D" index="0"]
 polygon = PackedVector2Array(-10,-20,10,-20,22,16,-22,16)
 color = Color(0.3,0.7,0.8,1)
-[node name="NameLabel" parent="." index="3"]
-text = "Campanero de Réquiem"
 [node name="BurstTimer" parent="." index="10"]
 wait_time = 0.5
+
+[node name="ArtSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -9)
+scale = Vector2(0.75, 0.75)
+sprite_frames = ExtResource("5_frames")
+animation = &"idle_down"
+autoplay = "idle_down"

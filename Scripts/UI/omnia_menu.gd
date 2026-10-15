@@ -16,7 +16,7 @@ signal closed
 const RESEARCH_SCENE = preload("res://Scenes/UI/synergy_recipe_research.tscn")
 
 const LOCKED_SHADER := preload("res://Art/Ui/shaders/silueta_bloqueada.gdshader")
-const ICON_COIN := preload("res://Art/Scrap/scrap_icon.png")
+const ICON_COIN := preload("res://Art/Scrap/Scrap_icon.png")
 const ICON_CLOSE := preload("res://Art/Ui/svg/icon_close.svg")
 const ICON_MOUSE := preload("res://Art/Ui/svg/icon_mouse.svg")
 const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
@@ -573,6 +573,7 @@ func _on_action_pressed() -> void:
 	_celebrate(was_locked and entry.kind != "synergy")
 	if bought_synergy:
 		_cascade_chips()
+		OmniaRevealPopup.research_unlocked(entry.id, entry.name)
 
 # Efecto de compra: la ficha y el ícono del detalle saltan con un destello; si
 # era una silueta, se revela con el shader en vez de aparecer de golpe.
