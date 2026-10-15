@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://Art/Items/Crypt/placa_funeraria.svg" id="2"]
+[resource]
+script = ExtResource("1")
+id = "placa_funeraria"
+item_name = "Placa funeraria"
+icon = ExtResource("2")
+type = 0
+slot = 0
+stats = {"damage_multiplier": 0.18}

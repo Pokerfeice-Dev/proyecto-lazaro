@@ -13,6 +13,10 @@ size = Vector2(199.38376, 114.33777)
 [node name="Room_8" type="Node2D" unique_id=2132696945]
 script = ExtResource("1_2mwsq")
 
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1428497588]
+position = Vector2(-154, 892)
+color = Color(0.36, 0.38, 0.5, 1)
+
 [node name="Floor" type="TileMapLayer" parent="." unique_id=2116686023]
 modulate = Color(0.926511, 0.926511, 0.926511, 1)
 scale = Vector2(2, 2)
@@ -56,7 +60,7 @@ position = Vector2(-286, 198)
 position = Vector2(69, 710)
 
 [node name="player_spawn" type="Marker2D" parent="." unique_id=964589139]
-position = Vector2(965, -190)
+position = Vector2(928, -190)
 
 [node name="Area_entered" type="Area2D" parent="." unique_id=381237426]
 position = Vector2(620, -7)
@@ -81,56 +85,55 @@ position = Vector2(634, -171)
 [node name="BarrelSpawnPoint4" parent="." unique_id=1704242643 instance=ExtResource("4_2mwsq")]
 position = Vector2(-154, 892)
 
-[node name="CanvasModulate" type="CanvasModulate" parent="BarrelSpawnPoint4" unique_id=1428497588]
-color = Color(0.36, 0.38, 0.5, 1)
+[node name="Lamparas" type="Node" parent="." unique_id=763784407]
 
-[node name="Lampara_pie" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1509059318 instance=ExtResource("5_udlw1")]
-position = Vector2(8, -122)
+[node name="Lampara_pie" parent="Lamparas" unique_id=1509059318 instance=ExtResource("5_udlw1")]
+position = Vector2(-146, 770)
 
-[node name="Lampara_pie2" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1162568836 instance=ExtResource("5_udlw1")]
-position = Vector2(11, -370)
+[node name="Lampara_pie2" parent="Lamparas" unique_id=1162568836 instance=ExtResource("5_udlw1")]
+position = Vector2(-143, 522)
 
-[node name="Lampara_pie3" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=749849514 instance=ExtResource("5_udlw1")]
-position = Vector2(15, -630)
+[node name="Lampara_pie3" parent="Lamparas" unique_id=749849514 instance=ExtResource("5_udlw1")]
+position = Vector2(-139, 262)
 
-[node name="Lampara_pie4" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=713637182 instance=ExtResource("5_udlw1")]
-position = Vector2(8, -887)
+[node name="Lampara_pie4" parent="Lamparas" unique_id=713637182 instance=ExtResource("5_udlw1")]
+position = Vector2(-146, 5)
 
-[node name="Lampara_pie5" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1804686826 instance=ExtResource("5_udlw1")]
-position = Vector2(10, -1142)
+[node name="Lampara_pie5" parent="Lamparas" unique_id=1804686826 instance=ExtResource("5_udlw1")]
+position = Vector2(-144, -250)
 
-[node name="lampara_pared" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1368619277 instance=ExtResource("6_pflt3")]
-position = Vector2(-268, -486)
+[node name="lampara_pared" parent="Lamparas" unique_id=1368619277 instance=ExtResource("6_pflt3")]
+position = Vector2(-422, 406)
 
-[node name="lampara_pared2" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1413159789 instance=ExtResource("6_pflt3")]
-position = Vector2(-270, -842)
+[node name="lampara_pared2" parent="Lamparas" unique_id=1413159789 instance=ExtResource("6_pflt3")]
+position = Vector2(-424, 50)
 
-[node name="lampara_pared3" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1206349477 instance=ExtResource("6_pflt3")]
-position = Vector2(-266, -1205)
+[node name="lampara_pared3" parent="Lamparas" unique_id=1206349477 instance=ExtResource("6_pflt3")]
+position = Vector2(-420, -313)
 
-[node name="lampara_pared4" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=941735702 instance=ExtResource("6_pflt3")]
-position = Vector2(1181, -1081)
+[node name="lampara_pared4" parent="Lamparas" unique_id=941735702 instance=ExtResource("6_pflt3")]
+position = Vector2(1027, -189)
 
-[node name="lampara_pared5" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1288578555 instance=ExtResource("6_pflt3")]
-position = Vector2(880, -884)
+[node name="lampara_pared5" parent="Lamparas" unique_id=1288578555 instance=ExtResource("6_pflt3")]
+position = Vector2(726, 8)
 
-[node name="lampara_pared6" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=2107246385 instance=ExtResource("6_pflt3")]
-position = Vector2(497, -888)
+[node name="lampara_pared6" parent="Lamparas" unique_id=2107246385 instance=ExtResource("6_pflt3")]
+position = Vector2(343, 4)
 
-[node name="lampara_pared7" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=588844875 instance=ExtResource("6_pflt3")]
-position = Vector2(288, -668)
+[node name="lampara_pared7" parent="Lamparas" unique_id=588844875 instance=ExtResource("6_pflt3")]
+position = Vector2(134, 224)
 
-[node name="lampara_pared8" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1888685866 instance=ExtResource("6_pflt3")]
-position = Vector2(283, -292)
+[node name="lampara_pared8" parent="Lamparas" unique_id=1888685866 instance=ExtResource("6_pflt3")]
+position = Vector2(129, 600)
 
-[node name="lampara_pared9" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1617741930 instance=ExtResource("6_pflt3")]
-position = Vector2(116, -1286)
+[node name="lampara_pared9" parent="Lamparas" unique_id=1617741930 instance=ExtResource("6_pflt3")]
+position = Vector2(-38, -394)
 
-[node name="lampara_pared10" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=1491145100 instance=ExtResource("6_pflt3")]
-position = Vector2(539, -1284)
+[node name="lampara_pared10" parent="Lamparas" unique_id=1491145100 instance=ExtResource("6_pflt3")]
+position = Vector2(385, -392)
 
-[node name="lampara_pared11" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=351340763 instance=ExtResource("6_pflt3")]
-position = Vector2(-260, -49)
+[node name="lampara_pared11" parent="Lamparas" unique_id=351340763 instance=ExtResource("6_pflt3")]
+position = Vector2(-414, 843)
 
-[node name="lampara_pared12" parent="BarrelSpawnPoint4/CanvasModulate" unique_id=753039449 instance=ExtResource("6_pflt3")]
-position = Vector2(0, 70)
+[node name="lampara_pared12" parent="Lamparas" unique_id=753039449 instance=ExtResource("6_pflt3")]
+position = Vector2(-154, 962)

@@ -30,10 +30,11 @@ const KEY_REGEX := "^\\s*(?:\\[([A-Za-z0-9]+)\\]|Presiona\\s+([A-Za-z0-9]+)\\s*:
 const FLESH_REGEX := "(?i)(\\d+)\\s*carne|carne\\s*\\((\\d+)\\)"
 const ICON_DIR := "res://Art/Ui/svg/"
 const FLESH_ICON := "res://Art/Flesh/Flesh_icon.png"
+const SCRAP_ICON := "res://Art/Scrap/scrap_icon.png"
 ## palabra de la acción -> ícono (el primero que aparezca en el texto)
 const ACTION_ICONS := [
 	["desbloquear", "icon_lock"],
-	["comprar", "icon_coin"],
+	["comprar", SCRAP_ICON],
 	["agarrar", "icon_grab"],
 	["recoger", "icon_grab"],
 	["leer", "icon_info"],
@@ -202,7 +203,8 @@ func _action_icon(action: String) -> Texture2D:
 	var lower = action.to_lower()
 	for pair in ACTION_ICONS:
 		if pair[0] in lower:
-			return load(ICON_DIR + pair[1] + ".svg")
+			var icon_path = pair[1] if str(pair[1]).begins_with("res://") else ICON_DIR + pair[1] + ".svg"
+			return load(icon_path)
 	return null
 
 func _icon(tex: Texture2D, icon_size: float, color: Color) -> TextureRect:

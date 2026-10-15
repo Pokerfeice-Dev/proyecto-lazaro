@@ -10,6 +10,16 @@ var max_concurrent_enemies: int = 5
 var spawn_interval: float = 1.5
 var enemy_pool: Array[PackedScene] = []
 
+const CRYPT_ENEMY_SCENES := {
+	"crypt_bell_keeper": "res://Scenes/Enemies/Crypt/CryptBellKeeper.tscn",
+	"crypt_gargoyle": "res://Scenes/Enemies/Crypt/CryptGargoyle.tscn",
+	"crypt_ghoul": "res://Scenes/Enemies/Crypt/CryptGhoul.tscn",
+	"crypt_centipede": "res://Scenes/Enemies/Crypt/CryptCentipede.tscn",
+	"crypt_death_squad": "res://Scenes/Enemies/Crypt/CryptDeathSquad.tscn",
+	"crypt_laser_eye": "res://Scenes/Enemies/Crypt/CryptLaserEye.tscn",
+	"crypt_dead_beekeeper": "res://Scenes/Enemies/Crypt/CryptDeadBeekeeperSummoner.tscn",
+}
+
 @export_category("Rewards")
 ## Recompensa que se spawnea al limpiar la habitación (Ej. Cofre, Scrap gigante, etc.)
 @export var room_reward_scene: PackedScene
@@ -139,6 +149,12 @@ func _apply_difficulty_settings() -> void:
 
 func _build_enemy_pool(allowed: Array) -> void:
 	var new_pool: Array[PackedScene] = []
+	if GameData.current_level == 2:
+		for id in allowed:
+			if CRYPT_ENEMY_SCENES.has(id):
+				new_pool.append(load(CRYPT_ENEMY_SCENES[id]))
+		enemy_pool = new_pool
+		return
 	_add_follower_if_allowed(allowed, new_pool)
 	_add_shooter_if_allowed(allowed, new_pool)
 	_add_tank_if_allowed(allowed, new_pool)
@@ -261,7 +277,7 @@ func _count_active_summoners() -> int:
 	var count = 0
 	var enemies = get_tree().get_nodes_in_group("enemy")
 	for e in enemies:
-		if e is EnemySummoner and not e.is_dying:
+		if (e is EnemySummoner or e.is_in_group("crypt_summoner")) and not e.is_dying:
 			count += 1
 	return count
 
@@ -301,24 +317,56 @@ func _show_clear_scrap_text() -> void:
 	var player = get_tree().get_first_node_in_group("player")
 	if not player:
 		return
+	var floating_node = _create_floating_scrap_reward_node(player.global_position)
+	get_tree().current_scene.call_deferred("add_child", floating_node)
+	_animate_floating_reward(floating_node)
+
+func _create_floating_scrap_reward_node(player_pos: Vector2) -> Node2D:
+	var floating_node = Node2D.new()
+	floating_node.global_position = player_pos + Vector2(0.0, -60.0)
+
+	var hbox = _create_scrap_reward_hbox()
+	floating_node.add_child(hbox)
+	return floating_node
+
+func _create_scrap_reward_hbox() -> HBoxContainer:
+	var hbox = HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.add_theme_constant_override("separation", 6)
+	hbox.custom_minimum_size = Vector2(160, 32)
+	hbox.position = Vector2(-80, -16)
+
+	var label = _create_scrap_reward_label()
+	hbox.add_child(label)
+
+	var icon = _create_scrap_reward_icon()
+	hbox.add_child(icon)
+	return hbox
+
+func _create_scrap_reward_label() -> Label:
 	var label = Label.new()
-	label.text = "+%d CHATARRA" % scrap_reward
+	label.text = "+%d" % scrap_reward
 	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
 	label.add_theme_font_size_override("font_size", 22)
 	label.add_theme_color_override("font_outline_color", Color(0.2, 0.15, 0.0))
 	label.add_theme_constant_override("outline_size", 4)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.custom_minimum_size = Vector2(160, 30)
-	label.position = Vector2(-80, -15)
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	return label
 
-	var floating_node = Node2D.new()
-	floating_node.global_position = player.global_position + Vector2(0.0, -60.0)
-	floating_node.add_child(label)
-	get_tree().current_scene.call_deferred("add_child", floating_node)
+func _create_scrap_reward_icon() -> TextureRect:
+	var icon = TextureRect.new()
+	icon.texture = preload("res://Art/Scrap/scrap_icon.png")
+	icon.custom_minimum_size = Vector2(24, 24)
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	return icon
 
+func _animate_floating_reward(floating_node: Node2D) -> void:
 	var tween = get_tree().create_tween().bind_node(floating_node).set_parallel(true)
-	tween.tween_property(floating_node, "global_position", floating_node.global_position + Vector2(0.0, -45.0), 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(label, "modulate:a", 0.0, 0.7).set_delay(0.4)
+	var target_y = floating_node.global_position + Vector2(0.0, -45.0)
+	tween.tween_property(floating_node, "global_position", target_y, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(floating_node, "modulate:a", 0.0, 0.7).set_delay(0.4)
 	tween.chain().tween_callback(floating_node.queue_free)
 
 func _play_room_clear_effects() -> void:

@@ -1,0 +1,73 @@
+[gd_resource type="SpriteFrames" load_steps=17 format=3]
+
+[ext_resource type="Texture2D" path="res://Art/Enemies/Crypt/Gargoyle/crypt_gargoyle_sprite_sheet.png" id="1_sheet"]
+
+[sub_resource type="AtlasTexture" id="idle_0"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 0, 362, 271)
+[sub_resource type="AtlasTexture" id="idle_1"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 0, 362, 271)
+[sub_resource type="AtlasTexture" id="idle_2"]
+atlas = ExtResource("1_sheet")
+region = Rect2(724, 0, 362, 271)
+[sub_resource type="AtlasTexture" id="idle_3"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1086, 0, 362, 271)
+[sub_resource type="AtlasTexture" id="walk_0"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 271, 362, 271)
+[sub_resource type="AtlasTexture" id="walk_1"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 271, 362, 271)
+[sub_resource type="AtlasTexture" id="walk_2"]
+atlas = ExtResource("1_sheet")
+region = Rect2(724, 271, 362, 271)
+[sub_resource type="AtlasTexture" id="walk_3"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1086, 271, 362, 271)
+[sub_resource type="AtlasTexture" id="attack_windup"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 542, 362, 271)
+[sub_resource type="AtlasTexture" id="attack_0"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 542, 362, 271)
+[sub_resource type="AtlasTexture" id="attack_1"]
+atlas = ExtResource("1_sheet")
+region = Rect2(724, 542, 362, 271)
+[sub_resource type="AtlasTexture" id="attack_2"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1086, 542, 362, 271)
+[sub_resource type="AtlasTexture" id="stone_0"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 813, 362, 271)
+[sub_resource type="AtlasTexture" id="stone_1"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 813, 362, 271)
+[sub_resource type="AtlasTexture" id="stone_2"]
+atlas = ExtResource("1_sheet")
+region = Rect2(724, 813, 362, 271)
+[sub_resource type="AtlasTexture" id="stone_shield"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1086, 813, 362, 271)
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("idle_0")}, {"duration": 1.0, "texture": SubResource("idle_1")}, {"duration": 1.0, "texture": SubResource("idle_2")}, {"duration": 1.0, "texture": SubResource("idle_3")}],
+"loop": true, "name": &"idle", "speed": 4.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("walk_0")}, {"duration": 1.0, "texture": SubResource("walk_1")}, {"duration": 1.0, "texture": SubResource("walk_2")}, {"duration": 1.0, "texture": SubResource("walk_3")}],
+"loop": true, "name": &"walk", "speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("attack_windup")}],
+"loop": false, "name": &"attack_windup", "speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("attack_0")}, {"duration": 1.0, "texture": SubResource("attack_1")}, {"duration": 1.0, "texture": SubResource("attack_2")}],
+"loop": false, "name": &"attack_cone", "speed": 9.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("stone_0")}, {"duration": 1.0, "texture": SubResource("stone_1")}, {"duration": 1.0, "texture": SubResource("stone_2")}],
+"loop": false, "name": &"petrify", "speed": 6.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("stone_shield")}],
+"loop": false, "name": &"stone_shield", "speed": 1.0
+}]

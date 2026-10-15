@@ -10,7 +10,7 @@ extends CanvasLayer
 const OPTIONS_SCREEN = preload("res://Scenes/UI/options_screen.tscn")
 const MAIN_MENU_SCENE := "res://Scenes/UI/MainMenu.tscn"
 const WINDOW_SIZE := Vector2(940, 560)
-const ICON_COIN := preload("res://Art/Ui/svg/icon_coin.svg")
+const ICON_COIN := preload("res://Art/Scrap/scrap_icon.png")
 const ICON_CLOSE := preload("res://Art/Ui/svg/icon_close.svg")
 const ICON_MOUSE := preload("res://Art/Ui/svg/icon_mouse.svg")
 const ICON_ZONE := preload("res://Art/Ui/svg/icon_info.svg")

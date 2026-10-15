@@ -119,7 +119,7 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 	},
 	{
 		"id": "snowman",
-		"name": "Snowman",
+		"name": "Avalanche",
 		"weapon_type": "primary",
 		"weapon_id": "shotgun",
 		"desc": "Escopeta + Bola de nieve que congela",

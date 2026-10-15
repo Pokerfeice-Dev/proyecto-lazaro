@@ -57,11 +57,11 @@ func _ready() -> void:
 	mouse_exited.connect(_on_hover.bind(false))
 
 func _process(delta: float) -> void:
-	if _unlocked: return
+	if _discovered: return
 	_glyph_timer -= delta
 	if _glyph_timer > 0.0: return
 	_glyph_timer = GLYPH_INTERVAL
-	_name_label.text = _cipher(_name_length)
+	_name_label.text = "Sinergia desconocida"
 
 # --- Partes de la ficha ---
 
@@ -70,7 +70,7 @@ func _build_art() -> Control:
 	frame.custom_minimum_size = Vector2(140, 140)
 	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var art = UIStyle.icon(OmniaCatalog.synergy_icon(syn_id), 112)
+	var art = UIStyle.icon(OmniaCatalog.synergy_icon(syn_id) if _discovered else null, 112)
 	art.self_modulate = OmniaCatalog.synergy_tint(syn_id)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(art)
@@ -106,12 +106,13 @@ func _build_info(def: Dictionary) -> Control:
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_theme_constant_override("separation", 8)
 
-	_name_label = UIStyle.label(def.get("name", "") if _unlocked else _cipher(_name_length), 24, UIStyle.COLOR_GOLD if _unlocked else LOCKED_TEXT)
+	_name_label = UIStyle.label(def.get("name", "") if _discovered else "Sinergia desconocida", 24, UIStyle.COLOR_GOLD if _discovered else LOCKED_TEXT)
 	box.add_child(_name_label)
-	box.add_child(_weapon_line(def))
+	if _discovered:
+		box.add_child(_weapon_line(def))
 	box.add_child(_recipe_row())
 	if _unlocked:
-		var desc = UIStyle.label(def.get("description", ""), 13, UIStyle.COLOR_MUTED)
+		var desc = UIStyle.label(def.get("description", "") if _discovered else OmniaCatalog.RESEARCH.clues.get(syn_id, ""), 13, UIStyle.COLOR_MUTED)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc.max_lines_visible = 3 if _discovered else 2
 		desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -137,10 +138,9 @@ func _weapon_line(def: Dictionary) -> Control:
 func _recipe_row() -> Control:
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
-	var parts = OmniaCatalog.synergy_recipe(syn_id)
+	var parts = OmniaCatalog.synergy_ingredients(syn_id)
 	for i in parts.size():
-		var is_weapon = i == 0 and SynergyManager.SYNERGIES.get(syn_id, {}).get("required_weapon", "") != ""
-		row.add_child(_recipe_chip(parts[i], _unlocked or is_weapon))
+		row.add_child(_recipe_chip(parts[i], OmniaCatalog.is_ingredient_revealed(syn_id, i)))
 	return row
 
 func _recipe_chip(part: Dictionary, visible_part: bool) -> Control:

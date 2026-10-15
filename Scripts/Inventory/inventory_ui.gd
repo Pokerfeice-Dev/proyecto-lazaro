@@ -93,7 +93,9 @@ var active_weapon_stats_tab: String = "PRIMARY"
 
 # Códice
 var selected_codex_category: String = "enemies"
-@onready var codex_grid: GridContainer = %CodexGrid
+@onready var codex_browser: Control = %CodexBrowser
+@onready var research_browser: Control = %ResearchBrowser
+@onready var tab_research_btn: Button = %TabResearchBtn
 var codex_category_buttons: Dictionary = {}
 @onready var codex_progress_label: Label = %CodexProgressLabel
 
@@ -138,25 +140,12 @@ func _ready() -> void:
 			body_slots[node.slot_type] = node
 	for button in %CodexCategories.get_children():
 		codex_category_buttons[button.get_meta("category")] = button
-	_ensure_synergies_button()
 	if inventory:
 		inventory.inventory_updated.connect(update_items_list)
 	if equipment:
 		equipment.equipment_changed.connect(update_ui)
 	_default_margin_pos_y = window_margin.position.y
 	update_ui()
-
-# La escena no trae el botón de SINERGIAS: se arma copiando el estilo de otro.
-func _ensure_synergies_button() -> void:
-	if codex_category_buttons.has("synergies") or codex_category_buttons.is_empty(): return
-	var template: Button = codex_category_buttons.values()[0]
-	var btn: Button = template.duplicate(Node.DUPLICATE_GROUPS | Node.DUPLICATE_SCRIPTS)
-	btn.name = "SynergiesBtn"
-	btn.text = "SINERGIAS"
-	btn.set_meta("category", "synergies")
-	btn.pressed.connect(_on_codex_category_pressed.bind("synergies"))
-	%CodexCategories.add_child(btn)
-	codex_category_buttons["synergies"] = btn
 
 func _apply_tab_style(btn: Button, is_active: bool) -> void:
 	btn.theme_type_variation = "InventoryTabActive" if is_active else "InventoryTab"
@@ -223,6 +212,8 @@ func _on_close_finished() -> void:
 	_is_animating = false
 
 func _input(event: InputEvent) -> void:
+	if visible and get_viewport().gui_get_focus_owner() is LineEdit and not event.is_action_pressed("ui_cancel"):
+		return
 	if event.is_action_pressed("toggle_inventory"):
 		if not visible:
 			var root = get_tree().root
@@ -240,7 +231,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if event is InputEventKey and event.pressed and not event.echo:
+	if current_tab == "INVENTORY" and event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E:
 			_on_detail_equip_pressed()
 			get_viewport().set_input_as_handled()
@@ -270,6 +261,8 @@ func update_ui() -> void:
 
 	if current_tab == "CODEX":
 		_refresh_codex_grid()
+	elif current_tab == "RESEARCH":
+		research_browser.configure("synergies", true)
 
 func _update_header_data() -> void:
 	if capacity_label and inventory:
@@ -726,6 +719,9 @@ func _get_preview_delta(stat_name: String) -> String:
 
 func _on_inventory_tab_pressed() -> void:
 	current_tab = "INVENTORY"
+	_set_inventory_hints(true)
+	research_browser.hide()
+	_apply_tab_style(tab_research_btn, false)
 	main_three_columns.visible = true
 	codex_view.visible = false
 	_apply_tab_style(tab_inventory_btn, true)
@@ -735,6 +731,9 @@ func _on_inventory_tab_pressed() -> void:
 
 func _on_codex_tab_pressed() -> void:
 	current_tab = "CODEX"
+	_set_inventory_hints(false)
+	research_browser.hide()
+	_apply_tab_style(tab_research_btn, false)
 	main_three_columns.visible = false
 	codex_view.visible = true
 	_apply_tab_style(tab_inventory_btn, false)
@@ -761,53 +760,22 @@ func _on_codex_category_pressed(cat: String) -> void:
 	_refresh_codex_grid()
 
 func _refresh_codex_grid() -> void:
-	if not codex_grid: return
-	for c in codex_grid.get_children(): c.queue_free()
+	for key in codex_category_buttons:
+		_apply_tab_style(codex_category_buttons[key], key == selected_codex_category)
+	codex_browser.configure(selected_codex_category)
+	codex_progress_label.text = "Seleccioná un registro para consultar su ficha completa."
 
-	for cat_key in codex_category_buttons.keys():
-		var btn: Button = codex_category_buttons[cat_key]
-		if cat_key == selected_codex_category:
-			_apply_primary_button_style(btn)
-		else:
-			_apply_secondary_button_style(btn)
-
-	if selected_codex_category == "synergies":
-		_fill_codex_synergies()
-		return
-	# Cada pestaña tiene su propio diseño (ver Scripts/UI/Codex/)
-	codex_grid.columns = 1
-	var cat_data = CodexData.DATA.get(selected_codex_category, {})
-	var unlocked_count = 0
-	for entry_id in cat_data.keys():
-		if GameData.is_codex_unlocked(selected_codex_category, entry_id): unlocked_count += 1
-	var page = _codex_page(selected_codex_category)
-	if page:
-		codex_grid.add_child(page)
-
-	if codex_progress_label:
-		codex_progress_label.text = "%d / %d registrados" % [unlocked_count, cat_data.size()]
-
-func _codex_page(category: String) -> Control:
-	match category:
-		"enemies": return CodexBestiary.new()
-		"weapons": return CodexArmory.new()
-		"items": return CodexItems.new()
-		"npcs": return CodexNpcs.new()
-		"levels": return CodexZones.new()
-	return null
-
-# Pestaña SINERGIAS: fichas grandes (CodexSynergyCard) en vez de slots chicos.
-# Las bloqueadas muestran solo para qué arma son; el resto queda tapado.
-func _fill_codex_synergies() -> void:
-	codex_grid.columns = 3
-	var ids = OmniaCatalog.synergy_ids()
-	var unlocked_count = 0
-	for syn_id in ids:
-		if GameData.is_synergy_discovered(syn_id):
-			unlocked_count += 1
-		codex_grid.add_child(CodexSynergyCard.create(syn_id))
-	if codex_progress_label:
-		codex_progress_label.text = "%d / %d sinergias descubiertas" % [unlocked_count, ids.size()]
+func _on_research_tab_pressed() -> void:
+	current_tab = "RESEARCH"
+	_set_inventory_hints(false)
+	main_three_columns.hide()
+	codex_view.hide()
+	research_browser.show()
+	_apply_tab_style(tab_inventory_btn, false)
+	_apply_tab_style(tab_codex_btn, false)
+	_apply_tab_style(tab_research_btn, true)
+	_hide_tooltip()
+	research_browser.configure("synergies", true)
 
 # ── Tooltip Flotante ──────────────────────────────────────────────────────────
 
@@ -865,3 +833,7 @@ func _on_weapon_badge_hovered(is_main: bool) -> void:
 
 func _on_weapon_badge_unhovered() -> void:
 	_hide_tooltip()
+
+func _set_inventory_hints(enabled: bool) -> void:
+	%BottomBar.get_node("MarginContainer/HBoxContainer/HBoxContainer2").visible = enabled
+	%BottomBar.get_node("MarginContainer/HBoxContainer/HBoxContainer3").visible = enabled

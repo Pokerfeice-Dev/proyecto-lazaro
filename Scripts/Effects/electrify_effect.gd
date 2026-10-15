@@ -29,13 +29,8 @@ static func apply_electrify(target: Node, chain_damage: int, stun_duration: floa
 	var cooldown_timer := Timer.new()
 	cooldown_timer.wait_time = CHAIN_COOLDOWN
 	cooldown_timer.one_shot = true
+	cooldown_timer.timeout.connect(_on_chain_cooldown_timeout.bind(target, cooldown_timer))
 	target.add_child(cooldown_timer)
-	cooldown_timer.timeout.connect(func():
-		if is_instance_valid(target):
-			target.remove_meta(CHAIN_META_KEY)
-		if is_instance_valid(cooldown_timer):
-			cooldown_timer.queue_free()
-	)
 	cooldown_timer.start()
 
 	# El tinte amarillo se activa ANTES del take_damage: asi el flash blanco
@@ -50,10 +45,12 @@ static func apply_electrify(target: Node, chain_damage: int, stun_duration: floa
 	if "hit_stun_timer" in target:
 		target.hit_stun_timer = max(target.hit_stun_timer, stun_duration)
 
-	var tree = target.get_tree()
-	if tree:
-		var revert_timer = tree.create_timer(stun_duration)
-		revert_timer.timeout.connect(func(): _revert_stun_visual(target))
+	var revert_timer := Timer.new()
+	revert_timer.wait_time = stun_duration
+	revert_timer.one_shot = true
+	revert_timer.timeout.connect(_on_revert_stun_timeout.bind(target, revert_timer))
+	target.add_child(revert_timer)
+	revert_timer.start()
 
 	_spawn_zap_visual(target)
 	_play_zap_sound(target)
@@ -63,6 +60,17 @@ static func apply_electrify(target: Node, chain_damage: int, stun_duration: floa
 	if chain_depth >= MAX_CHAIN_DEPTH:
 		return
 	_chain_to_nearby(target, chain_damage, stun_duration, chain_depth)
+
+static func _on_chain_cooldown_timeout(target: Node, cooldown_timer: Timer) -> void:
+	if is_instance_valid(target):
+		target.remove_meta(CHAIN_META_KEY)
+	if is_instance_valid(cooldown_timer):
+		cooldown_timer.queue_free()
+
+static func _on_revert_stun_timeout(target: Node, revert_timer: Timer) -> void:
+	if is_instance_valid(revert_timer):
+		revert_timer.queue_free()
+	_revert_stun_visual(target)
 
 static func _revert_stun_visual(target: Node) -> void:
 	if not is_instance_valid(target):

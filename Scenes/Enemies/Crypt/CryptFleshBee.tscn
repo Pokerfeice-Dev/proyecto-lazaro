@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
+[ext_resource type="Resource" path="res://Art/Items/Crypt/mandibula_carnivora.tres" id="2"]
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+
+[node name="CryptFleshBee" instance=ExtResource("1")]
+kind = 6
+codex_id = "crypt_flesh_bee"
+display_name = "Abeja carnívora"
+max_health = 22
+move_speed = 150.0
+damage = 6
+attack_range = 230.0
+anticipation_time = 0.65
+attack_duration = 0.25
+recovery_time = 1.5
+item_drop_chance = 0.18
+all_items = Array[ExtResource("3")]([ExtResource("2")])
+
+[node name="Body" parent="Sprite2D" index="0"]
+color = Color(0.7215686274509804, 0.6431372549019608, 0.2784313725490196, 1)
+
+[node name="Accent" parent="Sprite2D" index="1"]
+color = Color(0.7215686274509804, 0.6431372549019608, 0.2784313725490196, 0.7)
+[node name="NameLabel" parent="." index="3"]
+text = "Abeja carnívora"

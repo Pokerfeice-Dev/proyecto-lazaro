@@ -72,6 +72,19 @@ const ENEMIES: Array[Dictionary] = [
 	{"name": "Jefe 3 (Prometeo)", "path": "res://Scenes/Enemies/Boss3_Prometeo.tscn"}
 ]
 
+## El Spawner separa los encuentros de La Cripta para probar sus fases sin
+## avanzar hasta el nivel 2 ni mezclar los nombres con los enemigos del nivel 1.
+const CRYPT_ENEMIES: Array[Dictionary] = [
+	{"name": "Gárgola (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptGargoyle.tscn"},
+	{"name": "Ghoul Acechante (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptGhoul.tscn"},
+	{"name": "Cienpiés Tóxico (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptCentipede.tscn"},
+	{"name": "Escuadrón de la Muerte (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptDeathSquad.tscn"},
+	{"name": "Ojo Torreta (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptLaserEye.tscn"},
+	{"name": "Apicultora Muerta (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptDeadBeekeeperSummoner.tscn"},
+	{"name": "Abeja Carnívora (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptFleshBee.tscn"},
+	{"name": "Campanero de Réquiem (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptBellKeeper.tscn"}
+]
+
 func _ready() -> void:
 	layer = 120
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -298,7 +311,7 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_speed_demon()
 	)
 
-	_add_synergy_card(tab, "Snowman", "snowman", "Escopeta + Mezcladora, Cabeza Humana, Nitrógeno", func():
+	_add_synergy_card(tab, "Avalanche", "snowman", "Escopeta + Mezcladora, Cabeza Humana, Nitrógeno", func():
 		_activate_synergy_snowman()
 	)
 
@@ -433,7 +446,7 @@ func _activate_synergy_snowman() -> void:
 		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.MAIN_W2},
 		{"path": "res://Art/Items/Weapons/Item12_Nitrogeno.tres", "slot": ItemData.ItemSlot.MAIN_W3}
 	])
-	_show_status("Sinergia 'Snowman' (Escopeta) activada y equipada.")
+	_show_status("Sinergia 'Avalanche' (Escopeta) activada y equipada.")
 
 func _activate_synergy_wolfsbane() -> void:
 	GameData.unlock_synergy("hombre_lobo")
@@ -757,6 +770,17 @@ func _create_spawner_tab(tabs: TabContainer) -> void:
 	
 	for enemy in ENEMIES:
 		var btn = _create_button(enemy.name, func(): _spawn_scene_near_player(enemy.path, enemy.name))
+		tab.add_child(btn)
+
+	var crypt_sep = HSeparator.new()
+	tab.add_child(crypt_sep)
+	var crypt_label = Label.new()
+	crypt_label.text = "Enemigos de La Cripta · Nivel 2:"
+	crypt_label.add_theme_font_size_override("font_size", 14)
+	crypt_label.add_theme_color_override("font_color", Color(0.68, 0.45, 0.95))
+	tab.add_child(crypt_label)
+	for enemy in CRYPT_ENEMIES:
+		var btn = _create_button(enemy.name, func(): _spawn_scene_near_player(enemy.path, enemy.name), Color(0.72, 0.55, 1.0))
 		tab.add_child(btn)
 		
 	var sep = HSeparator.new()

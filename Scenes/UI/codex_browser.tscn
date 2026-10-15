@@ -1,0 +1,186 @@
+[gd_scene load_steps=8 format=3]
+[ext_resource type="Script" path="res://Scripts/UI/Codex/codex_browser.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/synergy_recipe_research.tscn" id="2"]
+[ext_resource type="Script" path="res://Scripts/UI/Codex/codex_anim.gd" id="3"]
+[ext_resource type="Theme" path="res://Art/Ui/inventory_theme.tres" id="4"]
+
+[sub_resource type="StyleBoxFlat" id="panel"]
+bg_color = Color(0.025, 0.065, 0.078, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 0.29, 0.32, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+content_margin_left = 24.0
+content_margin_top = 20.0
+content_margin_right = 24.0
+content_margin_bottom = 20.0
+
+[sub_resource type="Animation" id="select"]
+resource_name = "select"
+length = 0.22
+tracks/0/type = "value"
+tracks/0/path = NodePath("Body/DetailPanel/DetailScroll/DetailBody:modulate")
+tracks/0/interp = 1
+tracks/0/keys = {"times": PackedFloat32Array(0, 0.22), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [Color(0.55, 0.85, 0.85, 0.4), Color(1, 1, 1, 1)]}
+[sub_resource type="AnimationLibrary" id="library"]
+_data = {&"select": SubResource("select")}
+[node name="CodexBrowser" type="VBoxContainer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("4")
+theme_override_constants/separation = 16
+script = ExtResource("1")
+
+[node name="Eyebrow" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.3, 0.85, 0.79, 1)
+text = "ARCHIVO BIOLÓGICO / CÓDICE"
+
+[node name="Toolbar" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Search" type="LineEdit" parent="Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(300, 48)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+placeholder_text = "Buscar por nombre…"
+clear_button_enabled = true
+
+[node name="RegisteredOnly" type="CheckButton" parent="Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Solo registrados"
+
+[node name="Count" type="Label" parent="Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "0 registros"
+
+[node name="Body" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="Library" type="VBoxContainer" parent="Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(440, 0)
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.85
+
+[node name="Empty" type="Label" parent="Body/Library"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 2
+
+[node name="EntriesScroll" type="ScrollContainer" parent="Body/Library"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="EntryGrid" type="GridContainer" parent="Body/Library/EntriesScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+
+[node name="DetailPanel" type="PanelContainer" parent="Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(520, 0)
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.15
+theme_override_styles/panel = SubResource("panel")
+
+[node name="DetailScroll" type="ScrollContainer" parent="Body/DetailPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="DetailBody" type="VBoxContainer" parent="Body/DetailPanel/DetailScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
+
+[node name="EntryStatus" type="Label" parent="Body/DetailPanel/DetailScroll/DetailBody"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.3, 0.85, 0.79, 1)
+text = "REGISTRO"
+
+[node name="EntryTitle" type="Label" parent="Body/DetailPanel/DetailScroll/DetailBody"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+autowrap_mode = 2
+text = "Seleccioná un registro"
+
+[node name="HeroStage" type="PanelContainer" parent="Body/DetailPanel/DetailScroll/DetailBody"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 240)
+theme_override_styles/panel = SubResource("panel")
+
+[node name="Hero" type="TextureRect" parent="Body/DetailPanel/DetailScroll/DetailBody/HeroStage"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 200)
+mouse_filter = 2
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+script = ExtResource("3")
+
+[node name="Mystery" type="Label" parent="Body/DetailPanel/DetailScroll/DetailBody/HeroStage"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.3, 0.85, 0.79, 1)
+text = "SÍNTESIS POR DESCUBRIR"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Description" type="Label" parent="Body/DetailPanel/DetailScroll/DetailBody"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Descripción del registro."
+autowrap_mode = 2
+
+[node name="Statistics" type="Label" parent="Body/DetailPanel/DetailScroll/DetailBody"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.65, 0.83, 0.84, 1)
+autowrap_mode = 2
+
+[node name="Recipe" parent="Body/DetailPanel/DetailScroll/DetailBody" instance=ExtResource("2")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+allow_purchase = false
+
+[node name="Transition" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {&"": SubResource("library")}

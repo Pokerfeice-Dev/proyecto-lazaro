@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bjo7lxn7gand5" path="res://Scripts/World/torch.gd" id="1_6vquh"]
 [ext_resource type="Texture2D" uid="uid://btfyy05cd2e1i" path="res://Art/Miscellaneous/wallcandles_spritesheet.png" id="2_6vquh"]
-[ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="3_6vquh"]
+[ext_resource type="Texture2D" path="res://Art/Lights/candle_light_mask.svg" id="3_6vquh"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_u3w1y"]
 atlas = ExtResource("2_6vquh")
@@ -45,8 +45,8 @@ frame_progress = 0.45811817
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=64839203]
 position = Vector2(0, -10)
-scale = Vector2(2.5, 2.5)
+scale = Vector2(2.2, 2.2)
 color = Color(0.8689996, 0.5320808, 0.9322823, 1)
-energy = 0.9
+energy = 0.75
 texture = ExtResource("3_6vquh")
-texture_scale = 0.6
+texture_scale = 0.72

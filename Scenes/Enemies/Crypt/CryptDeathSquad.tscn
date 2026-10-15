@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/Crypt/crypt_enemy_base.tscn" id="1"]
+[ext_resource type="Resource" path="res://Art/Items/Crypt/placa_funeraria.tres" id="2"]
+[ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="3"]
+
+[node name="CryptDeathSquad" instance=ExtResource("1")]
+kind = 3
+codex_id = "crypt_death_squad"
+display_name = "Escuadrón de la muerte"
+max_health = 100
+move_speed = 75.0
+damage = 13
+attack_range = 290.0
+anticipation_time = 0.65
+attack_duration = 0.55
+recovery_time = 1.4
+item_drop_chance = 0.18
+all_items = Array[ExtResource("3")]([ExtResource("2")])
+
+[node name="Body" parent="Sprite2D" index="0"]
+color = Color(0.796078431372549, 0.40784313725490196, 0.5176470588235295, 1)
+
+[node name="Accent" parent="Sprite2D" index="1"]
+color = Color(0.796078431372549, 0.40784313725490196, 0.5176470588235295, 0.7)
+[node name="NameLabel" parent="." index="3"]
+text = "Escuadrón de la muerte"

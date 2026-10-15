@@ -49,7 +49,7 @@ func verify() -> void:
 	check(not ui.stats_weapon_vbox.get_node("Projectiles").visible, "primary rows hidden")
 	ui.stats_tab_primary_btn.pressed.emit()
 	ui.tab_codex_btn.pressed.emit()
-	check(ui.codex_view.visible and ui.codex_grid.get_child_count() > 0, "codex populated")
+	check(ui.codex_view.visible and not ui.codex_browser._entries.is_empty(), "codex populated")
 	ui.codex_category_buttons["items"].pressed.emit()
 	await get_tree().process_frame
 	ui.tab_inventory_btn.pressed.emit()
@@ -71,7 +71,7 @@ func verify() -> void:
 	check(popup.synergy_id == "pistola_mente_colmena", "correct synergy")
 	player._update_player_stats()
 	check(SynergyManager._presentation_queue.is_empty(), "no duplicate on refresh")
-	await get_tree().create_timer(2.1, true).timeout
+	await wait_for_reveal(popup)
 	check(popup._can_dismiss, "reveal completes while paused")
 	await snapshot("lazaro-synergy-activation.png")
 	SynergyManager.present_activation("roadkill", true)
@@ -79,7 +79,7 @@ func verify() -> void:
 	await get_tree().create_timer(.4, true).timeout
 	popup = get_tree().root.get_node_or_null("SynergyActivation")
 	check(popup != null and popup.synergy_id == "roadkill", "queue advances")
-	await get_tree().create_timer(1.9, true).timeout
+	await wait_for_reveal(popup)
 	popup._on_continue_pressed()
 	await get_tree().create_timer(.4, true).timeout
 	check(get_tree().paused, "inventory pause preserved")
@@ -87,10 +87,16 @@ func verify() -> void:
 	ui.hide()
 	get_tree().paused = false
 	SynergyManager.present_activation("relampago")
-	await get_tree().create_timer(2.0, true).timeout
+	await get_tree().process_frame
 	popup = get_tree().root.get_node_or_null("SynergyActivation")
+	await wait_for_reveal(popup)
 	popup._on_continue_pressed()
 	await get_tree().create_timer(.4, true).timeout
 	check(not get_tree().paused, "gameplay resumes if originally unpaused")
 	print("INVENTORY_AND_SYNERGY_VERIFIED")
 	get_tree().quit()
+
+func wait_for_reveal(popup: Node) -> void:
+	for attempt in 60:
+		if not is_instance_valid(popup) or popup._can_dismiss: return
+		await get_tree().create_timer(0.1, true).timeout

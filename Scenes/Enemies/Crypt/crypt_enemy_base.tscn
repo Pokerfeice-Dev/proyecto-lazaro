@@ -1,0 +1,113 @@
+[gd_scene load_steps=9 format=3]
+[ext_resource type="Script" path="res://Scripts/Enemies/crypt_enemy.gd" id="1"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="2"]
+[sub_resource type="CircleShape2D" id="body"]
+radius = 14.0
+[sub_resource type="Animation" id="anticipation"]
+resource_name = "anticipation"
+length = 0.3
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite2D:scale")
+tracks/0/keys = {"times": PackedFloat32Array(0, 0.15, 0.3), "transitions": PackedFloat32Array(1,1,1), "update": 0, "values": [Vector2(1,1), Vector2(1.15,0.85), Vector2(1,1)]}
+[sub_resource type="Animation" id="attack"]
+resource_name = "attack"
+length = 0.25
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite2D:scale")
+tracks/0/keys = {"times": PackedFloat32Array(0, 0.08, 0.25), "transitions": PackedFloat32Array(1,1,1), "update": 0, "values": [Vector2(1,1), Vector2(0.8,1.3), Vector2(1,1)]}
+[sub_resource type="Animation" id="reset"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite2D:scale")
+tracks/0/keys = {"times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [Vector2(1,1)]}
+[sub_resource type="AnimationLibrary" id="library"]
+_data = {&"anticipation": SubResource("anticipation"), &"attack": SubResource("attack"), &"RESET": SubResource("reset")}
+[sub_resource type="StyleBoxFlat" id="health"]
+bg_color = Color(0.8, 0.2, 0.24, 1)
+[node name="CryptEnemy" type="CharacterBody2D" groups=["enemy"]]
+collision_layer = 2
+collision_mask = 7
+script = ExtResource("1")
+detection_radius = 420.0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+[node name="Sprite2D" type="Node2D" parent="."]
+[node name="Body" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-16, -12, 0, -22, 16, -12, 18, 12, 0, 20, -18, 12)
+color = Color(0.6, 0.6, 0.8, 1)
+[node name="Accent" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-24, -8, -16, -16, -10, -4, 10, -4, 16, -16, 24, -8, 10, 6, -10, 6)
+color = Color(0.8, 0.8, 1, 0.7)
+[node name="Eye" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-5, -4, 5, -4, 5, 3, -5, 3)
+color = Color(0.1, 0.12, 0.15, 1)
+[node name="HealthBar" type="ProgressBar" parent="."]
+offset_left = -20.0
+offset_top = -32.0
+offset_right = 20.0
+offset_bottom = -28.0
+show_percentage = false
+theme_override_styles/fill = SubResource("health")
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -65.0
+offset_top = -49.0
+offset_right = 65.0
+offset_bottom = -33.0
+theme_override_font_sizes/font_size = 11
+text = "Gárgola"
+horizontal_alignment = 1
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -70.0
+offset_top = 25.0
+offset_right = 70.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+horizontal_alignment = 1
+[node name="Telegraph" type="Node2D" parent="."]
+visible = false
+z_index = -1
+[node name="Cone" type="Polygon2D" parent="Telegraph"]
+color = Color(1, 0.7, 0.15, 0.25)
+polygon = PackedVector2Array(0,0, 50,-40, 65,0, 50,40)
+[node name="Line" type="Line2D" parent="Telegraph"]
+points = PackedVector2Array(0,0, 180,0)
+width = 2.0
+default_color = Color(1, 0.75, 0.2, 0.8)
+[node name="AttackVisual" type="Node2D" parent="."]
+visible = false
+z_index = -1
+[node name="Cone" type="Polygon2D" parent="AttackVisual"]
+color = Color(0.5, 1, 0.15, 0.45)
+polygon = PackedVector2Array(0,0, 50,-40, 65,0, 50,40)
+[node name="Line" type="Line2D" parent="AttackVisual"]
+points = PackedVector2Array(0,0, 180,0)
+width = 20.0
+default_color = Color(1, 0.2, 0.2, 0.85)
+[node name="StoneShield" type="Polygon2D" parent="."]
+visible = false
+polygon = PackedVector2Array(-23,-16,0,-29,23,-16,25,16,0,28,-25,16)
+color = Color(0.7, 0.78, 0.85, 0.85)
+[node name="RearRush" type="Line2D" parent="."]
+visible = false
+points = PackedVector2Array(-24,-12,-30,0,-24,12)
+width = 3.0
+default_color = Color(1, 0.4, 0.65, 1)
+[node name="PhaseTimer" type="Timer" parent="."]
+one_shot = true
+[node name="BurstTimer" type="Timer" parent="."]
+wait_time = 0.16
+one_shot = true
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": SubResource("library")}
+[node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2")
+volume_db = -22.0
+pitch_scale = 1.6
+bus = &"SFX"
+[node name="DeathSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2")
+volume_db = -12.0
+bus = &"SFX"
