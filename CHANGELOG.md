@@ -1,3 +1,88 @@
+## 2026-10-18 (Sinergia nueva del hacha: Alto Octanaje)
+
+- **Alto Octanaje** (hacha + Bidón de Gasolina, Núcleo de Motocicleta y Glándula tóxica):
+  - Cada hachazo deja al enemigo manchado de gasolina durante 8 segundos (`Scripts/Effects/fuel_soak.gd`): gotea y tiene debajo un charco con reflejos de combustible.
+  - Si una bala tuya le pega mientras está manchado, explota (`Scripts/Effects/fuel_explosion.gd`): radio chico, daño moderado (1,5 veces el hachazo, entre 15 y 40), empuje y una quemadura corta.
+  - La explosión hace estallar en cadena a los otros manchados que alcance.
+  - También te lastima si estás dentro del radio (40% del daño, entre 6 y 18). El dash te salva.
+  - Funciona con todas las balas del jugador, incluidas las de las otras sinergias (Roadkill, Lanzallamas, Relámpago, Avalanche, abejas).
+  - Tiene pista de investigación, ficha en O.M.N.I.A. (300 de chatarra), carta en el menú de depuración y entrada en la incubadora del entrenamiento.
+  - El sprite del hacha es provisorio (un motor con cara de demonio que gotea aceite, `Art/Weapons/Melee/Axe/synergy_altooctanaje_sprite.png`): se reemplaza cuando esté el dibujo final.
+- **Muertes con chiste:** si te mata tu propia explosión, la pantalla de muerte dice "Tu propia gasolina" y suma una frase al azar ("Lázaro jugó con fuego. Literalmente.", etc.). Las frases están en `RunEndScreen.KILLER_JOKES`, así se pueden sumar otras muertes.
+- **Pantalla de muerte:** la tecla E ya no se estira al alto del botón.
+
+## 2026-10-18 (Listas que acompañan al foco del joystick)
+
+- **Las listas siguen la selección:** al bajar con la cruceta o el analógico por el códice, la síntesis, O.M.N.I.A. u otras listas, la lista se desplaza para mostrar entera la ficha elegida (antes quedaba cortada abajo).
+- **Analógico derecho:**
+  - Ahora mueve hacia arriba o abajo la lista donde está la selección (antes no hacía nada visible en el códice).
+  - Si la ficha elegida sale de la vista, la selección pasa a la que quedó en pantalla.
+  - Se respeta el paso de las barras de desplazamiento (36 px en el códice), que antes redondeaba el movimiento a cero.
+
+## 2026-10-17 (Joystick: arreglos de menús, equipar en un casillero elegido y pantalla de muerte nueva)
+
+- **Ventanas que se quedaban trabadas con joystick:** al comprar en O.M.N.I.A. (y en otras ventanas encima de menús), el foco quedaba en lo de atrás. A apretaba la ficha del fondo en vez de cerrar el cartel, y la cruceta movía el menú de atrás.
+  - Ahora cada ventana encima de otra es "modal" (`PadFocus.push_modal`): el foco no puede salir de ella, A aprieta su botón y, al cerrarla, el foco vuelve a donde estaba.
+  - Se aplica a los carteles de O.M.N.I.A. (pista e investigación), O.M.N.I.A., el inventario, la pausa, las opciones, la armería, las ventanas genéricas, los popups de tutorial y de sinergia y el cartel de partida nueva.
+- **Pistas de síntesis con joystick:** los botones para comprar una pista (el ojo con el precio) ahora se eligen con la cruceta y se compran con A.
+- **Gatillos LT / RT en el códice:** cambian una sola categoría por pulsación (antes saltaban varias según cuánto se apretara).
+- **Objetos del piso:** el cartel muestra el botón X con joystick (antes seguía la E).
+- **Inventario, equipar donde quieras con joystick:**
+  - A sobre un objeto de la mochila lo elige y marca en verde los casilleros donde entra (en rojo los demás), como al arrastrarlo con el mouse.
+  - Moverte hasta un casillero marcado y apretar X lo equipa ahí.
+  - X sobre el objeto (sin elegir casillero) lo sigue equipando en el primer lugar libre. B suelta el objeto elegido; otra B cierra el inventario.
+- **Opción nueva:** Opciones > Juego > "Asistencia de apuntado (joystick)", para apagar la ayuda que lleva la mira hacia el enemigo.
+- **Pantallas de muerte y de victoria nuevas** (`Scripts/UI/run_end_screen.gd`):
+  - Usan el estilo de la UI del juego: título grande, pestaña "RESUMEN DE LA RUN", filas con íconos, números que cuentan hacia arriba y el botón dorado.
+  - El botón arranca enfocado con joystick (se aprieta con A). También responde a Enter, E y el mouse.
+  - La mira del joystick se esconde detrás de estas pantallas y de los menús.
+  - Salieron de `player.gd` (que solo las llama).
+- **Español neutro:**
+  - Pantallas de fin de run: "VUÉLVETE MÁS FUERTE E INTÉNTALO DE NUEVO" y "VUELVE AL LABORATORIO A SEGUIR MEJORANDO".
+  - Opción de VSync: "Si sientes los controles lentos, prueba desactivarlo".
+
+## 2026-10-17 (Soporte de joystick, sinergia Holy Fire y retrato de Ygor)
+
+- **Joystick (Xbox) en todo el juego** (`Scripts/System/input_mode.gd`, clase `InputMode`, sin autoload nuevo):
+  - Se detecta solo: apenas tocas un botón o mueves un analógico, la interfaz y los controles pasan al joystick. Con teclado o mouse vuelven solos.
+  - **Jugando:**
+	- Analógico izquierdo: moverse. Analógico derecho: apuntar.
+	- RT: disparar. LT: melee.
+	- A: dash. X: interactuar (puertas, cofres, carteles, NPC, objetos).
+	- Y o Select (View): inventario. Start (Menu): pausa.
+  - **Apuntado con el analógico derecho:**
+	- Tiene una ayuda suave hacia el enemigo que esté casi en la línea de tiro.
+	- Las armas, la cámara y los enemigos que miran al jugador usan `player.get_aim_position()` en vez del mouse.
+	- Con joystick se esconde el cursor y aparece una mira donde apuntas (`pad_crosshair.gd`).
+  - **En los menús:**
+	- Analógico o cruceta para moverse, A aceptar, B volver.
+	- LB / RB cambian de pestaña (inventario/códice/síntesis, O.M.N.I.A. y opciones). LT / RT cambian la categoría del códice.
+	- X equipa o quita objetos en el inventario y el clic del analógico derecho compara. El analógico derecho desplaza las listas y la ficha del códice.
+  - **Foco con joystick:**
+	- Un marco dorado que late marca el botón enfocado (`pad_focus.gd`).
+	- Si un menú se abre sin nada enfocado, la cruceta enfoca su primer botón.
+	- Los botones que con mouse no toman foco sí lo toman con joystick (`pad_focusable.gd`), así Espacio y Enter siguen sin apretarlos sin querer.
+  - **La interfaz muestra los botones del joystick en vez de las teclas:**
+	- Los botones se dibujan por código (`pad_glyph.gd`) y se cambian solos al pasar de un modo al otro (`keycap_switch.gd`).
+	- Afecta a los carteles del mundo, el diálogo de Ygor y Victoria, el tutorial (W A S D pasa a ser un solo analógico), los popups de tutorial, el inventario, la pausa, las opciones, O.M.N.I.A., la armería, las ventanas y la intro.
+  - **Inventario con joystick:** al abrir, el foco va al primer casillero. Moverse muestra el cartel del objeto, A lo selecciona y X lo equipa o lo quita.
+  - **Armería:** A elige el arma enfocada y Start confirma.
+  - **Pausa:** los volúmenes se pueden mover con la cruceta.
+  - El cambio de arma no tiene botón (está deshabilitado en el juego). Las teclas F del menú de depuración siguen siendo solo de teclado.
+- **Sinergia nueva: Holy Fire (maza):**
+  - Se arma con el Bidón de Gasolina, los Pulmones y la Cabeza Humana.
+  - Cada golpe quema al enemigo y le deja una lengua de fuego sobre la cabeza (`Scripts/Effects/holy_fire_tongue.gd`).
+  - La lengua escupe fuego en 8 direcciones cada poco; los escupitajos caen en arco y queman a los enemigos de alrededor (`holy_fire_spit.gd`).
+  - Si golpeas a otro enemigo, la lengua salta hacia él. Si su enemigo muere, busca al más cercano; si no hay ninguno, se apaga.
+  - Tiene sprite propio de la maza, efecto de la lengua y proyectil, ficha en O.M.N.I.A., pista de investigación, carta en el menú de depuración y entrada en la incubadora del entrenamiento.
+- **Ygor:** el códice y el aviso de "nuevo registro" usan su sprite del juego (`Art/Codex/ygor_codex_icon.tres`).
+- **HUD:** las armas con sinergia animada (Holy Fire, Speed Demon) muestran solo el primer cuadro en el ícono del arma, no la tira entera.
+- **Español neutro:**
+  - Descripciones de sinergias ("Acumulas", "mantienes", "tienes", "eliminas", "atacas", "a ti").
+  - Códice ("Selecciona", "Explora", "encuentra", "Visita").
+  - Intro ("Haz clic o presiona una tecla para saltar").
+  - Popup de tutorial ("haz clic").
+
 ## 2026-10-15 (Apariciones de jefes, carteles de fase y ajustes del lab y el entrenamiento)
 
 - **El tutorial no se repite:** al completarlo queda guardado en la partida (`has_completed_tutorial`). Al volver a la sala de entrenamiento están la armería, la incubadora, Victoria y el maniquí, pero sin los pasos, la tarjeta ni las manitos.

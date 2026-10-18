@@ -18,6 +18,8 @@ var _closing: bool = false
 var _can_dismiss: bool = false
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
+const CONTINUE_KEYS := "CONTINUAR   [E]"
+const CONTINUE_PAD := "CONTINUAR   [A]"
 
 func setup(id: String, is_first_discovery: bool = false) -> void:
 	synergy_id = id
@@ -26,6 +28,9 @@ func setup(id: String, is_first_discovery: bool = false) -> void:
 func _ready() -> void:
 	_was_paused = get_tree().paused
 	get_tree().paused = true
+	_update_continue_text(InputMode.is_gamepad())
+	InputMode.instance().mode_changed.connect(_update_continue_text)
+	PadFocus.push_modal(self) # con joystick el foco no queda en el inventario de atrás
 	var definition: Dictionary = SynergyManager.SYNERGIES.get(synergy_id, {})
 	if not definition.is_empty():
 		%SynergyName.text = str(definition.get("name", synergy_id)).to_upper()
@@ -156,3 +161,7 @@ func _restore_pause() -> void:
 
 func _exit_tree() -> void:
 	_restore_pause()
+
+# El botón muestra la tecla o el botón del joystick con el que se sigue.
+func _update_continue_text(gamepad: bool) -> void:
+	%ContinueButton.text = CONTINUE_PAD if gamepad else CONTINUE_KEYS

@@ -63,7 +63,7 @@ const SYNERGIES = {
 	},
 	"trituradora_biomecanica": {
 		"name": "Impulso Ligero",
-		"description": "Carga Cinética: Acumulás energía al moverte rápidamente. Al máximo, tu próximo dash genera una onda de choque (daño y empuje en área) y otorga 0.5s de invulnerabilidad. Otorga +10% vel. movimiento y -15% cooldown de dash.",
+		"description": "Carga Cinética: Acumulas energía al moverte rápidamente. Al máximo, tu próximo dash genera una onda de choque (daño y empuje en área) y otorga 0.5s de invulnerabilidad. Otorga +10% vel. movimiento y -15% cooldown de dash.",
 		"required_items": ["torso_ligero", "piernas_rodantes", "brazo_ligero"],
 		"stat_modifiers": {
 			"move_speed_percent": 0.10,
@@ -91,7 +91,7 @@ const SYNERGIES = {
 	},
 	"lanzallamas": {
 		"name": "Lanzallamas",
-		"description": "Reemplaza la escopeta por un lanzallamas de alcance corto. Quema al impactar (daño en el tiempo) y el alcance aumenta rápido mientras mantenés presionado el disparo.",
+		"description": "Reemplaza la escopeta por un lanzallamas de alcance corto. Quema al impactar (daño en el tiempo) y el alcance aumenta rápido mientras mantienes presionado el disparo.",
 		"required_weapon": "shotgun",
 		"required_items": ["cabeza_de_perro", "cabeza_de_perro", "cabeza_de_perro"],
 		"stat_modifiers": {},
@@ -106,14 +106,14 @@ const SYNERGIES = {
 	},
 	"daga_del_odio": {
 		"name": "Nemesis",
-		"description": "La daga adopta la furia de Nemesis: cuanto menos vida tenés, más descomunal es su tamaño, velocidad, alcance, probabilidad y daño crítico (efectos duplicados). Además, si eliminás a un enemigo teniendo menos del 50% de vida, regenerás salud.",
+		"description": "La daga adopta la furia de Nemesis: cuanto menos vida tienes, más descomunal es su tamaño, velocidad, alcance, probabilidad y daño crítico (efectos duplicados). Además, si eliminas a un enemigo teniendo menos del 50% de vida, regenerás salud.",
 		"required_weapon": "daga",
 		"required_items": ["sierra_circular", "aguijon_mecanico", "cabeza_de_perro"],
 		"stat_modifiers": {}
 	},
 	"arrogancia": {
 		"name": "Arrogancia",
-		"description": "Mientras atacás con la maza, cualquier bala enemiga que te toque durante el golpe rebota devuelta (con daño reducido) hacia los enemigos, en vez de pegarte a vos.",
+		"description": "Mientras atacas con la maza, cualquier bala enemiga que te toque durante el golpe rebota devuelta (con daño reducido) hacia los enemigos, en vez de pegarte a ti.",
 		"required_weapon": "maze",
 		"required_items": ["mezcladora", "cabeza_humana", "colmena"],
 		"stat_modifiers": {}
@@ -136,6 +136,20 @@ const SYNERGIES = {
 		"stat_modifiers": {
 			"attack_speed": 2.0
 		}
+	},
+	"holy_fire": {
+		"name": "Holy Fire",
+		"description": "La maza arde con fuego sagrado: cada golpe quema al enemigo y le deja una lengua de fuego sobre la cabeza que escupe llamas en 8 direcciones, quemando a los enemigos de alrededor. Si golpeas a otro enemigo, la lengua salta hacia él.",
+		"required_weapon": "maze",
+		"required_items": ["gasolina", "pulmones", "cabeza_humana"],
+		"stat_modifiers": {}
+	},
+	"alto_octanaje": {
+		"name": "Alto Octanaje",
+		"description": "El hacha lleva un motor que escupe gasolina: cada hachazo deja al enemigo empapado. Si le disparas mientras está manchado, explota y hace estallar en cadena a los manchados de alrededor. Cuidado: la explosión también te alcanza a ti.",
+		"required_weapon": "hacha",
+		"required_items": ["gasolina", "motocicleta", "glandula_toxica"],
+		"stat_modifiers": {}
 	},
 	"snowman": {
 		"name": "Avalanche",

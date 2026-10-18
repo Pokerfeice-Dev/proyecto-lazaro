@@ -12,6 +12,7 @@ func _process_body_hit(body: Node2D) -> void:
 		_handle_wall_collision()
 		return
 	body.take_damage(damage, is_crit)
+	_notify_bullet_hit(body)
 	IgniteEffect.apply_ignite(body, burn_damage_per_tick, burn_tick_interval, burn_duration)
 	_spawn_impact_flame()
 	_handle_piercing_or_destroy(body)

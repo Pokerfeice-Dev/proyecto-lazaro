@@ -69,7 +69,7 @@ func _input(event: InputEvent) -> void:
 func _is_interact_action(event: InputEvent) -> bool:
 	if event.is_action_pressed("interact"):
 		return true
-	if event is InputEventKey and event.physical_keycode == KEY_E and event.pressed and not event.echo:
+	if InputMode.is_interact(event): # E o X del joystick
 		return true
 	return false
 

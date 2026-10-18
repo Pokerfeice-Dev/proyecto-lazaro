@@ -65,7 +65,7 @@ func _input(event: InputEvent) -> void:
 	_talk_to_ygor()
 
 func _is_key_e_pressed(event: InputEvent) -> bool:
-	return event is InputEventKey and event.physical_keycode == KEY_E and event.pressed and not event.echo
+	return InputMode.is_interact(event) # E o X del joystick
 
 func _talk_to_ygor() -> void:
 	GameData.unlock_codex_entry("npcs", "ygor")

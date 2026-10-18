@@ -12,6 +12,8 @@ extends Resource
 	"hombre_lobo": "Entre lo humano y lo canino, una punta artificial completa la transformación.",
 	"arrogancia": "Un recipiente que gira reúne un rostro solitario y una multitud que zumba.",
 	"speed_demon": "El camino, los dientes giratorios y una carga almacenada no conocen el descanso.",
+	"holy_fire": "Algo que arde, un último aliento y un rostro dispuesto a escupir fuego.",
+	"alto_octanaje": "Algo que arde, un corazón que ruge en el asfalto y una glándula que escupe veneno.",
 	"snowman": "Un rostro entra en una mezcla cuyo último ingrediente guarda un frío extremo.",
 	"bestia_de_caza": "Espinas en el pecho, un brazo listo para luchar y las patas de un cazador.",
 	"trituradora_biomecanica": "Un cuerpo liviano busca un brazo igual de ligero y una forma de rodar.",

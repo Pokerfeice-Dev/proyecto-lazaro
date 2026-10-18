@@ -2,7 +2,7 @@ extends CanvasLayer
 class_name NpcDialogueBox
 
 ## Cuadro de diálogo inferior de los NPC (el de Ygor): nombre con rombo, rol,
-## texto que se escribe solo y pie "[E] Siguiente". Opcionalmente muestra el
+## texto que se escribe solo y pie "E Siguiente" (X con joystick). Opcionalmente muestra el
 ## retrato del NPC a la izquierda. Se cierra solo después de unos segundos.
 ## Uso:
 ##   _box = NpcDialogueBox.create(self, "YGOR", "Mercader de Prótesis y Órganos", color, retrato)
@@ -94,7 +94,10 @@ func _build() -> void:
 	vbox.add_child(_text)
 	var footer = HBoxContainer.new()
 	footer.alignment = BoxContainer.ALIGNMENT_END
-	footer.add_child(_label("[E] Siguiente", 14, Color(accent, 0.75)))
+	footer.add_theme_constant_override("separation", 8)
+	var key = UIStyle.keycap("E") # con joystick muestra la X
+	footer.add_child(key)
+	footer.add_child(_label("Siguiente", 14, Color(accent, 0.75)))
 	vbox.add_child(footer)
 
 func _style() -> StyleBoxFlat:

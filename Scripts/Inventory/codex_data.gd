@@ -285,7 +285,7 @@ const DATA = {
 			"name": "Ygor",
 			"lore": "Un enigmático sobreviviente que comercia con chatarra y componentes biológicos en las ruinas del complejo Lázaro.",
 			"stats": "Rol: Mercader de prótesis y órganos",
-			"icon": preload("res://Scenes/Ygor/Ygor-removebg-preview.png")
+			"icon": preload("res://Art/Codex/ygor_codex_icon.tres")
 		},
 		"victoria": {
 			"name": "Victoria",

@@ -299,8 +299,16 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_arrogancia()
 	)
 
+	_add_synergy_card(tab, "Holy Fire", "holy_fire", "Maza + Gasolina, Pulmones, Cabeza Humana", func():
+		_activate_synergy_holy_fire()
+	)
+
 	_add_synergy_card(tab, "Wolfsbane", "hombre_lobo", "Cabeza Humana, Cabeza de Perro, Aguijón Mecánico", func():
 		_activate_synergy_wolfsbane()
+	)
+
+	_add_synergy_card(tab, "Alto Octanaje", "alto_octanaje", "Hacha + Gasolina, Motocicleta, Glándula tóxica", func():
+		_activate_synergy_alto_octanaje()
 	)
 
 	_add_synergy_card(tab, "The Bride", "relampago", "Cabeza Humana, Batería, Cerebro", func():
@@ -430,6 +438,15 @@ func _activate_synergy_arrogancia() -> void:
 	])
 	_show_status("Sinergia 'Arrogancia' activada y equipada.")
 
+func _activate_synergy_holy_fire() -> void:
+	GameData.unlock_synergy("holy_fire")
+	_equip_melee_weapon_and_mods("res://Scenes/Weapon/mace.tscn", [
+		{"path": "res://Art/Items/Weapons/Item11_Gasolina.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item5.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.SEC_W3}
+	])
+	_show_status("Sinergia 'Holy Fire' (Maza) activada y equipada.")
+
 func _activate_synergy_speed_demon() -> void:
 	GameData.unlock_synergy("speed_demon")
 	_equip_melee_weapon_and_mods("res://Scenes/Weapon/dagger.tscn", [
@@ -477,6 +494,15 @@ func _equip_weapon_and_mods(weapon_path: String, mods: Array[Dictionary]) -> voi
 	var inv = player.get_node_or_null("Inventory")
 	for mod_info in mods:
 		_equip_slot_item(equip, inv, mod_info.path, mod_info.slot)
+
+func _activate_synergy_alto_octanaje() -> void:
+	GameData.unlock_synergy("alto_octanaje")
+	_equip_melee_weapon_and_mods("res://Scenes/Weapon/axe.tscn", [
+		{"path": "res://Art/Items/Weapons/Item11_Gasolina.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item6.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Crypt/glandula_toxica.tres", "slot": ItemData.ItemSlot.SEC_W3}
+	])
+	_show_status("Sinergia 'Alto Octanaje' (Hacha) activada y equipada.")
 
 func _equip_melee_weapon_and_mods(weapon_path: String, mods: Array[Dictionary]) -> void:
 	var player = _get_player()

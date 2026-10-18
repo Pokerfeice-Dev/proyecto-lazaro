@@ -200,7 +200,7 @@ func _check_purchase_input(event: InputEvent) -> void:
 	_attempt_purchase()
 
 func _is_key_e_pressed(event: InputEvent) -> bool:
-	return event is InputEventKey and event.physical_keycode == KEY_E and event.pressed and not event.echo
+	return InputMode.is_interact(event) # E o X del joystick
 
 func _attempt_purchase() -> void:
 	if not _has_enough_flesh():

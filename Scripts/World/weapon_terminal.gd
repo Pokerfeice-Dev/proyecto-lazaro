@@ -66,9 +66,7 @@ func _set_highlight(on: bool) -> void:
 
 func _input(event: InputEvent) -> void:
 	if not player_inside: return
-	if not event is InputEventKey: return
-	if event.physical_keycode != KEY_E: return
-	if not event.pressed or event.echo: return
+	if not InputMode.is_interact(event): return # E o X del joystick
 
 	WeaponSelectionMenu.show_popup(
 		self,

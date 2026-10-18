@@ -3,8 +3,8 @@ class_name UIWindow
 
 ## Ventana genérica con el estilo de la UI del juego: pestaña de título con
 ## ícono, panel principal, cuerpo, divisor y pie con botones y teclas.
-## Pausa el juego mientras está abierta (si se pide), ESC cierra y Enter
-## presiona el botón principal.
+## Pausa el juego mientras está abierta (si se pide), ESC (B) cierra y Enter
+## (A) presiona el botón principal.
 ## Uso:
 ##   var w = UIWindow.open("  O.M.N.I.A.", ICON_INFO)
 ##   w.body.add_child(...)
@@ -39,6 +39,12 @@ func _init() -> void:
 func _ready() -> void:
 	_play(OPEN_SOUND)
 	_animate_in()
+	_focus_primary.call_deferred()
+
+# Ventana modal: con joystick el foco arranca en el botón principal y no se
+# va a lo de atrás. Los botones se agregan después de abrirla, por eso es diferido.
+func _focus_primary() -> void:
+	PadFocus.push_modal(self, _primary if is_instance_valid(_primary) else null)
 
 func _input(event: InputEvent) -> void:
 	if _closing: return
@@ -46,10 +52,19 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_play(CLOSE_SOUND)
 		close()
-	elif event is InputEventKey and event.pressed and not event.echo and _primary:
-		if event.is_action_pressed("ui_accept") or event.physical_keycode == KEY_E:
-			get_viewport().set_input_as_handled()
-			_primary.pressed.emit()
+	elif _primary and _is_confirm(event) and not _pad_on_button(event):
+		get_viewport().set_input_as_handled()
+		_primary.pressed.emit()
+
+# Con joystick, A aprieta el botón enfocado (el que eligió con la cruceta).
+func _pad_on_button(event: InputEvent) -> bool:
+	return event is InputEventJoypadButton and get_viewport().gui_get_focus_owner() is BaseButton
+
+# Enter, E o el botón A del joystick.
+func _is_confirm(event: InputEvent) -> bool:
+	if event.is_action_pressed("ui_accept"):
+		return true
+	return event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_E
 
 ## Botón del pie. "key" muestra la tecla al lado (por ejemplo "E" o "ESC").
 ## El primer botón principal también se activa con Enter o E.
@@ -60,7 +75,8 @@ func add_button(text: String, primary: bool, key: String, callback: Callable) ->
 		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		footer.add_child(spacer)
 	if key != "":
-		footer.add_child(UIStyle.keycap(key))
+		# el principal se confirma con A en el joystick; el resto según la tecla
+		footer.add_child(UIStyle.keycap(key, "A" if primary and not _primary else ""))
 	var btn = UIStyle.button(text, primary, Vector2(0, 46), 18)
 	btn.custom_minimum_size.x = 190
 	btn.pressed.connect(callback)

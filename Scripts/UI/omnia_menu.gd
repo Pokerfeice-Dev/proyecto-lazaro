@@ -58,6 +58,7 @@ func _ready() -> void:
 	get_tree().paused = true
 	SceneTransition.set_menu_muffle(true)
 	_build_ui()
+	PadFocus.push_modal(self) # con joystick el foco no se va a lo de atrás
 	_show_category(_category)
 	_animate_in()
 
@@ -70,6 +71,16 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_play_sound(CANCEL_SOUND)
 		close()
+	elif event.is_action_pressed("ui_tab_prev") or event.is_action_pressed("ui_tab_next"):
+		get_viewport().set_input_as_handled()
+		_cycle_category(-1 if event.is_action_pressed("ui_tab_prev") else 1)
+
+# LB / RB del joystick: categoría anterior o siguiente.
+func _cycle_category(step: int) -> void:
+	var cats = OmniaCatalog.CATEGORIES
+	var i = wrapi(cats.find(_category) + step, 0, cats.size())
+	_selected_id = ""
+	_show_category(cats[i])
 
 # --- Construcción ---
 
@@ -123,6 +134,7 @@ func _build_top_bar(parent: Control) -> void:
 		tab.pressed.connect(_on_tab_pressed.bind(cat))
 		tabs.add_child(tab)
 		_tabs[cat] = tab
+	KeycapSwitch.add_tab_hints(tabs, 36.0)
 
 	var right = HBoxContainer.new()
 	right.add_theme_constant_override("separation", 24)
@@ -220,16 +232,23 @@ func _build_bottom_bar(parent: Control) -> void:
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	hbox.add_theme_constant_override("separation", 36)
 	bar.add_child(hbox)
-	_add_shortcut(hbox, UIStyle.icon(ICON_MOUSE, 24), "Seleccionar")
-	_add_shortcut(hbox, UIStyle.icon(ICON_MOUSE, 24), "Doble clic: comprar")
+	var select = _add_shortcut(hbox, UIStyle.icon(ICON_MOUSE, 24), "Seleccionar")
+	KeycapSwitch.swap_icon(select, "DPAD")
+	var buy = _add_shortcut(hbox, UIStyle.icon(ICON_MOUSE, 24), "Doble clic: comprar")
+	KeycapSwitch.swap_icon(buy, "A")
+	var buy_text = buy.get_parent().get_child(buy.get_parent().get_child_count() - 1) as Label
+	var pad_text = UIStyle.label("Comprar", 18, UIStyle.COLOR_MUTED)
+	buy_text.add_sibling(pad_text)
+	KeycapSwitch.swap(buy_text, pad_text)
 	_add_shortcut(hbox, UIStyle.keycap("Esc"), "Volver")
 
-func _add_shortcut(parent: Control, key: Control, text: String) -> void:
+func _add_shortcut(parent: Control, key: Control, text: String) -> Control:
 	var item = HBoxContainer.new()
 	item.add_theme_constant_override("separation", 8)
 	item.add_child(key)
 	item.add_child(UIStyle.label(text, 18, UIStyle.COLOR_MUTED))
 	parent.add_child(item)
+	return key
 
 # --- Categorías y lista ---
 
@@ -299,9 +318,13 @@ func _build_list() -> void:
 				_ignore_mouse(child)
 		card.pressed.connect(_select.bind(entry.id))
 		card.gui_input.connect(_on_card_input.bind(entry.id))
+		card.focus_entered.connect(_select.bind(entry.id)) # joystick: moverse ya selecciona
+		PadFocusable.attach(card)
 		container.add_child(card)
 		_cards[entry.id] = card
 	_update_card_styles()
+	if InputMode.is_gamepad() and _cards.has(_selected_id):
+		_cards[_selected_id].grab_focus.call_deferred()
 
 # Ficha con el sprite grande (armas y sinergias).
 func _make_tile(entry: Dictionary, index: int) -> Button:
@@ -443,8 +466,12 @@ func _select(id: String) -> void:
 	_refresh_detail()
 
 func _on_card_input(event: InputEvent, id: String) -> void:
-	if event is InputEventMouseButton and event.double_click and event.button_index == MOUSE_BUTTON_LEFT:
+	var double_click = event is InputEventMouseButton and event.double_click and event.button_index == MOUSE_BUTTON_LEFT
+	var pad_accept = event is InputEventJoypadButton and event.is_action_pressed("ui_accept")
+	if double_click or pad_accept:
 		_selected_id = id
+		if pad_accept:
+			_cards[id].accept_event()
 		_on_action_pressed()
 
 func _update_card_styles() -> void:

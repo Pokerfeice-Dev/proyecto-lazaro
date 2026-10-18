@@ -16,6 +16,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
 	_create_ui_elements()
+	PadFocus.push_modal(self, _continue_btn) # con joystick el foco queda en el cartel
 	_play_activation_sound()
 	_animate_entrance()
 
@@ -23,13 +24,12 @@ func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
 		return
 		
-	if event is InputEventKey:
-		if event.physical_keycode == KEY_I:
-			get_viewport().set_input_as_handled()
-			_dismiss_popup(true)
-		elif event.physical_keycode == KEY_E or event.physical_keycode == KEY_ENTER:
-			get_viewport().set_input_as_handled()
-			_dismiss_popup(false)
+	if event.is_action_pressed("toggle_inventory"):
+		get_viewport().set_input_as_handled()
+		_dismiss_popup(true)
+	elif InputMode.is_interact(event) or event.is_action_pressed("ui_accept"):
+		get_viewport().set_input_as_handled()
+		_dismiss_popup(false)
 
 func _create_ui_elements() -> void:
 	_create_blur_overlay()
@@ -121,10 +121,18 @@ func _create_content_labels() -> void:
 	row.add_child(texts)
 	_title_lbl = UIStyle.label("INVENTARIO", 24, UIStyle.COLOR_GOLD)
 	texts.add_child(_title_lbl)
-	_desc_lbl = UIStyle.label("Abre el inventario con la tecla I para equipar los objetos que encuentres en tus armas y en tu cuerpo.", 16, UIStyle.COLOR_TEXT)
+	_desc_lbl = UIStyle.label(_desc_text(), 16, UIStyle.COLOR_TEXT)
 	_desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	texts.add_child(_desc_lbl)
+	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
 	_vbox.add_child(UIStyle.divider())
+
+func _desc_text() -> String:
+	var how = "con el botón Y" if InputMode.is_gamepad() else "con la tecla I"
+	return "Abre el inventario %s para equipar los objetos que encuentres en tus armas y en tu cuerpo." % how
+
+func _on_input_mode_changed(_gamepad: bool) -> void:
+	_desc_lbl.text = _desc_text()
 
 # Tecla "I" grande dentro de un casillero; cada tanto se hunde como si la apretaran.
 func _key_illustration() -> Control:
@@ -150,7 +158,7 @@ func _create_continue_button() -> void:
 	var footer = HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
 	_vbox.add_child(footer)
-	footer.add_child(UIStyle.keycap("E"))
+	footer.add_child(UIStyle.keycap("E", "A"))
 	_continue_btn = UIStyle.button("ENTENDIDO", false, Vector2(150, 46), 17)
 	_continue_btn.pressed.connect(func(): _dismiss_popup(false))
 	footer.add_child(_continue_btn)

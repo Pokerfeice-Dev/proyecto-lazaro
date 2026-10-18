@@ -25,6 +25,12 @@ func _ready() -> void:
 	_style_skip_area()
 	skip_area.pressed.connect(_on_skip_pressed)
 	video_player.finished.connect(_on_video_finished)
+	_update_skip_text(InputMode.is_gamepad())
+	InputMode.instance().mode_changed.connect(_update_skip_text)
+
+# Texto para saltar según se use teclado/mouse o joystick.
+func _update_skip_text(gamepad: bool) -> void:
+	skip_label.text = "Presiona cualquier botón para saltar" if gamepad else "Haz clic o presiona una tecla para saltar"
 
 func _start_background_load() -> void:
 	ResourceLoader.load_threaded_request(MAIN_MENU_PATH)
@@ -47,6 +53,7 @@ func _style_skip_area() -> void:
 	skip_area.add_theme_stylebox_override("pressed", empty_style)
 	skip_area.add_theme_stylebox_override("focus", empty_style)
 	skip_area.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	skip_area.focus_mode = Control.FOCUS_NONE # con joystick no se enfoca (se salta con cualquier botón)
 
 func _process(_delta: float) -> void:
 	_update_loading_progress()
@@ -102,6 +109,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		_on_skip_pressed()
 	elif event is InputEventMouseButton and event.pressed:
+		_on_skip_pressed()
+	elif event is InputEventJoypadButton and event.pressed:
 		_on_skip_pressed()
 
 func _on_skip_pressed() -> void:

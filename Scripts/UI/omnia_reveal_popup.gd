@@ -8,7 +8,8 @@ class_name OmniaRevealPopup
 ##    sello de PISTA OBTENIDA).
 ##  - research_unlocked: celebra que se desbloqueó una investigación: escaneo,
 ##    número que se decodifica, la pista escrita y las piezas que se dan vuelta.
-## ESC o el botón secundario cierran; Enter confirma.
+## ESC (B) o el botón secundario cierran; Enter confirma. Con joystick, A
+## aprieta el botón enfocado (arranca en el de confirmar).
 
 signal hint_bought
 signal closed
@@ -61,6 +62,13 @@ func _init() -> void:
 
 func _ready() -> void:
 	_build_shell()
+	# ventana modal: con joystick el foco queda acá (no en las fichas de atrás)
+	# y arranca en el botón de confirmar, que se arma recién después de _ready
+	_push_modal.call_deferred()
+
+func _push_modal() -> void:
+	var preferred = _confirm_btn if is_instance_valid(_confirm_btn) and not _confirm_btn.disabled else null
+	PadFocus.push_modal(self, preferred)
 
 func _input(event: InputEvent) -> void:
 	if _closing: return
@@ -68,10 +76,17 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_play(CANCEL_SOUND)
 		close()
-	elif event is InputEventKey and event.is_action_pressed("ui_accept"):
+	elif event.is_action_pressed("ui_accept") and _accepts_confirm(event):
 		get_viewport().set_input_as_handled()
 		if _confirm_btn and not _confirm_btn.disabled:
 			_confirm_btn.pressed.emit()
+
+# Enter siempre confirma; la A del joystick también, salvo que haya un botón
+# enfocado con la cruceta (entonces aprieta ese).
+func _accepts_confirm(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		return true
+	return event is InputEventJoypadButton and not get_viewport().gui_get_focus_owner() is BaseButton
 
 func _process(delta: float) -> void:
 	if _decode_t < 0.0 or not _decode_label: return
@@ -313,6 +328,8 @@ func _continue_footer() -> void:
 	_footer.add_child(ok)
 	_footer.add_child(UIStyle.keycap("ENTER"))
 	_confirm_btn = ok
+	if is_inside_tree():
+		PadFocus.push_modal(self, ok) # con joystick el foco pasa a CONTINUAR
 
 # Línea turquesa que recorre la ficha de arriba a abajo (en bucle o una vez).
 func _scan_line(loop: bool) -> Control:

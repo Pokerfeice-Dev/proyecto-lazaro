@@ -153,7 +153,8 @@ func _steer(desired: Vector2, delta: float) -> void:
 
 func player_has_back_turned() -> bool:
 	if not is_instance_valid(target): return false
-	var facing = (target.get_global_mouse_position() - target.global_position).normalized()
+	var aim = target.get_aim_position() if target.has_method("get_aim_position") else target.get_global_mouse_position()
+	var facing = (aim - target.global_position).normalized()
 	if "last_dir" in target:
 		var directions = {"right": Vector2.RIGHT, "left": Vector2.LEFT, "up": Vector2.UP, "down": Vector2.DOWN, "up_right": Vector2(1, -1).normalized(), "up_left": Vector2(-1, -1).normalized(), "down_right": Vector2(1, 1).normalized(), "down_left": Vector2(-1, 1).normalized()}
 		facing = directions.get(target.last_dir, facing)

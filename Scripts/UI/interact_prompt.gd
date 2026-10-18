@@ -11,6 +11,7 @@ class_name InteractPrompt
 ## antes; solo se vuelve invisible su texto y el cartel nuevo muestra lo mismo.
 ## Uso: InteractPrompt.mirror(mi_label)
 ##
+## Con joystick, la tecla se cambia por el botón (E -> X, etc.; ver InputMode).
 ## Prioriza íconos sobre texto (como la UI nueva):
 ##   "[E] Agarrar" / "Presiona E: elegir equipo" -> tecla E + ícono de la acción
 ##       (si la acción no tiene ícono conocido, queda escrita)
@@ -79,6 +80,11 @@ func _ready() -> void:
 	_build()
 	_sync_text()
 	visibility_changed.connect(_on_visibility_changed)
+	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
+
+# Teclado <-> joystick: se rearma para mostrar la tecla o el botón.
+func _on_input_mode_changed(_gamepad: bool) -> void:
+	_sync_text()
 
 func _process(delta: float) -> void:
 	if not source or not is_visible_in_tree(): return
@@ -138,7 +144,9 @@ func _sync_text() -> void:
 		if line.to_lower() in HIDDEN_LINES:
 			continue
 		var m = _regex.search(line)
-		if m:
+		if line.length() == 1: # solo una tecla ("E" de los objetos del piso): tecla o botón
+			_rows.add_child(_key_row(line.to_upper(), ""))
+		elif m:
 			var key = m.get_string(1) if m.get_string(1) != "" else m.get_string(2)
 			_rows.add_child(_key_row(key.to_upper(), m.get_string(3).strip_edges()))
 		elif _flesh_regex.search(line):
@@ -215,6 +223,19 @@ func _icon(tex: Texture2D, icon_size: float, color: Color) -> TextureRect:
 	return r
 
 func _keycap(key: String) -> Control:
+	var pad = InputMode.pad_label(key)
+	var cap: Control
+	if InputMode.is_gamepad() and pad != key:
+		cap = PadGlyph.create(pad, 44.0)
+	else:
+		cap = _key_plate(key)
+	# la tecla late despacio para llamar la atención
+	var t = cap.create_tween().set_loops()
+	t.tween_property(cap, "modulate", Color(1.35, 1.35, 1.35), 0.6).set_trans(Tween.TRANS_SINE)
+	t.tween_property(cap, "modulate", Color.WHITE, 0.6).set_trans(Tween.TRANS_SINE)
+	return cap
+
+func _key_plate(key: String) -> PanelContainer:
 	var cap = PanelContainer.new()
 	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cap.custom_minimum_size = Vector2(44, 44)
@@ -223,10 +244,6 @@ func _keycap(key: String) -> Control:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	cap.add_child(l)
-	# la tecla late despacio para llamar la atención
-	var t = cap.create_tween().set_loops()
-	t.tween_property(cap, "modulate", Color(1.35, 1.35, 1.35), 0.6).set_trans(Tween.TRANS_SINE)
-	t.tween_property(cap, "modulate", Color.WHITE, 0.6).set_trans(Tween.TRANS_SINE)
 	return cap
 
 func _label(text: String, font_size: int, color: Color) -> Label:

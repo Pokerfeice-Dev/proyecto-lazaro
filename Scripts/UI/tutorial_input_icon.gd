@@ -3,7 +3,11 @@ class_name TutorialInputIcon
 
 ## Una tecla o el mouse dibujados como en la UI, que se "presionan" solos en
 ## loop para mostrar qué hay que tocar. El mouse ilumina el botón que corresponde.
+## Con joystick se dibuja el botón equivalente (W/A/S/D -> analógico izq.,
+## ESPACIO -> A, MOUSE_L -> RT, MOUSE_R -> LT; ver InputMode).
 ## Uso: TutorialInputIcon.create("W"), create("MOUSE_L"), create("ESPACIO")
+## Para armar una fila: TutorialInputIcon.for_mode(teclas) saca los repetidos
+## (con joystick, W A S D son un solo analógico).
 
 const PRESS_EVERY := 1.4
 
@@ -16,11 +20,32 @@ static func create(p_key: String, size_scale: float = 1.0, delay: float = 0.0) -
 	var icon = TutorialInputIcon.new()
 	icon.key = p_key
 	icon.press_delay = delay
-	var base = Vector2(44, 58) if p_key.begins_with("MOUSE") else Vector2(maxf(48.0, 16.0 + p_key.length() * 16.0), 48)
-	icon.custom_minimum_size = base * size_scale
+	icon.custom_minimum_size = _base_size(p_key) * size_scale
 	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return icon
+
+## Teclas a mostrar según lo que se esté usando: con joystick, una por botón.
+static func for_mode(inputs: Array) -> Array:
+	if not InputMode.is_gamepad():
+		return inputs
+	var seen := {}
+	var out := []
+	for k in inputs:
+		var pad = InputMode.pad_label(k)
+		if seen.has(pad): continue
+		seen[pad] = true
+		out.append(k)
+	return out
+
+static func _base_size(p_key: String) -> Vector2:
+	if InputMode.is_gamepad():
+		var pad = InputMode.pad_label(p_key)
+		if pad != p_key:
+			return Vector2(52.0 * PadGlyph.aspect(pad), 52)
+	if p_key.begins_with("MOUSE"):
+		return Vector2(44, 58)
+	return Vector2(maxf(48.0, 16.0 + p_key.length() * 16.0), 48)
 
 func _process(delta: float) -> void:
 	_time += delta
@@ -29,7 +54,10 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	if key.begins_with("MOUSE"):
+	var pad = InputMode.pad_label(key)
+	if InputMode.is_gamepad() and pad != key:
+		PadGlyph.draw_button(self, Rect2(Vector2.ZERO, size), pad, _pressed)
+	elif key.begins_with("MOUSE"):
 		_draw_mouse(key == "MOUSE_L")
 	else:
 		_draw_key()

@@ -8,7 +8,9 @@ var _popup: OmniaRevealPopup = null
 
 func _ready() -> void:
 	for index in 3:
-		$RecipeChips.get_child(index).get_node("Reveal").pressed.connect(_ask_hint.bind(index))
+		var eye: Button = $RecipeChips.get_child(index).get_node("Reveal")
+		eye.pressed.connect(_ask_hint.bind(index))
+		PadFocusable.attach(eye) # con joystick, la pista se elige con la cruceta y se compra con A
 
 func configure(id: String) -> void:
 	synergy_id = id

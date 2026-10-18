@@ -294,7 +294,7 @@ func _check_collection_input(event: InputEvent) -> void:
 			_handle_normal_interact()
 
 func _is_key_e_pressed(event: InputEvent) -> bool:
-	return event is InputEventKey and event.physical_keycode == KEY_E and event.pressed and not event.echo
+	return InputMode.is_interact(event) # E o X del joystick
 
 # ── Cofre normal: abrir y agarrar en el mismo gesto ─────────────────────────
 

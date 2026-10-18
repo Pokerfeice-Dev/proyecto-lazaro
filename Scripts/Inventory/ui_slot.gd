@@ -22,12 +22,17 @@ signal slot_double_clicked(item_data: ItemData, slot: UISlot)
 signal slot_hovered(item_data: ItemData, slot_rect: Rect2)
 signal slot_unhovered()
 signal drag_started(item_data: ItemData, source_slot: UISlot)
+signal slot_pad_equip(slot: UISlot) # X del joystick
 
 # Texturas SVG de los 9-slice para slots
 
 func _ready() -> void:
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	# joystick: el foco hace de "mouse encima"; A selecciona y X equipa o quita
+	PadFocusable.attach(self)
+	focus_entered.connect(_on_mouse_entered)
+	focus_exited.connect(_on_mouse_exited)
 	update_slot(item)
 
 func _notification(what: int) -> void:
@@ -113,9 +118,22 @@ func update_slot(new_item: ItemData, qty: int = 1) -> void:
 	_refresh_slot_style()
 
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton:
+		_handle_pad_button(event)
+		return
 	if not event is InputEventMouseButton: return
 	if not event.pressed: return
 	_handle_mouse_button(event as InputEventMouseButton)
+
+# Joystick: A selecciona el objeto; X lo equipa o lo quita, o pone acá el
+# objeto elegido antes con A (por eso X también llega en casilleros vacíos).
+func _handle_pad_button(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_accept") and item:
+		accept_event()
+		slot_clicked.emit(item)
+	elif event.is_action_pressed("ui_equip"):
+		accept_event()
+		slot_pad_equip.emit(self)
 
 func _handle_mouse_button(mb: InputEventMouseButton) -> void:
 	if mb.button_index == MOUSE_BUTTON_LEFT:

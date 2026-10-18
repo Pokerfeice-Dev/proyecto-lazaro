@@ -23,7 +23,7 @@ const TABS := [
 const ROWS := {
 	"video": [
 		{"tipo": "opciones", "clave": "modo_pantalla", "texto": "Modo de pantalla", "items": ["Pantalla completa", "Ventana", "Ventana sin bordes"], "valores": [0, 1, 2], "desc": "Pantalla completa, ventana común (1600x900) o ventana sin bordes del tamaño del monitor."},
-		{"tipo": "toggle", "clave": "vsync", "texto": "Sincronización vertical (VSync)", "desc": "Evita el 'tearing' de la imagen. Si sentís los controles lentos, probá desactivarlo."},
+		{"tipo": "toggle", "clave": "vsync", "texto": "Sincronización vertical (VSync)", "desc": "Evita el 'tearing' de la imagen. Si sientes los controles lentos, prueba desactivarlo."},
 		{"tipo": "opciones", "clave": "fps_max", "texto": "Límite de FPS", "items": ["Sin límite", "30", "60", "120", "144"], "valores": [0, 30, 60, 120, 144], "desc": "Limitar los cuadros por segundo baja el uso de la placa de video y la temperatura."},
 		{"tipo": "toggle", "clave": "mostrar_fps", "texto": "Mostrar FPS", "desc": "Muestra un contador de cuadros por segundo arriba a la derecha."},
 	],
@@ -47,6 +47,7 @@ const ROWS := {
 	"juego": [
 		{"tipo": "toggle", "clave": "brujula_enemigos", "texto": "Brújula de enemigos", "desc": "Flechas en el borde de la pantalla que apuntan a los últimos enemigos fuera de cámara."},
 		{"tipo": "toggle", "clave": "indicador_danio", "texto": "Indicador de dirección de daño", "desc": "Flecha roja que marca desde donde te golpearon."},
+		{"tipo": "toggle", "clave": "asistencia_apuntado", "texto": "Asistencia de apuntado (joystick)", "desc": "Con joystick, la mira se va un poco hacia el enemigo que está casi en tu línea de tiro. Desactívala para apuntar solo con el analógico."},
 	],
 }
 
@@ -67,6 +68,10 @@ func _ready() -> void:
 	_build_ui()
 	_show_tab("video", false)
 	_play_open_animation()
+	# ventana modal: con joystick el foco pasa a esta pantalla y, al cerrarla,
+	# vuelve a donde estaba en el menú de pausa
+	PadFocus.push_modal(self)
+	_focus_page.call_deferred()
 
 # ---------- construccion de la UI ----------
 
@@ -174,6 +179,7 @@ func _make_tab_bar() -> HBoxContainer:
 		bar.add_child(b)
 		_tab_buttons[tab.id] = b
 		ButtonFX.attach(b, i, 1.06)
+	KeycapSwitch.add_tab_hints(bar, 40.0)
 	return bar
 
 func _make_separator() -> ColorRect:
@@ -226,6 +232,11 @@ func _make_row(section: String, data: Dictionary, index: int) -> PanelContainer:
 		"opciones": control = _make_option(section, data)
 	if control:
 		h.add_child(control)
+		# con joystick, enfocar el control de la fila hace lo mismo que pasar el mouse
+		var focus_target = control.get_child(0) if control is HBoxContainer else control
+		PadFocusable.attach(focus_target)
+		focus_target.focus_entered.connect(_on_row_hover.bind(row, hover, data.desc))
+		focus_target.focus_exited.connect(_on_row_unhover.bind(row, normal))
 	return row
 
 func _make_row_style(index: int) -> StyleBoxFlat:
@@ -308,6 +319,7 @@ func _make_footer_button(text: String) -> Button:
 	b.custom_minimum_size = Vector2(260, 60)
 	b.add_theme_font_size_override("font_size", 24)
 	b.focus_mode = Control.FOCUS_NONE
+	PadFocusable.attach(b)
 	return b
 
 # ---------- valores ----------
@@ -413,6 +425,14 @@ func close() -> void:
 	t.tween_property(_panel, "modulate:a", 0.0, 0.2)
 	t.chain().tween_callback(_on_closed)
 
+## Joystick: enfoca el primer control de la pestaña visible.
+func _focus_page() -> void:
+	if not InputMode.is_gamepad(): return
+	for c in _pages[_current_tab].find_children("*", "Control", true, false):
+		if c.focus_mode == Control.FOCUS_ALL and c.is_visible_in_tree():
+			c.grab_focus()
+			return
+
 func _on_closed() -> void:
 	closed.emit()
 	queue_free()
@@ -424,3 +444,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 		get_viewport().set_input_as_handled()
 		close()
+	elif event.is_action_pressed("ui_tab_prev") or event.is_action_pressed("ui_tab_next"):
+		get_viewport().set_input_as_handled()
+		_cycle_tab(-1 if event.is_action_pressed("ui_tab_prev") else 1)
+
+# LB / RB del joystick: pestaña anterior o siguiente.
+func _cycle_tab(step: int) -> void:
+	var ids = _tab_buttons.keys()
+	var i = wrapi(ids.find(_current_tab) + step, 0, ids.size())
+	_play_ui_sound()
+	_show_tab(ids[i], true)
+	_focus_page()

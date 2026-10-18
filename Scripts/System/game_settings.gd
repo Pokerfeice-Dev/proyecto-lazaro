@@ -42,6 +42,7 @@ const DEFAULTS := {
 	"juego": {
 		"brujula_enemigos": true,
 		"indicador_danio": true,
+		"asistencia_apuntado": true, # joystick: la mira se va un poco hacia el enemigo
 	},
 }
 

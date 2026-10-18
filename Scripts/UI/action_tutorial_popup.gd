@@ -7,7 +7,9 @@ const UI_SOUND_PATH = "res://Audio/Sfx/Piano_Ui (2).wav"
 
 var title_text: String = "TUTORIAL"
 var desc_text: String = ""
-var prompt_text: String = "Presiona [ENTER] o hace click para continuar"
+var prompt_text: String = "" # vacío = el de siempre según teclado o joystick
+const PROMPT_KEYS := "Presiona [ENTER] o haz clic para continuar"
+const PROMPT_PAD := "Presiona A para continuar"
 
 var _blur_rect: ColorRect
 var _panel: PanelContainer
@@ -21,6 +23,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
 	_create_ui_elements()
+	PadFocus.push_modal(self, _continue_btn) # con joystick el foco queda en el cartel
 	_play_activation_sound()
 	_animate_entrance()
 
@@ -28,10 +31,9 @@ func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo():
 		return
 
-	if event is InputEventKey:
-		if event.physical_keycode == KEY_ENTER or event.physical_keycode == KEY_E:
-			get_viewport().set_input_as_handled()
-			_dismiss_popup()
+	if InputMode.is_interact(event) or event.is_action_pressed("ui_accept"):
+		get_viewport().set_input_as_handled()
+		_dismiss_popup()
 	elif event is InputEventMouseButton:
 		get_viewport().set_input_as_handled()
 		_dismiss_popup()
@@ -143,7 +145,8 @@ func _create_content_labels() -> void:
 	_vbox.add_child(_desc_lbl)
 
 	_continue_prompt = Label.new()
-	_continue_prompt.text = prompt_text
+	_continue_prompt.text = _prompt()
+	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
 	_continue_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_continue_prompt.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
 	_continue_prompt.add_theme_font_size_override("font_size", 12)
@@ -222,3 +225,11 @@ func _dismiss_popup() -> void:
 		get_tree().paused = false
 		queue_free()
 	)
+
+func _on_input_mode_changed(_gamepad: bool) -> void:
+	_continue_prompt.text = _prompt()
+
+func _prompt() -> String:
+	if prompt_text != "":
+		return prompt_text
+	return PROMPT_PAD if InputMode.is_gamepad() else PROMPT_KEYS

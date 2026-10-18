@@ -197,6 +197,12 @@ func _apply_damage_to_enemy(body: Node2D) -> void:
 	if equip_owner and equip_owner.get("is_furia_active") == true:
 		_trigger_furia_area_attack(body.global_position, final_dmg)
 	
+	# Holy Fire: quema y pone (o pasa) la lengua de fuego al enemigo golpeado
+	if equip_owner and equip_owner.has_method("on_holy_fire_hit"):
+		equip_owner.on_holy_fire_hit(body, final_dmg)
+	if equip_owner and equip_owner.has_method("on_alto_octanaje_hit"):
+		equip_owner.on_alto_octanaje_hit(body, final_dmg)
+
 	if is_marked_hit and equip_owner and equip_owner.has_method("_trigger_werewolf_mark_explosion"):
 		equip_owner._trigger_werewolf_mark_explosion(body)
 

@@ -215,6 +215,20 @@ func _update_weapons_hud(p: Node2D) -> void:
 		if secondary_weapon_rect:
 			secondary_weapon_rect.texture = tex
 
+# Armas con hoja de cuadros (Speed Demon, Holy Fire): el ícono muestra solo el primero.
+var _frame_icons: Dictionary = {}
+
+func _first_frame(sprite: Sprite2D) -> Texture2D:
+	if sprite.hframes <= 1 or not sprite.texture:
+		return sprite.texture
+	if not _frame_icons.has(sprite.texture):
+		var atlas = AtlasTexture.new()
+		atlas.atlas = sprite.texture
+		var size = sprite.texture.get_size()
+		atlas.region = Rect2(0, 0, size.x / sprite.hframes, size.y / sprite.vframes)
+		_frame_icons[sprite.texture] = atlas
+	return _frame_icons[sprite.texture]
+
 func _get_weapon_texture(weapon_container: Node) -> Texture2D:
 	if not weapon_container: return null
 	var cur = weapon_container.get("current_weapon")
@@ -222,7 +236,7 @@ func _get_weapon_texture(weapon_container: Node) -> Texture2D:
 	
 	var sprite = cur.get_node_or_null("Melee_sprite")
 	if sprite and sprite is Sprite2D:
-		return sprite.texture
+		return _first_frame(sprite)
 		
 	var anim_sprite = cur.get_node_or_null("Weapon_Sprites")
 	if anim_sprite and anim_sprite is AnimatedSprite2D:

@@ -11,6 +11,7 @@ func _on_body_entered(body: Node2D) -> void:
 func _handle_enemy_collision(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(damage, is_crit)
+		_notify_bullet_hit(body)
 	_decrement_piercing_or_free()
 
 func _decrement_piercing_or_free() -> void:

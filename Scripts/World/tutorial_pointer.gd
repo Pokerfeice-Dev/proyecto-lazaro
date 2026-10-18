@@ -20,6 +20,7 @@ var _inputs_holder: Node2D
 var _inputs_row: HBoxContainer
 var _input_hand: Sprite2D
 var _time := 0.0
+var _inputs: Array = []
 
 func _ready() -> void:
 	z_as_relative = false
@@ -37,6 +38,11 @@ func _ready() -> void:
 	plate.add_child(_inputs_row)
 	_input_hand = _make_hand()
 	_inputs_holder.add_child(_input_hand)
+	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
+
+# Teclado <-> joystick: vuelve a dibujar las teclas o los botones.
+func _on_input_mode_changed(_gamepad: bool) -> void:
+	show_inputs(_inputs)
 
 ## Señala uno o más objetivos (Node2D). Lista vacía = nada.
 ## hand_height: qué tan arriba del objetivo flota la manito (menos para objetos chicos).
@@ -52,12 +58,15 @@ func point_at(targets: Array, hand_height := 44.0) -> void:
 
 ## Teclas sobre la cabeza del jugador ("W", "ESPACIO", "MOUSE_L"...). Vacío = nada.
 func show_inputs(inputs: Array) -> void:
+	_inputs = inputs
 	for c in _inputs_row.get_children():
 		_inputs_row.remove_child(c)
 		c.queue_free()
-	_inputs_holder.visible = not inputs.is_empty()
-	for i in inputs.size():
-		_inputs_row.add_child(TutorialInputIcon.create(inputs[i], 1.0, i * 0.35))
+	var shown = TutorialInputIcon.for_mode(inputs)
+	_inputs_holder.visible = not shown.is_empty()
+	for i in shown.size():
+		_inputs_row.add_child(TutorialInputIcon.create(shown[i], 1.0, i * 0.35))
+	(_inputs_holder.get_child(0) as Control).reset_size() # la placa se ajusta a las teclas nuevas
 
 func clear() -> void:
 	point_at([])

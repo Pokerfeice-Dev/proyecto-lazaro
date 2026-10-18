@@ -14,6 +14,8 @@ func _ready() -> void:
 	%Recipe.allow_purchase = false
 	%DetailScroll.get_v_scroll_bar().step = 36
 	%EntriesScroll.get_v_scroll_bar().step = 36
+	# joystick: la búsqueda no se recorre con la cruceta (escribir no tiene sentido)
+	%Search.focus_mode = Control.FOCUS_CLICK
 
 func configure(next_category: String, only_research: bool = false) -> void:
 	category = next_category
@@ -35,7 +37,7 @@ func configure(next_category: String, only_research: bool = false) -> void:
 			if not data.known:
 				data["name"] = "Registro desconocido"
 				data["icon"] = LOCK
-				data["lore"] = "Explorá los distritos y encontrá este registro para acceder a su información."
+				data["lore"] = "Explora los distritos y encuentra este registro para acceder a su información."
 				data["stats"] = ""
 			_entries.append(data)
 	_entries.sort_custom(func(a, b): return a.known and not b.known)
@@ -61,12 +63,19 @@ func _filter(query: String) -> void:
 		_buttons[entry.id] = card
 	%Count.text = "1 registro" if shown.size() == 1 else "%d registros" % shown.size()
 	%Empty.visible = shown.is_empty()
-	%Empty.text = "Todavía no desbloqueaste investigaciones. Visitá O.M.N.I.A. en el laboratorio." if research_only and _entries.is_empty() else "No hay registros que coincidan con tu búsqueda."
+	%Empty.text = "Todavía no desbloqueaste investigaciones. Visita O.M.N.I.A. en el laboratorio." if research_only and _entries.is_empty() else "No hay registros que coincidan con tu búsqueda."
 	%DetailScroll.visible = not shown.is_empty()
 	if shown.is_empty():
 		selected_id = ""
 		return
 	_select(selected_id if _buttons.has(selected_id) else shown[0].id)
+
+## Joystick: enfoca la ficha elegida (o la primera) para navegar con la cruceta.
+func focus_first() -> void:
+	if _buttons.has(selected_id):
+		_buttons[selected_id].grab_focus()
+	elif not _buttons.is_empty():
+		_buttons.values()[0].grab_focus()
 
 func _status(entry: Dictionary) -> String:
 	if category == "synergies":

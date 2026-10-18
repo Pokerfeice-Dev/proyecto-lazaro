@@ -182,9 +182,7 @@ func _on_body_exited(body: Node2D) -> void:
 
 func _input(event: InputEvent) -> void:
 	if is_locked or not player_inside: return
-	if not event is InputEventKey: return
-	if event.physical_keycode != KEY_E: return
-	if not event.pressed or event.echo: return
+	if not InputMode.is_interact(event): return # E o X del joystick
 	
 	_transition_room()
 

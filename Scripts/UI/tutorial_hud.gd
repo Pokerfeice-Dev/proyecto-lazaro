@@ -23,10 +23,16 @@ var _edge: Control
 var _edge_arrow: Polygon2D
 var _target: Node2D
 var _time := 0.0
+var _inputs: Array = []
 
 func _ready() -> void:
 	layer = 95
 	_build()
+	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
+
+# Teclado <-> joystick: vuelve a dibujar las teclas o los botones.
+func _on_input_mode_changed(_gamepad: bool) -> void:
+	_fill_inputs(_inputs)
 
 ## Cambia de paso. inputs: teclas ("W", "ESPACIO", "E") o "MOUSE_L" / "MOUSE_R".
 func set_step(index: int, total: int, text: String, inputs: Array = [], counter := "") -> void:
@@ -109,12 +115,14 @@ func _build() -> void:
 	_build_edge_arrow(root)
 
 func _fill_inputs(inputs: Array) -> void:
+	_inputs = inputs
 	for c in _inputs_box.get_children():
 		_inputs_box.remove_child(c)
 		c.queue_free()
-	_inputs_box.visible = not inputs.is_empty()
-	for i in inputs.size():
-		_inputs_box.add_child(TutorialInputIcon.create(inputs[i], 1.0, i * 0.35))
+	var shown = TutorialInputIcon.for_mode(inputs)
+	_inputs_box.visible = not shown.is_empty()
+	for i in shown.size():
+		_inputs_box.add_child(TutorialInputIcon.create(shown[i], 1.0, i * 0.35))
 
 func _refresh_pips(index: int, total: int) -> void:
 	for c in _pips.get_children():

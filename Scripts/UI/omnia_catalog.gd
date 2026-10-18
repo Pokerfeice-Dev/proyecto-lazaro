@@ -57,6 +57,8 @@ const SINERGIAS := [
 	{"id": "hombre_lobo", "cost": 300, "icon": "res://Art/Weapons/Melee/Axe/synergy_wolfsbane_sprite.png"},
 	{"id": "arrogancia", "cost": 300, "icon": "res://Art/Weapons/Melee/Mace/synergy_arrogance_sprite.png"},
 	{"id": "speed_demon", "cost": 300, "icon": "res://Art/Weapons/Melee/Dagger/synergy_speeddemon_icon.tres"},
+	{"id": "holy_fire", "cost": 300, "icon": "res://Art/Weapons/Melee/Mace/synergy_holyfire_icon.tres"},
+	{"id": "alto_octanaje", "cost": 300, "icon": "res://Art/Weapons/Melee/Axe/synergy_altooctanaje_sprite.png"},
 	{"id": "snowman", "cost": 300, "icon": "res://Art/Weapons/Distance/Shotgun/synergy_avalanche_sprite.png"},
 	{"id": "bestia_de_caza", "cost": 500, "icon": "", "advanced": true},
 	{"id": "trituradora_biomecanica", "cost": 500, "icon": "", "advanced": true},

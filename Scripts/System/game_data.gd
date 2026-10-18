@@ -132,6 +132,7 @@ func _on_codex_toast_finished() -> void:
 	_show_next_codex_toast()
 
 func _ready() -> void:
+	InputMode.instance() # joystick: botones y detección desde el arranque
 	_load_level1_rooms()
 	for slot in ItemData.ItemSlot.values():
 		equipment_slots[slot] = null
@@ -564,7 +565,8 @@ func unlock_all_synergies() -> void:
 		"hombre_lobo",
 		"relampago",
 		"speed_demon",
-		"snowman"
+		"snowman",
+		"holy_fire"
 	]
 	for syn_id in all_ids:
 		unlock_synergy(syn_id)

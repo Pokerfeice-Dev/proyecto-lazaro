@@ -92,6 +92,14 @@ var _speed_demon_push_dir: Vector2 = Vector2.ZERO
 const SPEED_DEMON_SHEET := preload("res://Art/Weapons/Melee/Dagger/synergy_speeddemon_sprite.png")
 const SPEED_DEMON_FRAMES: int = 4
 const SPEED_DEMON_FPS: float = 18.0
+const HOLY_FIRE_SHEET := preload("res://Art/Weapons/Melee/Mace/synergy_holyfire_sprite.png")
+const HOLY_FIRE_FRAMES: int = 5
+const HOLY_FIRE_FPS: float = 9.0
+var _holy_fire_tongue: HolyFireTongue = null
+const ALTO_OCTANAJE_TEX := preload("res://Art/Weapons/Melee/Axe/synergy_altooctanaje_sprite.png")
+const ALTO_OCTANAJE_RATIO := 1.5 # daño de la explosión respecto del hachazo
+const ALTO_OCTANAJE_MIN := 15
+const ALTO_OCTANAJE_MAX := 40
 
 var first_hit_taken_in_room: bool = false
 var is_blindaje_reactivo_active: bool = false
@@ -740,7 +748,7 @@ func handle_shooting() -> void:
 		_force_stop_flame_stream()
 	if not can_shoot: return
 	if not Input.is_action_pressed("shoot"): return
-	var shoot_dir = (get_global_mouse_position() - global_position).normalized()
+	var shoot_dir = (get_aim_position() - global_position).normalized()
 	if shoot_dir == Vector2.ZERO: return
 	fire_projectile(shoot_dir)
 
@@ -1107,7 +1115,7 @@ func _update_camera_drift(delta: float) -> void:
 	var camera = get_node_or_null("Camera2D")
 	if not camera: return
 	
-	var mouse_offset = get_local_mouse_position()
+	var mouse_offset = get_aim_position() - global_position
 	var weight = 0.18
 	var target_local_pos = mouse_offset * weight
 	var max_offset = 120.0
@@ -1117,8 +1125,15 @@ func _update_camera_drift(delta: float) -> void:
 		
 	camera.position = camera.position.lerp(target_local_pos, 1.0 - exp(-7.0 * delta))
 
+## Punto al que apunta el jugador: el mouse con teclado, el analógico derecho
+## con joystick (ver InputMode). Lo usan las armas, la cámara y los enemigos.
+func get_aim_position() -> Vector2:
+	if InputMode.is_gamepad():
+		return InputMode.aim_point(global_position, velocity)
+	return get_global_mouse_position()
+
 func update_glock() -> void:
-	var mouse_pos = get_global_mouse_position()
+	var mouse_pos = get_aim_position()
 	var dir = (mouse_pos - global_position).normalized()
 	var orbit_radius = 25.0
 	_update_primary_weapon_pivot(mouse_pos, dir, orbit_radius)
@@ -1198,7 +1213,7 @@ func update_animation() -> void:
 	_play_player_sprite_animation()
 
 func _update_facing_direction() -> void:
-	var mouse_dir = (get_global_mouse_position() - global_position).normalized()
+	var mouse_dir = (get_aim_position() - global_position).normalized()
 	if mouse_dir != Vector2.ZERO:
 		last_dir = _get_8_dir_string(mouse_dir)
 
@@ -1624,224 +1639,9 @@ func _play_death_sound() -> void:
 	sfx_player.play()
 	sfx_player.finished.connect(sfx_player.queue_free)
 
+# Pantalla de muerte con la UI nueva (también se usa con joystick).
 func _show_death_screen() -> void:
-	var canvas = CanvasLayer.new()
-	canvas.layer = 200
-	get_tree().root.add_child(canvas)
-	
-	var root = Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	canvas.add_child(root)
-	
-	var bg = ColorRect.new()
-	bg.color = Color(0, 0, 0, 0)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(bg)
-	
-	var center_box = CenterContainer.new()
-	center_box.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_child(center_box)
-	
-	var main_vbox = VBoxContainer.new()
-	main_vbox.add_theme_constant_override("separation", 24)
-	main_vbox.modulate.a = 0.0
-	center_box.add_child(main_vbox)
-	
-	var header_vbox = VBoxContainer.new()
-	header_vbox.add_theme_constant_override("separation", 6)
-	main_vbox.add_child(header_vbox)
-	
-	var lbl_title = Label.new()
-	lbl_title.text = "HAS MUERTO"
-	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl_title.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	lbl_title.add_theme_font_size_override("font_size", 64)
-	lbl_title.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	lbl_title.add_theme_color_override("font_outline_color", Color(0.6, 0.0, 0.0))
-	lbl_title.add_theme_constant_override("outline_size", 8)
-	header_vbox.add_child(lbl_title)
-	
-	var lbl_sub = Label.new()
-	lbl_sub.text = "VOLVETE MÁS FUERTE Y VOLVÉ A INTENTARLO"
-	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	lbl_sub.add_theme_font_size_override("font_size", 18)
-	lbl_sub.add_theme_color_override("font_color", Color(0.7, 0.1, 0.1))
-	header_vbox.add_child(lbl_sub)
-	
-	var stats_panel = PanelContainer.new()
-	var flat_box = StyleBoxFlat.new()
-	flat_box.bg_color = Color(0.08, 0.08, 0.08, 0.95)
-	flat_box.border_color = Color(0.25, 0.05, 0.05)
-	flat_box.set_border_width_all(2)
-	flat_box.set_corner_radius_all(6)
-	flat_box.content_margin_left = 24
-	flat_box.content_margin_right = 24
-	flat_box.content_margin_top = 20
-	flat_box.content_margin_bottom = 20
-	stats_panel.add_theme_stylebox_override("panel", flat_box)
-	main_vbox.add_child(stats_panel)
-	
-	var stats_vbox = VBoxContainer.new()
-	stats_vbox.add_theme_constant_override("separation", 16)
-	stats_panel.add_child(stats_vbox)
-	
-	# resumen de la run: tiempo sobrevivido, arriba de todo
-	var time_val_lbl = Label.new()
-	time_val_lbl.text = GameData.format_time(GameData.get_run_elapsed_seconds())
-	time_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	time_val_lbl.add_theme_font_size_override("font_size", 24)
-	time_val_lbl.add_theme_color_override("font_color", Color.WHITE)
-	var row_time = _build_stat_row("TIEMPO SOBREVIVIDO", "", time_val_lbl)
-	stats_vbox.add_child(row_time)
-
-	var div0 = ColorRect.new()
-	div0.color = Color(0.2, 0.1, 0.1, 0.5)
-	div0.custom_minimum_size = Vector2(0, 1)
-	stats_vbox.add_child(div0)
-
-	var room_val_lbl = Label.new()
-	room_val_lbl.text = "1 - " + str(GameData.current_run_room)
-	room_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	room_val_lbl.add_theme_font_size_override("font_size", 24)
-	room_val_lbl.add_theme_color_override("font_color", Color.WHITE)
-	var row_rooms = _build_stat_row("SALAS RECORRIDAS", "", room_val_lbl)
-	stats_vbox.add_child(row_rooms)
-
-	var div1 = ColorRect.new()
-	div1.color = Color(0.2, 0.1, 0.1, 0.5)
-	div1.custom_minimum_size = Vector2(0, 1)
-	stats_vbox.add_child(div1)
-	
-	var kills_val_lbl = Label.new()
-	kills_val_lbl.text = str(GameData.run_enemies_killed)
-	kills_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	kills_val_lbl.add_theme_font_size_override("font_size", 24)
-	kills_val_lbl.add_theme_color_override("font_color", Color.WHITE)
-	var row_kills = _build_stat_row("MATASTE", "ENEMIGOS ELIMINADOS", kills_val_lbl)
-	stats_vbox.add_child(row_kills)
-	
-	var div2 = ColorRect.new()
-	div2.color = Color(0.2, 0.1, 0.1, 0.5)
-	div2.custom_minimum_size = Vector2(0, 1)
-	stats_vbox.add_child(div2)
-	
-	var killer_val_lbl = Label.new()
-	killer_val_lbl.text = GameData.last_killer
-	killer_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	killer_val_lbl.add_theme_font_size_override("font_size", 20)
-	killer_val_lbl.add_theme_color_override("font_color", Color(0.9, 0.2, 0.2))
-	var row_killer = _build_stat_row("TE HA MATADO", "FUENTE DE DAÑO", killer_val_lbl)
-	stats_vbox.add_child(row_killer)
-	
-	var btn = Button.new()
-	btn.custom_minimum_size = Vector2(300, 56)
-	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	
-	var sb_normal = StyleBoxFlat.new()
-	sb_normal.bg_color = Color(0.35, 0.08, 0.08)
-	sb_normal.border_color = Color(0.5, 0.1, 0.1)
-	sb_normal.set_border_width_all(2)
-	sb_normal.set_corner_radius_all(6)
-	
-	var sb_hover = StyleBoxFlat.new()
-	sb_hover.bg_color = Color(0.45, 0.1, 0.1)
-	sb_hover.border_color = Color(0.6, 0.15, 0.15)
-	sb_hover.set_border_width_all(2)
-	sb_hover.set_corner_radius_all(6)
-	
-	var sb_pressed = StyleBoxFlat.new()
-	sb_pressed.bg_color = Color(0.25, 0.05, 0.05)
-	sb_pressed.border_color = Color(0.4, 0.08, 0.08)
-	sb_pressed.set_border_width_all(2)
-	sb_pressed.set_corner_radius_all(6)
-	
-	btn.add_theme_stylebox_override("normal", sb_normal)
-	btn.add_theme_stylebox_override("hover", sb_hover)
-	btn.add_theme_stylebox_override("pressed", sb_pressed)
-	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	
-	var btn_hbox = HBoxContainer.new()
-	btn_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	btn_hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	btn_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	btn.add_child(btn_hbox)
-	
-	var btn_lbl = Label.new()
-	btn_lbl.text = "VOLVER AL LABORATORIO"
-	btn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	btn_lbl.add_theme_font_size_override("font_size", 20)
-	btn_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	btn_hbox.add_child(btn_lbl)
-	
-	var btn_aligner = CenterContainer.new()
-	btn_aligner.add_child(btn)
-	main_vbox.add_child(btn_aligner)
-	
-	btn.pressed.connect(_on_return_button_pressed.bind(canvas, bg, main_vbox))
-	
-	var footer_hbox = HBoxContainer.new()
-	footer_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	main_vbox.add_child(footer_hbox)
-	
-	var footer_lbl = Label.new()
-	footer_lbl.text = "CHATARRA OBTENIDA EN ESTA RUN: " + str(GameData.run_scrap_collected)
-	footer_lbl.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	footer_lbl.add_theme_font_size_override("font_size", 16)
-	footer_lbl.add_theme_color_override("font_color", Color(0.65, 0.65, 0.65))
-	footer_hbox.add_child(footer_lbl)
-	
-	var tween = canvas.create_tween().set_parallel(true)
-	tween.tween_property(bg, "color", Color(0, 0, 0, 0.85), 0.6)
-	tween.tween_property(main_vbox, "modulate:a", 1.0, 0.5).set_delay(0.2)
-
-func _build_stat_row(title: String, subtitle: String, value_node: Control) -> HBoxContainer:
-	var row = HBoxContainer.new()
-	row.custom_minimum_size = Vector2(450, 48)
-	
-	var left_box = HBoxContainer.new()
-	left_box.alignment = BoxContainer.ALIGNMENT_BEGIN
-	left_box.add_theme_constant_override("separation", 12)
-	row.add_child(left_box)
-	
-	var text_box = VBoxContainer.new()
-	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_box.add_theme_constant_override("separation", 0)
-	left_box.add_child(text_box)
-	
-	var lbl_title = Label.new()
-	lbl_title.text = title
-	lbl_title.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	lbl_title.add_theme_font_size_override("font_size", 16)
-	lbl_title.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
-	text_box.add_child(lbl_title)
-	
-	if subtitle != "":
-		var lbl_sub = Label.new()
-		lbl_sub.text = subtitle
-		lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-		lbl_sub.add_theme_font_size_override("font_size", 11)
-		lbl_sub.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-		text_box.add_child(lbl_sub)
-		
-	var spacer = Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(spacer)
-	
-	row.add_child(value_node)
-	return row
-
-func _on_return_button_pressed(canvas: CanvasLayer, bg: ColorRect, main_vbox: VBoxContainer) -> void:
-	var tween = canvas.create_tween().set_parallel(true)
-	tween.tween_property(bg, "color", Color(0, 0, 0, 0), 0.5)
-	tween.tween_property(main_vbox, "modulate:a", 0.0, 0.4)
-	tween.chain().tween_callback(func():
-		canvas.queue_free()
-		GameData.clear_items()
-		SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
-	)
+	RunEndScreen.show_death(get_tree())
 
 ## title / subtitle vacíos = textos de siempre ("¡HAS GANADO!" y completaste la run).
 func show_win_screen(next_scene: String, title: String = "", subtitle: String = "") -> void:
@@ -1860,167 +1660,10 @@ func _play_win_sound() -> void:
 	sfx_player.finished.connect(sfx_player.queue_free)
 
 func _build_win_screen(next_scene: String, title: String = "", subtitle: String = "") -> void:
-	# Por si queda el juego pausado de algun popup anterior (ej. sinergia desbloqueada) que no
-	# se haya des-pauseado a tiempo, forzamos despausar y hacemos que este cartel sea inmune
-	# a la pausa, para que "Volver al laboratorio" siempre responda al click.
+	# Por si queda el juego pausado de algún popup anterior (ej. sinergia desbloqueada)
+	# que no se haya despausado a tiempo: el cartel tiene que responder siempre.
 	get_tree().paused = false
-	var canvas = CanvasLayer.new()
-	canvas.layer = 200
-	canvas.process_mode = Node.PROCESS_MODE_ALWAYS
-	get_tree().root.add_child(canvas)
-	
-	var root = Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	canvas.add_child(root)
-	
-	var bg = ColorRect.new()
-	bg.color = Color(0, 0, 0, 0)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(bg)
-	
-	var center_box = CenterContainer.new()
-	center_box.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_child(center_box)
-	
-	var main_vbox = VBoxContainer.new()
-	main_vbox.add_theme_constant_override("separation", 24)
-	main_vbox.modulate.a = 0.0
-	center_box.add_child(main_vbox)
-	
-	var header_vbox = VBoxContainer.new()
-	header_vbox.add_theme_constant_override("separation", 6)
-	main_vbox.add_child(header_vbox)
-	
-	var lbl_title = Label.new()
-	lbl_title.text = title if title != "" else "¡HAS GANADO!"
-	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl_title.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	lbl_title.add_theme_font_size_override("font_size", 64)
-	lbl_title.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	lbl_title.add_theme_color_override("font_outline_color", Color(0.1, 0.6, 0.2))
-	lbl_title.add_theme_constant_override("outline_size", 8)
-	header_vbox.add_child(lbl_title)
-	
-	var lbl_sub = Label.new()
-	lbl_sub.text = subtitle if subtitle != "" else "COMPLETASTE LA RUN. VOLVE AL LABORATORIO A SEGUIR MEJORANDO"
-	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl_sub.add_theme_font_override("font", load("res://Art/Fonts/Exo2-Regular.otf"))
-	lbl_sub.add_theme_font_size_override("font_size", 18)
-	lbl_sub.add_theme_color_override("font_color", Color(0.2, 0.8, 0.3))
-	header_vbox.add_child(lbl_sub)
-	
-	var stats_panel = PanelContainer.new()
-	var flat_box = StyleBoxFlat.new()
-	flat_box.bg_color = Color(0.08, 0.08, 0.08, 0.95)
-	flat_box.border_color = Color(0.1, 0.25, 0.1)
-	flat_box.set_border_width_all(2)
-	flat_box.set_corner_radius_all(6)
-	flat_box.content_margin_left = 24
-	flat_box.content_margin_right = 24
-	flat_box.content_margin_top = 20
-	flat_box.content_margin_bottom = 20
-	stats_panel.add_theme_stylebox_override("panel", flat_box)
-	main_vbox.add_child(stats_panel)
-	
-	var stats_vbox = VBoxContainer.new()
-	stats_vbox.add_theme_constant_override("separation", 16)
-	stats_panel.add_child(stats_vbox)
-	
-	var time_val_lbl = Label.new()
-	time_val_lbl.text = GameData.format_time(GameData.get_run_elapsed_seconds())
-	time_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	time_val_lbl.add_theme_font_size_override("font_size", 24)
-	time_val_lbl.add_theme_color_override("font_color", Color.WHITE)
-	var row_time = _build_stat_row("TIEMPO DE LA RUN", "", time_val_lbl)
-	stats_vbox.add_child(row_time)
-	
-	var div0 = ColorRect.new()
-	div0.color = Color(0.1, 0.2, 0.1, 0.5)
-	div0.custom_minimum_size = Vector2(0, 1)
-	stats_vbox.add_child(div0)
-	
-	var kills_val_lbl = Label.new()
-	kills_val_lbl.text = str(GameData.run_enemies_killed)
-	kills_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	kills_val_lbl.add_theme_font_size_override("font_size", 24)
-	kills_val_lbl.add_theme_color_override("font_color", Color.WHITE)
-	var row_kills = _build_stat_row("MATASTE", "ENEMIGOS ELIMINADOS", kills_val_lbl)
-	stats_vbox.add_child(row_kills)
-	
-	var div1 = ColorRect.new()
-	div1.color = Color(0.1, 0.2, 0.1, 0.5)
-	div1.custom_minimum_size = Vector2(0, 1)
-	stats_vbox.add_child(div1)
-	
-	var scrap_val_lbl = Label.new()
-	scrap_val_lbl.text = str(GameData.run_scrap_collected)
-	scrap_val_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	scrap_val_lbl.add_theme_font_size_override("font_size", 24)
-	scrap_val_lbl.add_theme_color_override("font_color", Color.WHITE)
-	var row_scrap = _build_stat_row("CHATARRA OBTENIDA", "EN ESTA RUN", scrap_val_lbl)
-	stats_vbox.add_child(row_scrap)
-	
-	var btn = Button.new()
-	btn.custom_minimum_size = Vector2(300, 56)
-	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	
-	var sb_normal = StyleBoxFlat.new()
-	sb_normal.bg_color = Color(0.08, 0.3, 0.1)
-	sb_normal.border_color = Color(0.1, 0.45, 0.15)
-	sb_normal.set_border_width_all(2)
-	sb_normal.set_corner_radius_all(6)
-	
-	var sb_hover = StyleBoxFlat.new()
-	sb_hover.bg_color = Color(0.1, 0.4, 0.15)
-	sb_hover.border_color = Color(0.15, 0.55, 0.2)
-	sb_hover.set_border_width_all(2)
-	sb_hover.set_corner_radius_all(6)
-	
-	var sb_pressed = StyleBoxFlat.new()
-	sb_pressed.bg_color = Color(0.05, 0.2, 0.08)
-	sb_pressed.border_color = Color(0.08, 0.3, 0.1)
-	sb_pressed.set_border_width_all(2)
-	sb_pressed.set_corner_radius_all(6)
-	
-	btn.add_theme_stylebox_override("normal", sb_normal)
-	btn.add_theme_stylebox_override("hover", sb_hover)
-	btn.add_theme_stylebox_override("pressed", sb_pressed)
-	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	
-	var btn_hbox = HBoxContainer.new()
-	btn_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	btn_hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	btn_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	btn.add_child(btn_hbox)
-	
-	var btn_lbl = Label.new()
-	btn_lbl.text = "VOLVER AL LABORATORIO"
-	btn_lbl.add_theme_font_override("font", load("res://Art/Fonts/Dekatron-SemiBold.otf"))
-	btn_lbl.add_theme_font_size_override("font_size", 20)
-	btn_lbl.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	btn_hbox.add_child(btn_lbl)
-	
-	var btn_aligner = CenterContainer.new()
-	btn_aligner.add_child(btn)
-	main_vbox.add_child(btn_aligner)
-	
-	btn.pressed.connect(_on_win_return_button_pressed.bind(canvas, bg, main_vbox, next_scene))
-	
-	var tween = canvas.create_tween().set_parallel(true)
-	tween.tween_property(bg, "color", Color(0, 0, 0, 0.85), 0.6)
-	tween.tween_property(main_vbox, "modulate:a", 1.0, 0.5).set_delay(0.2)
-
-func _on_win_return_button_pressed(canvas: CanvasLayer, bg: ColorRect, main_vbox: VBoxContainer, next_scene: String) -> void:
-	var tween = canvas.create_tween().set_parallel(true)
-	tween.tween_property(bg, "color", Color(0, 0, 0, 0), 0.5)
-	tween.tween_property(main_vbox, "modulate:a", 0.0, 0.4)
-	tween.chain().tween_callback(func():
-		canvas.queue_free()
-		unfreeze_player()
-		SceneTransition.change_scene(next_scene)
-	)
+	RunEndScreen.show_victory(get_tree(), next_scene, title, subtitle, unfreeze_player)
 
 func _unhandled_input(event: InputEvent) -> void:
 	_handle_debug_cheats(event)
@@ -2359,9 +2002,15 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 		sprite.scale = base_scale * (1.0 + 0.6 * t)
 	elif _is_speed_demon_active():
 		_apply_speed_demon_sprite(sprite, base_scale)
+	elif _is_holy_fire_active():
+		_apply_holy_fire_sprite(sprite, base_scale)
 	elif _is_arrogancia_equipped():
 		var arrogance_tex = preload("res://Art/Weapons/Melee/Mace/synergy_arrogance_sprite.png")
 		sprite.texture = arrogance_tex
+		sprite.modulate = Color(1.0, 1.0, 1.0)
+		sprite.scale = base_scale
+	elif _is_alto_octanaje_active():
+		sprite.texture = ALTO_OCTANAJE_TEX
 		sprite.modulate = Color(1.0, 1.0, 1.0)
 		sprite.scale = base_scale
 	elif _is_hombre_lobo_active():
@@ -2373,6 +2022,8 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 		sprite.texture = base_texture
 		sprite.modulate = Color(1.0, 1.0, 1.0)
 		sprite.scale = base_scale
+	if is_instance_valid(_holy_fire_tongue) and not _is_holy_fire_active():
+		_holy_fire_tongue.extinguish()
 
 ## Speed Demon: hoja de 4 cuadros (sierra girando) dibujada acostada; se gira
 ## para que la sierra quede donde iría la hoja de la daga.
@@ -2381,6 +2032,14 @@ func _apply_speed_demon_sprite(sprite: Sprite2D, base_scale: Vector2) -> void:
 	sprite.hframes = SPEED_DEMON_FRAMES
 	sprite.frame = int(Time.get_ticks_msec() / 1000.0 * SPEED_DEMON_FPS) % SPEED_DEMON_FRAMES
 	sprite.rotation = -PI / 2.0
+	sprite.modulate = Color(1.0, 1.0, 1.0)
+	sprite.scale = base_scale
+
+## Holy Fire: hoja de 5 cuadros con la llama de la punta titilando.
+func _apply_holy_fire_sprite(sprite: Sprite2D, base_scale: Vector2) -> void:
+	sprite.texture = HOLY_FIRE_SHEET
+	sprite.hframes = HOLY_FIRE_FRAMES
+	sprite.frame = int(Time.get_ticks_msec() / 1000.0 * HOLY_FIRE_FPS) % HOLY_FIRE_FRAMES
 	sprite.modulate = Color(1.0, 1.0, 1.0)
 	sprite.scale = base_scale
 
@@ -2427,7 +2086,7 @@ func _is_speed_demon_active() -> bool:
 	return active_syns.has("speed_demon")
 
 func _start_speed_demon_push() -> void:
-	var dir = (get_global_mouse_position() - global_position).normalized()
+	var dir = (get_aim_position() - global_position).normalized()
 	if dir == Vector2.ZERO: return
 	_speed_demon_push_dir = dir
 	_speed_demon_push_time = SPEED_DEMON_PUSH_TIME
@@ -2441,6 +2100,39 @@ func _is_arrogancia_equipped() -> bool:
 	var active_weapon_id = get_active_melee_weapon_id()
 	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
 	return active_syns.has("arrogancia")
+
+## Sinergia Holy Fire: cada golpe de la maza quema al enemigo y le pone una
+## lengua de fuego (HolyFireTongue) que escupe llamas alrededor. Si ya hay
+## una lengua en otro enemigo, salta al recién golpeado. Lo llama melee_weapon.gd.
+func _is_holy_fire_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
+	return active_syns.has("holy_fire")
+
+func on_holy_fire_hit(enemy: Node2D, hit_damage: int) -> void:
+	if not _is_holy_fire_active(): return
+	if not is_instance_valid(enemy) or enemy.get("is_dying") == true: return
+	IgniteEffect.apply_ignite(enemy, maxi(2, int(hit_damage * 0.12)), 0.4, 2.4)
+	var spit_damage = maxi(4, int(hit_damage * 0.3))
+	if is_instance_valid(_holy_fire_tongue) and not _holy_fire_tongue.is_leaving():
+		_holy_fire_tongue.attach(enemy, spit_damage)
+	else:
+		_holy_fire_tongue = HolyFireTongue.spawn(enemy, spit_damage)
+
+## Sinergia Alto Octanaje: cada hachazo mancha al enemigo con gasolina
+## (FuelSoak). Una bala del jugador lo hace explotar (FuelExplosion), en cadena
+## con los otros manchados. Lo llama melee_weapon.gd.
+func _is_alto_octanaje_active() -> bool:
+	var equip = get_node_or_null("Equipment")
+	var active_weapon_id = get_active_melee_weapon_id()
+	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
+	return active_syns.has("alto_octanaje")
+
+func on_alto_octanaje_hit(enemy: Node2D, hit_damage: int) -> void:
+	if not _is_alto_octanaje_active(): return
+	var blast = clampi(int(hit_damage * ALTO_OCTANAJE_RATIO), ALTO_OCTANAJE_MIN, ALTO_OCTANAJE_MAX)
+	FuelSoak.soak(enemy, blast)
 
 ## Sinergia Hombre Lobo: mientras el hacha tiene la sinergia activa, un
 ## enemigo de la sala queda "marcado". Golpear al enemigo marcado hace

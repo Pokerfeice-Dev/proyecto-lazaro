@@ -122,6 +122,7 @@ func _make_slot_card(slot: int) -> Button:
 	card.custom_minimum_size = CARD_SIZE
 	card.size = CARD_SIZE
 	card.focus_mode = Control.FOCUS_NONE
+	PadFocusable.attach(card) # con joystick se recorre con la cruceta
 	_apply_card_styles(card, accent, exists)
 	card.pressed.connect(_on_slot_selected.bind(slot, exists))
 
@@ -202,6 +203,7 @@ func _make_delete_button(slot: int) -> Control:
 	del.text = "BORRAR"
 	del.custom_minimum_size = Vector2(124, 46)
 	del.focus_mode = Control.FOCUS_NONE
+	PadFocusable.attach(del)
 	del.add_theme_font_override("font", FONT_TITULO)
 	del.add_theme_font_size_override("font_size", 15)
 	del.add_theme_color_override("font_color", COLOR_PELIGRO)
@@ -407,7 +409,8 @@ func _show_tutorial_prompt(slot: int) -> void:
 	var title = _make_label("¿Quieres hacer el tutorial?", 26, COLOR_ACENTO, FONT_TITULO)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
-	var sub = _make_label("Slot %02d · partida nueva   (clic fuera o Esc para cancelar)" % slot, 16, Color(0.68, 0.78, 0.78))
+	var cancel_hint = "B para cancelar" if InputMode.is_gamepad() else "clic fuera o Esc para cancelar"
+	var sub = _make_label("Slot %02d · partida nueva   (%s)" % [slot, cancel_hint], 16, Color(0.68, 0.78, 0.78))
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(sub)
 
@@ -421,6 +424,7 @@ func _show_tutorial_prompt(slot: int) -> void:
 	no_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/lab_room.tscn"))
 	hbox.add_child(yes_btn)
 	hbox.add_child(no_btn)
+	PadFocus.push_modal(popup, yes_btn) # el foco pasa al cartel, no queda en las tarjetas de atrás
 
 	_animate_popup_in(bg, panel)
 
@@ -444,6 +448,7 @@ func _make_popup_button(text: String, accent: Color, index: int) -> Button:
 	btn.text = text
 	btn.custom_minimum_size = Vector2(220, 58)
 	btn.focus_mode = Control.FOCUS_NONE
+	PadFocusable.attach(btn)
 	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn.add_theme_font_override("font", FONT_TITULO)
 	btn.add_theme_font_size_override("font_size", 18)
@@ -480,6 +485,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			_close_popup(child)
 			return
+	if event is InputEventJoypadButton: # B del joystick: volver al menú
+		get_viewport().set_input_as_handled()
+		_on_back_pressed()
 
 func _start_new_game(slot: int, popup: CanvasLayer, scene_path: String) -> void:
 	if _leaving: return

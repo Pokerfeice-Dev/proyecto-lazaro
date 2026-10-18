@@ -109,6 +109,30 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 		]
 	},
 	{
+		"id": "holy_fire",
+		"name": "Holy Fire",
+		"weapon_type": "melee",
+		"weapon_id": "maze",
+		"desc": "Maza + Lengua de fuego que escupe llamas alrededor",
+		"items": [
+			"res://Art/Items/Weapons/Item11_Gasolina.tres",
+			"res://Art/Items/Weapons/Item5.tres",
+			"res://Art/Items/Weapons/Item8_CabezaHumana.tres"
+		]
+	},
+	{
+		"id": "alto_octanaje",
+		"name": "Alto Octanaje",
+		"weapon_type": "melee",
+		"weapon_id": "hacha",
+		"desc": "Hacha + Manchas de gasolina que explotan con un disparo",
+		"items": [
+			"res://Art/Items/Weapons/Item11_Gasolina.tres",
+			"res://Art/Items/Weapons/Item6.tres",
+			"res://Art/Items/Crypt/glandula_toxica.tres"
+		]
+	},
+	{
 		"id": "speed_demon",
 		"name": "Speed Demon",
 		"weapon_type": "melee",
@@ -184,9 +208,7 @@ func _set_highlight(on: bool) -> void:
 
 func _input(event: InputEvent) -> void:
 	if not player_inside: return
-	if not event is InputEventKey: return
-	if event.physical_keycode != KEY_E: return
-	if not event.pressed or event.echo: return
+	if not InputMode.is_interact(event): return # E o X del joystick
 
 	_open_synergy_menu()
 

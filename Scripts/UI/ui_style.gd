@@ -90,7 +90,9 @@ static func title_tab(text: String) -> Button:
 	tab.add_theme_color_override("font_color", COLOR_GOLD)
 	return tab
 
-static func keycap(key_text: String) -> PanelContainer:
+## Tecla dibujada. Con joystick muestra el botón equivalente (pad_text, o el
+## que corresponda según InputMode.PAD_FOR_KEY si se deja vacío).
+static func keycap(key_text: String, pad_text: String = "") -> PanelContainer:
 	var p = PanelContainer.new()
 	p.custom_minimum_size = Vector2(32, 32)
 	p.add_theme_stylebox_override("panel", nine_slice(TEX_KEYCAP))
@@ -98,6 +100,7 @@ static func keycap(key_text: String) -> PanelContainer:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	p.add_child(l)
+	KeycapSwitch.attach(p, l, pad_text)
 	return p
 
 static func icon(tex: Texture2D, size: float = 22.0) -> TextureRect:

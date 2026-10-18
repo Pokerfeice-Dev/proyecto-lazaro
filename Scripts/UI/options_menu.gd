@@ -70,9 +70,15 @@ func _bind_buttons(node: Node) -> void:
 func _bind_single_button(node: Node) -> void:
 	if node is BaseButton and not node.mouse_entered.is_connected(_play_hover_sound):
 		node.mouse_entered.connect(_play_hover_sound)
+		node.focus_entered.connect(_play_focus_sound)
 
 func _play_hover_sound() -> void:
 	hover_audio.play()
+
+# Con joystick, moverse entre botones suena igual que pasar el mouse por encima.
+func _play_focus_sound() -> void:
+	if InputMode.is_gamepad():
+		hover_audio.play()
 
 # --- Construcción de la ventana ---
 
@@ -231,6 +237,7 @@ func _add_volume_row(parent: Control, title: String) -> Array:
 	slider.step = 5.0
 	slider.custom_minimum_size.y = 24.0
 	slider.focus_mode = Control.FOCUS_NONE # así las teclas del juego no lo mueven sin querer
+	PadFocusable.attach(slider) # con joystick sí: la cruceta lo mueve
 	UIStyle.style_slider(slider)
 	parent.add_child(slider)
 	return [slider, value_lbl]
@@ -242,15 +249,17 @@ func _build_bottom_bar(parent: Control) -> void:
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	hbox.add_theme_constant_override("separation", 36)
 	bar.add_child(hbox)
-	_add_shortcut(hbox, UIStyle.icon(ICON_MOUSE, 24), "Seleccionar")
+	var mouse = _add_shortcut(hbox, UIStyle.icon(ICON_MOUSE, 24), "Seleccionar")
+	KeycapSwitch.swap_icon(mouse, "A")
 	_add_shortcut(hbox, UIStyle.keycap("Esc"), "Continuar")
 
-func _add_shortcut(parent: Control, key: Control, action_text: String) -> void:
+func _add_shortcut(parent: Control, key: Control, action_text: String) -> Control:
 	var item = HBoxContainer.new()
 	item.add_theme_constant_override("separation", 8)
 	item.add_child(key)
 	item.add_child(UIStyle.label(action_text, 18, UIStyle.COLOR_MUTED))
 	parent.add_child(item)
+	return key
 
 # --- Datos que cambian cada vez que se abre ---
 
@@ -285,6 +294,10 @@ func _add_run_row(tex: Texture2D, title: String, value: String) -> void:
 # --- Abrir y cerrar (entra desde abajo, como el inventario) ---
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_open and not is_instance_valid(_options_screen) and _is_pad_back(event):
+		get_viewport().set_input_as_handled()
+		close() # B del joystick
+		return
 	if not event.is_action_pressed("pause"): return
 	if is_instance_valid(_options_screen): return # la pantalla de opciones se cierra sola con Esc
 	if is_open:
@@ -295,6 +308,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	open()
 
+# B del joystick (Esc ya cierra por la acción "pause").
+func _is_pad_back(event: InputEvent) -> bool:
+	return event is InputEventJoypadButton and event.is_action_pressed("ui_cancel")
+
 func open() -> void:
 	if is_open or _is_animating: return
 	is_open = true
@@ -304,6 +321,7 @@ func open() -> void:
 	SceneTransition.set_menu_muffle(true)
 	was_paused = get_tree().paused
 	get_tree().paused = true
+	PadFocus.push_modal(self, _continue_btn) # con joystick el foco queda en el menú
 	_animate_in()
 
 func close() -> void:
@@ -311,6 +329,8 @@ func close() -> void:
 	is_open = false
 	_save_volume_settings()
 	SceneTransition.set_menu_muffle(false)
+	PadFocus.pop_modal(self)
+	get_viewport().gui_release_focus()
 	_animate_out()
 
 func _window_rest_position() -> Vector2:

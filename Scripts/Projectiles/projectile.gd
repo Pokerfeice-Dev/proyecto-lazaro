@@ -146,8 +146,15 @@ func _process_body_hit(body: Node2D) -> void:
 		_handle_wall_collision()
 		return
 	body.take_damage(damage, is_crit)
+	_notify_bullet_hit(body)
 	_apply_bullet_status_to_target(body)
 	_handle_piercing_or_destroy(body)
+
+## Las balas del jugador hacen explotar a los enemigos manchados de gasolina
+## (sinergia Alto Octanaje). Las clases hijas lo llaman al pegar.
+func _notify_bullet_hit(body: Node) -> void:
+	if target_group == "player": return
+	FuelSoak.notify_bullet_hit(body)
 
 func _apply_bullet_status_to_target(target: Node2D) -> void:
 	if status_effect.is_empty(): return

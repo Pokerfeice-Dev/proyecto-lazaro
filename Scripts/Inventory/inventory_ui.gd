@@ -29,6 +29,7 @@ var _default_margin_pos_y: float = 40.0
 var selected_item: ItemData = null
 var selected_source_slot: UISlot = null
 var is_comparing: bool = false
+var _pad_holding: bool = false # joystick: objeto elegido con A esperando casillero
 
 # Nodos principales
 @onready var dark_backdrop: ColorRect = %DarkBackdrop
@@ -145,7 +146,25 @@ func _ready() -> void:
 	if equipment:
 		equipment.equipment_changed.connect(update_ui)
 	_default_margin_pos_y = window_margin.position.y
+	_setup_pad_hints()
+	for slot in inventory_slots + ui_slots:
+		slot.slot_pad_equip.connect(_on_slot_pad_equip)
 	update_ui()
+
+# Con joystick, las teclas de la barra de abajo y de "Cerrar" pasan a ser
+# botones, y aparecen LB / RB al lado de las pestañas.
+func _setup_pad_hints() -> void:
+	var hints = %BottomBar.get_node("MarginContainer/HBoxContainer")
+	KeycapSwitch.swap_icon(hints.get_node("HBoxContainer/TextureRect"), "A")
+	_pad_keycap(hints.get_node("HBoxContainer2/PanelContainer"), "X")
+	_pad_keycap(hints.get_node("HBoxContainer3/PanelContainer"), "RS")
+	_pad_keycap(hints.get_node("HBoxContainer4/PanelContainer"), "B")
+	_pad_keycap(top_bar.get_node("HBoxContainer/HBoxContainer/PanelContainer"), "B")
+	KeycapSwitch.add_tab_hints(top_bar.get_node("TabsBox"), 34.0)
+	KeycapSwitch.add_tab_hints(%CodexCategories, 34.0, "LT", "RT")
+
+func _pad_keycap(cap: PanelContainer, pad: String) -> void:
+	KeycapSwitch.attach(cap, cap.get_child(0) as Label, pad)
 
 func _apply_tab_style(btn: Button, is_active: bool) -> void:
 	btn.theme_type_variation = "InventoryTabActive" if is_active else "InventoryTab"
@@ -170,6 +189,8 @@ func _animate_open() -> void:
 	SceneTransition.set_menu_muffle(true)
 	update_ui()
 	_start_open_tweens()
+	PadFocus.push_modal(self) # con joystick el foco no sale del inventario
+	_focus_first_slot.call_deferred()
 
 func _start_open_tweens() -> void:
 	var start_y = get_viewport_rect().size.y
@@ -191,7 +212,10 @@ func _start_open_tweens() -> void:
 func _animate_close() -> void:
 	_is_animating = true
 	_hide_tooltip()
+	_clear_pad_selection()
 	SceneTransition.set_menu_muffle(false)
+	PadFocus.pop_modal(self)
+	get_viewport().gui_release_focus()
 	var target_y = get_viewport_rect().size.y
 
 	var slide_tween = create_tween()
@@ -227,7 +251,14 @@ func _input(event: InputEvent) -> void:
 
 	if event.is_action_pressed("ui_cancel"):
 		_play_cancel_sound()
-		toggle_visibility()
+		get_viewport().set_input_as_handled()
+		if _pad_holding and event is InputEventJoypadButton:
+			_clear_pad_selection() # B suelta el objeto elegido; otra B cierra
+		else:
+			toggle_visibility()
+		return
+
+	if _handle_pad_input(event):
 		get_viewport().set_input_as_handled()
 		return
 
@@ -238,6 +269,97 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_SHIFT:
 			_toggle_compare_mode()
 			get_viewport().set_input_as_handled()
+
+# --- Joystick ---
+
+# LB / RB: pestañas · LT / RT: categorías del códice · clic del analógico der.: comparar.
+func _handle_pad_input(event: InputEvent) -> bool:
+	if event.is_action_pressed("ui_tab_prev") or event.is_action_pressed("ui_tab_next"):
+		_cycle_tab(-1 if event.is_action_pressed("ui_tab_prev") else 1)
+		return true
+	if event is InputEventJoypadMotion and current_tab == "CODEX":
+		# una categoría por pulsación del gatillo, no una por cada evento del eje
+		if InputMode.trigger_tap(event):
+			_cycle_codex_category(-1 if event.axis == JOY_AXIS_TRIGGER_LEFT else 1)
+			return true
+		return false
+	if current_tab == "INVENTORY" and event.is_action_pressed("ui_compare"):
+		_toggle_compare_mode()
+		return true
+	return false
+
+func _cycle_tab(step: int) -> void:
+	var tabs = ["INVENTORY", "CODEX", "RESEARCH"]
+	match tabs[wrapi(tabs.find(current_tab) + step, 0, tabs.size())]:
+		"INVENTORY": _on_inventory_tab_pressed()
+		"CODEX": _on_codex_tab_pressed()
+		"RESEARCH": _on_research_tab_pressed()
+	_focus_first_slot.call_deferred()
+
+func _cycle_codex_category(step: int) -> void:
+	var cats = codex_category_buttons.keys()
+	if cats.is_empty(): return
+	_on_codex_category_pressed(cats[wrapi(cats.find(selected_codex_category) + step, 0, cats.size())])
+
+## Con joystick, al abrir o cambiar de pestaña el foco va al primer casillero
+## (o a la primera ficha del códice), así se puede navegar con la cruceta.
+func _focus_first_slot() -> void:
+	if not visible or not InputMode.is_gamepad(): return
+	get_viewport().gui_release_focus()
+	match current_tab:
+		"INVENTORY":
+			for slot in inventory_slots:
+				if slot.is_visible_in_tree():
+					slot.grab_focus()
+					return
+		"CODEX": codex_browser.focus_first()
+		"RESEARCH": research_browser.focus_first()
+
+## X del joystick sobre un casillero:
+##  - si antes elegiste un objeto de la mochila con A y el casillero de equipo
+##    le sirve, lo equipa ahí;
+##  - si no, equipa el objeto del casillero en el primer lugar libre (o lo
+##    quita, si ya estaba equipado).
+func _on_slot_pad_equip(slot: UISlot) -> void:
+	var held = _pad_held_item()
+	if held and not slot.is_inventory_slot and slot.is_valid_target_for(held):
+		_clear_pad_selection()
+		_equip_item_to_slot(held, slot.slot_type)
+	elif slot.item:
+		_clear_pad_selection()
+		_on_slot_double_clicked(slot.item, slot)
+		return
+	_refresh_pad_tooltip()
+
+# Objeto de la mochila elegido con A, esperando que elijas dónde ponerlo.
+func _pad_held_item() -> ItemData:
+	if _pad_holding and selected_item and inventory.items.has(selected_item):
+		return selected_item
+	return null
+
+# Marca en verde los casilleros de equipo donde entra el objeto y en rojo los
+# demás, como al arrastrarlo con el mouse.
+func _show_pad_targets(item: ItemData) -> void:
+	_pad_holding = true
+	for slot in ui_slots:
+		var valid = slot.is_valid_target_for(item)
+		slot.set_drop_target_state(valid, not valid)
+
+func _clear_pad_selection() -> void:
+	if not _pad_holding: return
+	_pad_holding = false
+	for slot in ui_slots:
+		slot.set_drop_target_state(false, false)
+
+# Después de equipar o desequipar con X, el casillero enfocado puede tener
+# otro objeto: se actualiza el cartel.
+func _refresh_pad_tooltip() -> void:
+	if not InputMode.is_gamepad(): return
+	var slot = get_viewport().gui_get_focus_owner() as UISlot
+	if slot and slot.item:
+		_show_slot_tooltip(slot.item, slot.get_global_rect())
+	else:
+		_hide_tooltip()
 
 func _play_cancel_sound() -> void:
 	$CancelSound.play()
@@ -419,14 +541,20 @@ func _get_weapon_display_name_text(weapon_container: Node) -> String:
 # ── Interacción con Slots ──────────────────────────────────────────────────────
 
 func _on_slot_clicked(item: ItemData) -> void:
+	_clear_pad_selection()
 	selected_item = item
 	update_ui()
+	# joystick: elegir un objeto de la mochila marca dónde se puede equipar;
+	# te mueves hasta el casillero y X lo pone ahí
+	if InputMode.is_gamepad() and inventory.items.has(item):
+		_show_pad_targets(item)
 
 func _on_slot_double_clicked(item: ItemData, slot_ui: UISlot) -> void:
 	if slot_ui.is_inventory_slot:
 		_equip_item_direct(item)
 	else:
 		_unequip_item_direct(item, slot_ui.slot_type)
+	_refresh_pad_tooltip()
 
 func _on_drag_started(drag_item: ItemData, source_slot: UISlot) -> void:
 	selected_item = drag_item
@@ -758,12 +886,13 @@ func _on_codex_category_pressed(cat: String) -> void:
 	selected_codex_category = cat
 	_hide_tooltip()
 	_refresh_codex_grid()
+	_focus_first_slot.call_deferred()
 
 func _refresh_codex_grid() -> void:
 	for key in codex_category_buttons:
 		_apply_tab_style(codex_category_buttons[key], key == selected_codex_category)
 	codex_browser.configure(selected_codex_category)
-	codex_progress_label.text = "Seleccioná un registro para consultar su ficha completa."
+	codex_progress_label.text = "Selecciona un registro para consultar su ficha completa."
 
 func _on_research_tab_pressed() -> void:
 	current_tab = "RESEARCH"
@@ -800,7 +929,7 @@ func _show_slot_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 		tooltip_type.text = _get_item_type_string(item_data)
 		tooltip_desc.text = _get_item_description(item_data)
 		tooltip_stats.text = _format_item_comparison_stats(item_data)
-		tooltip_action.text = "Clic para seleccionar • Arrastrar para equipar"
+		tooltip_action.text = "A: elegir dónde equiparlo • X: equipar o quitar" if InputMode.is_gamepad() else "Clic para seleccionar • Arrastrar para equipar"
 
 	var tooltip_pos = Vector2(slot_rect.end.x + 12, slot_rect.position.y)
 	if tooltip_pos.x + tooltip_panel.size.x > get_viewport_rect().size.x:

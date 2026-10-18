@@ -57,6 +57,8 @@ func _ready() -> void:
 	selections = {"primary": GameData.chosen_primary_weapon, "melee": GameData.chosen_melee_weapon}
 	_build()
 	_animate_in()
+	PadFocus.push_modal(self) # con joystick el foco no se va a lo de atrás
+	_focus_first_card.call_deferred()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
@@ -65,6 +67,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_accept") and event is InputEventKey:
 		get_viewport().set_input_as_handled()
 		_confirm()
+	elif event is InputEventJoypadButton and event.is_action_pressed("pause"):
+		get_viewport().set_input_as_handled()
+		_confirm() # Start del joystick (A elige el arma enfocada)
 
 # --- Armado ---
 
@@ -137,7 +142,7 @@ func _build_footer() -> Control:
 	var confirm = UIStyle.button(confirm_text, true, Vector2(240, 48), 20)
 	confirm.pressed.connect(_confirm)
 	row.add_child(confirm)
-	row.add_child(UIStyle.keycap("ENTER"))
+	row.add_child(UIStyle.keycap("ENTER", "START"))
 	return row
 
 # --- Ficha de un arma ---
@@ -149,6 +154,7 @@ func _weapon_card(slot: String, w: Dictionary, group: ButtonGroup) -> Control:
 	btn.button_group = group
 	btn.custom_minimum_size = CARD_SIZE
 	btn.focus_mode = Control.FOCUS_NONE
+	PadFocusable.attach(btn) # con joystick se recorre con la cruceta y se elige con A
 	btn.disabled = not unlocked
 	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if unlocked else Control.CURSOR_ARROW
 	btn.tooltip_text = "" if unlocked else "Se desbloquea en el terminal de chatarra"
@@ -274,3 +280,11 @@ func _ignore(c: Control) -> Control:
 
 func _codex_icon(id: String) -> Texture2D:
 	return CodexData.DATA.get("weapons", {}).get(id, {}).get("icon", null)
+
+# Con joystick el foco arranca en el arma elegida de la primera columna.
+func _focus_first_card() -> void:
+	if not InputMode.is_gamepad(): return
+	for b in find_children("*", "Button", true, false):
+		if b.toggle_mode and b.button_pressed and not b.disabled:
+			b.grab_focus()
+			return
