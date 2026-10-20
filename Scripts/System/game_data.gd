@@ -85,6 +85,19 @@ var just_won_run: bool = false
 const EVENT_DEMO_ROOMS_BEFORE_BOSS := 6
 const EVENT_OMNIA_LEVEL := 3 # 50% de 5 redondeado a un nivel entero jugable.
 var event_demo_active := false
+var demo_completed_pending := false
+
+func finish_first_boss_demo() -> void:
+	if demo_completed_pending:
+		return
+	demo_completed_pending = true
+	just_won_run = false
+	save_game()
+	if event_demo_active:
+		end_event_demo()
+	get_tree().current_scene.process_mode = Node.PROCESS_MODE_DISABLED
+	await get_tree().create_timer(0.9).timeout
+	SceneTransition.change_scene("res://Scenes/Rooms/lab_room.tscn")
 
 # ── Boss Fight State ─────────────────────────────────────────────────────────
 var boss_fight_phase: int = 1

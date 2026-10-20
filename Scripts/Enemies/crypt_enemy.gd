@@ -417,7 +417,10 @@ func spawn_appear() -> void:
 # Queda el cadáver en la sala; el estallido azul (Death_fx) es el mismo del área 1.
 func _hide_sprite() -> void:
 	_cancel_active_flash_tween()
-	art.leave_corpse()
+	if use_legacy_death_fx:
+		art.leave_corpse()
+	elif _get_sprite():
+		_get_sprite().hide()
 	$Sprite2D.hide()
 	for node in get_children():
 		if node.has_method("crypt_death"): node.crypt_death()

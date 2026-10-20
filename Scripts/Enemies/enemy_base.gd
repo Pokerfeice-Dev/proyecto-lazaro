@@ -38,6 +38,8 @@ class_name EnemyBase
 var target: Node2D = null
 var is_spawning: bool = false
 var is_dying: bool = false
+@export var use_legacy_death_fx := false
+const PIXEL_DEATH = preload("res://Scripts/Effects/pixel_death.gd")
 var knockback_velocity: Vector2 = Vector2.ZERO
 var hit_stun_timer: float = 0.0
 
@@ -667,11 +669,31 @@ func die() -> void:
 	enemy_died.emit(self)
 	_attempt_drops()
 	_disable_physics()
+	if not use_legacy_death_fx:
+		_spawn_pixel_death()
 	_hide_sprite()
 	_hide_health_bar()
 	_fade_shadow()
 	_play_death_sound()
-	_play_death_fx()
+	if use_legacy_death_fx:
+		_play_death_fx()
+	else:
+		var legacy_fx = get_node_or_null("Death_fx")
+		if legacy_fx:
+			legacy_fx.hide()
+		# Mantiene vivo el jefe final hasta que termine su flujo de victoria.
+		var delay := 1.1
+		if "victory_delay" in self:
+			delay = maxf(delay, get("victory_delay") + 0.5)
+		get_tree().create_timer(delay, false).timeout.connect(_check_sound_and_free)
+
+func _spawn_pixel_death() -> void:
+	# La torreta tiene base y cañón separados; los demás exponen su cuerpo.
+	if get_node_or_null("Sprite_BaseTurret") or get_node_or_null("Sprite_CannonTurret"):
+		PIXEL_DEATH.spawn_from(get_node_or_null("Sprite_BaseTurret"))
+		PIXEL_DEATH.spawn_from(get_node_or_null("Sprite_CannonTurret"))
+	else:
+		PIXEL_DEATH.spawn_from(_get_sprite())
 
 func _fade_shadow() -> void:
 	if not drop_shadow: return
@@ -777,7 +799,7 @@ func _disable_physics() -> void:
 	col.set_deferred("disabled", true)
 
 func _hide_sprite() -> void:
-	var sprite = get_node_or_null("AnimatedSprite2D")
+	var sprite = _get_sprite()
 	if not sprite: return
 	sprite.hide()
 

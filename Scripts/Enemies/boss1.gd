@@ -647,12 +647,15 @@ func _update_hud_health() -> void:
 		t.tween_property(boss_health_bar_node, "value", float(target_val), 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func die() -> void:
+	if is_dying:
+		return
 	super.die()
 	GameData.reset_boss_state()
 	_hide_hud_health()
 	_stop_all_boss_sounds()
 	if GameData.get_active_protocol() == "reciclaje_instantaneo":
 		GameData.add_scrap(50)
+	GameData.finish_first_boss_demo.call_deferred()
 
 func _hide_hud_health() -> void:
 	if healthbar_instance and is_instance_valid(healthbar_instance):

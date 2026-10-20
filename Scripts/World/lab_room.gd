@@ -5,6 +5,14 @@ func _ready() -> void:
 	_spawn_or_reposition_player()
 	_setup_music_loop()
 	_setup_room_specific_logic()
+	if name == "Lab_room" and GameData.demo_completed_pending:
+		_show_demo_completion.call_deferred()
+
+func _show_demo_completion() -> void:
+	while SceneTransition.is_transitioning:
+		await get_tree().process_frame
+	GameData.demo_completed_pending = false
+	RunEndScreen.show_demo_completed(get_tree())
 
 func _setup_room_specific_logic() -> void:
 	if name == "Lab_room":

@@ -32,6 +32,7 @@ const KILLER_JOKES := {
 }
 
 var victory := false
+var demo_completed := false
 var title_text := ""
 var subtitle_text := ""
 var next_scene := LAB_SCENE
@@ -43,6 +44,16 @@ var _window: VBoxContainer
 var _rows: VBoxContainer
 var _button: Button
 var _leaving := false
+
+static func show_demo_completed(tree: SceneTree) -> RunEndScreen:
+	var s = RunEndScreen.new()
+	s.victory = true
+	s.demo_completed = true
+	s.title_text = "¡GRACIAS POR PROBAR!"
+	s.subtitle_text = "FRANKEN GUN"
+	tree.paused = true
+	tree.root.add_child(s)
+	return s
 
 static func show_death(tree: SceneTree) -> RunEndScreen:
 	var s = RunEndScreen.new()
@@ -68,12 +79,16 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_accent = UIStyle.COLOR_TEAL if victory else COLOR_DEATH
 	_build()
-	_fill_rows()
+	if demo_completed:
+		_rows.add_child(UIStyle.label("Venciste al primer jefe. ¡Te esperamos en otra run!", 18, UIStyle.COLOR_TEXT))
+	else:
+		_fill_rows()
 	PadFocus.push_modal(self, _button) # con joystick el botón arranca enfocado
 	_animate_in()
 
 func _input(event: InputEvent) -> void:
 	if _leaving: return
+	if demo_completed: return # Los botones manejan Enter/A según el foco.
 	if not (event is InputEventKey and event.pressed and not event.echo): return
 	if event.is_action_pressed("ui_accept") or event.physical_keycode == KEY_E:
 		get_viewport().set_input_as_handled()
@@ -123,7 +138,7 @@ func _build_window() -> VBoxContainer:
 	var window = VBoxContainer.new()
 	window.add_theme_constant_override("separation", 0)
 	window.custom_minimum_size.x = WINDOW_WIDTH
-	var tab = UIStyle.title_tab("  RESUMEN DE LA RUN")
+	var tab = UIStyle.title_tab("  DEMO COMPLETADA" if demo_completed else "  RESUMEN DE LA RUN")
 	tab.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	tab.add_theme_font_size_override("font_size", 18)
 	window.add_child(tab)
@@ -144,6 +159,15 @@ func _build_window() -> VBoxContainer:
 func _build_footer() -> HBoxContainer:
 	var footer = HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
+	if demo_completed:
+		var menu_button = UIStyle.button("VOLVER AL MENÚ", false, Vector2(260, 52), 19)
+		menu_button.pressed.connect(_on_demo_menu)
+		footer.add_child(menu_button)
+		_button = UIStyle.button("SEGUIR", true, Vector2(240, 52), 19)
+		_button.pressed.connect(_on_demo_continue)
+		footer.add_child(_button)
+		_button.grab_focus.call_deferred()
+		return footer
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(spacer)
@@ -266,6 +290,19 @@ func _cascade_rows(start: float) -> void:
 		delay += 0.08
 
 # --- Volver ---
+
+func _on_demo_continue() -> void:
+	if _leaving: return
+	_leaving = true
+	get_tree().paused = false
+	queue_free()
+
+func _on_demo_menu() -> void:
+	if _leaving: return
+	_leaving = true
+	get_tree().paused = false
+	SceneTransition.change_scene("res://Scenes/UI/MainMenu.tscn")
+	queue_free()
 
 func _on_return() -> void:
 	if _leaving: return
