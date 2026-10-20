@@ -121,12 +121,12 @@ texture = ExtResource("2_bhe41")
 
 [node name="PointLight2D" type="PointLight2D" parent="flesh_sprite" unique_id=373406519]
 position = Vector2(0, 3.8146973e-06)
-scale = Vector2(6.6666675, 6.6666675)
+scale = Vector2(4.5, 4.5)
 color = Color(1, 0, 0, 1)
-energy = 0.5
-shadow_enabled = true
+energy = 0.35
+shadow_enabled = false
 texture = ExtResource("3_52gp0")
-texture_scale = 0.5
+texture_scale = 0.38
 
 [node name="Grab_area" type="Area2D" parent="." unique_id=1926700011]
 

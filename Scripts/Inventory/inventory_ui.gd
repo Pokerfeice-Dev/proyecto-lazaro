@@ -30,6 +30,8 @@ var selected_item: ItemData = null
 var selected_source_slot: UISlot = null
 var is_comparing: bool = false
 var _pad_holding: bool = false # joystick: objeto elegido con A esperando casillero
+var _synergy_tutorial_slot_highlights: Array[Control] = []
+var _synergy_tutorial_slots_visible := false
 
 # Nodos principales
 @onready var dark_backdrop: ColorRect = %DarkBackdrop
@@ -207,7 +209,10 @@ func _start_open_tweens() -> void:
 		.set_trans(Tween.TRANS_SINE)\
 		.set_ease(Tween.EASE_OUT)
 
-	slide_tween.tween_callback(func(): _is_animating = false)
+	slide_tween.tween_callback(_on_open_finished)
+
+func _on_open_finished() -> void:
+	_is_animating = false
 
 func _animate_close() -> void:
 	_is_animating = true
@@ -468,12 +473,18 @@ func _update_weapon_displays() -> void:
 	if players.is_empty(): return
 	var p = players[0]
 	if primary_weapon_icon and "active_weapon" in p and p.active_weapon:
-		primary_weapon_icon.texture = _get_weapon_texture(p.active_weapon)
+		primary_weapon_icon.texture = _get_weapon_texture(p.active_weapon, p, true)
 	if secondary_weapon_icon and "second_weapon" in p and p.second_weapon:
-		secondary_weapon_icon.texture = _get_weapon_texture(p.second_weapon)
+		secondary_weapon_icon.texture = _get_weapon_texture(p.second_weapon, p, false)
 
-func _get_weapon_texture(weapon_container: Node) -> Texture2D:
+func _get_weapon_texture(weapon_container: Node, player: Node = null, is_main: bool = true) -> Texture2D:
 	if not weapon_container: return null
+	var synergy_icon = _get_active_synergy_icon(player, weapon_container, is_main)
+	if synergy_icon:
+		return synergy_icon
+	var codex_icon = _get_codex_weapon_texture(weapon_container)
+	if codex_icon:
+		return codex_icon
 	var cur = weapon_container.get("current_weapon")
 	if not cur:
 		cur = weapon_container
@@ -513,12 +524,48 @@ func _get_weapon_texture(weapon_container: Node) -> Texture2D:
 	var chosen = GameData.chosen_primary_weapon if GameData else "pistol"
 	match chosen:
 		"pistol":
-			return load("res://Art/Weapons/Distance/Pistol/Weapon_Pisotol.png")
+			return load("res://Art/Weapons/Distance/Pistol/weapon_revolver_sprite.png")
 		"shotgun":
-			return load("res://Art/Weapons/Distance/Shotgun/Weapon_Shotgun.png")
+			return load("res://Art/Weapons/Distance/Shotgun/weapon_shotgun_sprite.png")
 		"uzi":
-			return load("res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png")
+			return load("res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png")
 	return null
+
+# Igual que el HUD: las fichas del Códice están recortadas y fueron pensadas
+# para leerse dentro de marcos pequeños; los sprites de mundo tienen aire extra.
+var _codex_weapon_icons: Dictionary = {}
+var _synergy_weapon_icons: Dictionary = {}
+
+func _get_active_synergy_icon(player: Node, weapon_container: Node, is_main: bool) -> Texture2D:
+	if not player:
+		return null
+	var player_equipment = player.get_node_or_null("Equipment")
+	var weapon_id = _get_codex_weapon_id(weapon_container)
+	var synergy_id = SynergyManager.get_active_weapon_display_synergy(player_equipment, weapon_id, is_main)
+	if synergy_id == "":
+		return null
+	if not _synergy_weapon_icons.has(synergy_id):
+		_synergy_weapon_icons[synergy_id] = UIStyle.trimmed(OmniaCatalog.synergy_icon(synergy_id))
+	return _synergy_weapon_icons[synergy_id]
+
+func _get_codex_weapon_texture(weapon_container: Node) -> Texture2D:
+	var weapon_id = _get_codex_weapon_id(weapon_container)
+	if weapon_id == "" or not CodexData.DATA.get("weapons", {}).has(weapon_id):
+		return null
+	if not _codex_weapon_icons.has(weapon_id):
+		var icon = CodexData.DATA["weapons"][weapon_id].get("icon", null) as Texture2D
+		_codex_weapon_icons[weapon_id] = UIStyle.trimmed(icon)
+	return _codex_weapon_icons[weapon_id]
+
+func _get_codex_weapon_id(weapon_container: Node) -> String:
+	if weapon_container.has_method("get_base_weapon_id"):
+		var base_id = weapon_container.get_base_weapon_id()
+		if base_id != "":
+			return base_id
+	var current_weapon = weapon_container.get("current_weapon")
+	if current_weapon and "id" in current_weapon:
+		return current_weapon.id
+	return ""
 
 func _get_weapon_display_name_text(weapon_container: Node) -> String:
 	if not weapon_container: return "Pistola"
@@ -652,6 +699,59 @@ func _get_available_slot_for_item(item: ItemData) -> ItemData.ItemSlot:
 			return ItemData.ItemSlot.MAIN_W1
 	return ItemData.ItemSlot.TORSO
 
+# El entrenamiento usa estos nodos sobre los tres huecos del arma principal.
+# No cambia la lógica de equipamiento y se puede activar desde cualquier tutorial.
+func set_synergy_tutorial_weapon_slots(enabled: bool) -> void:
+	if enabled == _synergy_tutorial_slots_visible:
+		return
+	_synergy_tutorial_slots_visible = enabled
+	for highlight in _synergy_tutorial_slot_highlights:
+		if is_instance_valid(highlight):
+			highlight.queue_free()
+	_synergy_tutorial_slot_highlights.clear()
+	if not enabled:
+		return
+	# El tutorial siempre abre donde están las piezas: mochila, filtro de armas.
+	_on_inventory_tab_pressed()
+	_on_filter_pressed("WEAPON")
+	for slot in inventory_slots:
+		if slot.item and slot.item.type == ItemData.ItemType.WEAPON:
+			_add_synergy_tutorial_highlight(slot, UIStyle.COLOR_TEAL, "PIEZA")
+	for slot in main_weapon_slots:
+		_add_synergy_tutorial_highlight(slot, UIStyle.COLOR_GOLD, "EQUIPA AQUÍ")
+
+func _add_synergy_tutorial_highlight(slot: UISlot, color: Color, caption: String) -> void:
+	var highlight := Panel.new()
+	highlight.name = "SynergyTutorialSlotHighlight"
+	highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	highlight.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(color, 0.10)
+	style.border_color = color
+	style.set_border_width_all(3)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	highlight.add_theme_stylebox_override("panel", style)
+	slot.add_child(highlight)
+	var caption_label := Label.new()
+	caption_label.text = caption
+	caption_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	caption_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption_label.add_theme_font_size_override("font_size", 11)
+	caption_label.add_theme_color_override("font_color", color)
+	caption_label.add_theme_color_override("font_outline_color", Color("#061013"))
+	caption_label.add_theme_constant_override("outline_size", 3)
+	caption_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	caption_label.position = Vector2(-42, -24)
+	caption_label.size = Vector2(132, 22)
+	highlight.add_child(caption_label)
+	var pulse := highlight.create_tween().set_loops()
+	pulse.tween_property(highlight, "modulate:a", 0.35, 0.55)
+	pulse.tween_property(highlight, "modulate:a", 1.0, 0.55)
+	_synergy_tutorial_slot_highlights.append(highlight)
+
 # ── Ficha de Detalle y Comparación ─────────────────────────────────────────────
 
 func _update_detail_panel() -> void:
@@ -775,7 +875,7 @@ func _update_attributes_display() -> void:
 
 func _render_primary_weapon_stats(p: Node2D) -> void:
 	if stats_weapon_icon and p.active_weapon:
-		stats_weapon_icon.texture = _get_weapon_texture(p.active_weapon)
+		stats_weapon_icon.texture = _get_weapon_texture(p.active_weapon, p, true)
 	if stats_weapon_name and p.active_weapon:
 		stats_weapon_name.text = _get_weapon_display_name_text(p.active_weapon)
 
@@ -802,7 +902,7 @@ func _render_primary_weapon_stats(p: Node2D) -> void:
 
 func _render_secondary_weapon_stats(p: Node2D) -> void:
 	if stats_weapon_icon and p.second_weapon:
-		stats_weapon_icon.texture = _get_weapon_texture(p.second_weapon)
+		stats_weapon_icon.texture = _get_weapon_texture(p.second_weapon, p, false)
 	if stats_weapon_name and p.second_weapon:
 		stats_weapon_name.text = _get_weapon_display_name_text(p.second_weapon)
 

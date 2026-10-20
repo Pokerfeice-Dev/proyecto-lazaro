@@ -1,12 +1,11 @@
-[gd_scene format=3 uid="uid://buxmwpld6b0nj"]
+[gd_scene format=3 uid="uid://dc5mgdq1vb8vc"]
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_suroi"]
 [ext_resource type="PackedScene" uid="uid://ckrk2gw0k85li" path="res://Scenes/Projectiles/FlameProjectile.tscn" id="2_gguvj"]
-[ext_resource type="Texture2D" uid="uid://cfwkw12ogl8vi" path="res://Art/Weapons/Distance/Shotgun/synergy_cerberus_sprite.png" id="3_suroi"]
+[ext_resource type="Texture2D" uid="uid://cfwkw12ogl8vi" path="res://Art/Weapons/Distance/Shotgun/Cerberus/synergy_cerberus_sprite.png" id="3_suroi"]
 
-[node name="Flamethrower" type="Node2D" unique_id=599771631 node_paths=PackedStringArray("sprite_anim", "shoot_sound")]
+[node name="Flamethrower" type="Node2D" unique_id=599771631 node_paths=PackedStringArray("shoot_sound")]
 script = ExtResource("1_suroi")
-sprite_anim = NodePath("")
 shoot_sound = NodePath("Bullet_sound")
 id = "flamethrower"
 projectile_scene = ExtResource("2_gguvj")
@@ -26,10 +25,10 @@ texture = ExtResource("3_suroi")
 pitch_scale = 0.6
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1318768836]
-position = Vector2(18, -2)
+position = Vector2(-14, 3)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=420835878]
-position = Vector2(-18, -2)
+position = Vector2(-64, 3)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1865772336]
-position = Vector2(-14, 4)
+position = Vector2(-53, 9)

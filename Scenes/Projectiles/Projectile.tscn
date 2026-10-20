@@ -28,6 +28,6 @@ shape = SubResource("CircleShape2D_proj")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1783107774]
 color = Color(1, 0.55, 0.15, 1)
-energy = 0.9
+energy = 0.55
 texture = ExtResource("3_vku8s")
-texture_scale = 1.2
+texture_scale = 0.62

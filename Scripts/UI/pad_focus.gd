@@ -238,7 +238,7 @@ func _scroll_with_stick(target: Control, delta: float) -> void:
 
 # Si la ficha enfocada salió de la vista, el foco pasa a la que está más
 # cerca, del lado hacia donde se mueve la lista.
-func _keep_focus_in_view(scroll: ScrollContainer, target: Control, down: bool) -> void:
+func _keep_focus_in_view(scroll: ScrollContainer, target: Control, _down: bool) -> void:
 	var view = scroll.get_global_rect()
 	if _inside(view, target.get_global_rect()): return
 	var best: Control = null

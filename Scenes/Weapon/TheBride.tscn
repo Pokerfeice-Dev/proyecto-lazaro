@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cfx8k1l4a5r3m"]
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://8hl74imo4k71" path="res://Art/Weapons/Distance/Uzi/synergy_thebride_sprite.png" id="2_bride"]
+[ext_resource type="Texture2D" uid="uid://8hl74imo4k71" path="res://Art/Weapons/Distance/Uzi/TheBride/synergy_thebride_sprite.png" id="2_bride"]
 [ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_sound"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_thebride"]
@@ -35,19 +35,21 @@ attack_speed = 2.0
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013831]
 texture_filter = 1
+position = Vector2(73.99999, -17.4)
 scale = Vector2(1.4, 1.4)
 sprite_frames = SubResource("SpriteFrames_thebride")
 animation = &"idle"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722065]
+position = Vector2(6, -3.4000015)
 stream = ExtResource("3_sound")
 pitch_scale = 1.4
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1778873978]
-position = Vector2(16, -2)
+position = Vector2(44, -5.4000015)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=454493304]
-position = Vector2(-16, -2)
+position = Vector2(-32, -5.4000015)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1276239139]
-position = Vector2(-6, 3)
+position = Vector2(0, -0.40000153)

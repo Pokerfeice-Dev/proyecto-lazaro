@@ -1290,8 +1290,9 @@ shadow_offset = Vector2(0, 15)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1352715319]
 scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_ft8w5")
-animation = &"Dash_right_down"
+animation = &"idle_diagonal_down_left"
 autoplay = "idle_down"
+frame = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1078907818]
 position = Vector2(0, 0.5)

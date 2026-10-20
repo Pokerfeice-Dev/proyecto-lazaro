@@ -1,4 +1,5 @@
 class_name CodexData
+extends RefCounted
 
 const DATA = {
 	"enemies": {
@@ -110,37 +111,37 @@ const DATA = {
 			"name": "Pistola",
 			"lore": "Arma corta estándar y confiable del personal táctico. Versátil y ligera.",
 			"stats": "Daño: 10 | APS: 1.0 | Precisión: Alta",
-			"icon": preload("res://Art/Weapons/Distance/Pistol/Weapon_Pisotol.png")
+			"icon": preload("res://Art/Weapons/Distance/Pistol/weapon_revolver_sprite.png")
 		},
 		"shotgun": {
 			"name": "Escopeta",
 			"lore": "Arma principal pesada que proyecta ráfagas de perdigones a corta distancia.",
 			"stats": "Daño: Alto | Dispersión: Amplia | Proyectiles: 4",
-			"icon": preload("res://Art/Weapons/Distance/Shotgun/Weapon_Shotgun.png")
+			"icon": preload("res://Art/Weapons/Distance/Shotgun/weapon_shotgun_sprite.png")
 		},
 		"uzi": {
 			"name": "Uzi",
 			"lore": "Arma compacta automática con gran cadencia de fuego para control a media distancia.",
 			"stats": "Daño: Medio | APS: Alta | Dispersión: Media",
-			"icon": preload("res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png")
+			"icon": preload("res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png")
 		},
 		"daga": {
 			"name": "Daga",
 			"lore": "Un filo corto y mortífero tallado en cristal de sílice. Rápida pero con corto alcance.",
 			"stats": "Daño: 15 | APS: 1.5 | Rango: Corto",
-			"icon": preload("res://Art/Weapons/Melee/Dagger/Weapon_Dagger.png")
+			"icon": preload("res://Art/Weapons/Melee/Dagger/weapon_dagger_sprite.png")
 		},
 		"maze": {
 			"name": "Maza Pesada",
 			"lore": "Un mazo pesado diseñado para fracturar corazas enemigas con pura fuerza cinética.",
 			"stats": "Daño: 35 | APS: 0.7 | Empuje: Alto",
-			"icon": preload("res://Art/Weapons/Melee/Mace/Weapon_Mace.png")
+			"icon": preload("res://Art/Weapons/Melee/Mace/weapon_mace_sprite.png")
 		},
 		"hacha": {
 			"name": "Hacha de Mano",
 			"lore": "Un hacha balanceada capaz de rebanar tejidos mutantes con eficacia.",
 			"stats": "Daño: 25 | APS: 1.0 | Rango: Medio",
-			"icon": preload("res://Art/Weapons/Melee/Axe/Weapon_Axe.png")
+			"icon": preload("res://Art/Weapons/Melee/Axe/weapon_axe_sprite.png")
 		}
 	},
 	"items": {

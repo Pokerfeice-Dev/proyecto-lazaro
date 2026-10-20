@@ -1,12 +1,11 @@
 [gd_scene format=3 uid="uid://c280k08fk3ohe"]
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://cu4m2mncty4vb" path="res://Art/Weapons/Distance/Uzi/synergy_heavymetal_sprite.png" id="3_4yl44"]
+[ext_resource type="Texture2D" uid="uid://cu4m2mncty4vb" path="res://Art/Weapons/Distance/Uzi/Heavymetal/synergy_heavymetal_sprite.png" id="3_4yl44"]
 [ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_7vofb"]
 
-[node name="Minigun" type="Node2D" unique_id=1431573810 node_paths=PackedStringArray("sprite_anim", "shoot_sound")]
+[node name="Minigun" type="Node2D" unique_id=1431573810 node_paths=PackedStringArray("shoot_sound")]
 script = ExtResource("1_script")
-sprite_anim = NodePath("")
 shoot_sound = NodePath("Bullet_sound")
 damage = 4.0
 projectile_speed = 500.0
@@ -14,17 +13,18 @@ lifetime = 1.5
 attack_speed = 2.0
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=1238681935]
+position = Vector2(28, -3)
 stream = ExtResource("3_7vofb")
 pitch_scale = 1.1
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=806958084]
-position = Vector2(16, -2)
+position = Vector2(30, -3)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=1456459916]
-position = Vector2(-16, -2)
+position = Vector2(-20, -3)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1461304139]
-position = Vector2(-6, 3)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=453890816]
+position = Vector2(53, -12)
 texture = ExtResource("3_4yl44")

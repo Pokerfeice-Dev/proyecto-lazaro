@@ -10,7 +10,7 @@ extends CanvasLayer
 const OPTIONS_SCREEN = preload("res://Scenes/UI/options_screen.tscn")
 const MAIN_MENU_SCENE := "res://Scenes/UI/MainMenu.tscn"
 const WINDOW_SIZE := Vector2(940, 560)
-const ICON_COIN := preload("res://Art/Scrap/Scrap_icon.png")
+const ICON_COIN := preload("res://Art/Scrap/scrap_icon.png")
 const ICON_CLOSE := preload("res://Art/Ui/svg/icon_close.svg")
 const ICON_MOUSE := preload("res://Art/Ui/svg/icon_mouse.svg")
 const ICON_ZONE := preload("res://Art/Ui/svg/icon_info.svg")
@@ -384,7 +384,11 @@ func _on_save_pressed() -> void:
 	save_btn.text = "¡PARTIDA GUARDADA!"
 	var t = create_tween()
 	t.tween_interval(2.0)
-	t.tween_callback(func(): save_btn.text = SAVE_TEXT)
+	t.tween_callback(_restore_save_button_text)
+
+func _restore_save_button_text() -> void:
+	if is_instance_valid(save_btn):
+		save_btn.text = SAVE_TEXT
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

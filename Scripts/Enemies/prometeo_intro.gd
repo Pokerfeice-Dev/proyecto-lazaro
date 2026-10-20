@@ -88,9 +88,13 @@ func _gather_shadows(duration: float) -> void:
 	boss.play_sfx("teleport")
 	var t = create_tween()
 	t.tween_interval(duration)
-	t.tween_callback(func(): p.emitting = false)
+	t.tween_callback(_stop_particles.bind(p))
 	t.tween_interval(p.lifetime)
 	t.tween_callback(p.queue_free)
+
+func _stop_particles(particles: GPUParticles2D) -> void:
+	if is_instance_valid(particles):
+		particles.emitting = false
 
 # El cuerpo sale de la sombra: de negro puro a su color, estirándose hacia arriba.
 func _emerge() -> void:

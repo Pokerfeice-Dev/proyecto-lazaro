@@ -99,10 +99,11 @@ func _trigger_attack_light_fade_out() -> void:
 		
 	_light_tween = create_tween()
 	_light_tween.tween_property(attack_light, "energy", 0.0, 0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	_light_tween.chain().tween_callback(func():
-		if is_instance_valid(attack_light):
-			attack_light.enabled = false
-	)
+	_light_tween.chain().tween_callback(_disable_attack_light)
+
+func _disable_attack_light() -> void:
+	if is_instance_valid(attack_light):
+		attack_light.enabled = false
 
 func _on_summon_animation_finished() -> void:
 	if summon_anim:

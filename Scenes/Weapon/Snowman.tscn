@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_5v3gc"]
 [ext_resource type="PackedScene" uid="uid://fxgpixwi6j8c" path="res://Scenes/Projectiles/SnowballProjectile.tscn" id="2_3omgy"]
-[ext_resource type="Texture2D" uid="uid://7akcswkgqk22" path="res://Art/Weapons/Distance/Shotgun/synergy_avalanche_sprite.png" id="3_5l0hv"]
+[ext_resource type="Texture2D" uid="uid://7akcswkgqk22" path="res://Art/Weapons/Distance/Shotgun/Avalanche/synergy_avalanche_sprite.png" id="3_5l0hv"]
 [ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="4_5q04v"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_q1g7k"]
@@ -36,19 +36,21 @@ attack_speed = 0.45
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013830]
 texture_filter = 1
+position = Vector2(90.00001, -20.199999)
 scale = Vector2(1.7, 1.7)
 sprite_frames = SubResource("SpriteFrames_q1g7k")
 animation = &"shoot"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722064]
+position = Vector2(13, -3.199997)
 stream = ExtResource("4_5q04v")
 pitch_scale = 0.7
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=759694844]
-position = Vector2(18, -2)
+position = Vector2(61, -12.199997)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=989945553]
-position = Vector2(-18, -2)
+position = Vector2(-35, -12.199997)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1032842288]
-position = Vector2(-13, 3)
+position = Vector2(0, -0.19999695)

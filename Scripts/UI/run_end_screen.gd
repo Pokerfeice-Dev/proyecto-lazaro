@@ -14,7 +14,7 @@ const ICON_TIME := preload("res://Art/Ui/svg/icon_fire_rate.svg")
 const ICON_ROOM := preload("res://Art/Ui/svg/icon_range.svg")
 const ICON_KILLS := preload("res://Art/Ui/svg/icon_damage.svg")
 const ICON_KILLER := preload("res://Art/Ui/svg/icon_warning.svg")
-const ICON_SCRAP := preload("res://Art/Scrap/Scrap_icon.png")
+const ICON_SCRAP := preload("res://Art/Scrap/scrap_icon.png")
 const FONT_BIG := preload("res://Art/Fonts/Dekatron-SemiBold.otf")
 const LAB_SCENE := "res://Scenes/Rooms/lab_room.tscn"
 const COLOR_DEATH := Color("#E5484D")
@@ -282,5 +282,7 @@ func _leave() -> void:
 			on_return.call()
 	else:
 		GameData.clear_items()
+	if GameData.is_event_demo():
+		GameData.end_event_demo()
 	SceneTransition.change_scene(next_scene)
 	queue_free()

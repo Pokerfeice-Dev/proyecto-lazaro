@@ -23,15 +23,15 @@ const TINT_FIRE := Color(1.4, 0.6, 0.15)
 
 ## Armas del jugador que Prometeo sabe usar. "phase" = desde qué fase la saca.
 const WEAPONS := {
-	"pistola": {"melee": false, "range": 220.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Pistol/Weapon_Pisotol.png"},
-	"escopeta": {"melee": false, "range": 120.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Shotgun/Weapon_Shotgun.png"},
-	"uzi": {"melee": false, "range": 190.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png"},
-	"hacha": {"melee": true, "range": 70.0, "phase": 1, "texture": "res://Art/Weapons/Melee/Axe/Weapon_Axe.png"},
-	"daga": {"melee": true, "range": 90.0, "phase": 1, "texture": "res://Art/Weapons/Melee/Dagger/Weapon_Dagger.png"},
-	"minigun": {"melee": false, "range": 230.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png"},
-	"lanzallamas": {"melee": false, "range": 95.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Shotgun/Weapon_Shotgun.png"},
+	"pistola": {"melee": false, "range": 220.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Pistol/weapon_revolver_sprite.png"},
+	"escopeta": {"melee": false, "range": 120.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Shotgun/weapon_shotgun_sprite.png"},
+	"uzi": {"melee": false, "range": 190.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png"},
+	"hacha": {"melee": true, "range": 70.0, "phase": 1, "texture": "res://Art/Weapons/Melee/Axe/weapon_axe_sprite.png"},
+	"daga": {"melee": true, "range": 90.0, "phase": 1, "texture": "res://Art/Weapons/Melee/Dagger/weapon_dagger_sprite.png"},
+	"minigun": {"melee": false, "range": 230.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png"},
+	"lanzallamas": {"melee": false, "range": 95.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Shotgun/weapon_shotgun_sprite.png"},
 	"colmena": {"melee": false, "range": 210.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Pistol/HiveMindPistol/synergy_hivemind_sprite.png"},
-	"maza": {"melee": true, "range": 110.0, "phase": 2, "texture": "res://Art/Weapons/Melee/Mace/Weapon_Mace.png"},
+	"maza": {"melee": true, "range": 110.0, "phase": 2, "texture": "res://Art/Weapons/Melee/Mace/weapon_mace_sprite.png"},
 }
 
 ## El clon solo dispara: el original es el que presiona cuerpo a cuerpo.

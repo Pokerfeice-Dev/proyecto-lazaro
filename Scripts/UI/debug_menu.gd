@@ -6,13 +6,13 @@ var god_mode_btn: Button = null
 var status_label: Label = null
 
 const RANGED_WEAPONS: Array[Dictionary] = [
-	{"name": "Pistola Base", "path": "res://Scenes/Weapon/pistol.tscn"},
+	{"name": "Revólver Base", "path": "res://Scenes/Weapon/Revolver.tscn"},
 	{"name": "Uzi", "path": "res://Scenes/Weapon/uzi.tscn"},
 	{"name": "Escopeta", "path": "res://Scenes/Weapon/shotgun.tscn"},
 	{"name": "Pistola Mente Colmena (Sinergia)", "path": "res://Scenes/Weapon/HivemindPistol.tscn"},
 	{"name": "Pistola Roadkill (Sinergia)", "path": "res://Scenes/Weapon/RoadkillPistol.tscn"},
 	{"name": "Minigun (Sinergia)", "path": "res://Scenes/Weapon/Minigun.tscn"},
-	{"name": "Lanzallamas / Flamethrower (Sinergia)", "path": "res://Scenes/Weapon/Flamethrower.tscn"}
+	{"name": "Cerberus (Sinergia)", "path": "res://Scenes/Weapon/Cerberus.tscn"}
 ]
 
 const MELEE_WEAPONS: Array[Dictionary] = [
@@ -275,8 +275,8 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_minigun()
 	)
 	
-	_add_synergy_card(tab, "Lanzallamas", "lanzallamas", "Escopeta + 3x Cabeza de Sabueso Metálica", func():
-		_activate_synergy_lanzallamas()
+	_add_synergy_card(tab, "Cerberus", "lanzallamas", "Escopeta + 3x Cabeza de Sabueso Metálica", func():
+		_activate_synergy_cerberus()
 	)
 	
 	_add_synergy_card(tab, "Instinto Canino", "bestia_de_caza", "Torso Espinado, Brazo Armado, Piernas Caninas", func():
@@ -359,7 +359,7 @@ func _clear_equipment_action() -> void:
 
 func _activate_synergy_mente_colmena() -> void:
 	GameData.unlock_synergy("pistola_mente_colmena")
-	_equip_weapon_and_mods("res://Scenes/Weapon/pistol.tscn", [
+	_equip_weapon_and_mods("res://Scenes/Weapon/Revolver.tscn", [
 		{"path": "res://Art/Items/Weapons/Item7_Colmena.tres", "slot": ItemData.ItemSlot.MAIN_W1},
 		{"path": "res://Art/Items/Weapons/Item3.tres", "slot": ItemData.ItemSlot.MAIN_W2},
 		{"path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres", "slot": ItemData.ItemSlot.MAIN_W3}
@@ -368,7 +368,7 @@ func _activate_synergy_mente_colmena() -> void:
 
 func _activate_synergy_roadkill() -> void:
 	GameData.unlock_synergy("roadkill")
-	_equip_weapon_and_mods("res://Scenes/Weapon/pistol.tscn", [
+	_equip_weapon_and_mods("res://Scenes/Weapon/Revolver.tscn", [
 		{"path": "res://Art/Items/Weapons/Item6.tres", "slot": ItemData.ItemSlot.MAIN_W1},
 		{"path": "res://Art/Items/Weapons/Item9_SierraCircular.tres", "slot": ItemData.ItemSlot.MAIN_W2},
 		{"path": "res://Art/Items/Weapons/Item5.tres", "slot": ItemData.ItemSlot.MAIN_W3}
@@ -384,14 +384,14 @@ func _activate_synergy_minigun() -> void:
 	])
 	_show_status("Sinergia 'Minigun' activada y equipada.")
 
-func _activate_synergy_lanzallamas() -> void:
+func _activate_synergy_cerberus() -> void:
 	GameData.unlock_synergy("lanzallamas")
 	_equip_weapon_and_mods("res://Scenes/Weapon/shotgun.tscn", [
 		{"path": "res://Art/Items/Weapons/Item4.tres", "slot": ItemData.ItemSlot.MAIN_W1},
 		{"path": "res://Art/Items/Weapons/Item4.tres", "slot": ItemData.ItemSlot.MAIN_W2},
 		{"path": "res://Art/Items/Weapons/Item4.tres", "slot": ItemData.ItemSlot.MAIN_W3}
 	])
-	_show_status("Sinergia 'Lanzallamas' (Escopeta) activada y equipada.")
+	_show_status("Sinergia 'Cerberus' (Escopeta) activada y equipada.")
 
 func _activate_synergy_canino() -> void:
 	GameData.unlock_synergy("bestia_de_caza")

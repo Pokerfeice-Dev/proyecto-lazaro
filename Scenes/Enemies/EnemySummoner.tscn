@@ -464,8 +464,7 @@ item_drop_chance = 0.15
 position = Vector2(-1.1920929e-07, 5.9604645e-08)
 scale = Vector2(0.56666666, 0.56666666)
 color = Color(0.3836396, 0.00010073766, 0.38363677, 1)
-shadow_enabled = true
-shadow_color = Color(0, 0, 0, 0.54901963)
+shadow_enabled = false
 texture = ExtResource("2_5lx2d")
 
 [node name="DropShadow" type="Sprite2D" parent="." unique_id=515482148]

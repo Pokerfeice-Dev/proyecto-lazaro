@@ -145,7 +145,7 @@ func _key_illustration() -> Control:
 	key.custom_minimum_size = Vector2(64, 64)
 	key.get_child(0).add_theme_font_size_override("font_size", 30)
 	center.add_child(key)
-	key.resized.connect(func(): key.pivot_offset = key.size / 2.0)
+	key.resized.connect(_center_control_pivot.bind(key))
 	var t = key.create_tween().set_loops()
 	t.tween_interval(0.8)
 	t.tween_property(key, "scale", Vector2(0.86, 0.86), 0.08).set_trans(Tween.TRANS_QUAD)
@@ -160,13 +160,13 @@ func _create_continue_button() -> void:
 	_vbox.add_child(footer)
 	footer.add_child(UIStyle.keycap("E", "A"))
 	_continue_btn = UIStyle.button("ENTENDIDO", false, Vector2(150, 46), 17)
-	_continue_btn.pressed.connect(func(): _dismiss_popup(false))
+	_continue_btn.pressed.connect(_dismiss_popup.bind(false))
 	footer.add_child(_continue_btn)
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(spacer)
 	_open_btn = UIStyle.button("ABRIR INVENTARIO", true, Vector2(220, 46), 18)
-	_open_btn.pressed.connect(func(): _dismiss_popup(true))
+	_open_btn.pressed.connect(_dismiss_popup.bind(true))
 	footer.add_child(_open_btn)
 	footer.add_child(UIStyle.keycap("I"))
 
@@ -212,12 +212,17 @@ func _dismiss_popup(open_inventory: bool) -> void:
 	tween.tween_property(_panel, "scale", Vector2(0.94, 0.94), 0.25)
 	tween.tween_property(_panel, "modulate:a", 0.0, 0.25)
 	
-	tween.chain().tween_callback(func():
-		get_tree().paused = false
-		if open_inventory:
-			_open_player_inventory()
-		queue_free()
-	)
+	tween.chain().tween_callback(_finish_dismiss.bind(open_inventory))
+
+func _center_control_pivot(control: Control) -> void:
+	if is_instance_valid(control):
+		control.pivot_offset = control.size / 2.0
+
+func _finish_dismiss(open_inventory: bool) -> void:
+	get_tree().paused = false
+	if open_inventory:
+		_open_player_inventory()
+	queue_free()
 
 func _open_player_inventory() -> void:
 	var players = get_tree().get_nodes_in_group("player")

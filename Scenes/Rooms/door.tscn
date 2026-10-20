@@ -103,13 +103,13 @@ shape = SubResource("RectangleShape2D_b72a7")
 [node name="Close" type="PointLight2D" parent="." unique_id=834699254]
 position = Vector2(-18, 0)
 color = Color(0.8288101, 2.7193873e-06, 5.7756904e-07, 1)
-energy = 1.2
+energy = 0.8
 texture = ExtResource("4_14duu")
 texture_scale = 0.5
 
 [node name="Open" type="PointLight2D" parent="." unique_id=995110236]
 position = Vector2(-18, 0)
 color = Color(0.29665944, 0.8396237, 0.7382413, 1)
-energy = 1.4
+energy = 0.9
 texture = ExtResource("4_14duu")
 texture_scale = 0.6

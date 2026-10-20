@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dk2o606njtsyx"]
 
 [ext_resource type="Script" uid="uid://c8dds4w7rkmr2" path="res://Scripts/Weapon/main_weapon.gd" id="1_mweap"]
-[ext_resource type="PackedScene" uid="uid://c7k2p8b15d2a6" path="res://Scenes/Weapon/pistol.tscn" id="2_sstvh"]
+[ext_resource type="PackedScene" uid="uid://c7k2p8b15d2a6" path="res://Scenes/Weapon/Revolver.tscn" id="2_sstvh"]
 
 [node name="Main_weapon" type="Node2D" unique_id=1188950380]
 script = ExtResource("1_mweap")

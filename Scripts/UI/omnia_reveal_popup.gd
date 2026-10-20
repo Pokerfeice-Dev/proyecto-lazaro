@@ -101,9 +101,11 @@ func close() -> void:
 	var t = create_tween().set_parallel(true)
 	t.tween_property(_window, "modulate:a", 0.0, 0.15)
 	t.tween_property(_window, "scale", Vector2(0.96, 0.96), 0.15)
-	t.chain().tween_callback(func():
-		closed.emit()
-		queue_free())
+	t.chain().tween_callback(_finish_close)
+
+func _finish_close() -> void:
+	closed.emit()
+	queue_free()
 
 # --- Ventana base ---
 
@@ -344,15 +346,19 @@ func _scan_line(loop: bool) -> Control:
 	glow.position.y = -14
 	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	line.add_child(glow)
-	holder.resized.connect(func():
-		line.size = Vector2(holder.size.x, 2)
-		glow.size = Vector2(holder.size.x, 14))
+	holder.resized.connect(_resize_scan_line.bind(holder, line, glow))
 	var t = line.create_tween()
 	if loop: t.set_loops()
 	t.tween_property(line, "position:y", 160.0, 1.3).from(-4.0).set_trans(Tween.TRANS_SINE)
 	if loop: t.tween_interval(0.4)
 	else: t.tween_callback(holder.queue_free)
 	return holder
+
+func _resize_scan_line(holder: Control, line: ColorRect, glow: ColorRect) -> void:
+	if not is_instance_valid(holder) or not is_instance_valid(line) or not is_instance_valid(glow):
+		return
+	line.size = Vector2(holder.size.x, 2)
+	glow.size = Vector2(holder.size.x, 14)
 
 # Sello dorado que cae girado sobre la ficha y se queda un rato.
 func _stamp(target: Control, text: String) -> void:
@@ -385,7 +391,7 @@ func _stamp(target: Control, text: String) -> void:
 	t.tween_interval(0.35)
 	t.tween_property(stamp, "modulate:a", 1.0, 0.08)
 	t.parallel().tween_property(stamp, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	t.tween_callback(func(): _pop(target))
+	t.tween_callback(_pop.bind(target))
 	t.tween_property(stamp, "rotation", -0.12, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t.tween_interval(1.4)
 	t.tween_property(stamp, "modulate:a", 0.0, 0.35)

@@ -56,9 +56,12 @@ func close() -> void:
 	_cancel_tweens()
 	var t = create_tween()
 	t.tween_property(_panel, "modulate:a", 0.0, 0.2).set_trans(Tween.TRANS_SINE)
-	t.tween_callback(func():
+	t.tween_callback(_finish_close)
+
+func _finish_close() -> void:
+	if is_instance_valid(_panel):
 		_panel.visible = false
-		closed.emit())
+	closed.emit()
 
 func _cancel_tweens() -> void:
 	for tw in [_typewriter, _auto_close]:

@@ -48,6 +48,10 @@ func set_counter(counter: String) -> void:
 	_counter.text = counter
 	_counter.visible = counter != ""
 
+## Recordatorio visual cuando el jugador permanece varios segundos en un paso.
+func nudge() -> void:
+	_pulse_card()
+
 ## Objetivo del paso: si sale de la pantalla, la flecha del borde lo señala.
 func track(target: Node2D) -> void:
 	_target = target

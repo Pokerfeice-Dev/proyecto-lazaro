@@ -11,6 +11,8 @@ enum TutorialState {
 	MELEE,
 	MANNEQUIN,
 	COMBAT,
+	SYNERGY_PICKUP,
+	SYNERGY_OPEN_INVENTORY,
 	SYNERGY_EQUIP,
 	SYNERGY_ATTACK,
 	COMPLETE
@@ -19,7 +21,7 @@ enum TutorialState {
 var current_state: TutorialState = TutorialState.MOVE
 
 const ICON_CHECK := preload("res://Art/Ui/svg/icon_check.svg")
-const STEP_TOTAL := 8 # pasos antes de COMPLETE
+const STEP_TOTAL := 9 # pasos antes de COMPLETE
 const LEARNED := [
 	"Moverte y esquivar",
 	"Disparar y golpear cuerpo a cuerpo",
@@ -39,8 +41,13 @@ var mannequin_inst: Node2D = null
 var shooter_inst: Node = null
 var mannequin_hits_received: int = 0
 var synergy_hits_received: int = 0
+var _synergy_transition_pending := false
+var _step_hint_elapsed := 0.0
 
 func _ready() -> void:
+	# El inventario pausa el árbol: el tutorial debe detectar cuando se abre para
+	# poder pasar del paso 7 (abrir) al 8 (equipar con clic derecho).
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	# Lo que se desbloquee o equipe aquí es de prueba: al salir se vuelve atrás.
 	GameData.begin_sandbox()
 	_spawn_player()
@@ -53,11 +60,16 @@ func _ready() -> void:
 	_update_dialogue_text()
 
 func _exit_tree() -> void:
+	_set_synergy_tutorial_inventory_guidance(false)
 	GameData.end_sandbox()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_check_state_transitions()
 	_check_drops_picked()
+	_step_hint_elapsed += delta
+	if current_state != TutorialState.COMPLETE and _step_hint_elapsed >= 7.0 and tutorial_hud:
+		_step_hint_elapsed = 0.0
+		tutorial_hud.nudge()
 
 func _is_move_input_pressed() -> bool:
 	return Input.is_action_pressed("move_left") or \
@@ -76,6 +88,8 @@ func _check_state_transitions() -> void:
 		_check_melee_transition()
 	elif current_state == TutorialState.SYNERGY_EQUIP:
 		_check_synergy_equip_transition()
+	elif current_state == TutorialState.SYNERGY_OPEN_INVENTORY:
+		_check_inventory_open_transition()
 
 func _check_move_transition() -> void:
 	if _is_move_input_pressed():
@@ -106,16 +120,25 @@ func _check_synergy_equip_transition() -> void:
 		return
 	_transition_to_state(TutorialState.SYNERGY_ATTACK)
 
+func _check_inventory_open_transition() -> void:
+	if _is_player_inventory_open():
+		_transition_to_state(TutorialState.SYNERGY_EQUIP)
+
 func _transition_to_state(new_state: TutorialState) -> void:
 	current_state = new_state
+	_step_hint_elapsed = 0.0
 	# primero se arma el paso (enemigo, piezas) para que la manito tenga a quién señalar
 	if current_state == TutorialState.COMBAT:
 		_spawn_shooter()
-	elif current_state == TutorialState.SYNERGY_EQUIP:
+	elif current_state == TutorialState.SYNERGY_PICKUP:
 		_setup_synergy_step()
+	elif current_state == TutorialState.SYNERGY_EQUIP:
+		_set_synergy_tutorial_inventory_guidance(true)
 	elif current_state == TutorialState.SYNERGY_ATTACK:
+		_set_synergy_tutorial_inventory_guidance(false)
 		_setup_synergy_attack_step()
 	elif current_state == TutorialState.COMPLETE:
+		_set_synergy_tutorial_inventory_guidance(false)
 		_show_complete_screen()
 	_update_dialogue_text()
 
@@ -136,12 +159,15 @@ func _spawn_fresh_player(spawn_pos: Vector2) -> void:
 	var p_inst = player_scene.instantiate()
 	p_inst.global_position = spawn_pos
 	get_tree().current_scene.call_deferred("add_child", p_inst)
-	p_inst.ready.connect(func():
-		var s = p_inst.stats
-		s.current_health = s.max_health
-		s.min_health_floor = 10 # en el tutorial de combate el jugador no puede morir
-		s.health_changed.emit(s.current_health, s.max_health)
-	)
+	p_inst.ready.connect(_initialize_tutorial_player.bind(p_inst), CONNECT_ONE_SHOT)
+
+func _initialize_tutorial_player(player: Node) -> void:
+	if not is_instance_valid(player) or not "stats" in player or not player.stats:
+		return
+	var s = player.stats
+	s.current_health = s.max_health
+	s.min_health_floor = 10 # en el tutorial de combate el jugador no puede morir
+	s.health_changed.emit(s.current_health, s.max_health)
 
 func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 	player.global_position = spawn_pos
@@ -187,7 +213,35 @@ func _on_mannequin_hit() -> void:
 
 func _setup_synergy_step() -> void:
 	GameData.unlock_synergy("pistola_mente_colmena")
+	_connect_tutorial_equipment()
 	_spawn_synergy_items()
+
+func _connect_tutorial_equipment() -> void:
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		return
+	var equipment = player.get_node_or_null("Equipment")
+	if equipment and not equipment.equipment_changed.is_connected(_on_tutorial_equipment_changed):
+		equipment.equipment_changed.connect(_on_tutorial_equipment_changed)
+
+func _on_tutorial_equipment_changed() -> void:
+	if current_state != TutorialState.SYNERGY_EQUIP or _drops_picked < _synergy_drops.size():
+		return
+	_update_dialogue_text()
+	if _get_equipped_synergy_piece_count() == 3:
+		_finish_synergy_equipping()
+
+func _finish_synergy_equipping() -> void:
+	if _synergy_transition_pending:
+		return
+	_synergy_transition_pending = true
+	_set_synergy_tutorial_inventory_guidance(false)
+	var player = get_tree().get_first_node_in_group("player")
+	if player:
+		var inventory_ui = player.find_child("InventoryUI", true, false)
+		if inventory_ui and inventory_ui.visible:
+			inventory_ui.toggle_visibility()
+	_transition_to_state(TutorialState.SYNERGY_ATTACK)
 
 func _spawn_synergy_items() -> void:
 	var item_drop_scene = preload("res://Scenes/Items/item_drop_world.tscn")
@@ -212,11 +266,14 @@ func _spawn_single_synergy_drop(scene: PackedScene, data: ItemData, pos: Vector2
 
 # Cuenta las piezas que ya se levantaron del suelo para avanzar el sub-paso.
 func _check_drops_picked() -> void:
-	if current_state != TutorialState.SYNERGY_EQUIP or _synergy_drops.is_empty(): return
+	if current_state != TutorialState.SYNERGY_PICKUP or _synergy_drops.is_empty(): return
 	var picked = _synergy_drops.filter(func(d): return not is_instance_valid(d)).size()
 	if picked == _drops_picked: return
 	_drops_picked = picked
-	_update_dialogue_text()
+	if _drops_picked == _synergy_drops.size():
+		_transition_to_state(TutorialState.SYNERGY_OPEN_INVENTORY)
+	else:
+		_update_dialogue_text()
 
 func _setup_synergy_attack_step() -> void:
 	synergy_hits_received = 0
@@ -247,7 +304,7 @@ func _spawn_shooter() -> void:
 
 func _on_shooter_died(_enemy: Node) -> void:
 	if current_state == TutorialState.COMBAT:
-		_transition_to_state(TutorialState.SYNERGY_EQUIP)
+		_transition_to_state(TutorialState.SYNERGY_PICKUP)
 
 func _setup_tutorial_ui() -> void:
 	tutorial_hud = TutorialHud.new()
@@ -273,21 +330,71 @@ func _update_dialogue_text() -> void:
 			_show_step(4, "Golpea al maniquí", ["MOUSE_L", "MOUSE_R"], false, [mannequin_inst], "%d/3" % mannequin_hits_received)
 		TutorialState.COMBAT:
 			_show_step(5, "Elimina al enemigo. Los obstáculos bloquean sus disparos", ["MOUSE_L"], false, [shooter_inst])
+		TutorialState.SYNERGY_PICKUP:
+			_show_synergy_pickup_step()
+		TutorialState.SYNERGY_OPEN_INVENTORY:
+			_show_synergy_open_inventory_step()
 		TutorialState.SYNERGY_EQUIP:
-			_show_synergy_equip_step()
+			_show_synergy_right_click_step()
 		TutorialState.SYNERGY_ATTACK:
-			_show_step(7, "¡Tu pistola mutó en Mente Colmena! Dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % synergy_hits_received)
+			_show_step(8, "¡Tu pistola mutó en Mente Colmena! Dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % synergy_hits_received)
 		TutorialState.COMPLETE:
 			tutorial_hud.hide_card()
 			pointer.clear()
 
-# Dos partes: levantar las 3 piezas del suelo (E) y equiparlas en el inventario (I).
-func _show_synergy_equip_step() -> void:
-	if _drops_picked < _synergy_drops.size():
-		var remaining = _synergy_drops.filter(func(d): return is_instance_valid(d))
-		_show_step(6, "Recoge las 3 piezas del suelo", ["E"], false, remaining, "%d/3" % _drops_picked, 26.0)
+# Paso 7: levantar las piezas.
+func _show_synergy_pickup_step() -> void:
+	_set_synergy_tutorial_inventory_guidance(false)
+	var remaining = _synergy_drops.filter(func(d): return is_instance_valid(d))
+	_show_step(6, "Recoge las 3 piezas del suelo", ["E"], false, remaining, "%d/3" % _drops_picked, 26.0)
+
+func _show_synergy_open_inventory_step() -> void:
+	var equipped_count := _get_equipped_synergy_piece_count()
+	_set_synergy_tutorial_inventory_guidance(false)
+	_show_step(6, "Abre el inventario para instalar las piezas de la sinergia", ["I"], true, [], "%d/3" % equipped_count)
+
+# Paso 8: el inventario ya está abierto; ahora se muestra la acción exacta.
+func _show_synergy_right_click_step() -> void:
+	if not _is_player_inventory_open():
+		_transition_to_state(TutorialState.SYNERGY_OPEN_INVENTORY)
 		return
-	_show_step(6, "Abre el inventario y equipa las 3 piezas en tu pistola", ["I"], true)
+	var equipped_count := _get_equipped_synergy_piece_count()
+	_set_synergy_tutorial_inventory_guidance(true)
+	_show_step(7, "Haz CLIC DERECHO sobre cada pieza. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["MOUSE_R"], false, [], "%d/3" % equipped_count)
+
+func _get_equipped_synergy_piece_count() -> int:
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		return 0
+	var equipment = player.get_node_or_null("Equipment")
+	if not equipment:
+		return 0
+	var pieces := [
+		preload("res://Art/Items/Weapons/Item7_Colmena.tres"),
+		preload("res://Art/Items/Weapons/Item3.tres"),
+		preload("res://Art/Items/Weapons/Item8_CabezaHumana.tres")
+	]
+	var slots := [ItemData.ItemSlot.MAIN_W1, ItemData.ItemSlot.MAIN_W2, ItemData.ItemSlot.MAIN_W3]
+	var count := 0
+	for slot in slots:
+		if pieces.has(equipment.slots.get(slot)):
+			count += 1
+	return count
+
+func _is_player_inventory_open() -> bool:
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		return false
+	var inventory_ui = player.find_child("InventoryUI", true, false)
+	return inventory_ui != null and inventory_ui.visible
+
+func _set_synergy_tutorial_inventory_guidance(enabled: bool) -> void:
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		return
+	var inventory_ui = player.find_child("InventoryUI", true, false)
+	if inventory_ui and inventory_ui.has_method("set_synergy_tutorial_weapon_slots"):
+		inventory_ui.set_synergy_tutorial_weapon_slots(enabled)
 
 func _show_step(index: int, text: String, inputs: Array, inputs_over_player: bool, targets: Array = [], counter := "", hand_height := 44.0) -> void:
 	# mismo paso y mismo texto: solo se actualiza el contador (sin re-animar la tarjeta)

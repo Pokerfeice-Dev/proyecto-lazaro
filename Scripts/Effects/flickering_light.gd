@@ -8,7 +8,8 @@ static var is_globally_enabled: bool = true
 @export var glitch_enabled: bool = true
 @export var min_glitch_interval: float = 5.0
 @export var max_glitch_interval: float = 11.0
-@export var enable_sparks: bool = true
+@export var enable_sparks: bool = false
+@export_range(0.04, 0.2, 0.01) var update_interval: float = 0.08
 
 var lights: Array[PointLight2D] = []
 var base_energies: Array[float] = []
@@ -18,6 +19,7 @@ var is_glitching: bool = false
 var glitch_progress: float = 0.0
 var glitch_duration: float = 0.11
 var spark_particles: CPUParticles2D = null
+var _update_accumulator: float = 0.0
 
 func _ready() -> void:
 	add_to_group("flickering_lights")
@@ -77,7 +79,12 @@ func _process(delta: float) -> void:
 		return
 	if lights.is_empty():
 		return
-	_update_glitch_state(delta)
+	_update_accumulator += delta
+	if _update_accumulator < update_interval:
+		return
+	var elapsed := _update_accumulator
+	_update_accumulator = 0.0
+	_update_glitch_state(elapsed)
 	_apply_light_modulation()
 
 func _update_glitch_state(delta: float) -> void:

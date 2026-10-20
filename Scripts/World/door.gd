@@ -212,7 +212,10 @@ func _handle_boss_exit() -> void:
 		GameData.just_won_run = false
 		var player = get_tree().get_first_node_in_group("player")
 		if player and player.has_method("show_win_screen"):
-			player.show_win_screen(next_scene)
+			if GameData.is_event_demo():
+				player.show_win_screen(next_scene, "¡GRACIAS POR JUGAR!", "FRANKENGUN EN BUENOS AIRES GAME DEV · KIDGUNZ")
+			else:
+				player.show_win_screen(next_scene)
 			return
 		
 	SceneTransition.play_teleport_sound()

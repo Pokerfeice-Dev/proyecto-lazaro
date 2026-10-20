@@ -14,7 +14,7 @@ func verify() -> void:
 		candle.position = Vector2(220 + index * 82, 340)
 		var light: PointLight2D = candle.get_node("PointLight2D")
 		assert(light.texture.resource_path == "res://Art/Lights/candle_light_mask.svg", "candle uses radial light mask")
-		assert(is_equal_approx(light.texture_scale, 0.72), "shared light radius is authored")
+		assert(is_equal_approx(light.texture_scale, 0.62), "shared light radius stays within the overlap budget")
 		assert(light.energy > 0.0 and light.energy < 1.0, "candle energy stays below clipping range")
 		_assert_natural_torch_flicker(candle, light)
 	for index in 8:

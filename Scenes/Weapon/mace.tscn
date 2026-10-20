@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c222222222222"]
 
-[ext_resource type="Texture2D" uid="uid://4ci4d4brar8p" path="res://Art/Weapons/Melee/Mace/Weapon_Mace.png" id="1_maza"]
+[ext_resource type="Texture2D" uid="uid://8sqif5u55je" path="res://Art/Weapons/Melee/Mace/weapon_mace_sprite.png" id="1_maza"]
 [ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
 [ext_resource type="AudioStream" uid="uid://cvcs1ic5lga56" path="res://Audio/Sfx/Melee/07_human_atk_sword_3.wav" id="3_sound"]
 [ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
@@ -59,12 +59,12 @@ swing_start_angle = -20.0
 swing_end_angle = 120.0
 
 [node name="Melee_sprite" type="Sprite2D" parent="." unique_id=1705333899]
-position = Vector2(3.1999989, -12.800001)
+position = Vector2(69.00001, -16)
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("1_maza")
 
 [node name="Weapon_mark" type="Marker2D" parent="Melee_sprite" unique_id=2068377603]
-position = Vector2(-2.4615376, 9.846155)
+position = Vector2(-53.076927, 12.153848)
 
 [node name="Slash_attack" type="Area2D" parent="." unique_id=1840934610]
 position = Vector2(3.6999989, -12.800001)

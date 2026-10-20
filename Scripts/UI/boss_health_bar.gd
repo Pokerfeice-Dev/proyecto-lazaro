@@ -236,10 +236,13 @@ func _play_intro() -> void:
 	t.parallel().tween_property(gauge, "position:x", vp.x / 2.0 - rule_w / 2.0, 0.55).set_delay(0.1).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	t.parallel().tween_property(_diamond, "modulate:a", 1.0, 0.2).set_delay(0.25)
 	t.parallel().tween_property(_diamond, "scale", Vector2.ONE, 0.35).set_delay(0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.tween_callback(func(): _decode_t = 0.0)
+	t.tween_callback(_finish_decoding)
 	t.tween_property(_subtitle, "modulate:a", 1.0, 0.4).set_delay(DECODE_TIME * 0.6)
 	t.tween_interval(HOLD_TIME)
 	t.tween_callback(_morph_to_bar)
+
+func _finish_decoding() -> void:
+	_decode_t = 0.0
 
 # El cartel se convierte en la barra: todo sube a su lugar arriba de la pantalla.
 func _morph_to_bar() -> void:

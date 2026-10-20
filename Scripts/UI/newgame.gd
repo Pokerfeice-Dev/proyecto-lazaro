@@ -285,7 +285,7 @@ func _on_delete_pressed(slot: int, del: Button) -> void:
 	del.add_theme_color_override("font_color", Color.WHITE)
 	_shake(del)
 	var timer = get_tree().create_timer(TIEMPO_CONFIRMAR_BORRADO)
-	timer.timeout.connect(func(): _reset_delete_button(del))
+	timer.timeout.connect(_reset_delete_button.bind(del), CONNECT_ONE_SHOT)
 
 func _reset_delete_button(del: Variant) -> void:
 	if not is_instance_valid(del): return
@@ -315,7 +315,7 @@ func _on_back_pressed() -> void:
 
 func _leave_to(path: String) -> void:
 	_leaving = true
-	_play_exit_animation(func(): SceneTransition.change_scene(path))
+	_play_exit_animation(SceneTransition.change_scene.bind(path))
 
 func _shake(node: Control) -> void:
 	var base = node.position
@@ -418,9 +418,10 @@ func _show_tutorial_prompt(slot: int) -> void:
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	hbox.add_theme_constant_override("separation", 22)
 	vbox.add_child(hbox)
-	var yes_btn = _make_popup_button("SÍ", COLOR_ACENTO, 0)
-	var no_btn = _make_popup_button("NO, SOY UN EXPERTO", Color(1.0, 0.55, 0.35), 1)
-	yes_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/training_room.tscn"))
+	# Ambas opciones usan blanco: el color de acción anterior se perdía sobre fondos variados.
+	var yes_btn = _make_popup_button("SÍ")
+	var no_btn = _make_popup_button("NO, SOY UN EXPERTO")
+	yes_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/tutorial_room.tscn"))
 	no_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/lab_room.tscn"))
 	hbox.add_child(yes_btn)
 	hbox.add_child(no_btn)
@@ -443,7 +444,7 @@ func _make_popup_panel() -> PanelContainer:
 	panel.add_theme_stylebox_override("panel", sb)
 	return panel
 
-func _make_popup_button(text: String, accent: Color, index: int) -> Button:
+func _make_popup_button(text: String) -> Button:
 	var btn = Button.new()
 	btn.text = text
 	btn.custom_minimum_size = Vector2(220, 58)
@@ -452,20 +453,26 @@ func _make_popup_button(text: String, accent: Color, index: int) -> Button:
 	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn.add_theme_font_override("font", FONT_TITULO)
 	btn.add_theme_font_size_override("font_size", 18)
-	btn.add_theme_color_override("font_color", accent)
-	btn.add_theme_color_override("font_hover_color", Color.WHITE)
-	_apply_button_styles(btn, accent, 2)
-	ButtonFX.attach(btn, index, 1.06)
+	# Este diálogo debe leerse con claridad: no usa el shader multicolor de ButtonFX.
+	for color_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		btn.add_theme_color_override(color_key, Color.WHITE)
+	btn.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
+	btn.add_theme_constant_override("outline_size", 2)
+	_apply_button_styles(btn, Color.WHITE, 2)
 	return btn
 
 func _animate_popup_in(bg: ColorRect, panel: Control) -> void:
 	panel.modulate.a = 0.0
 	panel.scale = Vector2(0.88, 0.88)
-	panel.resized.connect(func(): panel.pivot_offset = panel.size / 2.0)
+	panel.resized.connect(_center_popup_panel.bind(panel))
 	var t = create_tween().set_parallel(true)
 	t.tween_property(bg, "color:a", 0.75, 0.25)
 	t.tween_property(panel, "modulate:a", 1.0, 0.25)
 	t.tween_property(panel, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _center_popup_panel(panel: Control) -> void:
+	if is_instance_valid(panel):
+		panel.pivot_offset = panel.size / 2.0
 
 func _on_popup_bg_input(event: InputEvent, popup: CanvasLayer) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

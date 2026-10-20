@@ -721,14 +721,14 @@ func _start_phase_two_cinematic() -> void:
 func _run_cinematic_timeline(cinema_layer: CanvasLayer, player: Node, camera: Camera2D) -> void:
 	var t = create_tween()
 	t.tween_interval(1.0)
-	t.tween_callback(func(): _zoom_camera_to_boss(camera, 1.0))
+	t.tween_callback(_zoom_camera_to_boss.bind(camera, 1.0))
 	t.tween_interval(1.0)
 	t.tween_callback(_trigger_healing_effects)
 	t.tween_interval(2.0)
-	t.tween_callback(func(): _zoom_camera_to_player(camera, 1.0))
+	t.tween_callback(_zoom_camera_to_player.bind(camera, 1.0))
 	t.tween_interval(1.0)
 	t.tween_interval(1.0)
-	t.tween_callback(func(): _finish_phase_two_cinematic(cinema_layer, player))
+	t.tween_callback(_finish_phase_two_cinematic.bind(cinema_layer, player))
 
 # El zoom es relativo al de la pelea (la cámara del jugador no está en 1x):
 # antes se iba a 1.35 y volvía a 1.0, o sea que se alejaba de más y se veía
@@ -920,9 +920,7 @@ func _intro_appear() -> void:
 		ts.tween_property(shadow, "self_modulate:a", 1.0, 0.9)
 	var t = create_tween()
 	t.tween_interval(0.35)
-	t.tween_callback(func():
-		visual.modulate.a = 1.0
-		if visual.has_method("play_stretch_up"): visual.play_stretch_up())
+	t.tween_callback(_start_intro_visual)
 	t.tween_property(visual, "position:y", 0.0, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	t.tween_callback(_intro_land.bind(1.0))
 	t.tween_property(visual, "position:y", -70.0, 0.24).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -935,6 +933,13 @@ func _intro_appear() -> void:
 	await t.finished
 	_intro_falling = false
 	if slam_sound: slam_sound.pitch_scale = 1.0
+
+func _start_intro_visual() -> void:
+	if not is_instance_valid(visual):
+		return
+	visual.modulate.a = 1.0
+	if visual.has_method("play_stretch_up"):
+		visual.play_stretch_up()
 
 # strength 1 = la caída fuerte; los rebotes golpean menos.
 func _intro_land(strength: float) -> void:

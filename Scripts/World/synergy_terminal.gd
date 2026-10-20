@@ -38,7 +38,7 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 	},
 	{
 		"id": "lanzallamas",
-		"name": "Lanzallamas",
+		"name": "Cerberus",
 		"weapon_type": "primary",
 		"weapon_id": "shotgun",
 		"desc": "Escopeta + Fuego continuo",

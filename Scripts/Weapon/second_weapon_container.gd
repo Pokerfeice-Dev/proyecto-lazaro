@@ -81,8 +81,13 @@ func _load_default_weapon() -> void:
 		_:
 			switch_weapon(dagger_scene)
 
+var _base_weapon_scene: PackedScene = null
+var _current_override_path: String = ""
+
 func switch_weapon(new_scene: PackedScene) -> void:
 	if not new_scene: return
+	_base_weapon_scene = new_scene
+	_current_override_path = ""
 	active_scene = new_scene
 	_unlock_codex(new_scene)
 	_remove_current_weapon()
@@ -90,6 +95,28 @@ func switch_weapon(new_scene: PackedScene) -> void:
 	_align_weapon_mark()
 	_cache_base_stats()
 	_apply_current_upgrades_to_weapon()
+
+func apply_synergy_weapon_override(override_path: String) -> void:
+	if _current_override_path == override_path:
+		return
+	_current_override_path = override_path
+	if override_path != "":
+		var override_scene = load(override_path) as PackedScene
+		if override_scene:
+			active_scene = override_scene
+			_remove_current_weapon()
+			_instantiate_weapon(override_scene)
+			_align_weapon_mark()
+			_cache_base_stats()
+			_apply_current_upgrades_to_weapon()
+		return
+	if _base_weapon_scene:
+		active_scene = _base_weapon_scene
+		_remove_current_weapon()
+		_instantiate_weapon(_base_weapon_scene)
+		_align_weapon_mark()
+		_cache_base_stats()
+		_apply_current_upgrades_to_weapon()
 
 func _unlock_codex(scene: PackedScene) -> void:
 	if not GameData.has_method("unlock_codex_entry"): return

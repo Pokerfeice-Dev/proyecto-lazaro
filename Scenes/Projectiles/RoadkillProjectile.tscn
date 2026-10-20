@@ -20,9 +20,9 @@ script = ExtResource("1_road")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1783107775]
 color = Color(0.3137255, 0.5686275, 1, 1)
-energy = 1.3
+energy = 0.7
 texture = ExtResource("3_vku8s")
-texture_scale = 1.3
+texture_scale = 0.72
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2208952]
 material = SubResource("CanvasItemMaterial_road")

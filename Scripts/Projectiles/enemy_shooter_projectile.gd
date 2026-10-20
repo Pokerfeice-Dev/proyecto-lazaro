@@ -44,17 +44,23 @@ func _on_body_entered(body: Node2D):
 # hacia los enemigos. Reusa la escena base de proyectil del jugador para heredar
 # su colision/dano contra enemigos ya probados.
 func _reflect_back() -> void:
+	call_deferred("_spawn_reflected_projectile")
+	set_physics_process(false)
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
+	var col = get_node_or_null("CollisionShape2D")
+	if col:
+		col.set_deferred("disabled", true)
+	queue_free()
+
+func _spawn_reflected_projectile() -> void:
 	var reflected_scene = load("res://Scenes/Projectiles/Projectile.tscn")
-	if reflected_scene:
+	if reflected_scene and is_inside_tree() and get_tree() and get_tree().current_scene:
 		var reflected = reflected_scene.instantiate()
 		get_tree().current_scene.add_child(reflected)
 		reflected.global_position = global_position
 		reflected.setup(-direction, damage * 0.5, "enemy")
 		reflected.modulate = Color(1.4, 1.1, 0.3)
-	set_physics_process(false)
-	set_deferred("monitoring", false)
-	set_deferred("monitorable", false)
-	queue_free()
 
 func _explode():
 	set_physics_process(false)

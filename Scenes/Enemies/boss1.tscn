@@ -136,12 +136,12 @@ stream = ExtResource("17_d28mi")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1110303937]
 position = Vector2(-27, -29)
-energy = 1.2
+energy = 0.85
 texture = ExtResource("19_ioa2q")
 texture_scale = 0.2
 
 [node name="PointLight2D2" type="PointLight2D" parent="." unique_id=752185016]
 position = Vector2(27, -28)
-energy = 1.2
+energy = 0.85
 texture = ExtResource("19_ioa2q")
 texture_scale = 0.2

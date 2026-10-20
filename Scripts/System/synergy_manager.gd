@@ -90,33 +90,36 @@ const SYNERGIES = {
 		"weapon_scene_override": "res://Scenes/Weapon/Minigun.tscn"
 	},
 	"lanzallamas": {
-		"name": "Lanzallamas",
+		"name": "Cerberus",
 		"description": "Reemplaza la escopeta por un lanzallamas de alcance corto. Quema al impactar (daño en el tiempo) y el alcance aumenta rápido mientras mantienes presionado el disparo.",
 		"required_weapon": "shotgun",
 		"required_items": ["cabeza_de_perro", "cabeza_de_perro", "cabeza_de_perro"],
 		"stat_modifiers": {},
-		"weapon_scene_override": "res://Scenes/Weapon/Flamethrower.tscn"
+		"weapon_scene_override": "res://Scenes/Weapon/Cerberus.tscn"
 	},
 	"hombre_lobo": {
 		"name": "Wolfsbane",
 		"description": "El hacha adopta el poder de Wolfsbane: aparece un enemigo marcado en la sala con una runa sobre su cabeza. El hacha inflige muchísimo más daño al objetivo marcado y, al golpearlo, la marca explota dañando en área y transfiriéndose a otro enemigo.",
 		"required_weapon": "hacha",
 		"required_items": ["cabeza_humana", "cabeza_de_perro", "aguijon_mecanico"],
-		"stat_modifiers": {}
+		"stat_modifiers": {},
+		"weapon_scene_override": "res://Scenes/Weapon/WolfsbaneAxe.tscn"
 	},
 	"daga_del_odio": {
 		"name": "Nemesis",
 		"description": "La daga adopta la furia de Nemesis: cuanto menos vida tienes, más descomunal es su tamaño, velocidad, alcance, probabilidad y daño crítico (efectos duplicados). Además, si eliminas a un enemigo teniendo menos del 50% de vida, regenerás salud.",
 		"required_weapon": "daga",
 		"required_items": ["sierra_circular", "aguijon_mecanico", "cabeza_de_perro"],
-		"stat_modifiers": {}
+		"stat_modifiers": {},
+		"weapon_scene_override": "res://Scenes/Weapon/NemesisDagger.tscn"
 	},
 	"arrogancia": {
 		"name": "Arrogancia",
 		"description": "Mientras atacas con la maza, cualquier bala enemiga que te toque durante el golpe rebota devuelta (con daño reducido) hacia los enemigos, en vez de pegarte a ti.",
 		"required_weapon": "maze",
 		"required_items": ["mezcladora", "cabeza_humana", "colmena"],
-		"stat_modifiers": {}
+		"stat_modifiers": {},
+		"weapon_scene_override": "res://Scenes/Weapon/ArroganceMace.tscn"
 	},
 	"relampago": {
 		"name": "The Bride",
@@ -135,21 +138,24 @@ const SYNERGIES = {
 		"required_items": ["sierra_circular", "motocicleta", "bateria"],
 		"stat_modifiers": {
 			"attack_speed": 2.0
-		}
+		},
+		"weapon_scene_override": "res://Scenes/Weapon/SpeedDemonDagger.tscn"
 	},
 	"holy_fire": {
 		"name": "Holy Fire",
 		"description": "La maza arde con fuego sagrado: cada golpe quema al enemigo y le deja una lengua de fuego sobre la cabeza que escupe llamas en 8 direcciones, quemando a los enemigos de alrededor. Si golpeas a otro enemigo, la lengua salta hacia él.",
 		"required_weapon": "maze",
 		"required_items": ["gasolina", "pulmones", "cabeza_humana"],
-		"stat_modifiers": {}
+		"stat_modifiers": {},
+		"weapon_scene_override": "res://Scenes/Weapon/HolyFireMace.tscn"
 	},
 	"alto_octanaje": {
 		"name": "Alto Octanaje",
 		"description": "El hacha lleva un motor que escupe gasolina: cada hachazo deja al enemigo empapado. Si le disparas mientras está manchado, explota y hace estallar en cadena a los manchados de alrededor. Cuidado: la explosión también te alcanza a ti.",
 		"required_weapon": "hacha",
 		"required_items": ["gasolina", "motocicleta", "glandula_toxica"],
-		"stat_modifiers": {}
+		"stat_modifiers": {},
+		"weapon_scene_override": "res://Scenes/Weapon/AltoOctanajeAxe.tscn"
 	},
 	"snowman": {
 		"name": "Avalanche",
@@ -262,6 +268,15 @@ func get_synergies_weapon_override(active_syn_ids: Array[String]) -> String:
 		var path = _get_single_synergy_weapon_override(syn_id)
 		if path != "":
 			return path
+	return ""
+
+# Sinergia que transforma visualmente un arma. La UI la usa para reemplazar el
+# ícono base sin confundirla con sinergias de cuerpo que solo dan estadísticas.
+func get_active_weapon_display_synergy(equipment: Object, active_weapon_id: String, is_main: bool = true) -> String:
+	for syn_id in get_active_synergies(equipment, active_weapon_id, is_main):
+		var def: Dictionary = SYNERGIES.get(syn_id, {})
+		if not str(def.get("weapon_scene_override", "")).is_empty() or not str(def.get("projectile_override", "")).is_empty():
+			return syn_id
 	return ""
 
 func _get_single_synergy_weapon_override(syn_id: String) -> String:

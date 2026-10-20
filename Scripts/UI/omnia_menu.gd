@@ -16,7 +16,7 @@ signal closed
 const RESEARCH_SCENE = preload("res://Scenes/UI/synergy_recipe_research.tscn")
 
 const LOCKED_SHADER := preload("res://Art/Ui/shaders/silueta_bloqueada.gdshader")
-const ICON_COIN := preload("res://Art/Scrap/Scrap_icon.png")
+const ICON_COIN := preload("res://Art/Scrap/scrap_icon.png")
 const ICON_CLOSE := preload("res://Art/Ui/svg/icon_close.svg")
 const ICON_MOUSE := preload("res://Art/Ui/svg/icon_mouse.svg")
 const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
@@ -696,7 +696,7 @@ func _stamp(frame: Control) -> void:
 	t.tween_interval(0.45)
 	t.tween_property(stamp, "modulate:a", 1.0, 0.08)
 	t.parallel().tween_property(stamp, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	t.tween_callback(func(): _pop(frame))
+	t.tween_callback(_pop.bind(frame))
 	t.tween_property(stamp, "rotation", -0.12, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t.tween_interval(1.1)
 	t.tween_property(stamp, "modulate:a", 0.0, 0.35)
@@ -720,7 +720,11 @@ func _reveal_icons_in(target: Node) -> void:
 		# el tween va atado al ícono: si se cambia de pestaña en el medio, muere con él
 		var t = art.create_tween()
 		t.tween_method(func(v: float): mat.set_shader_parameter("reveal", v), 0.0, 1.0, 0.7).set_trans(Tween.TRANS_SINE)
-		t.tween_callback(func(): art.material = null)
+		t.tween_callback(_clear_icon_material.bind(art))
+
+func _clear_icon_material(art: TextureRect) -> void:
+	if is_instance_valid(art):
+		art.material = null
 
 func _play_sound(path: String) -> void:
 	if not ResourceLoader.exists(path): return
@@ -742,7 +746,10 @@ func _animate_in() -> void:
 	create_tween().tween_property(_backdrop, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_SINE)
 	var slide = create_tween()
 	slide.tween_property(_window, "position:y", 0.0, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	slide.tween_callback(func(): _is_animating = false)
+	slide.tween_callback(_finish_open_animation)
+
+func _finish_open_animation() -> void:
+	_is_animating = false
 
 func close() -> void:
 	if _is_animating or is_queued_for_deletion(): return

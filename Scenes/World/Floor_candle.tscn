@@ -49,9 +49,9 @@ frame_progress = 0.5848943
 position = Vector2(0, -10)
 scale = Vector2(2.2, 2.2)
 color = Color(0.8801257, 0.7568092, 0.9388612, 1)
-energy = 0.95
+energy = 0.72
 texture = ExtResource("3_funrp")
-texture_scale = 0.72
+texture_scale = 0.62
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1163351078]
 collision_layer = 15

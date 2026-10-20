@@ -43,7 +43,7 @@ static func _on_ignite_tick(timer: Timer) -> void:
 	var ticks_left: int = timer.get_meta("ticks_left", 0)
 	var burn_damage: int = timer.get_meta("burn_damage", 0)
 
-	var target_dying: bool = is_instance_valid(target) and bool(target.get("is_dying"))
+	var target_dying: bool = is_instance_valid(target) and target.get("is_dying") == true
 	if is_instance_valid(target) and not target_dying:
 		if target.has_method("take_damage"):
 			target.take_damage(burn_damage, false)

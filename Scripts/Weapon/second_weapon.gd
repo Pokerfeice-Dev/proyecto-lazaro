@@ -1,7 +1,7 @@
 extends Node2D
 
 @export_category("Melee Nodes")
-@export var melee_sprite: Sprite2D
+@export var melee_sprite: Node2D
 @export var slash_attack: Area2D
 @export var attack_fx: AnimatedSprite2D
 
@@ -78,13 +78,17 @@ func attack() -> void:
 	
 	rotation = start_rot
 	tween.tween_property(self, "rotation", end_rot, swing_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_callback(func(): if slash_attack: slash_attack.set_deferred("monitoring", false))
+	tween.tween_callback(_disable_slash_monitoring)
 	tween.tween_property(self, "rotation", start_rot, recovery_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.tween_callback(_on_attack_finished)
 
 func _on_attack_finished() -> void:
 	_is_attacking = false
 	if slash_attack: slash_attack.monitoring = false
+
+func _disable_slash_monitoring() -> void:
+	if is_instance_valid(slash_attack):
+		slash_attack.set_deferred("monitoring", false)
 
 func is_attacking() -> bool:
 	return _is_attacking

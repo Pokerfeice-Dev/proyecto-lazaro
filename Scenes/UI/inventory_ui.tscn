@@ -2070,7 +2070,7 @@ text = "Principal"
 
 [node name="PrimaryWeaponSlotPanel" type="PanelContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/MainThreeColumns/EquipmentColumn/MarginContainer/VBoxContainer/VBoxContainer/PrimaryWeaponRow" unique_id=1115001703]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(74, 74)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_co4fc")
 
@@ -2123,7 +2123,7 @@ text = "Secundaria"
 
 [node name="SecondaryWeaponSlotPanel" type="PanelContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/MainThreeColumns/EquipmentColumn/MarginContainer/VBoxContainer/VBoxContainer/SecondaryWeaponRow" unique_id=539571225]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(74, 74)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_nra2b")
 

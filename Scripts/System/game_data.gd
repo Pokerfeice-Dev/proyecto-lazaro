@@ -48,6 +48,14 @@ var last_room_name: String = "" # nombre de la última sala de la que salimos, u
 var chosen_primary_weapon: String = "pistol"
 var chosen_melee_weapon: String = "daga"
 var temporary_damage_multiplier: float = 1.0
+
+## Los temporizadores de efectos pueden sobrevivir a un cambio de escena.
+## Esta restauración vive en el autoload para no capturar jugadores liberados.
+func clear_temporary_damage_multiplier() -> void:
+	temporary_damage_multiplier = 1.0
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("_apply_game_data_upgrades"):
+		player._apply_game_data_upgrades()
 var vampiric_kills_counter: int = 0
 
 # ── Level Progression: zona 1 -> boss 1 -> zona 2 -> boss 2 -> zona 3 -> Prometeo -> gana la run ──
@@ -70,6 +78,13 @@ const YGOR_ROOMS := {
 }
 var current_level: int = 1
 var just_won_run: bool = false
+
+# ── Modo evento ──────────────────────────────────────────────────────────────
+# Se habilita solo en el preset de Buenos Aires Game Dev. Usa el sandbox para
+# que ningún avance, gasto o desbloqueo de la demo llegue a los slots normales.
+const EVENT_DEMO_ROOMS_BEFORE_BOSS := 6
+const EVENT_OMNIA_LEVEL := 3 # 50% de 5 redondeado a un nivel entero jugable.
+var event_demo_active := false
 
 # ── Boss Fight State ─────────────────────────────────────────────────────────
 var boss_fight_phase: int = 1
@@ -199,6 +214,10 @@ func _add_room_if_valid(file_name: String, path: String, prefix: String, result:
 	result.append(path + clean_name)
 
 func start_new_run() -> String:
+	# El build de Buenos Aires Game Dev conserva el flujo normal de inicio;
+	# cambia sólo la configuración de la run al confirmarla.
+	if OS.has_feature("event_demo"):
+		return start_event_demo()
 	total_deployments += 1
 	current_level = 1
 	current_run_room = 1
@@ -212,6 +231,37 @@ func start_new_run() -> String:
 	reset_boss_state()
 	save_game()
 	return get_random_room_from_pool()
+
+func start_event_demo() -> String:
+	if event_demo_active:
+		end_event_demo()
+	begin_sandbox()
+	event_demo_active = true
+	reset_data()
+	current_level = 1
+	current_run_room = 1
+	rooms_before_boss = EVENT_DEMO_ROOMS_BEFORE_BOSS
+	run_enemies_killed = 0
+	run_scrap_collected = 0
+	run_start_time_msec = Time.get_ticks_msec()
+	last_killer = "Infección Lázaro"
+	last_room_path = ""
+	reset_boss_state()
+	for key in core_upgrades.keys():
+		core_upgrades[key] = EVENT_OMNIA_LEVEL
+	unlock_all_synergies()
+	# La demo usa el mismo inventario y enemigos de nivel 1; sólo abre las
+	# recetas para que las combinaciones obtenidas durante la run funcionen.
+	return get_random_room_from_pool()
+
+func end_event_demo() -> void:
+	if not event_demo_active: return
+	event_demo_active = false
+	just_won_run = false
+	end_sandbox()
+
+func is_event_demo() -> bool:
+	return event_demo_active
 
 func get_next_room() -> String:
 	current_run_room += 1
@@ -231,6 +281,9 @@ func get_boss_room() -> String:
 # Se llama cuando el jugador cruza la puerta de salida del boss.
 # Zonas 1 y 2 completas -> arranca la zona siguiente. Zona 3 completa -> gana la run y vuelve al Lab.
 func get_post_boss_scene() -> String:
+	if event_demo_active:
+		just_won_run = true
+		return "res://Scenes/Rooms/lab_room.tscn"
 	if current_level < MAX_LEVEL_FOR_NOW:
 		current_level += 1
 		current_run_room = 1
@@ -566,7 +619,8 @@ func unlock_all_synergies() -> void:
 		"relampago",
 		"speed_demon",
 		"snowman",
-		"holy_fire"
+		"holy_fire",
+		"alto_octanaje"
 	]
 	for syn_id in all_ids:
 		unlock_synergy(syn_id)
@@ -651,6 +705,8 @@ func get_global_path() -> String:
 	return "user://global_settings.json"
 
 func save_game(slot: int = -1) -> void:
+	# El ejecutable del evento no escribe slots ni configuración de progreso.
+	if event_demo_active: return
 	if slot == -1: slot = current_slot
 	last_save_time = get_formatted_system_time()
 	var data = {

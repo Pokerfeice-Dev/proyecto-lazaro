@@ -183,7 +183,7 @@ func _play() -> void:
 	t.parallel().tween_property(_line_right, "custom_minimum_size:x", line_width, 0.5).set_delay(0.1).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	t.parallel().tween_property(_diamond, "modulate:a", 1.0, 0.2).set_delay(0.25)
 	t.parallel().tween_property(_diamond, "scale", Vector2.ONE, 0.35).set_delay(0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.tween_callback(func(): _decode_t = 0.0)
+	t.tween_callback(_finish_decoding)
 	t.tween_property(_subtitle, "modulate:a", 1.0, 0.4).set_delay(DECODE_TIME * 0.6)
 	t.tween_interval(HOLD_TIME)
 	t.tween_callback(_glitch_out)
@@ -194,12 +194,19 @@ func _glitch_out() -> void:
 	for i in 5:
 		t.tween_callback(_jitter.bind(i % 2 == 0))
 		t.tween_interval(0.05)
-	t.tween_callback(func(): _title.position.x = 0.0)
+	t.tween_callback(_reset_title_position)
 	t.tween_property(self, "modulate:a", 0.0, 0.35)
 	t.parallel().tween_method(_set_band_height, BAND_HEIGHT, 0.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	t.parallel().tween_property(_line_left, "custom_minimum_size:x", 0.0, 0.3)
 	t.parallel().tween_property(_line_right, "custom_minimum_size:x", 0.0, 0.3)
 	t.tween_callback(queue_free)
+
+func _finish_decoding() -> void:
+	_decode_t = 0.0
+
+func _reset_title_position() -> void:
+	if is_instance_valid(_title):
+		_title.position.x = 0.0
 
 # Salida rápida cuando se abre un menú: corta las animaciones y se desvanece.
 func _vanish() -> void:

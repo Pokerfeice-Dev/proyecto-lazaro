@@ -1,7 +1,7 @@
 extends Node2D
 
 @export var default_weapon_scene: PackedScene = preload("res://Scenes/Weapon/shotgun.tscn")
-@export var pistol_scene: PackedScene = preload("res://Scenes/Weapon/pistol.tscn")
+@export var pistol_scene: PackedScene = preload("res://Scenes/Weapon/Revolver.tscn")
 @export var uzi_scene: PackedScene = preload("res://Scenes/Weapon/uzi.tscn")
 @export var shotgun_scene: PackedScene = preload("res://Scenes/Weapon/shotgun.tscn")
 
@@ -171,7 +171,7 @@ func _restore_base_weapon() -> void:
 func _unlock_weapon_codex(scene: PackedScene) -> void:
 	if not GameData.has_method("unlock_codex_entry"): return
 	var path = scene.resource_path.to_lower()
-	if "pistol" in path:
+	if "pistol" in path or "revolver" in path:
 		GameData.unlock_codex_entry("weapons", "pistol")
 	elif "uzi" in path:
 		GameData.unlock_codex_entry("weapons", "uzi")
@@ -336,7 +336,7 @@ func _shift_child_node(child: Node, offset: Vector2) -> void:
 func get_base_weapon_id() -> String:
 	if _base_weapon_scene:
 		var path = _base_weapon_scene.resource_path.to_lower()
-		if "pistol" in path:
+		if "pistol" in path or "revolver" in path:
 			return "pistol"
 		if "uzi" in path:
 			return "uzi"

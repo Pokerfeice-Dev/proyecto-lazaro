@@ -2,8 +2,23 @@
 
 [ext_resource type="Script" uid="uid://cq81u3dkomk2" path="res://Scripts/World/chest.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="4_font"]
+[ext_resource type="Texture2D" uid="uid://oina1ptfu6mo" path="res://Art/Lights/candle_light_mask.svg" id="5_pv6r1"]
 [ext_resource type="AudioStream" uid="uid://dnsadsf7qssny" path="res://Audio/Sfx/Interact_reward.mp3" id="5_sfx"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="6_shadow"]
+
+[sub_resource type="Gradient" id="Gradient_g7gci"]
+offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_r6t50"]
+gradient = SubResource("Gradient_g7gci")
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_flash"]
+blend_mode = 1
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_chest"]
 radius = 26.0
@@ -15,54 +30,61 @@ outline_size = 3
 outline_color = Color(0, 0, 0, 1)
 shadow_color = Color(0, 0, 0, 0.64705884)
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_flash"]
-blend_mode = 1
-
-[node name="Chest" type="Node2D"]
-script = ExtResource("1_script")
+[node name="Chest" type="Node2D" unique_id=689306388]
 scale = Vector2(2, 2)
+script = ExtResource("1_script")
 
-[node name="DropShadow" type="Sprite2D" parent="."]
+[node name="DropShadow" type="Sprite2D" parent="." unique_id=341360519]
+modulate = Color(0, 0, 0, 0.4)
+show_behind_parent = true
 position = Vector2(0, 10)
+scale = Vector2(0.5, 0.4375)
+texture = SubResource("GradientTexture2D_r6t50")
 script = ExtResource("6_shadow")
 shadow_size = Vector2(32, 14)
 shadow_offset = Vector2(0, 10)
 shadow_alpha = 0.4
 
-[node name="CapsuleSprite" type="Sprite2D" parent="."]
-
+[node name="CapsuleSprite" type="Sprite2D" parent="." unique_id=1474713740]
 texture_filter = 1
 
-[node name="CapsuleActiveSprite" type="Sprite2D" parent="."]
-texture_filter = 1
+[node name="CapsuleActiveSprite" type="Sprite2D" parent="." unique_id=328512497]
 modulate = Color(1, 1, 1, 0)
+texture_filter = 1
 
-[node name="FlashOverlay" type="Sprite2D" parent="."]
+[node name="FlashOverlay" type="Sprite2D" parent="." unique_id=550942232]
+modulate = Color(1, 1, 1, 0)
 texture_filter = 1
 material = SubResource("CanvasItemMaterial_flash")
-modulate = Color(1, 1, 1, 0)
 
-[node name="Item_sprite" type="Sprite2D" parent="."]
+[node name="Item_sprite" type="Sprite2D" parent="." unique_id=824995950]
 texture_filter = 1
 position = Vector2(0, -21)
 
-[node name="InteractArea" type="Area2D" parent="."]
+[node name="InteractArea" type="Area2D" parent="." unique_id=1072334787]
 collision_layer = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=1623147225]
 shape = SubResource("CircleShape2D_chest")
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=918003509]
 offset_left = -100.0
 offset_top = -80.0
 offset_right = 100.0
 offset_bottom = -20.0
 scale = Vector2(0.5, 0.5)
 pivot_offset = Vector2(100, 30)
-text = ""
 label_settings = SubResource("LabelSettings_chest")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Interact" type="AudioStreamPlayer2D" parent="."]
+[node name="Interact" type="AudioStreamPlayer2D" parent="." unique_id=15678566]
 stream = ExtResource("5_sfx")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=689721896]
+position = Vector2(0, -11)
+scale = Vector2(2.5, 2.5)
+color = Color(0.55805594, 0.713129, 0.8014027, 1)
+shadow_color = Color(0, 0, 0, 0.62352943)
+texture = ExtResource("5_pv6r1")
+texture_scale = 0.2

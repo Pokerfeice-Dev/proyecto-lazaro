@@ -8,12 +8,12 @@
 [ext_resource type="PackedScene" uid="uid://bn5bjdd22602q" path="res://Scenes/Objects/lampara_pie.tscn" id="8_07awv"]
 [ext_resource type="PackedScene" uid="uid://bumpa0odwq534" path="res://Scenes/Objects/lampara_pared.tscn" id="9_4wq7d"]
 [ext_resource type="PackedScene" uid="uid://bvkvc7sigww2l" path="res://Scenes/World/InfoSign.tscn" id="20_infosign"]
+[ext_resource type="Texture2D" uid="uid://g0mer1ilx8rh" path="res://Art/Props/Doors/door_icon_invasion.png" id="door_icon_invasion"]
+[ext_resource type="Texture2D" uid="uid://dnu2ya7t4i7kx" path="res://Art/Props/Doors/door_icon_training.png" id="door_icon_training"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
-[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_damage.svg" id="sign_icon_run"]
-[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_chevron_up.svg" id="sign_icon_omnia"]
-[ext_resource type="Texture2D" path="res://Art/Ui/svg/icon_range.svg" id="sign_icon_training"]
-[ext_resource type="Texture2D" path="res://Art/Props/Doors/door_icon_invasion.png" id="door_icon_invasion"]
-[ext_resource type="Texture2D" path="res://Art/Props/Doors/door_icon_training.png" id="door_icon_training"]
+[ext_resource type="Texture2D" uid="uid://blas8oydth6na" path="res://Art/Ui/svg/icon_chevron_up.svg" id="sign_icon_omnia"]
+[ext_resource type="Texture2D" uid="uid://cmyglk0irr7j4" path="res://Art/Ui/svg/icon_damage.svg" id="sign_icon_run"]
+[ext_resource type="Texture2D" uid="uid://b41n5tbtychou" path="res://Art/Ui/svg/icon_range.svg" id="sign_icon_training"]
 
 [node name="Lab_room" type="Node2D" unique_id=377400053]
 script = ExtResource("1_lab_room_gd")
@@ -29,7 +29,7 @@ tile_set = ExtResource("2_fk30j")
 [node name="Tile_Objects" type="TileMapLayer" parent="." unique_id=457328053]
 modulate = Color(0.926511, 0.926511, 0.926511, 1)
 scale = Vector2(2, 2)
-tile_map_data = PackedByteArray("AAACAAgAAAALAAYAAAADAP7/AAADAAAAAAADAP//AAADAAAAAAADAAAAAAADAAAAAAADAAEAAAADAAAAAAADAAIAAAADAAAAAAADAAMAAAADAAAAAAAEAP7/AAADAAAAAAAEAP//AAADAAAAAAAEAAAAAAADAAAAAAAEAAEAAAADAAAAAAAEAAIAAAADAAAAAAAEAAMAAAADAAAAAAAFAP7/AAADAAAAAAAFAP//AAADAAAAAAAFAAAAAAADAAAAAAAFAAEAAAADAAAAAAAFAAIAAAADAAAAAAAFAAMAAAADAAAAAAAGAP7/AAADAAAAAAAGAP//AAADAAAAAAAGAAAAAAADAAAAAAAGAAEAAAADAAAAAAAGAAIAAAADAAAAAAAGAAMAAAADAAAAAAAHAP7/AAADAAAAAAAHAP//AAADAAAAAAAHAAAAAAADAAAAAAAHAAEAAAADAAAAAAAHAAIAAAADAAAAAAAHAAMAAAADAAAAAAAIAP7/AAADAAAAAAAIAP//AAADAAAAAAAIAAAAAAADAAAAAAAIAAEAAAADAAAAAAAIAAIAAAADAAAAAAAIAAMAAAADAAAAAAABAP7/AAADAAAAAAABAP//AAADAAAAAAABAAAAAAADAAAAAAABAAEAAAADAAAAAAABAAIAAAADAAAAAAABAAMAAAADAAAAAAACAP7/AAADAAAAAAACAP//AAADAAAAAAACAAAAAAADAAAAAAACAAEAAAADAAAAAAACAAIAAAADAAAAAAACAAMAAAADAAAAAAABAP3/AAADAAAAAAACAP3/AAADAAAAAAADAP3/AAADAAAAAAAEAP3/AAADAAAAAAAFAP3/AAADAAAAAAAGAP3/AAADAAAAAAAHAP3/AAADAAAAAAAIAP3/AAADAAAAAAAAAP3/AAADAAAAAAAAAP7/AAADAAAAAAAAAP//AAADAAAAAAAAAAAAAAADAAAAAAAAAAEAAAADAAAAAAAAAAIAAAADAAAAAAAAAAMAAAADAAAAAAA=")
+tile_map_data = PackedByteArray("AAACAAgAAAALAAYAAAADAP7/AAADAAAAAAADAP//AAADAAAAAAADAAAAAAADAAAAAAADAAEAAAADAAAAAAADAAIAAAADAAAAAAADAAMAAAADAAAAAAAEAP7/AAADAAAAAAAEAP//AAADAAAAAAAEAAAAAAADAAAAAAAEAAEAAAADAAAAAAAEAAIAAAADAAAAAAAEAAMAAAADAAAAAAAFAP7/AAADAAAAAAAFAP//AAADAAAAAAAFAAAAAAADAAAAAAAFAAEAAAADAAAAAAAFAAIAAAADAAAAAAAFAAMAAAADAAAAAAAGAP7/AAADAAAAAAAGAP//AAADAAAAAAAGAAAAAAADAAAAAAAGAAEAAAADAAAAAAAGAAIAAAADAAAAAAAGAAMAAAADAAAAAAAHAP7/AAADAAAAAAAHAP//AAADAAAAAAAHAAAAAAADAAAAAAAHAAEAAAADAAAAAAAHAAIAAAADAAAAAAAHAAMAAAADAAAAAAAIAP7/AAADAAAAAAAIAP//AAADAAAAAAAIAAAAAAADAAAAAAAIAAEAAAADAAAAAAAIAAIAAAADAAAAAAAIAAMAAAADAAAAAAABAP7/AAADAAAAAAABAP//AAADAAAAAAABAAAAAAADAAAAAAABAAEAAAADAAAAAAABAAIAAAADAAAAAAABAAMAAAADAAAAAAACAP7/AAADAAAAAAACAP//AAADAAAAAAACAAAAAAADAAAAAAACAAEAAAADAAAAAAACAAIAAAADAAAAAAACAAMAAAADAAAAAAABAP3/AAADAAAAAAACAP3/AAADAAAAAAADAP3/AAADAAAAAAAEAP3/AAADAAAAAAAFAP3/AAADAAAAAAAGAP3/AAADAAAAAAAHAP3/AAADAAAAAAAIAP3/AAADAAAAAAAAAP3/AAADAAAAAAAAAP7/AAADAAAAAAAAAP//AAADAAAAAAAAAAAAAAADAAAAAAAAAAEAAAADAAAAAAAAAAIAAAADAAAAAAAAAAMAAAADAAAAAAD3//3/AAACAAcAAAD4//3/AAACAAcAAAD5//3/AAACAAcAAAD6//3/AAACAAcAAAD7//3/AAACAAcAAAD8//3/AAACAAcAAAD9//3/AAACAAcAAAD+//3/AAACAAcAAAD///3/AAACAAcAAAAAAAUAAAACAAcAAAAAAAYAAAACAAcAAAAAAAcAAAACAAcAAAAAAAgAAAACAAcAAAA=")
 tile_set = ExtResource("3_yufhn")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=715407926]
@@ -74,6 +74,7 @@ sign_color = Color(0.957, 0.769, 0.369, 1)
 sign_offset = Vector2(0, -92)
 
 [node name="Door_TrainingRoom" parent="." unique_id=2141127837 instance=ExtResource("new_door_1")]
+visible = false
 position = Vector2(-148, 321)
 rotation = -1.5707964
 start_locked = false
@@ -95,25 +96,21 @@ position = Vector2(-148, 180)
 position = Vector2(33.000008, -65.00001)
 scale = Vector2(0.9696379, 0.9696379)
 glitch_enabled = false
-enable_sparks = false
 
 [node name="Lampara_pie2" parent="Lights" unique_id=1497868148 instance=ExtResource("8_07awv")]
 position = Vector2(257, -61.999992)
 scale = Vector2(0.9401976, 0.9401976)
 glitch_enabled = false
-enable_sparks = false
 
 [node name="Lampara_pie3" parent="Lights" unique_id=665003283 instance=ExtResource("8_07awv")]
 position = Vector2(33, 98.00001)
 scale = Vector2(0.9696379, 0.9696379)
 glitch_enabled = false
-enable_sparks = false
 
 [node name="Lampara_pie4" parent="Lights" unique_id=670490540 instance=ExtResource("8_07awv")]
 position = Vector2(257, 98)
 scale = Vector2(0.9696379, 0.9696379)
 glitch_enabled = false
-enable_sparks = false
 
 [node name="Pared" type="Node2D" parent="Lights" unique_id=794289622]
 

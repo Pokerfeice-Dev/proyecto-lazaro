@@ -181,7 +181,7 @@ func _create_continue_button() -> void:
 	_continue_btn.add_theme_stylebox_override("hover", sb_hov)
 	_continue_btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
-	_continue_btn.pressed.connect(func(): _dismiss_popup())
+	_continue_btn.pressed.connect(_dismiss_popup)
 	_vbox.add_child(_continue_btn)
 
 func _play_activation_sound() -> void:
@@ -221,10 +221,11 @@ func _dismiss_popup() -> void:
 	tween.tween_property(_panel, "scale", Vector2(0.5, 0.5), 0.4)
 	tween.tween_property(_panel, "modulate:a", 0.0, 0.4)
 
-	tween.chain().tween_callback(func():
-		get_tree().paused = false
-		queue_free()
-	)
+	tween.chain().tween_callback(_finish_dismiss)
+
+func _finish_dismiss() -> void:
+	get_tree().paused = false
+	queue_free()
 
 func _on_input_mode_changed(_gamepad: bool) -> void:
 	_continue_prompt.text = _prompt()

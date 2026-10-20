@@ -23,6 +23,7 @@ var hunt_speed_multiplier: float = 1.25
 var base_turn_speed: float = 8.0
 var max_turn_speed: float = 15.0
 var detection_radius: float = 420.0
+const HOMING_HIT_RADIUS := 18.0
 var bee_shadow: DropShadow = null
 
 @onready var anim_sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
@@ -210,6 +211,18 @@ func _process_hunt_motion(delta: float) -> void:
 	var hunt_velocity = (direction * current_speed) + wobble
 	global_position += hunt_velocity * delta
 	rotation = direction.angle()
+	_check_homing_target_impact()
+
+# Las abejas se mueven con una trayectoria ondulada propia. Al actualizar su
+# posición manualmente pueden atravesar un collider angosto entre dos frames;
+# esta comprobación conserva el golpe al llegar a su objetivo, incluido el
+# maniquí de entrenamiento.
+func _check_homing_target_impact() -> void:
+	if is_destroyed or current_state != BeeState.HUNT or not _is_target_valid(target_node):
+		return
+	if global_position.distance_to(target_node.global_position) > HOMING_HIT_RADIUS:
+		return
+	_process_body_hit(target_node)
 
 func _update_visuals() -> void:
 	if not anim_sprite: return

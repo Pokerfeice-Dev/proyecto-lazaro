@@ -49,7 +49,7 @@ func _spawn_or_reposition_player() -> void:
 		if omnia_spawn:
 			p_spawn = omnia_spawn
 	# Y si volvemos de la sala de entrenamiento, junto a su puerta
-	elif GameData.last_room_name == "Training_Room":
+	elif GameData.last_room_name in ["Training_Room", "Tutorial_Room"]:
 		var training_spawn = get_node_or_null("player_spawn_training")
 		if training_spawn:
 			p_spawn = training_spawn
@@ -68,12 +68,15 @@ func _spawn_fresh_player(spawn_pos: Vector2) -> void:
 	var p_inst = player_scene.instantiate()
 	p_inst.global_position = spawn_pos
 	get_tree().current_scene.call_deferred("add_child", p_inst)
-	# Ensure health is max and HUD is synced after spawning
-	p_inst.ready.connect(func():
-		var s = p_inst.stats
-		s.current_health = s.max_health
-		s.health_changed.emit(s.current_health, s.max_health)
-	)
+	# Ensure health is max and HUD is synced after spawning.
+	p_inst.ready.connect(_initialize_spawned_player.bind(p_inst), CONNECT_ONE_SHOT)
+
+func _initialize_spawned_player(player: Node) -> void:
+	if not is_instance_valid(player) or not "stats" in player or not player.stats:
+		return
+	var s = player.stats
+	s.current_health = s.max_health
+	s.health_changed.emit(s.current_health, s.max_health)
 
 func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 	player.global_position = spawn_pos

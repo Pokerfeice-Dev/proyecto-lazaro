@@ -2,7 +2,7 @@ extends Node2D
 class_name MeleeWeaponBase
 
 @export_category("Melee Nodes")
-@export var melee_sprite: Sprite2D
+@export var melee_sprite: Node2D
 @export var slash_attack: Area2D
 @export var attack_fx: AnimatedSprite2D
 

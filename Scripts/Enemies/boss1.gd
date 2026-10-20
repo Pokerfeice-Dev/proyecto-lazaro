@@ -132,22 +132,22 @@ func _run_cinematic_timeline(cinema_layer: CanvasLayer, player: Node, camera: Ca
 	t_seq.tween_interval(1.0)
 	
 	# 1s: Camera zooms in to boss
-	t_seq.tween_callback(func(): _zoom_camera_to_boss(camera, 1.0))
+	t_seq.tween_callback(_zoom_camera_to_boss.bind(camera, 1.0))
 	t_seq.tween_interval(1.0)
 	
 	# 2s: Boss roars, heals +20% HP, healing particles spawn
-	t_seq.tween_callback(func(): _trigger_healing_phase_effects(player))
+	t_seq.tween_callback(_trigger_healing_phase_effects.bind(player))
 	t_seq.tween_interval(2.0)
 	
 	# 1s: Camera zooms back out
-	t_seq.tween_callback(func(): _zoom_camera_to_player(camera, 1.0))
+	t_seq.tween_callback(_zoom_camera_to_player.bind(camera, 1.0))
 	t_seq.tween_interval(1.0)
 	
 	# 1s: margen antes de devolver el control
 	t_seq.tween_interval(1.0)
 	
 	# Finish & start fight
-	t_seq.tween_callback(func(): _finish_cinematic_and_start_fight(cinema_layer, player))
+	t_seq.tween_callback(_finish_cinematic_and_start_fight.bind(cinema_layer, player))
 
 # El zoom es relativo al de la pelea (la cámara del jugador no está en 1x), así
 # no se aleja de más ni queda distinta al terminar la cinemática.
@@ -316,18 +316,24 @@ func _intro_appear() -> void:
 	SceneTransition.play_teleport_sound()
 	var t = create_tween()
 	t.tween_property(crack, "scale:x", 1.0, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	t.tween_callback(func(): dust.emitting = true)
+	t.tween_callback(_set_particles_emitting.bind(dust, true))
 	t.tween_method(_set_emerge, _emerge_height(), 0.0, EMERGE_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	t.parallel().tween_method(_set_emerge_shade, 0.85, 0.0, EMERGE_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	t.tween_callback(func():
-		dust.emitting = false
-		_burst_wall_debris(wall_y, width))
+	t.tween_callback(_finish_intro_emerge.bind(dust, wall_y, width))
 	t.tween_property(crack, "modulate:a", 0.0, 0.4)
 	await t.finished
 	crack.queue_free()
 	get_tree().create_timer(1.5, false).timeout.connect(dust.queue_free)
 	_emerge_sprite.material = _emerge_material
 	_light_up_eyes()
+
+func _set_particles_emitting(particles: CPUParticles2D, enabled: bool) -> void:
+	if is_instance_valid(particles):
+		particles.emitting = enabled
+
+func _finish_intro_emerge(particles: CPUParticles2D, wall_y: float, width: float) -> void:
+	_set_particles_emitting(particles, false)
+	_burst_wall_debris(wall_y, width)
 
 # Sale como una silueta oscura que se va aclarando.
 func _set_emerge_shade(value: float) -> void:

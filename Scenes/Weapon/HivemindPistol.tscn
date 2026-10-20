@@ -31,23 +31,26 @@ cone_spread_angle = 50.0
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=341135822]
 texture_filter = 1
+position = Vector2(69, -15.800003)
 scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_mkhcp")
 animation = &"shoot"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=1249833404]
+position = Vector2(69, -15.800003)
 stream = ExtResource("2_sstvh")
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=832653661]
-position = Vector2(-13, 9)
+position = Vector2(0, 0.19999695)
 
 [node name="Cone_Aim" type="Area2D" parent="." unique_id=1314401973]
+position = Vector2(31, -6.800003)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Cone_Aim" unique_id=395004842]
 polygon = PackedVector2Array(0, 0, 400, 250, 400, -250)
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=889741741]
-position = Vector2(17, 1)
+position = Vector2(31, -7.800003)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=247447426]
-position = Vector2(-19, 1)
+position = Vector2(-5, -7.800003)

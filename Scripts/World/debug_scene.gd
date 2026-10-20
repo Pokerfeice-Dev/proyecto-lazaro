@@ -29,7 +29,7 @@ const ITEMS: Array[Dictionary] = [
 ]
 
 const RANGED_WEAPONS: Array[Dictionary] = [
-	{"name": "Pistol", "path": "res://Scenes/Weapon/pistol.tscn"},
+	{"name": "Revolver", "path": "res://Scenes/Weapon/Revolver.tscn"},
 	{"name": "Uzi", "path": "res://Scenes/Weapon/uzi.tscn"},
 	{"name": "Shotgun", "path": "res://Scenes/Weapon/shotgun.tscn"}
 ]
@@ -78,9 +78,7 @@ func _spawn_fresh_player(spawn_pos: Vector2) -> void:
 	var p_inst = player_scene.instantiate()
 	p_inst.global_position = spawn_pos
 	call_deferred("add_child", p_inst)
-	p_inst.ready.connect(func():
-		_initialize_player_stats(p_inst)
-	)
+	p_inst.ready.connect(_initialize_player_stats.bind(p_inst), CONNECT_ONE_SHOT)
 
 func _reposition_existing_player(player: Node, spawn_pos: Vector2) -> void:
 	player.global_position = spawn_pos

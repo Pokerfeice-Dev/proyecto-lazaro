@@ -206,14 +206,50 @@ func _update_weapons_hud(p: Node2D) -> void:
 		return
 
 	if "active_weapon" in p and p.active_weapon:
-		var tex = _get_weapon_texture(p.active_weapon)
+		var tex = _get_display_weapon_texture(p, p.active_weapon, true)
 		if primary_weapon_rect:
-			primary_weapon_rect.texture = tex
+			if primary_weapon_rect.texture != tex:
+				primary_weapon_rect.texture = tex
 			
 	if "second_weapon" in p and p.second_weapon:
-		var tex = _get_weapon_texture(p.second_weapon)
+		var tex = _get_display_weapon_texture(p, p.second_weapon, false)
 		if secondary_weapon_rect:
-			secondary_weapon_rect.texture = tex
+			if secondary_weapon_rect.texture != tex:
+				secondary_weapon_rect.texture = tex
+
+# El HUD usa los íconos recortados del Códice. Las texturas de los sprites de
+# mundo incluyen mucho margen transparente y dentro de un círculo se ven mínimas.
+var _codex_weapon_icons: Dictionary = {}
+var _synergy_weapon_icons: Dictionary = {}
+
+func _get_display_weapon_texture(player: Node, weapon_container: Node, is_main: bool) -> Texture2D:
+	var equipment = player.get_node_or_null("Equipment") if player else null
+	var weapon_id = _get_codex_weapon_id(weapon_container)
+	var synergy_id = SynergyManager.get_active_weapon_display_synergy(equipment, weapon_id, is_main)
+	if synergy_id != "":
+		if not _synergy_weapon_icons.has(synergy_id):
+			_synergy_weapon_icons[synergy_id] = UIStyle.trimmed(OmniaCatalog.synergy_icon(synergy_id))
+		return _synergy_weapon_icons[synergy_id]
+	return _get_codex_weapon_texture(weapon_container)
+
+func _get_codex_weapon_texture(weapon_container: Node) -> Texture2D:
+	var weapon_id = _get_codex_weapon_id(weapon_container)
+	if weapon_id != "" and CodexData.DATA.get("weapons", {}).has(weapon_id):
+		if not _codex_weapon_icons.has(weapon_id):
+			var icon = CodexData.DATA["weapons"][weapon_id].get("icon", null) as Texture2D
+			_codex_weapon_icons[weapon_id] = UIStyle.trimmed(icon)
+		return _codex_weapon_icons[weapon_id]
+	return _get_weapon_texture(weapon_container)
+
+func _get_codex_weapon_id(weapon_container: Node) -> String:
+	if weapon_container and weapon_container.has_method("get_base_weapon_id"):
+		var base_id = weapon_container.get_base_weapon_id()
+		if base_id != "":
+			return base_id
+	var current_weapon = weapon_container.get("current_weapon") if weapon_container else null
+	if current_weapon and "id" in current_weapon:
+		return current_weapon.id
+	return ""
 
 # Armas con hoja de cuadros (Speed Demon, Holy Fire): el ícono muestra solo el primero.
 var _frame_icons: Dictionary = {}
@@ -381,6 +417,8 @@ func _get_room_title_data(path: String) -> Dictionary:
 		return _title_data("BASE DE OPERACIONES", "LABORATORIO", "ZONA SEGURA", UIStyle.COLOR_TEAL)
 	if "core_upgrade" in filename:
 		return _title_data("TERMINAL DE MEJORAS", "O.M.N.I.A.", "MEJORAS PERMANENTES", UIStyle.COLOR_TEAL)
+	if "tutorial" in filename:
+		return _title_data("SIMULACIÓN GUIADA", "TUTORIAL", "APRENDE A SOBREVIVIR", UIStyle.COLOR_GOLD)
 	if "training" in filename:
 		return _title_data("SIMULACIÓN", "ENTRENAMIENTO", "PROTOCOLO DE PRUEBA", UIStyle.COLOR_TEAL)
 	if "debug_scene" in filename:

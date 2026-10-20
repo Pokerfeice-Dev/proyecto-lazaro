@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://bcowt0kdd726u"]
 
 [ext_resource type="TileSet" uid="uid://crs88nnfgs0gw" path="res://Scenes/Rooms/Floor.tres" id="1_1ifsi"]
-[ext_resource type="Script" uid="uid://bc2froj3it6vp" path="res://Scripts/World/training_room.gd" id="1_training_room_gd"]
+[ext_resource type="Script" path="res://Scripts/World/training_room_free.gd" id="1_training_room_gd"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_7b60e"]
 [ext_resource type="TileSet" uid="uid://dfld0hlbaywjq" path="res://Scenes/Rooms/Walls.tres" id="3_3enep"]
 [ext_resource type="PackedScene" uid="uid://dtc62xovhjm13" path="res://Scenes/Enemies/dummy.tscn" id="5_3enep"]

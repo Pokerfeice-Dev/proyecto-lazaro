@@ -1,0 +1,16 @@
+# Build para Buenos Aires Game Dev
+
+El preset **Buenos Aires Game Dev** compila el juego con la feature `event_demo`.
+El ejecutable conserva el inicio, la cinemática y los menús normales. La
+configuración especial se activa recién cuando se inicia una nueva run.
+
+La demo contiene seis salas de nivel 1; la séptima es el jefe final. Enemigos,
+jefe, daño y recompensas conservan los valores normales. O.M.N.I.A. se aplica
+temporalmente al 50% (nivel 3 de 5, redondeado) y todas las sinergias quedan
+disponibles para combinar.
+
+La sesión usa un sandbox: no escribe slots, no conserva chatarra y restaura el
+estado previo al terminar. Tras vencer al jefe muestra el agradecimiento del evento
+y vuelve al laboratorio.
+
+Para exportar desde Godot: **Proyecto → Exportar → Buenos Aires Game Dev → Exportar proyecto**.

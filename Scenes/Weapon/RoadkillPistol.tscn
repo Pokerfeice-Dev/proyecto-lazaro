@@ -30,17 +30,18 @@ projectile_speed = 550.0
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=341135823]
 texture_filter = 1
+position = Vector2(53, -12)
 sprite_frames = SubResource("SpriteFrames_mkhcp")
 animation = &"idle"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=1249833405]
+position = Vector2(27, -8)
 stream = ExtResource("2_sstvh")
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=832653662]
-position = Vector2(-11, 10)
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=990737132]
-position = Vector2(17, 2)
+position = Vector2(27, -8)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=641237464]
-position = Vector2(-19, 2)
+position = Vector2(-9, -8)

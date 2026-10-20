@@ -9,13 +9,12 @@ script = ExtResource("3_flicker")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1368619279]
 position = Vector2(-3, 4)
-scale = Vector2(2.5, 2.5)
+scale = Vector2(2.1, 2.1)
 color = Color(1, 1, 0.95, 1)
-energy = 0.76
+energy = 0.64
 shadow_color = Color(0, 0, 0, 0.5294118)
-shadow_filter_smooth = 10.5
 texture = ExtResource("2_gg1gb")
-texture_scale = 0.8
+texture_scale = 0.68
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1368619278]
 texture_filter = 1

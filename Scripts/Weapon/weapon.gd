@@ -74,7 +74,7 @@ func _ready() -> void:
 
 func _get_id_from_name() -> String:
 	var lower_name = name.to_lower()
-	if "pistol" in lower_name:
+	if "pistol" in lower_name or "revolver" in lower_name:
 		return "pistol"
 	if "uzi" in lower_name:
 		return "uzi"

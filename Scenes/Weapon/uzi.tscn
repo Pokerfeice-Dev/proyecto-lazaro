@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://btkevi6xbadgv"]
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://bypy62hnxs8bg" path="res://Art/Weapons/Distance/Uzi/Weapon_Uzi.png" id="2_mni3a"]
+[ext_resource type="Texture2D" uid="uid://bxpefmtn31a86" path="res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png" id="2_7vofb"]
 [ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_7vofb"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_q1g7k"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_mni3a")
+"texture": ExtResource("2_7vofb")
 }],
 "loop": 1,
 "name": &"idle",
@@ -16,7 +16,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_mni3a")
+"texture": ExtResource("2_7vofb")
 }],
 "loop": 0,
 "name": &"shoot",
@@ -34,19 +34,21 @@ attack_speed = 2.0
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013830]
 texture_filter = 1
+position = Vector2(73.99999, -16.4)
 scale = Vector2(1.4, 1.4)
 sprite_frames = SubResource("SpriteFrames_q1g7k")
-animation = &"idle"
+animation = &"shoot"
 
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722064]
+position = Vector2(6, -2.4000015)
 stream = ExtResource("3_7vofb")
 pitch_scale = 1.4
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1778873977]
-position = Vector2(16, -2)
+position = Vector2(22, -4.4000015)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=454493303]
-position = Vector2(-16, -2)
+position = Vector2(-10, -4.4000015)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1276239138]
-position = Vector2(-6, 3)
+position = Vector2(0, 0.5999985)

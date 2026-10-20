@@ -13,6 +13,8 @@ class_name Torch
 var _flicker_timer: float = 0.0
 var _base_energy: float = 0.0
 var _target_energy: float = 0.0
+var _flicker_tween: Tween
+var _flicker_timer_node: Timer
 
 func _ready() -> void:
 	if light_node:
@@ -20,13 +22,31 @@ func _ready() -> void:
 		_target_energy = _base_energy
 		_flicker_timer = randf_range(min_flicker_interval, max_flicker_interval)
 	_start_torch()
+	_schedule_next_flicker()
 
 func _start_torch() -> void:
 	if not anim_sprite: return
 	anim_sprite.play("default")
 
-func _process(delta: float) -> void:
-	_update_torch_flicker(delta)
+func _schedule_next_flicker() -> void:
+	if not _flicker_timer_node:
+		_flicker_timer_node = Timer.new()
+		_flicker_timer_node.name = "FlickerTimer"
+		_flicker_timer_node.one_shot = true
+		_flicker_timer_node.timeout.connect(_on_flicker_timeout)
+		add_child(_flicker_timer_node)
+	_flicker_timer_node.start(_flicker_timer)
+
+func _on_flicker_timeout() -> void:
+	if not is_instance_valid(light_node):
+		return
+	_target_energy = _base_energy + randf_range(-flicker_range, flicker_range)
+	if _flicker_tween and _flicker_tween.is_valid():
+		_flicker_tween.kill()
+	_flicker_tween = create_tween()
+	_flicker_tween.tween_property(light_node, "energy", _target_energy, min_flicker_interval * 0.8)
+	_flicker_timer = randf_range(min_flicker_interval, max_flicker_interval)
+	_schedule_next_flicker()
 
 func _update_torch_flicker(delta: float) -> void:
 	if not light_node: return

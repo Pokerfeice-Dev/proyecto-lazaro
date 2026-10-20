@@ -372,7 +372,7 @@ func _create_scrap_reward_label() -> Label:
 
 func _create_scrap_reward_icon() -> TextureRect:
 	var icon = TextureRect.new()
-	icon.texture = preload("res://Art/Scrap/Scrap_icon.png")
+	icon.texture = preload("res://Art/Scrap/scrap_icon.png")
 	icon.custom_minimum_size = Vector2(24, 24)
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
