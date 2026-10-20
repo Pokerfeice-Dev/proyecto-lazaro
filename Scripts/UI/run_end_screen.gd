@@ -56,6 +56,7 @@ static func show_demo_completed(tree: SceneTree) -> RunEndScreen:
 	return s
 
 static func show_death(tree: SceneTree) -> RunEndScreen:
+	RunLog.finish("muerte")
 	var s = RunEndScreen.new()
 	s.title_text = "HAS MUERTO"
 	s.subtitle_text = "VUÉLVETE MÁS FUERTE E INTÉNTALO DE NUEVO"
@@ -65,6 +66,7 @@ static func show_death(tree: SceneTree) -> RunEndScreen:
 ## title / subtitle vacíos = textos de siempre. "callback" se llama justo antes
 ## de cambiar de escena (por ejemplo para descongelar al jugador).
 static func show_victory(tree: SceneTree, scene: String, title: String = "", subtitle: String = "", callback: Callable = Callable()) -> RunEndScreen:
+	RunLog.finish("victoria")
 	var s = RunEndScreen.new()
 	s.victory = true
 	s.next_scene = scene
@@ -296,13 +298,19 @@ func _on_demo_continue() -> void:
 	_leaving = true
 	get_tree().paused = false
 	queue_free()
+	# en el evento: QR de opinión y video de lo que falta ver
+	if EventOutro.should_show():
+		EventOutro.play(Callable())
 
 func _on_demo_menu() -> void:
 	if _leaving: return
 	_leaving = true
 	get_tree().paused = false
-	SceneTransition.change_scene("res://Scenes/UI/MainMenu.tscn")
 	queue_free()
+	if EventOutro.should_show():
+		EventOutro.play(SceneTransition.change_scene.bind("res://Scenes/UI/MainMenu.tscn"))
+	else:
+		SceneTransition.change_scene("res://Scenes/UI/MainMenu.tscn")
 
 func _on_return() -> void:
 	if _leaving: return
@@ -319,7 +327,12 @@ func _leave() -> void:
 			on_return.call()
 	else:
 		GameData.clear_items()
+	var outro = EventOutro.should_show()
 	if GameData.is_event_demo():
 		GameData.end_event_demo()
-	SceneTransition.change_scene(next_scene)
 	queue_free()
+	# en el evento, antes de volver: QR de opinión y video de lo que falta ver
+	if outro:
+		EventOutro.play(SceneTransition.change_scene.bind(next_scene))
+	else:
+		SceneTransition.change_scene(next_scene)

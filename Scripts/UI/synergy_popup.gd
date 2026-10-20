@@ -152,10 +152,21 @@ func _burst(assembly: Node) -> void:
 	if sound:
 		sound.play()
 
+# El juego queda en pausa mientras se ve el cartel, aunque lo de atrás se cierre
+# (por ejemplo, el tutorial cierra el inventario al armar la sinergia y eso
+# despausaba el juego con el cartel todavía abierto).
+func _process(_delta: float) -> void:
+	if not _closing and not _pause_restored:
+		get_tree().paused = true
+
+# Al cerrar, el juego sigue en pausa solo si queda otra ventana abierta
+# (inventario, pausa...). Antes volvía al estado de cuando se abrió el cartel,
+# y si esa ventana ya se había cerrado el juego quedaba trabado en pausa.
 func _restore_pause() -> void:
 	if _pause_restored: return
 	_pause_restored = true
-	get_tree().paused = _was_paused
+	PadFocus.pop_modal(self)
+	get_tree().paused = _was_paused and PadFocus.has_modal()
 
 func _exit_tree() -> void:
 	_restore_pause()

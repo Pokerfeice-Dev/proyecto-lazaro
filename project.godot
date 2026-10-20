@@ -37,6 +37,10 @@ window/stretch/mode="canvas_items"
 
 enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
 
+[frankengun]
+
+modo_evento=true
+
 [global]
 
 mcp=false

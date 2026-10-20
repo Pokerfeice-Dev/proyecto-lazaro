@@ -376,6 +376,9 @@ func _on_more_options_pressed() -> void:
 
 func _on_menu_pressed() -> void:
 	close()
+	RunLog.finish("abandonada")
+	if GameData.is_event_demo():
+		GameData.end_event_demo()
 	SceneTransition.change_scene(MAIN_MENU_SCENE)
 
 func _on_save_pressed() -> void:

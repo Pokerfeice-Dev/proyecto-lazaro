@@ -5,6 +5,7 @@ var _presentation_queue: Array[Dictionary] = []
 var _presentation_active: bool = false
 
 func present_activation(synergy_id: String, first_discovery: bool = false) -> void:
+	RunLog.note_synergy(synergy_id)
 	_presentation_queue.append({"id": synergy_id, "first": first_discovery})
 	if not _presentation_active:
 		_presentation_active = true

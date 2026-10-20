@@ -1,3 +1,19 @@
+## 2026-10-20 (Build del evento: opinión, video de contenido, registro de runs y modo stand)
+
+- **Final de la run en el evento** (`Scripts/UI/event_outro.gd`): después del resumen de muerte o victoria aparecen dos ventanas, con el estilo de la UI y manejables con joystick (A sigue).
+  1. "¿Qué te pareció?": QR al formulario de opinión. Se aclara que es anónimo, para que la gente responda sin tenernos al lado.
+  2. "Esto es solo el comienzo": un video en loop de 50 segundos (`Art/Ui/Event/reel_contenido.ogv`) y el QR a kidgunz.itch.io. El video muestra la Cripta, la sinergia Avalanche activándose, El Primogénito, El Núcleo con Holy Fire, Prometeo y O.M.N.I.A.
+  - El video se grabó con el propio juego (Movie Maker de Godot, con un jugador automático) y tiene carteles con el nombre de cada parte.
+  - Solo aparece en el build "Buenos Aires Game Dev" (o mientras corre una run del evento).
+  - También aparece al vencer al primer jefe, después de la pantalla "Demo completada" (con "Seguir" o "Volver al menú"), y esa run se registra como victoria.
+- **Registro de runs** (`Scripts/System/run_log.gd`): cada run deja una fila en `registro_runs.csv`. El archivo se abre directo en Excel, con acentos.
+  - Datos: fecha, hora, duración, resultado (muerte, victoria, abandonada, inactividad o cerrado), zona, sala, causa de muerte, enemigos, chatarra, armas elegidas, sinergias activadas, piezas equipadas al final y si jugó con joystick o teclado.
+  - Se guarda en `%APPDATA%/Godot/app_userdata/Franken-Gun/` y, en el ejecutable, también al lado del .exe.
+- **Modo stand** (`Scripts/System/event_kiosk.gd`, solo en el build del evento): si nadie toca nada durante 75 segundos (150 en las pantallas de los QR), aparece arriba un aviso con cuenta regresiva de 5. El aviso no frena el juego y cualquier botón lo cancela. Al terminar la cuenta, vuelve al menú principal y cierra lo que haya abierto.
+- **Modo evento en el editor:** nuevo interruptor `frankengun/modo_evento` en Proyecto > Configuración del proyecto (con Configuración avanzada). Prendido (como queda ahora), el editor y cualquier exportación se comportan como el build del evento: run de 6 salas + jefe, QR y video al final, registro de runs y vuelta al menú por inactividad. Se apaga después del evento (ver `docs/event-demo.md`).
+- **Cartel de sinergia del tutorial:** al armar Mente Colmena el tutorial cierra el inventario, y eso despausaba el juego con el cartel abierto. Se podía seguir jugando por detrás y, al cerrar el cartel, el juego volvía a la pausa y quedaba trabado (pasaba en el laboratorio). Ahora el cartel mantiene la pausa mientras está abierto, y al cerrarse solo la deja si queda otra ventana abierta.
+- **Menú de pausa:** volver al menú principal en medio de una run del evento ahora cierra el modo evento (antes quedaba activo) y registra la run como abandonada.
+
 ## 2026-10-20 (Retoques antes del evento)
 
 - **Oil of the Sick** (antes "Alto Octanaje"):

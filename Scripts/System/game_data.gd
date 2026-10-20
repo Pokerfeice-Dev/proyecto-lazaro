@@ -85,6 +85,14 @@ var just_won_run: bool = false
 const EVENT_DEMO_ROOMS_BEFORE_BOSS := 6
 const EVENT_OMNIA_LEVEL := 3 # 50% de 5 redondeado a un nivel entero jugable.
 var event_demo_active := false
+## Interruptor para probar el modo evento sin exportar: Proyecto > Configuración
+## del proyecto > (Avanzado) frankengun/modo_evento. Después del evento se apaga.
+const EVENT_SETTING := "frankengun/modo_evento"
+
+## true en el build "Buenos Aires Game Dev" o con el interruptor prendido
+## (editor y cualquier exportación).
+func is_event_build() -> bool:
+	return OS.has_feature("event_demo") or bool(ProjectSettings.get_setting(EVENT_SETTING, false))
 var demo_completed_pending := false
 
 func finish_first_boss_demo() -> void:
@@ -92,6 +100,7 @@ func finish_first_boss_demo() -> void:
 		return
 	demo_completed_pending = true
 	just_won_run = false
+	RunLog.finish("victoria")
 	save_game()
 	if event_demo_active:
 		end_event_demo()
@@ -161,6 +170,8 @@ func _on_codex_toast_finished() -> void:
 
 func _ready() -> void:
 	InputMode.instance() # joystick: botones y detección desde el arranque
+	if is_event_build():
+		EventKiosk.install(self) # stand: vuelve al menú si nadie juega
 	_load_level1_rooms()
 	for slot in ItemData.ItemSlot.values():
 		equipment_slots[slot] = null
@@ -227,9 +238,10 @@ func _add_room_if_valid(file_name: String, path: String, prefix: String, result:
 	result.append(path + clean_name)
 
 func start_new_run() -> String:
+	RunLog.begin()
 	# El build de Buenos Aires Game Dev conserva el flujo normal de inicio;
 	# cambia sólo la configuración de la run al confirmarla.
-	if OS.has_feature("event_demo"):
+	if is_event_build():
 		return start_event_demo()
 	total_deployments += 1
 	current_level = 1

@@ -14,3 +14,7 @@ estado previo al terminar. Tras vencer al jefe muestra el agradecimiento del eve
 y vuelve al laboratorio.
 
 Para exportar desde Godot: **Proyecto → Exportar → Buenos Aires Game Dev → Exportar proyecto**.
+
+## Probar el modo evento en el editor
+
+En **Proyecto → Configuración del proyecto** (con *Configuración avanzada* activada) está `frankengun/modo_evento`. Prendido, el editor y cualquier exportación se comportan como el build del evento: run de 6 salas + jefe, sandbox, pantallas finales con los QR y el video, registro de runs y vuelta al menú por inactividad. Después del evento se apaga y todo vuelve a la normalidad (el preset del evento sigue usando la feature `event_demo`).
