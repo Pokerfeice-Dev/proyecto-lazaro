@@ -61,7 +61,7 @@ static func _row(result: String) -> Array:
 	var scene = Engine.get_main_loop().current_scene
 	return [
 		Time.get_date_string_from_system(), _start_time, seconds,
-		"%d:%02d" % [seconds / 60, seconds % 60],
+		"%d:%02d" % [floori(seconds / 60.0), seconds % 60],
 		"evento" if GameData.is_event_demo() or GameData.is_event_build() else "normal",
 		result,
 		GameData.get_zone_name(GameData.current_level), _room_label(),

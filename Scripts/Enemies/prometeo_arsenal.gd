@@ -23,15 +23,15 @@ const TINT_FIRE := Color(1.4, 0.6, 0.15)
 
 ## Armas del jugador que Prometeo sabe usar. "phase" = desde qué fase la saca.
 const WEAPONS := {
-	"pistola": {"melee": false, "range": 220.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Pistol/weapon_revolver_sprite.png"},
-	"escopeta": {"melee": false, "range": 120.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Shotgun/weapon_shotgun_sprite.png"},
-	"uzi": {"melee": false, "range": 190.0, "phase": 1, "texture": "res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png"},
-	"hacha": {"melee": true, "range": 70.0, "phase": 1, "texture": "res://Art/Weapons/Melee/Axe/weapon_axe_sprite.png"},
-	"daga": {"melee": true, "range": 90.0, "phase": 1, "texture": "res://Art/Weapons/Melee/Dagger/weapon_dagger_sprite.png"},
-	"minigun": {"melee": false, "range": 230.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png"},
-	"lanzallamas": {"melee": false, "range": 95.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Shotgun/weapon_shotgun_sprite.png"},
-	"colmena": {"melee": false, "range": 210.0, "phase": 2, "texture": "res://Art/Weapons/Distance/Pistol/HiveMindPistol/synergy_hivemind_sprite.png"},
-	"maza": {"melee": true, "range": 110.0, "phase": 2, "texture": "res://Art/Weapons/Melee/Mace/weapon_mace_sprite.png"},
+	"pistola": {"melee": false, "range": 220.0, "phase": 1, "scene": "res://Scenes/Weapon/Revolver.tscn"},
+	"escopeta": {"melee": false, "range": 120.0, "phase": 1, "scene": "res://Scenes/Weapon/shotgun.tscn"},
+	"uzi": {"melee": false, "range": 190.0, "phase": 1, "scene": "res://Scenes/Weapon/uzi.tscn"},
+	"hacha": {"melee": true, "range": 70.0, "phase": 1, "scene": "res://Scenes/Weapon/axe.tscn"},
+	"daga": {"melee": true, "range": 90.0, "phase": 1, "scene": "res://Scenes/Weapon/dagger.tscn"},
+	"minigun": {"melee": false, "range": 230.0, "phase": 2, "scene": "res://Scenes/Weapon/Minigun.tscn"},
+	"lanzallamas": {"melee": false, "range": 95.0, "phase": 2, "scene": "res://Scenes/Weapon/Cerberus.tscn"},
+	"colmena": {"melee": false, "range": 210.0, "phase": 2, "scene": "res://Scenes/Weapon/HivemindPistol.tscn"},
+	"maza": {"melee": true, "range": 110.0, "phase": 2, "scene": "res://Scenes/Weapon/mace.tscn"},
 }
 
 ## El clon solo dispara: el original es el que presiona cuerpo a cuerpo.
@@ -47,13 +47,16 @@ var fire_rate_mult: float = 1.0
 var aim_angle: float = 0.0
 var aim_locked: bool = false
 
-var _weapon_sprite: Sprite2D
+var _weapon_sprite: Node2D
+var _weapon_pivot: Node2D
+var _muzzle_offset := Vector2(MUZZLE_DISTANCE - WEAPON_ORBIT, 0)
+var _equip_tween: Tween
 var _flame_cone: PrometeoFlameCone
-var _textures: Dictionary = {}
 
 func _ready() -> void:
-	_weapon_sprite = _build_weapon_sprite()
-	add_child(_weapon_sprite)
+	_weapon_pivot = Node2D.new()
+	_weapon_pivot.name = "WeaponPivot"
+	add_child(_weapon_pivot)
 	_flame_cone = PrometeoFlameCone.new()
 	add_child(_flame_cone)
 
@@ -82,7 +85,7 @@ func preferred_range(id: String) -> float:
 func equip(id: String, flourish: bool = true) -> void:
 	if not WEAPONS.has(id): return
 	current_id = id
-	_weapon_sprite.texture = _get_texture(id)
+	_set_weapon_visual(id)
 	weapon_changed.emit(id)
 	if flourish:
 		_play_equip_flourish()
@@ -97,15 +100,15 @@ func _process(_delta: float) -> void:
 
 func _update_weapon_transform() -> void:
 	var dir = Vector2.from_angle(aim_angle)
-	_weapon_sprite.position = dir * WEAPON_ORBIT
-	_weapon_sprite.rotation = aim_angle
-	_weapon_sprite.flip_v = dir.x < 0.0
-	_weapon_sprite.z_index = -1 if dir.y < -0.3 else 1
-	_flame_cone.position = dir * MUZZLE_DISTANCE
+	_weapon_pivot.position = dir * WEAPON_ORBIT
+	_weapon_pivot.rotation = aim_angle
+	_weapon_pivot.scale = Vector2(1, -1 if dir.x < 0.0 else 1)
+	_weapon_pivot.z_index = -1 if dir.y < -0.3 else 1
+	_flame_cone.position = to_local(_muzzle())
 	_flame_cone.rotation = aim_angle
 
 func hide_weapon() -> void:
-	_weapon_sprite.hide()
+	_weapon_pivot.hide()
 
 ## Corta cualquier ataque en curso (cambio de fase, muerte).
 func stop_all() -> void:
@@ -140,7 +143,7 @@ func perform_follow_up() -> void:
 	if _cancelled(): return
 	aim_locked = true
 	var previous = current_id
-	_weapon_sprite.texture = _get_texture("escopeta")
+	_set_weapon_visual("escopeta")
 	_aim_at_target(0.0)
 	PrometeoTelegraph.arc(_scene_root(), _muzzle(), aim_angle, 120.0, deg_to_rad(22.0), 0.22, PrometeoTelegraph.COLOR_RANGED)
 	await _wait(0.22)
@@ -148,7 +151,7 @@ func perform_follow_up() -> void:
 		_fire_fan(5, deg_to_rad(40.0), 300.0, 340.0, TINT_PELLET)
 		boss.play_sfx("shotgun")
 	await _wait(0.2)
-	_weapon_sprite.texture = _get_texture(previous)
+	_set_weapon_visual(previous)
 	aim_locked = false
 
 # Pistola: tiros precisos que apuntan a donde va a estar el jugador.
@@ -367,7 +370,10 @@ func _fire_fan(count: int, spread: float, speed_min: float, speed_max: float, ti
 		_fire_bullet(angle, randf_range(speed_min, speed_max), tint, 1.2)
 
 func _muzzle() -> Vector2:
-	return global_position + Vector2.from_angle(aim_angle) * MUZZLE_DISTANCE
+	var offset = _muzzle_offset
+	if Vector2.from_angle(aim_angle).x < 0.0:
+		offset.y = -offset.y
+	return to_global((Vector2(WEAPON_ORBIT, 0) + offset).rotated(aim_angle))
 
 func _scaled(value: float) -> int:
 	return maxi(1, int(value * damage_mult))
@@ -406,23 +412,57 @@ func _spawn_shockwave(pos: Vector2, radius: float) -> void:
 	wave.global_position = pos
 
 func _play_equip_flourish() -> void:
-	_weapon_sprite.scale = Vector2(2.6, 2.6)
+	var base_scale = _weapon_sprite.scale
+	_weapon_sprite.scale = base_scale * 1.15
 	_weapon_sprite.modulate = Color(2.5, 0.6, 0.8)
-	var t = create_tween().set_parallel(true)
-	t.tween_property(_weapon_sprite, "scale", Vector2(1.9, 1.9), 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.tween_property(_weapon_sprite, "modulate", Color(0.55, 0.22, 0.3), 0.35)
+	_equip_tween = _weapon_sprite.create_tween().set_parallel(true)
+	_equip_tween.tween_property(_weapon_sprite, "scale", base_scale, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_equip_tween.tween_property(_weapon_sprite, "modulate", Color.WHITE, 0.35)
 
-func _build_weapon_sprite() -> Sprite2D:
-	var s = Sprite2D.new()
-	s.name = "WeaponSprite"
-	s.scale = Vector2(1.9, 1.9)
-	s.modulate = Color(0.55, 0.22, 0.3)
-	return s
+## Copia sólo el arte de la escena del jugador, sin activar ataques ni colisiones.
+## Weapon_mark es el mismo punto de agarre que alinean sus contenedores de armas.
+func _set_weapon_visual(id: String) -> void:
+	var weapon = (load(WEAPONS[id].scene) as PackedScene).instantiate() as Node2D
+	var source: Node2D
+	for node_name in ["Weapon_Sprites", "Melee_sprite", "Sprite2D"]:
+		source = weapon.get_node_or_null(node_name) as Node2D
+		if source: break
+	if not source:
+		weapon.free()
+		return
+	if _equip_tween and _equip_tween.is_valid():
+		_equip_tween.kill()
+	if is_instance_valid(_weapon_sprite):
+		_weapon_sprite.free()
+	var grip = weapon.find_child("Weapon_mark", true, false) as Node2D
+	var grip_position = _scene_transform(grip, weapon).origin if grip else Vector2.ZERO
+	var sprite_transform = _scene_transform(source, weapon)
+	sprite_transform.origin -= grip_position
+	_weapon_sprite = source.duplicate(0) as Node2D
+	_weapon_sprite.set_script(null)
+	for child in _weapon_sprite.get_children():
+		child.free()
+	_weapon_sprite.name = "WeaponSprite"
+	_weapon_sprite.transform = sprite_transform
+	_weapon_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_weapon_sprite.show()
+	_weapon_pivot.add_child(_weapon_sprite)
+	if _weapon_sprite is AnimatedSprite2D:
+		_weapon_sprite.stop()
+		if _weapon_sprite.sprite_frames.has_animation("idle"):
+			_weapon_sprite.play("idle")
+	var muzzle = weapon.get_node_or_null("Bullet_mark_right") as Node2D
+	_muzzle_offset = _scene_transform(muzzle, weapon).origin - grip_position if muzzle else Vector2(MUZZLE_DISTANCE - WEAPON_ORBIT, 0)
+	weapon.free()
+	_update_weapon_transform()
 
-func _get_texture(id: String) -> Texture2D:
-	if not _textures.has(id):
-		_textures[id] = load(WEAPONS[id].texture)
-	return _textures[id]
+func _scene_transform(node: Node2D, root: Node2D) -> Transform2D:
+	var result = node.transform
+	var parent = node.get_parent()
+	while parent != root and parent is Node2D:
+		result = parent.transform * result
+		parent = parent.get_parent()
+	return result
 
 # --- Utilidades ---
 

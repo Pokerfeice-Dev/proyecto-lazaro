@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Tests/hud_weapon_icon_smoke.gd" id="1"]
+
+[node name="HudWeaponIconTest" type="Node"]
+script = ExtResource("1")

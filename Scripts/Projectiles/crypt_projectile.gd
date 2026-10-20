@@ -27,6 +27,8 @@ func _hit(body: Node) -> void:
 	_spent = true
 	if body.is_in_group("player"):
 		if body.has_method("_is_arrogancia_reflect_active") and body._is_arrogancia_reflect_active():
+			if body.has_method("on_arrogancia_reflect"):
+				body.on_arrogancia_reflect(global_position)
 			var reflected = load("res://Scenes/Projectiles/Projectile.tscn").instantiate()
 			get_parent().add_child(reflected)
 			reflected.global_position = global_position

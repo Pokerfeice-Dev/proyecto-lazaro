@@ -164,7 +164,8 @@ static func trimmed(tex: Texture2D) -> Texture2D:
 	if not img: return tex
 	var frames = PixelIcon.sheet_frames(img.get_size())
 	if frames > 1:
-		img = img.get_region(Rect2i(0, 0, img.get_width() / frames, img.get_height()))
+		var frame_width = floori(float(img.get_width()) / frames)
+		img = img.get_region(Rect2i(0, 0, frame_width, img.get_height()))
 	var used = img.get_used_rect()
 	if used.size == Vector2i.ZERO or (frames <= 1 and used.size == img.get_size()): return tex
 	var atlas = AtlasTexture.new()

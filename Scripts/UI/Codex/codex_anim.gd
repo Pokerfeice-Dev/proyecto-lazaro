@@ -39,15 +39,15 @@ var _time: float = 0.0
 var _floating: bool = false
 var _locked: bool = false
 
-## "scale" es la escala entera de los píxeles (ver PixelIcon): en las grillas
+## "pixel_scale" es la escala entera de los píxeles (ver PixelIcon): en las grillas
 ## todos usan la misma para que se vean parejos; en la vitrina, PixelIcon.FIT.
-static func create(category: String, id: String, art_size: float, unlocked: bool, scale: int = PixelIcon.SLOT) -> CodexAnim:
+static func create(category: String, id: String, art_size: float, unlocked: bool, pixel_scale: int = PixelIcon.SLOT) -> CodexAnim:
 	var anim = CodexAnim.new()
 	anim.custom_minimum_size = Vector2(art_size, art_size)
-	anim._setup(category, id, unlocked, scale)
+	anim._setup(category, id, unlocked, pixel_scale)
 	return anim
 
-func _setup(category: String, id: String, unlocked: bool, scale: int = PixelIcon.FIT, box: Vector2 = Vector2.ZERO) -> void:
+func _setup(category: String, id: String, unlocked: bool, pixel_scale: int = PixelIcon.FIT, box: Vector2 = Vector2.ZERO) -> void:
 	expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -56,12 +56,12 @@ func _setup(category: String, id: String, unlocked: bool, scale: int = PixelIcon
 	if box == Vector2.ZERO:
 		box = custom_minimum_size if custom_minimum_size != Vector2.ZERO else size
 	var data = _load_frames(category + "/" + id)
-	_frames = _pixel_frames(data.get("frames", []), scale, box)
+	_frames = _pixel_frames(data.get("frames", []), pixel_scale, box)
 	_fps = data.get("fps", 6.0)
 	_floating = false
 	if _frames.is_empty():
 		var icon = CodexData.DATA.get(category, {}).get(id, {}).get("icon", null)
-		_frames = [PixelIcon.scaled(icon, scale, box)] if icon else []
+		_frames = [PixelIcon.scaled(icon, pixel_scale, box)] if icon else []
 		_floating = true
 	texture = _frames[0] if not _frames.is_empty() else null
 	if _locked:
@@ -84,7 +84,7 @@ func _process(delta: float) -> void:
 
 # Todos los cuadros recortados al mismo rectángulo (así la animación no salta),
 # llevados a su tamaño real y agrandados por la misma escala entera.
-static func _pixel_frames(frames: Array, scale: int, box: Vector2) -> Array:
+static func _pixel_frames(frames: Array, pixel_scale: int, box: Vector2) -> Array:
 	if frames.is_empty(): return []
 	var images: Array[Image] = []
 	var used := Rect2i()
@@ -98,7 +98,7 @@ static func _pixel_frames(frames: Array, scale: int, box: Vector2) -> Array:
 	if used.size == Vector2i.ZERO: return frames
 	var k = PixelIcon.block_size(images[0].get_region(used))
 	var native = Vector2(used.size) / float(k)
-	var s = PixelIcon._fit_scale(native, scale, box)
+	var s = PixelIcon._fit_scale(native, pixel_scale, box)
 	var target = Vector2i((native * s).round())
 	var out = []
 	for img in images:

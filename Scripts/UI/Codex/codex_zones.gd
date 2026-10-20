@@ -76,11 +76,11 @@ func _banner_art(id: String, unlocked: bool, box: Vector2i) -> TextureRect:
 	art.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	var tex: Texture2D = CodexKit.entry(CATEGORY, id).get("icon", null)
 	if tex:
-		var size = Vector2i(tex.get_size())
-		var crop = Vector2i(mini(size.x, box.x), mini(size.y, box.y))
+		var texture_size = Vector2i(tex.get_size())
+		var crop = Vector2i(mini(texture_size.x, box.x), mini(texture_size.y, box.y))
 		var atlas = AtlasTexture.new()
 		atlas.atlas = tex
-		atlas.region = Rect2(Vector2((size - crop) / 2), Vector2(crop))
+		atlas.region = Rect2((Vector2(texture_size - crop) / 2.0).floor(), Vector2(crop))
 		art.texture = atlas
 	if not unlocked:
 		art.material = CodexKit.silhouette(id)

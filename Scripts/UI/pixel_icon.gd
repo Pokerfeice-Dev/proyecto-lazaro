@@ -85,7 +85,7 @@ static func first_frame_image(tex: Texture2D) -> Image:
 	img.convert(Image.FORMAT_RGBA8)
 	var frames = sheet_frames(img.get_size())
 	if frames > 1:
-		var w = img.get_width() / frames
+		var w = floori(float(img.get_width()) / frames)
 		img = img.get_region(Rect2i(0, 0, w, img.get_height()))
 	var used = img.get_used_rect()
 	if used.size != Vector2i.ZERO and used.size != img.get_size():
@@ -99,7 +99,8 @@ static func to_native(img: Image) -> Image:
 	var k = block_size(img)
 	if k <= 1: return img
 	var out = img.duplicate()
-	out.resize(img.get_width() / k, img.get_height() / k, Image.INTERPOLATE_NEAREST)
+	# block_size garantiza dimensiones divisibles por k; el tamaño final es entero.
+	out.resize(floori(float(img.get_width()) / k), floori(float(img.get_height()) / k), Image.INTERPOLATE_NEAREST)
 	return out
 
 ## Tamaño de los "bloques" del dibujo: el MCD de todas las tiras de píxeles
@@ -147,7 +148,8 @@ static func _gcd(a: int, b: int) -> int:
 ## (por ejemplo 640x128 = 5). Las imágenes normales devuelven 1.
 static func sheet_frames(size: Vector2i) -> int:
 	if size.y < 64 or size.x <= size.y or size.x % size.y != 0: return 1
-	return size.x / size.y
+	# La condición anterior garantiza una cantidad exacta de cuadros.
+	return floori(float(size.x) / size.y)
 
 # Escala entera pedida; si no entra, la mayor entera que entra; si ni en 1x
 # entra, se achica lo justo.

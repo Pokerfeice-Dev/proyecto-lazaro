@@ -44,7 +44,7 @@ animations = [{
 }],
 "loop": 0,
 "name": &"attack",
-"speed": 4.0
+"speed": 8.0
 }]
 
 [node name="ArroganceMace" type="Node2D" unique_id=845729059 node_paths=PackedStringArray("melee_sprite", "slash_attack", "attack_fx")]
@@ -82,10 +82,10 @@ stream = ExtResource("3_sound")
 pitch_scale = 0.4
 
 [node name="attack_fx" type="AnimatedSprite2D" parent="." unique_id=1694405847]
-position = Vector2(99.00001, -31)
+position = Vector2(27.999985, -18.999996)
 scale = Vector2(1.7, 1.7)
 sprite_frames = SubResource("SpriteFrames_clk6n")
 animation = &"attack"
-frame = 4
-frame_progress = 1.0
+frame = 2
+frame_progress = 0.30108604
 flip_v = true

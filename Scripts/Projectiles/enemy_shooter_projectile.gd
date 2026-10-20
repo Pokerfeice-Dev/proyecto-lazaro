@@ -28,6 +28,8 @@ func _physics_process(delta):
 func _on_body_entered(body: Node2D):
 	if body.is_in_group(target_group):
 		if body.is_in_group("player") and body.has_method("_is_arrogancia_reflect_active") and body._is_arrogancia_reflect_active():
+			if body.has_method("on_arrogancia_reflect"):
+				body.on_arrogancia_reflect(global_position)
 			_reflect_back()
 			return
 		if body.has_method("take_damage"):

@@ -103,6 +103,7 @@ var dash_start_pos: Vector2 = Vector2.ZERO
 var _default_modulate: Color = Color.WHITE
 var _flash_tween: Tween = null
 var drop_shadow: DropShadow = null
+var _arrogancia_shield: Node2D
 
 func _ready() -> void:
 	_init_timers()
@@ -117,6 +118,8 @@ func _ready() -> void:
 	z_index = 5
 	_setup_player_shadow()
 	_setup_cinematic_vignette()
+	_arrogancia_shield = preload("res://Scripts/Effects/arrogancia_shield.gd").new()
+	add_child(_arrogancia_shield)
 	
 	if anim_sprite:
 		_default_modulate = anim_sprite.modulate
@@ -399,6 +402,8 @@ func _apply_game_data_upgrades() -> void:
 var is_cutscene_frozen: bool = false
 
 func freeze_player() -> void:
+	if is_instance_valid(_arrogancia_shield):
+		_arrogancia_shield.set_active(false)
 	is_cutscene_frozen = true
 	velocity = Vector2.ZERO
 	can_shoot = false
@@ -425,6 +430,7 @@ func _physics_process(delta: float) -> void:
 	update_glock()
 	_update_camera_drift(delta)
 	_process_actions()
+	_arrogancia_shield.set_active(_is_arrogancia_reflect_active())
 	move_and_slide()
 	update_animation()
 
@@ -2052,6 +2058,10 @@ func _is_arrogancia_reflect_active() -> bool:
 	var active_weapon_id = get_active_melee_weapon_id()
 	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
 	return active_syns.has("arrogancia")
+
+func on_arrogancia_reflect(projectile_position: Vector2) -> void:
+	if is_instance_valid(_arrogancia_shield):
+		_arrogancia_shield.reflect_at(projectile_position)
 
 ## Sinergia Speed Demon: la daga pega rapidísimo (ver stat_modifiers en
 ## SynergyManager) y cada golpe empuja al jugador hacia donde apunta.

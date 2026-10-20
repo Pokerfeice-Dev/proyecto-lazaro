@@ -86,13 +86,13 @@ func _gather_shadows(duration: float) -> void:
 	boss.add_child(p)
 	p.emitting = true
 	boss.play_sfx("teleport")
-	var t = create_tween()
+	var t = p.create_tween()
 	t.tween_interval(duration)
 	t.tween_callback(_stop_particles.bind(p))
 	t.tween_interval(p.lifetime)
 	t.tween_callback(p.queue_free)
 
-func _stop_particles(particles: GPUParticles2D) -> void:
+func _stop_particles(particles: CPUParticles2D) -> void:
 	if is_instance_valid(particles):
 		particles.emitting = false
 

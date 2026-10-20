@@ -218,8 +218,11 @@ func _update_weapons_hud(p: Node2D) -> void:
 # Las dos armas del HUD a la misma escala entera (x2), un solo cuadro.
 # Solo se rearma cuando cambia el arma (esto corre en cada cuadro).
 func _show_weapon_icon(rect: TextureRect, tex: Texture2D) -> void:
-	if rect.get_meta("source", null) == tex: return
-	rect.set_meta("source", tex)
+	if rect.has_meta("source") and rect.get_meta("source") == tex: return
+	if tex:
+		rect.set_meta("source", tex)
+	elif rect.has_meta("source"):
+		rect.remove_meta("source")
 	PixelIcon.apply(rect, tex, PixelIcon.WEAPON, Vector2(70, 70))
 
 # El HUD usa los íconos recortados del Códice. Las texturas de los sprites de
