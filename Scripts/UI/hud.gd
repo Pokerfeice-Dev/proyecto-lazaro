@@ -208,14 +208,19 @@ func _update_weapons_hud(p: Node2D) -> void:
 	if "active_weapon" in p and p.active_weapon:
 		var tex = _get_display_weapon_texture(p, p.active_weapon, true)
 		if primary_weapon_rect:
-			if primary_weapon_rect.texture != tex:
-				primary_weapon_rect.texture = tex
+			_show_weapon_icon(primary_weapon_rect, tex)
 			
 	if "second_weapon" in p and p.second_weapon:
 		var tex = _get_display_weapon_texture(p, p.second_weapon, false)
 		if secondary_weapon_rect:
-			if secondary_weapon_rect.texture != tex:
-				secondary_weapon_rect.texture = tex
+			_show_weapon_icon(secondary_weapon_rect, tex)
+
+# Las dos armas del HUD a la misma escala entera (x2), un solo cuadro.
+# Solo se rearma cuando cambia el arma (esto corre en cada cuadro).
+func _show_weapon_icon(rect: TextureRect, tex: Texture2D) -> void:
+	if rect.get_meta("source", null) == tex: return
+	rect.set_meta("source", tex)
+	PixelIcon.apply(rect, tex, PixelIcon.WEAPON, Vector2(70, 70))
 
 # El HUD usa los íconos recortados del Códice. Las texturas de los sprites de
 # mundo incluyen mucho margen transparente y dentro de un círculo se ven mínimas.

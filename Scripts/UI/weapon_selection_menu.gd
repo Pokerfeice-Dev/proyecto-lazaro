@@ -184,8 +184,7 @@ func _weapon_card(slot: String, w: Dictionary, group: ButtonGroup) -> Control:
 func _weapon_art(id: String, unlocked: bool) -> Control:
 	var frame = _ignore(UIStyle.panel(UIStyle.TEX_SLOT["normal" if unlocked else "disabled"]))
 	frame.custom_minimum_size = Vector2(76, 76)
-	var art = _ignore(UIStyle.icon(UIStyle.trimmed(_codex_icon(id)), 60))
-	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var art = _ignore(PixelIcon.make(_codex_icon(id), 62.0, 2))
 	frame.add_child(art)
 	if not unlocked:
 		var mat = ShaderMaterial.new()
@@ -224,7 +223,7 @@ func _synergy_row(weapon_id: String, weapon_unlocked: bool) -> Control:
 		chip.custom_minimum_size = Vector2(28, 28)
 		chip.mouse_filter = Control.MOUSE_FILTER_PASS
 		chip.tooltip_text = SynergyManager.SYNERGIES[syn_id].get("name", "") if known else "Sinergia sin descubrir"
-		var ic = _ignore(UIStyle.icon(UIStyle.trimmed(OmniaCatalog.synergy_icon(syn_id)) if known else preload("res://Art/Ui/svg/icon_lock.svg"), 22))
+		var ic = _ignore(PixelIcon.make(OmniaCatalog.synergy_icon(syn_id), 36.0, 1) if known else UIStyle.icon(preload("res://Art/Ui/svg/icon_lock.svg"), 22))
 		ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		ic.self_modulate = OmniaCatalog.synergy_tint(syn_id)
 		if not known:

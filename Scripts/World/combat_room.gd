@@ -258,6 +258,8 @@ func _spawn_single_enemy() -> void:
 	if not random_enemy_scene: return
 
 	var enemy = random_enemy_scene.instantiate()
+	if _is_summoner_scene(random_enemy_scene):
+		_spawned_summoners.append(enemy)
 	enemy.global_position = point.global_position
 	enemy.enemy_died.connect(_on_enemy_died)
 
@@ -278,7 +280,7 @@ func _pick_random_enemy_scene() -> PackedScene:
 	if enemy_pool.is_empty(): return null
 	var available_pool = _filter_available_enemy_pool()
 	if available_pool.is_empty():
-		return enemy_pool.pick_random()
+		return null # solo quedaban invocadores y ya hay 2: se espera al próximo turno
 	return available_pool.pick_random()
 
 func _filter_available_enemy_pool() -> Array[PackedScene]:
@@ -290,10 +292,15 @@ func _filter_available_enemy_pool() -> Array[PackedScene]:
 		result.append(scene)
 	return result
 
+# Invocadores de la sala que ya se crearon; incluye los que todavía no entraron
+# al árbol (se agregan con call_deferred) para no pasarse del máximo.
+var _spawned_summoners: Array[Node] = []
+
 func _count_active_summoners() -> int:
-	var count = 0
-	var enemies = get_tree().get_nodes_in_group("enemy")
-	for e in enemies:
+	_spawned_summoners = _spawned_summoners.filter(func(e): return is_instance_valid(e) and not e.is_dying)
+	var count = _spawned_summoners.size()
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if _spawned_summoners.has(e): continue
 		if (e is EnemySummoner or e.is_in_group("crypt_summoner")) and not e.is_dying:
 			count += 1
 	return count
@@ -372,7 +379,7 @@ func _create_scrap_reward_label() -> Label:
 
 func _create_scrap_reward_icon() -> TextureRect:
 	var icon = TextureRect.new()
-	icon.texture = preload("res://Art/Scrap/scrap_icon.png")
+	icon.texture = preload("res://Art/Scrap/Scrap_icon.png")
 	icon.custom_minimum_size = Vector2(24, 24)
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

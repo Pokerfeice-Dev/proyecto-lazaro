@@ -1351,7 +1351,7 @@ custom_minimum_size = Vector2(220, 40)
 layout_mode = 2
 theme_type_variation = &"InventoryTab"
 theme_override_font_sizes/font_size = 20
-text = "SÍNTESIS"
+text = "SINERGIAS"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/TopBar" unique_id=1278879474]
 layout_mode = 2
@@ -1730,7 +1730,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 theme_override_colors/font_color = Color(0.5529412, 0.6666667, 0.7058824, 1)
-text = "Seleccioná un objeto para ver sus detalles."
+text = "Selecciona un objeto para ver sus detalles."
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -2706,9 +2706,20 @@ theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.5529412, 0.6666667, 0.7058824, 1)
 horizontal_alignment = 1
 
-[node name="CodexBrowser" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer" instance=ExtResource("90_browser")]
+[node name="ScrollContainer" type="ScrollContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer" unique_id=1199080816]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/ScrollContainer" unique_id=421018071]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CodexGrid" type="GridContainer" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea/CodexView/MarginContainer/VBoxContainer/ScrollContainer/CenterContainer" unique_id=350131939]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 6
 
 [node name="ResearchBrowser" parent="WindowMargin/WindowPanel/WindowInnerMargin/WindowVBox/ContentArea" instance=ExtResource("90_browser")]
 unique_name_in_owner = true

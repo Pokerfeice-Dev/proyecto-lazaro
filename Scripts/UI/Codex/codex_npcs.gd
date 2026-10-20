@@ -48,7 +48,7 @@ func _portrait(id: String, unlocked: bool) -> Control:
 	m.add_theme_constant_override("margin_right", 16)
 	m.add_theme_constant_override("margin_top", 8)
 	m.add_theme_constant_override("margin_bottom", 34)
-	m.add_child(CodexAnim.create(CATEGORY, id, 190.0, unlocked))
+	m.add_child(CodexAnim.create(CATEGORY, id, 190.0, unlocked, PixelIcon.HERO))
 	s.add_child(m)
 	if not unlocked:
 		s.add_child(CodexKit.lock_overlay(40))

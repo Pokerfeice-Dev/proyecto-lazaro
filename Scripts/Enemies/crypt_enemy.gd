@@ -30,8 +30,10 @@ enum Phase { CHASE, ANTICIPATION, ATTACK, RECOVERY, STONE_WARNING, STONE }
 @export var laser_half_width := 10.0
 @export_category("Invocación")
 @export var summon_scene: PackedScene
-@export var max_summons := 3
+@export var max_summons := 2
 @export var summons_per_attack := 2
+## Segundos sin invocar después de que muere una de sus abejas.
+@export var summon_cooldown := 15.0
 @export_category("Campanero")
 @export var echo_scene: PackedScene = preload("res://Scenes/Effects/crypt_echo.tscn")
 @export var echo_count := 3
@@ -60,6 +62,7 @@ var _shots_remaining := 0
 var _attack_hit := false
 var _spray_tick := 0.0
 var _summons: Array[Node] = []
+var _summon_cooldown_left := 0.0
 var _echoes: Array[Node] = []
 var is_summoned := false
 var _move_dir := Vector2.ZERO
@@ -113,6 +116,7 @@ func process_movement(delta: float) -> void:
 	velocity = Vector2.ZERO
 	if is_dying or is_spawning or not is_instance_valid(target): return
 	_shield_cooldown = maxf(0.0, _shield_cooldown - delta)
+	_summon_cooldown_left = maxf(0.0, _summon_cooldown_left - delta)
 	if phase == Phase.ANTICIPATION and kind == Kind.LASER_EYE:
 		if $PhaseTimer.time_left > laser_lock_time:
 			locked_direction = global_position.direction_to(target.global_position)
@@ -130,7 +134,7 @@ func process_movement(delta: float) -> void:
 		return
 	var distance = global_position.distance_to(target.global_position)
 	if distance <= attack_range and _clear_path_to(target.global_position):
-		if kind != Kind.DEAD_BEEKEEPER or _live_summons() < max_summons:
+		if kind != Kind.DEAD_BEEKEEPER or _can_summon():
 			_begin_attack()
 		return
 	if kind == Kind.LASER_EYE:
@@ -356,6 +360,13 @@ func _configure_telegraph() -> void:
 func _summon_offset(index: int) -> Vector2:
 	return Vector2(44.0, 0).rotated(locked_direction.angle() + (PI * 0.5 if index % 2 == 0 else -PI * 0.5))
 
+# La apicultora solo invoca si le falta alguna abeja y ya pasó la espera.
+func _can_summon() -> bool:
+	return _summon_cooldown_left <= 0.0 and _live_summons() < max_summons
+
+func _on_bee_died(_bee) -> void:
+	_summon_cooldown_left = summon_cooldown
+
 func _live_summons() -> int:
 	_summons = _summons.filter(func(bee): return is_instance_valid(bee) and not bee.is_dying)
 	return _summons.size()
@@ -374,6 +385,7 @@ func _spawn_bee(index: int) -> void:
 	bee.flesh_drop_chance = 0.0
 	bee.item_drop_chance = 0.0
 	_summons.append(bee)
+	bee.enemy_died.connect(_on_bee_died)
 	bee.spawn_appear()
 
 func take_damage(amount: int, is_crit: bool = false) -> void:

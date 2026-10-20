@@ -71,11 +71,7 @@ func _build_ui() -> void:
 	_panel.add_child(hbox)
 
 	if data.get("icon"):
-		var icon_rect = TextureRect.new()
-		icon_rect.texture = data["icon"]
-		icon_rect.custom_minimum_size = Vector2(60, 60)
-		icon_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		var icon_rect = PixelIcon.icon(data["icon"], 60.0, 2)
 		hbox.add_child(icon_rect)
 
 	var vbox = VBoxContainer.new()

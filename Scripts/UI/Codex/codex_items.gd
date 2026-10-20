@@ -53,8 +53,8 @@ func _tile(id: String) -> Control:
 	m.set_anchors_preset(Control.PRESET_FULL_RECT)
 	m.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(m)
-	m.add_child(CodexKit.art(CATEGORY, id, 56.0, unlocked))
-	btn.mouse_entered.connect(_select.bind(id))
+	m.add_child(CodexKit.art(CATEGORY, id, 56.0, unlocked, PixelIcon.CARD))
+	CodexKit.pad_select(btn, _select.bind(id))
 	btn.pressed.connect(_select.bind(id))
 	_tiles[id] = btn
 	return btn
@@ -91,7 +91,7 @@ func _fill_card(id: String) -> void:
 	s.add_child(CodexKit.glow_backdrop(UIStyle.COLOR_TEAL if unlocked else CodexKit.LOCKED_TEXT))
 	var m = UIStyle.padded(16)
 	m.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	m.add_child(CodexKit.art(CATEGORY, id, 100.0, unlocked))
+	m.add_child(CodexKit.art(CATEGORY, id, 100.0, unlocked, PixelIcon.FIT))
 	s.add_child(m)
 	if not unlocked:
 		s.add_child(CodexKit.lock_overlay(34))

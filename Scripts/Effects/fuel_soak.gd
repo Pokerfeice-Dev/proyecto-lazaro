@@ -1,7 +1,7 @@
 extends Node2D
 class_name FuelSoak
 
-## Mancha de gasolina de la sinergia Alto Octanaje (hacha). Cada hachazo deja
+## Mancha de gasolina de la sinergia Oil of the Sick (hacha). Cada hachazo deja
 ## al enemigo empapado: gotea, tiene un charco debajo y brilla con el reflejo
 ## del combustible. Si una bala del jugador le pega mientras está manchado,
 ## explota (FuelExplosion), y la explosión hace estallar en cadena a los otros

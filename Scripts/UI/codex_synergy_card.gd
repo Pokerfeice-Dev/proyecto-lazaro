@@ -2,13 +2,15 @@ extends PanelContainer
 class_name CodexSynergyCard
 
 ## Ficha grande de una sinergia en la pestaña SINERGIAS del códice.
-## Descubierta (ya armada en una run): sprite, nombre, arma, receta y descripción.
-## Receta comprada en O.M.N.I.A. pero sin descubrir: todo menos el sprite, que
-## queda en silueta con una lupa.
-## Bloqueada: solo se ve para qué arma es. El sprite queda como silueta con un
-## candado que late, el nombre son caracteres cifrados que cambian solos, las
-## piezas de la receta están tapadas, la descripción está tachada en bloques y
-## un sello de rayas se desliza encima de toda la ficha.
+## Descubierta (ya armada en una run): sprite con un halo de luz que gira,
+## nombre, arma, receta y descripción.
+## Receta comprada en O.M.N.I.A. pero sin descubrir: el sprite queda en
+## silueta con una lupa, el nombre son caracteres cifrados que cambian solos y
+## se ve la pista de la investigación.
+## Bloqueada: silueta con un candado que late, nombre cifrado, piezas tapadas,
+## descripción tachada en bloques y un sello de rayas encima de toda la ficha.
+## Con mouse o joystick, al pararse encima el nombre cifrado intenta
+## "decodificarse" (se fijan algunas letras y vuelven a mezclarse).
 ## Uso: grid.add_child(CodexSynergyCard.create("snowman"))
 
 const LOCKED_SHADER := preload("res://Art/Ui/shaders/silueta_bloqueada.gdshader")
@@ -16,16 +18,19 @@ const SEAL_SHADER := preload("res://Art/Ui/shaders/sello_bloqueado.gdshader")
 const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
 const ICON_SEARCH := preload("res://Art/Ui/svg/icon_search.svg")
 const CARD_SIZE := Vector2(420, 236)
+const ART_BOX := 112.0
 const GLYPHS := "#%&@$*+=<>/?01"
-const GLYPH_INTERVAL := 0.12
+const GLYPH_INTERVAL := 0.09
 const LOCKED_TEXT := Color("#4E6B73")
 
 var syn_id: String = ""
 var _unlocked: bool = false # receta comprada
 var _discovered: bool = false # armada en una run
 var _name_label: Label
-var _name_length: int = 8
+var _name: String = ""
 var _glyph_timer: float = 0.0
+var _hovered: bool = false
+var _decode: float = 0.0 # 0 = todo cifrado, 1 = casi legible (nunca del todo)
 
 static func create(id: String) -> CodexSynergyCard:
 	var card = CodexSynergyCard.new()
@@ -36,7 +41,7 @@ func _ready() -> void:
 	var def: Dictionary = SynergyManager.SYNERGIES.get(syn_id, {})
 	_unlocked = GameData.is_synergy_unlocked(syn_id)
 	_discovered = _unlocked and GameData.is_synergy_discovered(syn_id)
-	_name_length = String(def.get("name", "????????")).length()
+	_name = String(def.get("name", "????????")).to_upper()
 	custom_minimum_size = CARD_SIZE
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	var style = "equipped" if _discovered else ("normal" if _unlocked else "disabled")
@@ -55,13 +60,18 @@ func _ready() -> void:
 		_add_seal()
 	mouse_entered.connect(_on_hover.bind(true))
 	mouse_exited.connect(_on_hover.bind(false))
+	focus_entered.connect(_on_hover.bind(true))
+	focus_exited.connect(_on_hover.bind(false))
+	PadFocusable.attach(self)
 
 func _process(delta: float) -> void:
 	if _discovered: return
+	# al pararse encima se va "decodificando"; al salir vuelve a cifrarse
+	_decode = move_toward(_decode, 0.4 if _hovered else 0.0, delta * (0.9 if _hovered else 2.0))
 	_glyph_timer -= delta
 	if _glyph_timer > 0.0: return
 	_glyph_timer = GLYPH_INTERVAL
-	_name_label.text = "Sinergia desconocida"
+	_name_label.text = _scrambled(_name, _decode)
 
 # --- Partes de la ficha ---
 
@@ -70,34 +80,30 @@ func _build_art() -> Control:
 	frame.custom_minimum_size = Vector2(140, 140)
 	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var art = UIStyle.icon(OmniaCatalog.synergy_icon(syn_id) if _discovered else null, 112)
+	frame.add_child(SynergyHalo.create(OmniaCatalog.synergy_tint(syn_id) if _discovered else LOCKED_TEXT, _discovered))
+	var art = PixelIcon.make(OmniaCatalog.synergy_icon(syn_id), ART_BOX, PixelIcon.CARD)
 	art.self_modulate = OmniaCatalog.synergy_tint(syn_id)
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(art)
 	if not _discovered:
 		var mat = ShaderMaterial.new()
 		mat.shader = LOCKED_SHADER
 		mat.set_shader_parameter("blur", 2.0 if not _unlocked else 1.0)
-		mat.set_shader_parameter("phase", fmod(syn_id.hash() * 0.0001, 1.0))
+		mat.set_shader_parameter("phase", fmod(abs(syn_id.hash()) * 0.0001, 1.0))
 		art.material = mat
-		frame.add_child(_build_lock() if not _unlocked else _build_mark(ICON_SEARCH, UIStyle.COLOR_TEAL))
+		frame.add_child(_build_mark(ICON_LOCK, UIStyle.COLOR_GOLD) if not _unlocked else _build_mark(ICON_SEARCH, UIStyle.COLOR_TEAL))
 	return frame
-
-# Candado al centro de la silueta que late despacio.
-func _build_lock() -> Control:
-	return _build_mark(ICON_LOCK, UIStyle.COLOR_GOLD)
 
 # Ícono que late sobre la silueta: candado (bloqueada) o lupa (falta descubrirla).
 func _build_mark(icon_tex: Texture2D, color: Color) -> Control:
 	var center = CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var lock = UIStyle.icon(icon_tex, 34)
-	lock.modulate = color
-	lock.pivot_offset = Vector2(17, 17)
-	center.add_child(lock)
-	var t = lock.create_tween().set_loops()
-	t.tween_property(lock, "modulate:a", 0.45, 0.9).set_trans(Tween.TRANS_SINE)
-	t.tween_property(lock, "modulate:a", 1.0, 0.9).set_trans(Tween.TRANS_SINE)
+	var mark = UIStyle.icon(icon_tex, 34)
+	mark.modulate = color
+	mark.pivot_offset = Vector2(17, 17)
+	center.add_child(mark)
+	var t = mark.create_tween().set_loops()
+	t.tween_property(mark, "modulate:a", 0.45, 0.9).set_trans(Tween.TRANS_SINE)
+	t.tween_property(mark, "modulate:a", 1.0, 0.9).set_trans(Tween.TRANS_SINE)
 	return center
 
 func _build_info(def: Dictionary) -> Control:
@@ -106,10 +112,10 @@ func _build_info(def: Dictionary) -> Control:
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_theme_constant_override("separation", 8)
 
-	_name_label = UIStyle.label(def.get("name", "") if _discovered else "Sinergia desconocida", 24, UIStyle.COLOR_GOLD if _discovered else LOCKED_TEXT)
+	_name_label = UIStyle.label(def.get("name", "") if _discovered else _scrambled(_name, 0.0), 24, UIStyle.COLOR_GOLD if _discovered else LOCKED_TEXT)
+	_name_label.clip_text = true
 	box.add_child(_name_label)
-	if _discovered:
-		box.add_child(_weapon_line(def))
+	box.add_child(_weapon_line(def))
 	box.add_child(_recipe_row())
 	if _unlocked:
 		var desc = UIStyle.label(def.get("description", "") if _discovered else OmniaCatalog.RESEARCH.clues.get(syn_id, ""), 13, UIStyle.COLOR_MUTED)
@@ -130,9 +136,9 @@ func _weapon_line(def: Dictionary) -> Control:
 	var weapon_id = def.get("required_weapon", "")
 	var icon = _codex_icon("weapons", weapon_id)
 	if icon:
-		line.add_child(UIStyle.icon(icon, 22))
+		line.add_child(PixelIcon.make(icon, 26.0, 1))
 	var text = "SINERGIA · " + SynergyManager.get_weapon_display_name(weapon_id).to_upper()
-	line.add_child(UIStyle.label(text, 14, UIStyle.COLOR_TEAL))
+	line.add_child(UIStyle.label(text, 14, UIStyle.COLOR_TEAL if _unlocked else LOCKED_TEXT))
 	return line
 
 func _recipe_row() -> Control:
@@ -148,7 +154,7 @@ func _recipe_chip(part: Dictionary, visible_part: bool) -> Control:
 	chip.custom_minimum_size = Vector2(44, 44)
 	if visible_part:
 		chip.tooltip_text = part.name
-		chip.add_child(UIStyle.icon(part.icon, 30))
+		chip.add_child(PixelIcon.make(part.icon, 32.0, PixelIcon.SLOT))
 	else:
 		var q = UIStyle.label("?", 20, LOCKED_TEXT)
 		q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -156,7 +162,6 @@ func _recipe_chip(part: Dictionary, visible_part: bool) -> Control:
 		chip.add_child(q)
 	return chip
 
-# Texto "tachado": bloques de distinto largo en vez de la descripción.
 func _undiscovered_tag() -> Control:
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
@@ -166,6 +171,7 @@ func _undiscovered_tag() -> Control:
 	row.add_child(UIStyle.label("RECETA · ÁRMALA EN UNA RUN", 12, UIStyle.COLOR_TEAL))
 	return row
 
+# Texto "tachado": bloques de distinto largo en vez de la descripción.
 func _redacted_lines() -> Control:
 	var box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
@@ -195,15 +201,26 @@ func _add_seal() -> void:
 # --- Detalles ---
 
 func _on_hover(inside: bool) -> void:
+	_hovered = inside
 	pivot_offset = size / 2.0
 	var t = create_tween().set_parallel(true)
 	t.tween_property(self, "scale", Vector2(1.03, 1.03) if inside else Vector2.ONE, 0.15).set_trans(Tween.TRANS_SINE)
 	t.tween_property(self, "modulate", Color(1.15, 1.15, 1.15) if inside else Color.WHITE, 0.15)
 
-func _cipher(length: int) -> String:
+# Nombre cifrado: con "k" alto algunas letras quedan fijas (siempre las mismas
+# primero), pero nunca se llega a leer entero si no está descubierta.
+func _scrambled(text: String, k: float) -> String:
 	var out = ""
-	for i in length:
-		out += GLYPHS[randi() % GLYPHS.length()]
+	var rng = RandomNumberGenerator.new()
+	rng.seed = syn_id.hash()
+	for i in text.length():
+		var fixed = rng.randf() < k
+		if text[i] == " ":
+			out += " "
+		elif fixed:
+			out += text[i]
+		else:
+			out += GLYPHS[randi() % GLYPHS.length()]
 	return out
 
 func _codex_icon(category: String, id: String) -> Texture2D:

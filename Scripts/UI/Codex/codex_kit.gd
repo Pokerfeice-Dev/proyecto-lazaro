@@ -19,11 +19,10 @@ static func entry(category: String, id: String) -> Dictionary:
 static func is_unlocked(category: String, id: String) -> bool:
 	return GameData.is_codex_unlocked(category, id)
 
-## Ícono estático de la entrada (recortado). Bloqueado: silueta.
-static func art(category: String, id: String, art_size: float, unlocked: bool) -> TextureRect:
-	var r = UIStyle.icon(UIStyle.trimmed(entry(category, id).get("icon", null)), art_size)
-	r.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+## Ícono estático de la entrada (recortado, a escala entera: ver PixelIcon).
+## Bloqueado: silueta.
+static func art(category: String, id: String, art_size: float, unlocked: bool, scale: int = PixelIcon.SLOT) -> TextureRect:
+	var r = PixelIcon.make(entry(category, id).get("icon", null), art_size, scale)
 	if not unlocked:
 		r.material = silhouette(id)
 	return r
@@ -188,9 +187,23 @@ static func stack(min_size: Vector2) -> Control:
 	s.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return s
 
+## Se agranda un poco al pasar el mouse o al llegar con la cruceta del joystick
+## (con joystick la ficha se puede enfocar, así la lista acompaña la selección).
 static func hover_pop(c: Control) -> void:
-	c.mouse_entered.connect(func():
+	var grow = func():
 		c.pivot_offset = c.size / 2.0
-		c.create_tween().tween_property(c, "scale", Vector2(1.04, 1.04), 0.12).set_trans(Tween.TRANS_SINE))
-	c.mouse_exited.connect(func():
-		c.create_tween().tween_property(c, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_SINE))
+		c.create_tween().tween_property(c, "scale", Vector2(1.04, 1.04), 0.12).set_trans(Tween.TRANS_SINE)
+	var shrink = func():
+		c.create_tween().tween_property(c, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_SINE)
+	c.mouse_entered.connect(grow)
+	c.mouse_exited.connect(shrink)
+	c.focus_entered.connect(grow)
+	c.focus_exited.connect(shrink)
+	PadFocusable.attach(c)
+
+## Ficha que se elige con mouse o joystick: al enfocarla con la cruceta hace
+## lo mismo que al pasarle el mouse por encima.
+static func pad_select(btn: Control, on_select: Callable) -> void:
+	btn.mouse_entered.connect(on_select)
+	btn.focus_entered.connect(on_select)
+	PadFocusable.attach(btn)

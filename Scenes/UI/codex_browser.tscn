@@ -133,7 +133,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 34
 autowrap_mode = 2
-text = "Seleccioná un registro"
+text = "Selecciona un registro"
 
 [node name="HeroStage" type="PanelContainer" parent="Body/DetailPanel/DetailScroll/DetailBody"]
 layout_mode = 2
@@ -156,7 +156,7 @@ layout_mode = 2
 visible = false
 theme_override_font_sizes/font_size = 30
 theme_override_colors/font_color = Color(0.3, 0.85, 0.79, 1)
-text = "SÍNTESIS POR DESCUBRIR"
+text = "SINERGIA POR DESCUBRIR"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2

@@ -50,10 +50,10 @@ func _tile(id: String) -> Control:
 	m.set_anchors_preset(Control.PRESET_FULL_RECT)
 	m.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(m)
-	m.add_child(CodexAnim.create(CATEGORY, id, 84.0, unlocked))
+	m.add_child(CodexAnim.create(CATEGORY, id, 84.0, unlocked, 2))
 	if id in BOSSES:
 		btn.add_child(_corner_badge())
-	btn.mouse_entered.connect(_select.bind(id))
+	CodexKit.pad_select(btn, _select.bind(id))
 	btn.pressed.connect(_select.bind(id))
 	_tiles[id] = btn
 	return btn
@@ -127,7 +127,7 @@ func _tank(id: String, unlocked: bool) -> Control:
 	s.add_child(_tank_floor(glow_color if unlocked else CodexKit.LOCKED_TEXT))
 	var m = UIStyle.padded(18)
 	m.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	m.add_child(CodexAnim.create(CATEGORY, id, 240.0, unlocked))
+	m.add_child(CodexAnim.create(CATEGORY, id, 240.0, unlocked, PixelIcon.FIT))
 	s.add_child(m)
 	if not unlocked:
 		s.add_child(CodexKit.lock_overlay(40))

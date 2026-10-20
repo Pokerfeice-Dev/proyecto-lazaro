@@ -20,7 +20,7 @@ func configure(id: String) -> void:
 		slot.visible = index < ingredients.size()
 		if not slot.visible: continue
 		var revealed = OmniaCatalog.is_ingredient_revealed(id, index)
-		slot.get_node("Frame/Icon").texture = ingredients[index].icon if revealed else null
+		PixelIcon.apply(slot.get_node("Frame/Icon"), ingredients[index].icon if revealed else null, PixelIcon.CARD, Vector2(64, 64))
 		slot.get_node("Frame/Unknown").visible = not revealed
 		slot.get_node("ItemName").text = ingredients[index].name if revealed else "Componente oculto"
 		slot.tooltip_text = ingredients[index].name if revealed else "Investiga esta pieza"

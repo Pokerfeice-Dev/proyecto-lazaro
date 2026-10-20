@@ -26,7 +26,7 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 	},
 	{
 		"id": "minigun",
-		"name": "Minigun",
+		"name": "Heavy Metal",
 		"weapon_type": "primary",
 		"weapon_id": "uzi",
 		"desc": "Uzi + Ametralladora acelerada",
@@ -122,7 +122,7 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 	},
 	{
 		"id": "alto_octanaje",
-		"name": "Alto Octanaje",
+		"name": "Oil of the Sick",
 		"weapon_type": "melee",
 		"weapon_id": "hacha",
 		"desc": "Hacha + Manchas de gasolina que explotan con un disparo",
@@ -265,8 +265,10 @@ func _apply_test_synergy(syn: Dictionary) -> void:
 	else:
 		GameData.chosen_melee_weapon = syn.weapon_id
 
-	_equip_synergy_items_on_player(player, syn)
+	# primero el arma base y después las piezas: al equiparlas el jugador cambia
+	# el arma por la de la sinergia (al revés, el arma base pisaba a la de la sinergia)
 	_reset_player_weapons(player)
+	_equip_synergy_items_on_player(player, syn)
 
 func _equip_synergy_items_on_player(player: Node2D, syn: Dictionary) -> void:
 	var equip = player.get_node_or_null("Equipment")

@@ -157,12 +157,16 @@ static func style_slider(slider: HSlider) -> void:
 
 ## Recorta el borde transparente de un sprite para que se vea grande dentro
 ## de un marco (muchos PNG de armas y objetos tienen mucho aire alrededor).
+## Si es una hoja de cuadros (Speed Demon, Holy Fire...) usa solo el primero.
 static func trimmed(tex: Texture2D) -> Texture2D:
 	if not tex or tex is AtlasTexture: return tex
 	var img = tex.get_image()
 	if not img: return tex
+	var frames = PixelIcon.sheet_frames(img.get_size())
+	if frames > 1:
+		img = img.get_region(Rect2i(0, 0, img.get_width() / frames, img.get_height()))
 	var used = img.get_used_rect()
-	if used.size == Vector2i.ZERO or used.size == img.get_size(): return tex
+	if used.size == Vector2i.ZERO or (frames <= 1 and used.size == img.get_size()): return tex
 	var atlas = AtlasTexture.new()
 	atlas.atlas = tex
 	atlas.region = Rect2(used)

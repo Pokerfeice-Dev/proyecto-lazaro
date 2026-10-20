@@ -18,13 +18,14 @@ stream = ExtResource("3_7vofb")
 pitch_scale = 1.1
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=806958084]
-position = Vector2(30, -3)
+position = Vector2(38.4, -5.4)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=1456459916]
-position = Vector2(-20, -3)
+position = Vector2(-26.6, -5.4)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1461304139]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=453890816]
-position = Vector2(53, -12)
+scale = Vector2(1.3, 1.3)
+position = Vector2(68.3, -17.1)
 texture = ExtResource("3_4yl44")

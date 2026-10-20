@@ -250,8 +250,7 @@ func _flip_to_item(chip: Control, icon: Texture2D, big: bool) -> void:
 		chip.remove_child(c)
 		c.queue_free()
 	chip.add_theme_stylebox_override("panel", UIStyle.nine_slice(UIStyle.TEX_SLOT["equipped"]))
-	var art = UIStyle.icon(icon, CHIP_BIG.x - 36.0 if big else 34.0)
-	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var art = PixelIcon.icon(icon, CHIP_BIG.x - 36.0 if big else 34.0, 2)
 	var mat = ShaderMaterial.new()
 	mat.shader = LOCKED_SHADER
 	art.material = mat

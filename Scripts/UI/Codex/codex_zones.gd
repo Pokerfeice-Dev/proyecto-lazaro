@@ -61,12 +61,30 @@ func _zone_art(id: String, unlocked: bool) -> Control:
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var s = CodexKit.stack(Vector2(204, 122))
 	frame.add_child(s)
-	var art = CodexKit.art(CATEGORY, id, 110.0, unlocked)
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	s.add_child(art)
+	s.add_child(_banner_art(id, unlocked, Vector2i(204, 122)))
 	if not unlocked:
 		s.add_child(CodexKit.lock_overlay(34))
 	return frame
+
+# Recorte del centro de la imagen de la zona, a tamaño real (1 píxel = 1 píxel),
+# así no se estira ni se achica y los tiles se ven con la misma densidad.
+func _banner_art(id: String, unlocked: bool, box: Vector2i) -> TextureRect:
+	var art = TextureRect.new()
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+	var tex: Texture2D = CodexKit.entry(CATEGORY, id).get("icon", null)
+	if tex:
+		var size = Vector2i(tex.get_size())
+		var crop = Vector2i(mini(size.x, box.x), mini(size.y, box.y))
+		var atlas = AtlasTexture.new()
+		atlas.atlas = tex
+		atlas.region = Rect2(Vector2((size - crop) / 2), Vector2(crop))
+		art.texture = atlas
+	if not unlocked:
+		art.material = CodexKit.silhouette(id)
+	return art
 
 func _info(id: String, unlocked: bool) -> Control:
 	var box = VBoxContainer.new()
@@ -125,11 +143,12 @@ func _threats(id: String, zone_unlocked: bool) -> Control:
 func _face(enemy_id: String, zone_unlocked: bool, is_boss: bool) -> Control:
 	var known = zone_unlocked and CodexKit.is_unlocked("enemies", enemy_id)
 	var chip = UIStyle.panel(UIStyle.TEX_SLOT["equipped" if is_boss and known else ("normal" if known else "disabled")])
-	var face_size = 58.0 if is_boss else 46.0
+	var face_size = 66.0 if is_boss else 58.0
 	chip.custom_minimum_size = Vector2(face_size, face_size)
 	chip.mouse_filter = Control.MOUSE_FILTER_PASS
 	chip.tooltip_text = CodexKit.entry("enemies", enemy_id).get("name", "") if known else "???"
-	chip.add_child(CodexKit.art("enemies", enemy_id, face_size - 12.0, known))
+	# todas las caras a la misma escala (1 píxel del sprite = 1 píxel), parejas
+	chip.add_child(CodexKit.art("enemies", enemy_id, face_size - 12.0, known, 1))
 	return chip
 
 # "Zona 1: Distrito Asphodel" -> "Distrito Asphodel" (el número ya va aparte).

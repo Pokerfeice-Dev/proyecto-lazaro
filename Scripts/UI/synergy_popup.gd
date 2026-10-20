@@ -42,7 +42,7 @@ func _ready() -> void:
 			card.visible = index < ingredients.size()
 			if not card.visible: continue
 			var entry: Dictionary = CodexData.DATA["items"].get(ingredients[index], {})
-			card.get_node("Icon").texture = entry.get("icon")
+			PixelIcon.apply(card.get_node("Icon"), entry.get("icon"), PixelIcon.CARD, Vector2(52, 52))
 			card.get_node("Caption").text = str(entry.get("name", ingredients[index]))
 	animation_player.play("activate")
 
@@ -104,13 +104,11 @@ func _build_result_card(style_source: Control) -> Control:
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var icon = TextureRect.new()
 	icon.name = "Icon"
-	icon.texture = UIStyle.trimmed(OmniaCatalog.synergy_icon(synergy_id))
 	icon.self_modulate = OmniaCatalog.synergy_tint(synergy_id)
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.position = Vector2(18, 14)
 	icon.size = Vector2(RESULT_SIZE.x - 36, 104)
+	# misma escala de píxel que las piezas de arriba (x3), un solo cuadro
+	PixelIcon.apply(icon, OmniaCatalog.synergy_icon(synergy_id), PixelIcon.CARD, icon.size)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon)
 	var caption: Label = style_source.get_node("Caption").duplicate()

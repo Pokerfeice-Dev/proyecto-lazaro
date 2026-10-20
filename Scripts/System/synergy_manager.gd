@@ -83,7 +83,7 @@ const SYNERGIES = {
 		}
 	},
 	"minigun": {
-		"name": "Minigun",
+		"name": "Heavy Metal",
 		"description": "La UZI es reemplazada por una ametralladora biomecánica alimentada por chatarra viva. Mantener presionado el disparo aumenta progresivamente las RPM y el daño.",
 		"required_weapon": "uzi",
 		"required_items": ["mezcladora", "motocicleta", "sierra_circular"],
@@ -150,8 +150,8 @@ const SYNERGIES = {
 		"weapon_scene_override": "res://Scenes/Weapon/HolyFireMace.tscn"
 	},
 	"alto_octanaje": {
-		"name": "Alto Octanaje",
-		"description": "El hacha lleva un motor que escupe gasolina: cada hachazo deja al enemigo empapado. Si le disparas mientras está manchado, explota y hace estallar en cadena a los manchados de alrededor. Cuidado: la explosión también te alcanza a ti.",
+		"name": "Oil of the Sick",
+		"description": "Una unción con gasolina en vez de óleo: cada hachazo deja al enemigo empapado. Si le disparas mientras está manchado, explota y hace estallar en cadena a los manchados de alrededor. Cuidado: la explosión también te alcanza a ti.",
 		"required_weapon": "hacha",
 		"required_items": ["gasolina", "motocicleta", "glandula_toxica"],
 		"stat_modifiers": {},

@@ -2,11 +2,17 @@ extends VBoxContainer
 
 const CARD = preload("res://Scenes/UI/codex_entry_card.tscn")
 const LOCK = preload("res://Art/Ui/svg/icon_lock.svg")
+const GLYPHS := "#%&@$*+=<>/?01"
+const CARD_ICON_BOX := Vector2(160, 105)
+const HERO_BOX := Vector2(300, 200)
 @export var research_only := false
 var category := "items"
 var selected_id := ""
 var _entries: Array[Dictionary] = []
 var _buttons: Dictionary = {}
+var _halo: SynergyHalo
+var _mystery_name := ""
+var _glyph_timer := 0.0
 
 func _ready() -> void:
 	%Search.text_changed.connect(_filter)
@@ -16,13 +22,28 @@ func _ready() -> void:
 	%EntriesScroll.get_v_scroll_bar().step = 36
 	# joystick: la búsqueda no se recorre con la cruceta (escribir no tiene sentido)
 	%Search.focus_mode = Control.FOCUS_CLICK
+	# halo de luz detrás del sprite grande (como en "ENLACE ESTABLECIDO")
+	_halo = SynergyHalo.create(UIStyle.COLOR_TEAL, true)
+	%Hero.get_parent().add_child(_halo)
+	%Hero.get_parent().move_child(_halo, 0)
+
+# Sinergia sin descubrir: el nombre aparece cifrado y cambia solo.
+func _process(delta: float) -> void:
+	if not %Mystery.visible or _mystery_name == "": return
+	_glyph_timer -= delta
+	if _glyph_timer > 0.0: return
+	_glyph_timer = 0.09
+	var out = ""
+	for ch in _mystery_name:
+		out += " " if ch == " " else GLYPHS[randi() % GLYPHS.length()]
+	%Mystery.text = out + "\nSINERGIA POR DESCUBRIR"
 
 func configure(next_category: String, only_research: bool = false) -> void:
 	category = next_category
 	research_only = only_research
 	%Search.clear()
 	%RegisteredOnly.visible = not research_only
-	%Eyebrow.text = "MÓDULO DE SÍNTESIS / INVESTIGACIONES DISPONIBLES" if research_only else "ARCHIVO BIOLÓGICO / CÓDICE"
+	%Eyebrow.text = "MÓDULO DE SINERGIAS / INVESTIGACIONES DISPONIBLES" if research_only else "ARCHIVO BIOLÓGICO / CÓDICE"
 	_entries.clear()
 	if category == "synergies":
 		for entry in OmniaCatalog._synergy_entries():
@@ -56,7 +77,8 @@ func _filter(query: String) -> void:
 		var card = CARD.instantiate()
 		%EntryGrid.add_child(card)
 		card.get_node("Margin/Body/Title").text = entry.name
-		card.get_node("Margin/Body/Icon").texture = UIStyle.trimmed(entry.icon)
+		PixelIcon.apply(card.get_node("Margin/Body/Icon"), entry.icon, PixelIcon.CARD, CARD_ICON_BOX)
+		PadFocusable.attach(card)
 		card.get_node("Margin/Body/Status").text = _status(entry)
 		card.pressed.connect(_select.bind(entry.id))
 		card.focus_entered.connect(_select.bind(entry.id))
@@ -79,7 +101,7 @@ func focus_first() -> void:
 
 func _status(entry: Dictionary) -> String:
 	if category == "synergies":
-		if GameData.is_synergy_discovered(entry.id): return "SÍNTESIS DESCUBIERTA"
+		if GameData.is_synergy_discovered(entry.id): return "SINERGIA DESCUBIERTA"
 		return "LISTA PARA EXPERIMENTAR" if entry.known else "INVESTIGACIÓN BLOQUEADA"
 	return "REGISTRADO" if entry.known else "SIN IDENTIFICAR"
 
@@ -102,12 +124,18 @@ func _select(id: String) -> void:
 	%Hero.visible = category != "synergies" or GameData.is_synergy_discovered(id)
 	%Mystery.visible = not %Hero.visible
 	%Hero.material = null
+	var discovered = category != "synergies" or GameData.is_synergy_discovered(id)
+	_halo.visible = category == "synergies"
+	_halo.color = OmniaCatalog.synergy_tint(id) if discovered else Color("#4E6B73")
+	if _halo.color == Color.WHITE: _halo.color = UIStyle.COLOR_TEAL
+	_halo.active = discovered
+	_mystery_name = str(SynergyManager.SYNERGIES.get(id, {}).get("name", "")).to_upper() if not discovered else ""
 	if category == "synergies":
 		%Hero._frames = []
-		%Hero.texture = UIStyle.trimmed(entry.icon)
+		PixelIcon.apply(%Hero, entry.icon, PixelIcon.FIT, HERO_BOX)
 		if entry.known: %Recipe.configure(id)
 	else:
-		%Hero._setup(category, id, entry.known)
+		%Hero._setup(category, id, entry.known, PixelIcon.FIT, HERO_BOX)
 		%Hero._floating = false
 	%DetailScroll.scroll_vertical = 0
 	%Transition.play("select")

@@ -151,7 +151,7 @@ func _process_body_hit(body: Node2D) -> void:
 	_handle_piercing_or_destroy(body)
 
 ## Las balas del jugador hacen explotar a los enemigos manchados de gasolina
-## (sinergia Alto Octanaje). Las clases hijas lo llaman al pegar.
+## (sinergia Oil of the Sick). Las clases hijas lo llaman al pegar.
 func _notify_bullet_hit(body: Node) -> void:
 	if target_group == "player": return
 	FuelSoak.notify_bullet_hit(body)

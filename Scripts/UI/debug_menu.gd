@@ -11,7 +11,7 @@ const RANGED_WEAPONS: Array[Dictionary] = [
 	{"name": "Escopeta", "path": "res://Scenes/Weapon/shotgun.tscn"},
 	{"name": "Pistola Mente Colmena (Sinergia)", "path": "res://Scenes/Weapon/HivemindPistol.tscn"},
 	{"name": "Pistola Roadkill (Sinergia)", "path": "res://Scenes/Weapon/RoadkillPistol.tscn"},
-	{"name": "Minigun (Sinergia)", "path": "res://Scenes/Weapon/Minigun.tscn"},
+	{"name": "Heavy Metal (Sinergia)", "path": "res://Scenes/Weapon/Minigun.tscn"},
 	{"name": "Cerberus (Sinergia)", "path": "res://Scenes/Weapon/Cerberus.tscn"}
 ]
 
@@ -307,7 +307,7 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_wolfsbane()
 	)
 
-	_add_synergy_card(tab, "Alto Octanaje", "alto_octanaje", "Hacha + Gasolina, Motocicleta, Glándula tóxica", func():
+	_add_synergy_card(tab, "Oil of the Sick", "alto_octanaje", "Hacha + Gasolina, Motocicleta, Glándula tóxica", func():
 		_activate_synergy_alto_octanaje()
 	)
 
@@ -323,7 +323,10 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_snowman()
 	)
 
-func _add_synergy_card(parent: Control, syn_name: String, _syn_id: String, req_desc: String, callback: Callable) -> void:
+func _add_synergy_card(parent: Control, syn_name: String, syn_id: String, req_desc: String, callback: Callable) -> void:
+	# nombre y receta salen de los datos reales (así no quedan desactualizados)
+	syn_name = SynergyManager.SYNERGIES.get(syn_id, {}).get("name", syn_name)
+	req_desc = _recipe_text(syn_id, req_desc)
 	var card = VBoxContainer.new()
 	card.add_theme_constant_override("separation", 3)
 	parent.add_child(card)
@@ -342,6 +345,17 @@ func _add_synergy_card(parent: Control, syn_name: String, _syn_id: String, req_d
 	
 	var btn = _create_button("Desbloquear y Equipar " + syn_name, callback, Color(0.4, 1.0, 0.7))
 	card.add_child(btn)
+
+# "Hacha de Mano + Bidón de Gasolina, Núcleo de Motocicleta, Glándula tóxica"
+func _recipe_text(syn_id: String, fallback: String) -> String:
+	var def: Dictionary = SynergyManager.SYNERGIES.get(syn_id, {})
+	if def.is_empty(): return fallback
+	var parts = []
+	for item_id in def.get("required_items", []):
+		parts.append(CodexData.DATA.get("items", {}).get(item_id, {}).get("name", item_id))
+	var text = ", ".join(parts)
+	var weapon = def.get("required_weapon", "")
+	return (SynergyManager.get_weapon_display_name(weapon) + " + " + text) if weapon != "" else text
 
 func _unlock_all_synergies_action() -> void:
 	GameData.unlock_all_synergies()
@@ -382,7 +396,7 @@ func _activate_synergy_minigun() -> void:
 		{"path": "res://Art/Items/Weapons/Item6.tres", "slot": ItemData.ItemSlot.MAIN_W2},
 		{"path": "res://Art/Items/Weapons/Item9_SierraCircular.tres", "slot": ItemData.ItemSlot.MAIN_W3}
 	])
-	_show_status("Sinergia 'Minigun' activada y equipada.")
+	_show_status("Sinergia 'Heavy Metal' activada y equipada.")
 
 func _activate_synergy_cerberus() -> void:
 	GameData.unlock_synergy("lanzallamas")
@@ -502,7 +516,7 @@ func _activate_synergy_alto_octanaje() -> void:
 		{"path": "res://Art/Items/Weapons/Item6.tres", "slot": ItemData.ItemSlot.SEC_W2},
 		{"path": "res://Art/Items/Crypt/glandula_toxica.tres", "slot": ItemData.ItemSlot.SEC_W3}
 	])
-	_show_status("Sinergia 'Alto Octanaje' (Hacha) activada y equipada.")
+	_show_status("Sinergia 'Oil of the Sick' (Hacha) activada y equipada.")
 
 func _equip_melee_weapon_and_mods(weapon_path: String, mods: Array[Dictionary]) -> void:
 	var player = _get_player()

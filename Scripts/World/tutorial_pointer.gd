@@ -110,12 +110,6 @@ func _draw() -> void:
 		if not is_instance_valid(t) or not t.is_inside_tree(): continue
 		var center = to_local(t.global_position) + Vector2(0, 14)
 		var k = fmod(_time * 1.2, 1.0)
-		# Baliza vertical: se entiende incluso antes de leer la tarjeta inferior.
-		var beam_top = center + Vector2(0, -82.0 - sin(_time * 3.0) * 6.0)
-		draw_line(center + Vector2(0, -6), beam_top, Color(RING_COLOR, 0.18), 10.0)
-		draw_line(center + Vector2(0, -6), beam_top, Color(RING_COLOR, 0.65), 2.0)
-		var arrow_y = center.y - 52.0 + sin(_time * 4.0) * 4.0
-		draw_colored_polygon(PackedVector2Array([Vector2(center.x, arrow_y + 13), Vector2(center.x - 10, arrow_y), Vector2(center.x + 10, arrow_y)]), RING_COLOR)
 		draw_set_transform(center, 0.0, Vector2(1.0, 0.5))
 		draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 32, Color(RING_COLOR, 0.9), 3.0)
 		draw_arc(Vector2.ZERO, 22.0 + k * 22.0, 0.0, TAU, 32, Color(RING_COLOR, 0.8 * (1.0 - k)), 2.0)

@@ -108,7 +108,8 @@ func update_slot(new_item: ItemData, qty: int = 1) -> void:
 	empty_icon.visible = item == null and empty_icon.texture != null
 	empty_label.text = empty_text
 	empty_label.visible = item == null and not empty_icon.visible
-	icon.texture = item.icon if item else null
+	# a escala entera fija: todos los objetos con el mismo tamaño de píxel
+	PixelIcon.apply(icon, item.icon if item else null, PixelIcon.SLOT, custom_minimum_size - Vector2(16, 16))
 	icon.visible = icon.texture != null
 	item_label.text = item.item_name if item else ""
 	item_label.visible = item != null and not icon.visible
@@ -169,13 +170,9 @@ func _create_drag_preview() -> Control:
 	return preview
 
 func _add_icon_drag_preview(preview: Control) -> void:
-	var trect = TextureRect.new()
-	trect.texture = item.icon
-	trect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	trect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	trect.custom_minimum_size = Vector2(64, 64)
+	var trect = PixelIcon.make(item.icon, 64.0, PixelIcon.SLOT)
+	trect.size = trect.custom_minimum_size
 	trect.position = -trect.custom_minimum_size / 2.0
-	trect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	preview.add_child(trect)
 
 func _add_text_drag_preview(preview: Control) -> void:

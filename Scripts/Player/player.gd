@@ -89,14 +89,8 @@ const SPEED_DEMON_PUSH_SPEED: float = 420.0
 const SPEED_DEMON_PUSH_TIME: float = 0.1
 var _speed_demon_push_time: float = 0.0
 var _speed_demon_push_dir: Vector2 = Vector2.ZERO
-const SPEED_DEMON_SHEET := preload("res://Art/Weapons/Melee/Dagger/synergy_speeddemon_sprite.png")
-const SPEED_DEMON_FRAMES: int = 4
-const SPEED_DEMON_FPS: float = 18.0
-const HOLY_FIRE_SHEET := preload("res://Art/Weapons/Melee/Mace/synergy_holyfire_sprite.png")
-const HOLY_FIRE_FRAMES: int = 5
-const HOLY_FIRE_FPS: float = 9.0
+const WEAPON_SHEET_FPS: float = 9.0 # hojas de varios cuadros de las armas (Holy Fire, etc.)
 var _holy_fire_tongue: HolyFireTongue = null
-const ALTO_OCTANAJE_TEX := preload("res://Art/Weapons/Melee/Axe/synergy_altooctanaje_sprite.png")
 const ALTO_OCTANAJE_RATIO := 1.5 # daño de la explosión respecto del hachazo
 const ALTO_OCTANAJE_MIN := 15
 const ALTO_OCTANAJE_MAX := 40
@@ -817,6 +811,12 @@ func get_active_ranged_weapon_id() -> String:
 func get_active_melee_weapon_id() -> String:
 	if not second_weapon:
 		return ""
+	# el arma base (hacha, maza, daga), no la escena que la reemplaza con la
+	# sinergia: si no, al cambiar al arma de la sinergia esta se desactivaba sola
+	if second_weapon.has_method("get_base_weapon_id"):
+		var base_id: String = second_weapon.get_base_weapon_id()
+		if base_id != "":
+			return base_id
 	var cur = second_weapon.get("current_weapon")
 	if not cur:
 		return ""
@@ -1989,8 +1989,11 @@ func _update_daga_del_odio_visual(_delta: float = 0.0) -> void:
 	var t = 1.0 - health_ratio
 	sprite.modulate = Color(1.0, 1.0 - 0.85 * t, 1.0 - 0.85 * t)
 
-## Version generalizada del efecto visual anterior: aplica color, textura y escala
-## distintos segun que sinergia de arma cuerpo a cuerpo este activa.
+## Efectos visuales del arma cuerpo a cuerpo. Cada sinergia trae su propia
+## escena de arma con su sprite (weapon_scene_override en SynergyManager); acá
+## solo se anima lo que cambia en partida: las hojas de varios cuadros (llama
+## de Holy Fire, sierra de Speed Demon) y Nemesis, que crece y enrojece cuanto
+## menos vida te queda.
 func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 	if not second_weapon:
 		return
@@ -1998,73 +2001,30 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 	if not weapon:
 		return
 	var sprite = weapon.get("melee_sprite") if "melee_sprite" in weapon else null
-	if not sprite or not (sprite is Sprite2D):
-		return
-	if not sprite.has_meta("base_scale"):
-		sprite.set_meta("base_scale", sprite.scale)
-	var base_scale: Vector2 = sprite.get_meta("base_scale")
-	if not sprite.has_meta("base_texture"):
-		sprite.set_meta("base_texture", sprite.texture)
-		sprite.set_meta("base_rotation", sprite.rotation)
-	var base_texture: Texture2D = sprite.get_meta("base_texture")
-	_reset_sheet_sprite(sprite)
-
-	if _is_daga_del_odio_active() and stats.max_health > 0:
-		var health_ratio = clamp(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
-		var t = 1.0 - health_ratio
-		var nemesis_tex = preload("res://Art/Weapons/Melee/Dagger/synergy_nemesis_sprite.png")
-		sprite.texture = nemesis_tex
-		sprite.modulate = Color(1.0, 1.0 - 0.7 * t, 1.0 - 0.7 * t)
-		sprite.scale = base_scale * (1.0 + 0.6 * t)
-	elif _is_speed_demon_active():
-		_apply_speed_demon_sprite(sprite, base_scale)
-	elif _is_holy_fire_active():
-		_apply_holy_fire_sprite(sprite, base_scale)
-	elif _is_arrogancia_equipped():
-		var arrogance_tex = preload("res://Art/Weapons/Melee/Mace/synergy_arrogance_sprite.png")
-		sprite.texture = arrogance_tex
-		sprite.modulate = Color(1.0, 1.0, 1.0)
-		sprite.scale = base_scale
-	elif _is_alto_octanaje_active():
-		sprite.texture = ALTO_OCTANAJE_TEX
-		sprite.modulate = Color(1.0, 1.0, 1.0)
-		sprite.scale = base_scale
-	elif _is_hombre_lobo_active():
-		var wolf_tex = preload("res://Art/Weapons/Melee/Axe/synergy_wolfsbane_sprite.png")
-		sprite.texture = wolf_tex
-		sprite.modulate = Color(1.0, 1.0, 1.0)
-		sprite.scale = base_scale
-	else:
-		sprite.texture = base_texture
-		sprite.modulate = Color(1.0, 1.0, 1.0)
-		sprite.scale = base_scale
+	if sprite:
+		_animate_weapon_sheet(sprite)
+		_apply_nemesis_look(sprite)
 	if is_instance_valid(_holy_fire_tongue) and not _is_holy_fire_active():
 		_holy_fire_tongue.extinguish()
 
-## Speed Demon: hoja de 4 cuadros (sierra girando) dibujada acostada; se gira
-## para que la sierra quede donde iría la hoja de la daga.
-func _apply_speed_demon_sprite(sprite: Sprite2D, base_scale: Vector2) -> void:
-	sprite.texture = SPEED_DEMON_SHEET
-	sprite.hframes = SPEED_DEMON_FRAMES
-	sprite.frame = int(Time.get_ticks_msec() / 1000.0 * SPEED_DEMON_FPS) % SPEED_DEMON_FRAMES
-	sprite.rotation = -PI / 2.0
-	sprite.modulate = Color(1.0, 1.0, 1.0)
-	sprite.scale = base_scale
+# Las hojas de varios cuadros se animan solas (si no, quedaban quietas en el primero).
+func _animate_weapon_sheet(sprite: Node2D) -> void:
+	if sprite is Sprite2D and sprite.hframes > 1:
+		sprite.frame = int(Time.get_ticks_msec() / 1000.0 * WEAPON_SHEET_FPS) % sprite.hframes
+	elif sprite is AnimatedSprite2D and not sprite.is_playing():
+		sprite.play()
 
-## Holy Fire: hoja de 5 cuadros con la llama de la punta titilando.
-func _apply_holy_fire_sprite(sprite: Sprite2D, base_scale: Vector2) -> void:
-	sprite.texture = HOLY_FIRE_SHEET
-	sprite.hframes = HOLY_FIRE_FRAMES
-	sprite.frame = int(Time.get_ticks_msec() / 1000.0 * HOLY_FIRE_FPS) % HOLY_FIRE_FRAMES
-	sprite.modulate = Color(1.0, 1.0, 1.0)
-	sprite.scale = base_scale
-
-# Deja el sprite como un sprite común (por si antes tenía la hoja de Speed Demon).
-func _reset_sheet_sprite(sprite: Sprite2D) -> void:
-	if sprite.hframes == 1: return
-	sprite.hframes = 1
-	sprite.frame = 0
-	sprite.rotation = sprite.get_meta("base_rotation", 0.0)
+func _apply_nemesis_look(sprite: Node2D) -> void:
+	if not sprite.has_meta("base_scale"):
+		sprite.set_meta("base_scale", sprite.scale)
+	var base_scale: Vector2 = sprite.get_meta("base_scale")
+	if _is_daga_del_odio_active() and stats.max_health > 0:
+		var t = 1.0 - clampf(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
+		sprite.modulate = Color(1.0, 1.0 - 0.7 * t, 1.0 - 0.7 * t)
+		sprite.scale = base_scale * (1.0 + 0.6 * t)
+	else:
+		sprite.modulate = Color.WHITE
+		sprite.scale = base_scale
 
 ## Si la sinergia Nemesis esta activa y el jugador tiene menos del 50% de vida,
 ## matar a un enemigo regenera vida.
@@ -2136,7 +2096,7 @@ func on_holy_fire_hit(enemy: Node2D, hit_damage: int) -> void:
 	else:
 		_holy_fire_tongue = HolyFireTongue.spawn(enemy, spit_damage)
 
-## Sinergia Alto Octanaje: cada hachazo mancha al enemigo con gasolina
+## Sinergia Oil of the Sick: cada hachazo mancha al enemigo con gasolina
 ## (FuelSoak). Una bala del jugador lo hace explotar (FuelExplosion), en cadena
 ## con los otros manchados. Lo llama melee_weapon.gd.
 func _is_alto_octanaje_active() -> bool:

@@ -35,8 +35,8 @@ attack_speed = 2.0
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013831]
 texture_filter = 1
-position = Vector2(73.99999, -17.4)
-scale = Vector2(1.4, 1.4)
+position = Vector2(68.9, -16)
+scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_thebride")
 animation = &"idle"
 
@@ -46,10 +46,10 @@ stream = ExtResource("3_sound")
 pitch_scale = 1.4
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1778873978]
-position = Vector2(44, -5.4000015)
+position = Vector2(41.0429, -4.8571)
 
 [node name="Bullet_mark_left" type="Marker2D" parent="." unique_id=454493304]
-position = Vector2(-32, -5.4000015)
+position = Vector2(-29.5286, -4.8571)
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1276239139]
 position = Vector2(0, -0.40000153)

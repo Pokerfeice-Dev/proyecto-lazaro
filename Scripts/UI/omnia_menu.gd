@@ -16,7 +16,7 @@ signal closed
 const RESEARCH_SCENE = preload("res://Scenes/UI/synergy_recipe_research.tscn")
 
 const LOCKED_SHADER := preload("res://Art/Ui/shaders/silueta_bloqueada.gdshader")
-const ICON_COIN := preload("res://Art/Scrap/scrap_icon.png")
+const ICON_COIN := preload("res://Art/Scrap/Scrap_icon.png")
 const ICON_CLOSE := preload("res://Art/Ui/svg/icon_close.svg")
 const ICON_MOUSE := preload("res://Art/Ui/svg/icon_mouse.svg")
 const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
@@ -354,10 +354,10 @@ func _make_row(entry: Dictionary) -> Button:
 	row.add_theme_constant_override("separation", 14)
 
 	var frame = UIStyle.panel(UIStyle.TEX_SLOT["normal"])
-	frame.custom_minimum_size = Vector2(52, 52)
+	frame.custom_minimum_size = Vector2(76, 76)
 	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var art = UIStyle.icon(entry.icon, 30)
+	var art = PixelIcon.icon(entry.icon, 68.0, 2) if not str(entry.icon.resource_path if entry.icon else "").ends_with(".svg") else UIStyle.icon(entry.icon, 30)
 	art.modulate = UIStyle.COLOR_GOLD if entry.state in ["activo", "maximo"] else Color.WHITE
 	frame.add_child(art)
 	row.add_child(frame)
@@ -425,7 +425,8 @@ func _level_pips(level: int, max_level: int, width: float) -> HBoxContainer:
 ## Ícono de la entrada. Si es un arma o sinergia sin desbloquear, va como silueta.
 ## Una sinergia comprada sigue en silueta hasta descubrirla en una run.
 func _entry_icon(entry: Dictionary, size: float, index: int) -> TextureRect:
-	var art = UIStyle.icon(entry.icon, size)
+	# grilla: todos x2 para que se vean parejos; ficha grande: lo más grande que entre
+	var art = PixelIcon.icon(entry.icon, size, PixelIcon.FIT if size > 100.0 else 2)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.self_modulate = entry.get("tint", Color.WHITE)
 	if entry.kind == "weapon" and not _is_revealed(entry):

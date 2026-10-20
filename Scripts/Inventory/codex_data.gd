@@ -145,14 +145,14 @@ const DATA = {
 		}
 	},
 	"items": {
-		"badajo_requiem": {"name": "Badajo de Réquiem", "lore": "Badajo de la campana del Campanero de Réquiem. Todavía vibra con cada golpe.", "stats": "+30% daño crítico", "icon": preload("res://Art/Items/Crypt/badajo_requiem.svg")},
-		"corazon_petreo": {"name": "Corazón pétreo", "lore": "Núcleo de piedra que late dentro de cada Gárgola. Endurece los golpes de quien lo lleva.", "stats": "+15% daño", "icon": preload("res://Art/Items/Crypt/corazon_petreo.svg")},
-		"tendon_necrotico": {"name": "Tendón necrótico", "lore": "Tendón del Ghoul, elástico aun después de muerto. Acelera los movimientos del arma.", "stats": "+15% cadencia", "icon": preload("res://Art/Items/Crypt/tendon_necrotico.svg")},
-		"glandula_toxica": {"name": "Glándula tóxica", "lore": "Glándula de gas del Ciempiés tóxico. Concentrada, vuelve letales los impactos críticos.", "stats": "+25% daño crítico", "icon": preload("res://Art/Items/Crypt/glandula_toxica.svg")},
-		"placa_funeraria": {"name": "Placa funeraria", "lore": "Placa de identificación de un soldado del Escuadrón de la muerte. Pesa más de lo que parece.", "stats": "+18% daño", "icon": preload("res://Art/Items/Crypt/placa_funeraria.svg")},
-		"lente_sepulcral": {"name": "Lente sepulcral", "lore": "Cristalino del Ojo torreta. Enfoca los disparos hasta atravesar a un enemigo más.", "stats": "+1 perforación", "icon": preload("res://Art/Items/Crypt/lente_sepulcral.svg")},
-		"panal_cadaverico": {"name": "Panal cadavérico", "lore": "Trozo de la colmena podrida de la Apicultora muerta. Sus celdas guían los disparos hacia los puntos débiles.", "stats": "+12% prob. crítica", "icon": preload("res://Art/Items/Crypt/panal_cadaverico.svg")},
-		"mandibula_carnivora": {"name": "Mandíbula carnívora", "lore": "Mandíbula de una Abeja carnívora. Desgarra la carne en los impactos críticos.", "stats": "+15% daño crítico", "icon": preload("res://Art/Items/Crypt/mandibula_carnivora.svg")},
+		"badajo_requiem": {"name": "Badajo de Réquiem", "lore": "Badajo de la campana del Campanero de Réquiem. Todavía vibra con cada golpe.", "stats": "+30% daño crítico", "icon": preload("res://Art/Items/Crypt/badajo_requiem.png")},
+		"corazon_petreo": {"name": "Corazón pétreo", "lore": "Núcleo de piedra que late dentro de cada Gárgola. Endurece los golpes de quien lo lleva.", "stats": "+15% daño", "icon": preload("res://Art/Items/Crypt/corazon_petreo.png")},
+		"tendon_necrotico": {"name": "Tendón necrótico", "lore": "Tendón del Ghoul, elástico aun después de muerto. Acelera los movimientos del arma.", "stats": "+15% cadencia", "icon": preload("res://Art/Items/Crypt/tendon_necrotico.png")},
+		"glandula_toxica": {"name": "Glándula tóxica", "lore": "Glándula de gas del Ciempiés tóxico. Concentrada, vuelve letales los impactos críticos.", "stats": "+25% daño crítico", "icon": preload("res://Art/Items/Crypt/glandula_toxica.png")},
+		"placa_funeraria": {"name": "Placa funeraria", "lore": "Placa de identificación de un soldado del Escuadrón de la muerte. Pesa más de lo que parece.", "stats": "+18% daño", "icon": preload("res://Art/Items/Crypt/placa_funeraria.png")},
+		"lente_sepulcral": {"name": "Lente sepulcral", "lore": "Cristalino del Ojo torreta. Enfoca los disparos hasta atravesar a un enemigo más.", "stats": "+1 perforación", "icon": preload("res://Art/Items/Crypt/lente_sepulcral.png")},
+		"panal_cadaverico": {"name": "Panal cadavérico", "lore": "Trozo de la colmena podrida de la Apicultora muerta. Sus celdas guían los disparos hacia los puntos débiles.", "stats": "+12% prob. crítica", "icon": preload("res://Art/Items/Crypt/panal_cadaverico.png")},
+		"mandibula_carnivora": {"name": "Mandíbula carnívora", "lore": "Mandíbula de una Abeja carnívora. Desgarra la carne en los impactos críticos.", "stats": "+15% daño crítico", "icon": preload("res://Art/Items/Crypt/mandibula_carnivora.png")},
 
 		"torso_blindado": {
 			"name": "Torso Musculoso",
@@ -306,7 +306,7 @@ const DATA = {
 			"name": "Zona 2: La Cripta",
 			"lore": "Galerías bajo el complejo donde la biomasa mutada escapó a todo control. Pocos exploradores vuelven de aquí con el mismo aspecto con el que entraron.",
 			"stats": "Rango de peligro: Alto | Amenazas: Ghouls, Gárgolas, Ciempiés tóxicos, Escuadrón de la muerte, Ojos torreta, Campanero de Réquiem, Apicultora muerta, Abejas carnívoras | Jefe: El Primogénito",
-			"icon": preload("res://Art/Codex/zona2_codex_icon.png")
+			"icon": preload("res://Art/Codex/zona2_codex_icon_cripta.png")
 		},
 		"distrito_3": {
 			"name": "Zona 3: El Núcleo",

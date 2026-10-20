@@ -1,7 +1,7 @@
 extends Node2D
 class_name FuelExplosion
 
-## Explosión de gasolina de la sinergia Alto Octanaje. Daño moderado en un
+## Explosión de gasolina de la sinergia Oil of the Sick. Daño moderado en un
 ## radio chico, empuje y una quemadura corta. Si alcanza a otros enemigos
 ## manchados (FuelSoak), explotan en cadena un instante después.
 ## También lastima al jugador si está dentro del radio (menos que a los

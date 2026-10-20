@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
 [ext_resource type="Script" path="res://Scripts/Items/item_data.gd" id="1"]
-[ext_resource type="Texture2D" path="res://Art/Items/Crypt/badajo_requiem.svg" id="2"]
+[ext_resource type="Texture2D" path="res://Art/Items/Crypt/badajo_requiem.png" id="2"]
 [resource]
 script = ExtResource("1")
 id = "badajo_requiem"

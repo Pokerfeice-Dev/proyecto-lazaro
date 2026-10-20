@@ -96,7 +96,7 @@ var active_weapon_stats_tab: String = "PRIMARY"
 
 # Códice
 var selected_codex_category: String = "enemies"
-@onready var codex_browser: Control = %CodexBrowser
+@onready var codex_grid: GridContainer = %CodexGrid
 @onready var research_browser: Control = %ResearchBrowser
 @onready var tab_research_btn: Button = %TabResearchBtn
 var codex_category_buttons: Dictionary = {}
@@ -317,7 +317,7 @@ func _focus_first_slot() -> void:
 				if slot.is_visible_in_tree():
 					slot.grab_focus()
 					return
-		"CODEX": codex_browser.focus_first()
+		"CODEX": _focus_codex()
 		"RESEARCH": research_browser.focus_first()
 
 ## X del joystick sobre un casillero:
@@ -473,9 +473,16 @@ func _update_weapon_displays() -> void:
 	if players.is_empty(): return
 	var p = players[0]
 	if primary_weapon_icon and "active_weapon" in p and p.active_weapon:
-		primary_weapon_icon.texture = _get_weapon_texture(p.active_weapon, p, true)
+		_set_weapon_icon(primary_weapon_icon, _get_weapon_texture(p.active_weapon, p, true))
 	if secondary_weapon_icon and "second_weapon" in p and p.second_weapon:
-		secondary_weapon_icon.texture = _get_weapon_texture(p.second_weapon, p, false)
+		_set_weapon_icon(secondary_weapon_icon, _get_weapon_texture(p.second_weapon, p, false))
+
+# Armas a escala entera fija (un solo cuadro, recortado): todas con el mismo
+# tamaño de píxel aunque vengan en lienzos u hojas distintas.
+func _set_weapon_icon(rect: TextureRect, tex: Texture2D) -> void:
+	var holder = rect.get_parent() as Control
+	var box = holder.custom_minimum_size - Vector2(12, 12) if holder and holder.custom_minimum_size != Vector2.ZERO else Vector2(64, 64)
+	PixelIcon.apply(rect, tex, PixelIcon.WEAPON, box)
 
 func _get_weapon_texture(weapon_container: Node, player: Node = null, is_main: bool = true) -> Texture2D:
 	if not weapon_container: return null
@@ -567,8 +574,19 @@ func _get_codex_weapon_id(weapon_container: Node) -> String:
 		return current_weapon.id
 	return ""
 
+# Mismo nombre que en el códice (o el de la sinergia activa, si cambia el arma).
 func _get_weapon_display_name_text(weapon_container: Node) -> String:
 	if not weapon_container: return "Pistola"
+	var players = get_tree().get_nodes_in_group("player")
+	var player = players[0] if not players.is_empty() else null
+	var weapon_id = _get_codex_weapon_id(weapon_container)
+	if player and weapon_id != "":
+		var is_main = weapon_container == player.get("active_weapon")
+		var synergy_id = SynergyManager.get_active_weapon_display_synergy(player.get_node_or_null("Equipment"), weapon_id, is_main)
+		if synergy_id != "":
+			return SynergyManager.SYNERGIES.get(synergy_id, {}).get("name", synergy_id)
+		if CodexData.DATA.get("weapons", {}).has(weapon_id):
+			return SynergyManager.get_weapon_display_name(weapon_id)
 	var cur = weapon_container.get("current_weapon")
 	if not cur: cur = weapon_container
 	if "id" in cur and str(cur.id) != "":
@@ -649,6 +667,15 @@ func _equip_item_to_slot(item: ItemData, target_slot_type: ItemData.ItemSlot) ->
 	if not inventory.items.has(item): return
 	var old_item = equipment.slots.get(target_slot_type)
 	if old_item == item: return
+	# poner una pieza de cuerpo encima de otra destruye la vieja: se avisa antes
+	if old_item and equipment.is_body_part(old_item):
+		BodyPartWarning.ask_replace(old_item, item, _install_item.bind(item, target_slot_type))
+		return
+	_install_item(item, target_slot_type)
+
+func _install_item(item: ItemData, target_slot_type: ItemData.ItemSlot) -> void:
+	if not inventory.items.has(item): return
+	var old_item = equipment.slots.get(target_slot_type)
 	item.slot = target_slot_type
 	inventory.remove_item(item)
 
@@ -660,10 +687,25 @@ func _equip_item_to_slot(item: ItemData, target_slot_type: ItemData.ItemSlot) ->
 	update_ui()
 
 func _unequip_item_direct(item: ItemData, slot_type: ItemData.ItemSlot) -> void:
+	# las piezas de cuerpo no vuelven a la mochila: quitarlas las destruye
+	# (si volvían, se podían poner y quitar para curarse sin límite)
+	if equipment.is_body_part(item):
+		BodyPartWarning.ask_remove(item, _destroy_body_part.bind(item, slot_type))
+		return
 	equipment.slots[slot_type] = null
 	equipment.equipment_changed.emit()
 	inventory.add_item(item)
 	update_ui()
+
+func _destroy_body_part(item: ItemData, slot_type: ItemData.ItemSlot) -> void:
+	if equipment.slots.get(slot_type) != item: return
+	equipment.remove_old_item(slot_type)
+	equipment.equipment_changed.emit()
+	if selected_item == item:
+		selected_item = null
+	_play_equip_sound()
+	update_ui()
+	_refresh_pad_tooltip()
 
 func _swap_equipment_slots(slot_a: ItemData.ItemSlot, slot_b: ItemData.ItemSlot) -> void:
 	var item_a = equipment.slots.get(slot_a)
@@ -763,7 +805,7 @@ func _update_detail_panel() -> void:
 	detail_empty_label.visible = false
 	detail_content_box.visible = true
 
-	detail_icon_rect.texture = selected_item.icon
+	PixelIcon.apply(detail_icon_rect, selected_item.icon, PixelIcon.SLOT, Vector2(56, 56))
 	detail_name_label.text = selected_item.item_name
 
 	var type_str = _get_item_type_string(selected_item)
@@ -875,7 +917,7 @@ func _update_attributes_display() -> void:
 
 func _render_primary_weapon_stats(p: Node2D) -> void:
 	if stats_weapon_icon and p.active_weapon:
-		stats_weapon_icon.texture = _get_weapon_texture(p.active_weapon, p, true)
+		_set_weapon_icon(stats_weapon_icon, _get_weapon_texture(p.active_weapon, p, true))
 	if stats_weapon_name and p.active_weapon:
 		stats_weapon_name.text = _get_weapon_display_name_text(p.active_weapon)
 
@@ -902,7 +944,7 @@ func _render_primary_weapon_stats(p: Node2D) -> void:
 
 func _render_secondary_weapon_stats(p: Node2D) -> void:
 	if stats_weapon_icon and p.second_weapon:
-		stats_weapon_icon.texture = _get_weapon_texture(p.second_weapon, p, false)
+		_set_weapon_icon(stats_weapon_icon, _get_weapon_texture(p.second_weapon, p, false))
 	if stats_weapon_name and p.second_weapon:
 		stats_weapon_name.text = _get_weapon_display_name_text(p.second_weapon)
 
@@ -988,11 +1030,57 @@ func _on_codex_category_pressed(cat: String) -> void:
 	_refresh_codex_grid()
 	_focus_first_slot.call_deferred()
 
+# Cada categoría del códice tiene su propia página (ver Scripts/UI/Codex/) y
+# las sinergias usan fichas grandes (CodexSynergyCard).
 func _refresh_codex_grid() -> void:
+	if not codex_grid: return
 	for key in codex_category_buttons:
 		_apply_tab_style(codex_category_buttons[key], key == selected_codex_category)
-	codex_browser.configure(selected_codex_category)
-	codex_progress_label.text = "Selecciona un registro para consultar su ficha completa."
+	for c in codex_grid.get_children():
+		codex_grid.remove_child(c)
+		c.queue_free()
+	_codex_scroll().scroll_vertical = 0
+	if selected_codex_category == "synergies":
+		_fill_codex_synergies()
+		return
+	codex_grid.columns = 1
+	var cat_data = CodexData.DATA.get(selected_codex_category, {})
+	var unlocked_count = 0
+	for entry_id in cat_data.keys():
+		if GameData.is_codex_unlocked(selected_codex_category, entry_id): unlocked_count += 1
+	var page = _codex_page(selected_codex_category)
+	if page:
+		codex_grid.add_child(page)
+	codex_progress_label.text = "%d / %d registrados" % [unlocked_count, cat_data.size()]
+
+func _codex_page(category: String) -> Control:
+	match category:
+		"enemies": return CodexBestiary.new()
+		"weapons": return CodexArmory.new()
+		"items": return CodexItems.new()
+		"npcs": return CodexNpcs.new()
+		"levels": return CodexZones.new()
+	return null
+
+func _fill_codex_synergies() -> void:
+	codex_grid.columns = 3
+	var ids = OmniaCatalog.synergy_ids()
+	var discovered = 0
+	for syn_id in ids:
+		if GameData.is_synergy_discovered(syn_id):
+			discovered += 1
+		codex_grid.add_child(CodexSynergyCard.create(syn_id))
+	codex_progress_label.text = "%d / %d sinergias descubiertas" % [discovered, ids.size()]
+
+func _codex_scroll() -> ScrollContainer:
+	return codex_grid.get_parent().get_parent() as ScrollContainer
+
+# Joystick: el foco va a la primera ficha que se pueda elegir de la página.
+func _focus_codex() -> void:
+	for c in codex_grid.find_children("*", "Control", true, false):
+		if c.focus_mode == Control.FOCUS_ALL and c.is_visible_in_tree():
+			c.grab_focus()
+			return
 
 func _on_research_tab_pressed() -> void:
 	current_tab = "RESEARCH"

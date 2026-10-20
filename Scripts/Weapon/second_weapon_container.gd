@@ -95,6 +95,20 @@ func switch_weapon(new_scene: PackedScene) -> void:
 	_align_weapon_mark()
 	_cache_base_stats()
 	_apply_current_upgrades_to_weapon()
+	_check_initial_synergy_override()
+
+# Si con las piezas puestas ya hay una sinergia activa, se usa su arma de una
+# vez (como hace el arma principal). Si no, al cambiar de arma o de sala se
+# veía el arma base hasta el próximo cambio de equipo.
+func _check_initial_synergy_override() -> void:
+	var player = get_parent()
+	if not player or not player.has_method("get_active_melee_weapon_id"): return
+	var equip = player.get_node_or_null("Equipment")
+	if not equip: return
+	var active_syns = SynergyManager.get_active_synergies(equip, player.get_active_melee_weapon_id(), false)
+	var override_path = SynergyManager.get_synergies_weapon_override(active_syns)
+	if override_path != "":
+		apply_synergy_weapon_override(override_path)
 
 func apply_synergy_weapon_override(override_path: String) -> void:
 	if _current_override_path == override_path:
@@ -117,6 +131,20 @@ func apply_synergy_weapon_override(override_path: String) -> void:
 		_align_weapon_mark()
 		_cache_base_stats()
 		_apply_current_upgrades_to_weapon()
+
+## Id del arma base equipada ("daga", "maze", "hacha"), aunque una sinergia
+## la haya reemplazado por su propia escena. Las sinergias se calculan con este.
+func get_base_weapon_id() -> String:
+	if not _base_weapon_scene:
+		return ""
+	var path = _base_weapon_scene.resource_path.to_lower()
+	if "dagger" in path or "daga" in path:
+		return "daga"
+	if "mace" in path or "maze" in path:
+		return "maze"
+	if "axe" in path or "hacha" in path:
+		return "hacha"
+	return ""
 
 func _unlock_codex(scene: PackedScene) -> void:
 	if not GameData.has_method("unlock_codex_entry"): return

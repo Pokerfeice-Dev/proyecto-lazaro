@@ -1,3 +1,35 @@
+## 2026-10-20 (Retoques antes del evento)
+
+- **Oil of the Sick** (antes "Alto Octanaje"):
+  - Nombre y sprite nuevos de turco (`Art/Weapons/Melee/Axe/OilOfTheSick/synergy_oilofthesick_sprite.png`). El id interno sigue siendo `alto_octanaje`, así no se pierden partidas guardadas.
+  - **No funcionaba:** al activarse, la escena propia de la sinergia (`AltoOctanajeAxe.tscn`) cambiaba el id del arma y la sinergia se apagaba sola. Ahora las sinergias cuerpo a cuerpo se calculan con el arma base (`second_weapon_container.get_base_weapon_id()`), como ya hacía el arma principal. Esto arreglaba también Wolfsbane, Nemesis, Holy Fire, Speed Demon y Arrogancia.
+  - Al cambiar de arma o de sala, el arma de la sinergia aparece de una vez (antes se veía el arma base hasta el próximo cambio de equipo). La incubadora del entrenamiento también la muestra bien.
+- **Piezas de cuerpo:**
+  - **Bug:** quitarse un torso, brazo o pierna la devolvía a la mochila; ponérsela de nuevo curaba, así que se podía repetir hasta tener la vida llena. Ahora quitarla la destruye.
+  - Antes de quitar una pieza o de poner otra encima aparece un cartel (`Scripts/UI/body_part_warning.gd`) con la pieza que se pierde y la que entra. Funciona con mouse, teclado (E / ESC) y joystick (A / B).
+- **Apicultora muerta:** como máximo 2 abejas a la vez, como máximo 2 apicultoras vivas en la sala (también cuenta las que están por aparecer) y 15 segundos sin invocar cuando muere una de sus abejas.
+- **Códice como antes:** volvieron las páginas distintas de cada categoría (bestiario con vitrina, armamento en estantes, objetos, NPCs, zonas en lista con sus enemigos) y las fichas grandes de sinergias.
+  - Las fichas de sinergias suman el halo de luz que gira (`Scripts/UI/synergy_halo.gd`) y el nombre cifrado que cambia solo. Al pararse encima, el nombre intenta decodificarse.
+  - La imagen de la zona 2 es nueva, sacada del tileset nuevo de la cripta (`Art/Codex/zona2_codex_icon_cripta.png`).
+  - Con joystick, todas las fichas se recorren con la cruceta y la lista acompaña la selección.
+- **Pestaña SINERGIAS:** la que se llamaba SÍNTESIS (fuera del códice). También tiene el halo y el nombre cifrado en las sinergias sin descubrir.
+- **Píxeles parejos** (`Scripts/UI/pixel_icon.gd`): los íconos ya no se estiran cada uno a su marco.
+  - Cada ícono usa un solo cuadro (las hojas de Speed Demon y Holy Fire se veían repetidas o vacías) y se recorta al dibujo.
+  - Los íconos que venían agrandados se llevan a su tamaño real.
+  - Después se agrandan por un número entero fijo según el lugar: todos los objetos de la mochila iguales, todas las armas del HUD iguales, etc.
+  - Se aplica en el inventario, el HUD, el códice, la pestaña SINERGIAS, O.M.N.I.A., la armería, el cartel de sinergia activada y los avisos de objeto nuevo.
+  - En la vitrina del bestiario el sprite va lo más grande que entra a escala entera (El Primogénito ya no queda mínimo).
+- **Armas en la mano:** todas usan la misma escala que Lázaro (1,3). Antes había armas a 1, 1,2, 1,4 y 1,7, y se veían con otra resolución. Se corrigió la posición para que la empuñadura quede en el mismo lugar y las balas salgan de la boca del arma.
+- **Objetos de la zona 2 dibujados en pixel art** (16x16, como el resto): Badajo de Réquiem, Corazón pétreo, Glándula tóxica, Lente sepulcral, Mandíbula carnívora, Panal cadavérico, Placa funeraria y Tendón necrótico. Son genéricos, para reemplazar cuando haya arte final. Los SVG viejos siguen en la carpeta.
+- **Nombres unificados:**
+  - La sinergia de la uzi se llama Heavy Metal en todos lados, como su sprite (era "Minigun").
+  - El panel de atributos usa el nombre del códice ("Pistola", no "Pistol") o el de la sinergia activa.
+  - El menú de depuración toma nombres y recetas de los datos reales.
+- **Otros:**
+  - Tutorial: los objetos del piso vuelven a marcarse solo con la manito y el círculo (se sacaron la línea vertical y la flecha que se superponían).
+  - "Selecciona un objeto…" en español neutro.
+  - El ícono de chatarra se cargaba con otra mayúscula (`scrap_icon.png` en vez de `Scrap_icon.png`). Eso daba avisos y se habría roto al exportar a Linux.
+
 ## 2026-10-18 (Sinergia nueva del hacha: Alto Octanaje)
 
 - **Alto Octanaje** (hacha + Bidón de Gasolina, Núcleo de Motocicleta y Glándula tóxica):
