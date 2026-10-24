@@ -145,10 +145,22 @@ func _process_body_hit(body: Node2D) -> void:
 	if not body.has_method("take_damage"):
 		_handle_wall_collision()
 		return
-	body.take_damage(damage, is_crit)
+	_deal_damage(body)
+	_record_player_enemy_hit(body)
 	_notify_bullet_hit(body)
 	_apply_bullet_status_to_target(body)
 	_handle_piercing_or_destroy(body)
+
+func _record_player_enemy_hit(body: Node2D) -> void:
+	if get_meta("protocol_metric", "") in ["bee_damage", "echo_damage"]: return
+	if target_group == "player" or not body.is_in_group("enemy"):
+		return
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("record_enemy_hit"):
+		player.record_enemy_hit(body)
+
+func _deal_damage(body: Node2D) -> void:
+	ProtocolRuntime.deal_damage(body, damage, is_crit, str(get_meta("protocol_metric", "")), float(get_meta("protocol_bonus_ratio", 0.0)))
 
 ## Las balas del jugador hacen explotar a los enemigos manchados de gasolina
 ## (sinergia Oil of the Sick). Las clases hijas lo llaman al pegar.

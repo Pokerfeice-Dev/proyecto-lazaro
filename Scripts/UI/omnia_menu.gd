@@ -287,10 +287,7 @@ func _progress_text(cat: String) -> String:
 	return "%d / %d %s" % [p.x, p.y, unit]
 
 func _active_protocol_name() -> String:
-	for p in OmniaCatalog.PROTOCOLOS:
-		if p.id == GameData.active_protocol:
-			return p.name
-	return "Ninguno"
+	return OmniaCatalog.protocol_name(GameData.active_protocol)
 
 func _build_list() -> void:
 	for child in _scroll.get_children():
@@ -535,6 +532,8 @@ func _add_kind_details(entry: Dictionary) -> void:
 			_add_recipe(entry)
 			if entry.requirement != "":
 				_add_warning(entry.requirement)
+		"protocol":
+			_add_hint("Desbloqueo permanente. Puedes cambiar de protocolo gratis en O.M.N.I.A.; solo uno puede estar equipado.")
 
 # Componentes y confirmación editables en escenas de Godot.
 func _add_recipe(entry: Dictionary) -> void:
@@ -578,7 +577,7 @@ func _add_action_row(entry: Dictionary) -> void:
 	if cost > 0:
 		row.add_child(UIStyle.icon(ICON_COIN, 24))
 		row.add_child(UIStyle.label(str(cost), 24, UIStyle.COLOR_GOLD))
-	var btn = UIStyle.button(entry.action, OmniaCatalog.can_act(entry), Vector2(0, 52), 20)
+	var btn = UIStyle.button(entry.action, OmniaCatalog.can_act(entry), Vector2(0, 52), 16 if entry.kind == "protocol" else 20)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.disabled = not OmniaCatalog.can_act(entry)
 	btn.pressed.connect(_on_action_pressed)

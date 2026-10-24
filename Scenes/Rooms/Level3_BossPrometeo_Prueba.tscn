@@ -45,72 +45,6 @@ position = Vector2(955, -1120)
 rotation = 1.5707964
 color = Color(0.12, 0.14, 0.22, 1)
 
-[node name="Torch1" type="Node2D" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_aphb8")]
-position = Vector2(-5.9999504, -100.00003)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch2" type="Node2D" parent="CanvasModulate" unique_id=1805437772 instance=ExtResource("5_aphb8")]
-position = Vector2(-7.999941, 122.99997)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch3" type="Node2D" parent="CanvasModulate" unique_id=868791242 instance=ExtResource("5_aphb8")]
-position = Vector2(203.00006, 84.99996)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch4" type="Node2D" parent="CanvasModulate" unique_id=1215546867 instance=ExtResource("5_aphb8")]
-position = Vector2(195, -90.00004)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch5" type="Node2D" parent="CanvasModulate" unique_id=1067770952 instance=ExtResource("5_aphb8")]
-position = Vector2(423, 92.99995)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch6" type="Node2D" parent="CanvasModulate" unique_id=773236604 instance=ExtResource("5_aphb8")]
-position = Vector2(430, -82.99999)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch7" type="Node2D" parent="CanvasModulate" unique_id=68025239 instance=ExtResource("5_aphb8")]
-position = Vector2(322, 324)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch8" type="Node2D" parent="CanvasModulate" unique_id=1522838084 instance=ExtResource("5_aphb8")]
-position = Vector2(303.99997, -334)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch9" type="Node2D" parent="CanvasModulate" unique_id=440313328 instance=ExtResource("5_aphb8")]
-position = Vector2(649, 281)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch10" type="Node2D" parent="CanvasModulate" unique_id=525341 instance=ExtResource("5_aphb8")]
-position = Vector2(662, -312)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
-[node name="Torch11" type="Node2D" parent="CanvasModulate" unique_id=1702159094 instance=ExtResource("5_aphb8")]
-position = Vector2(675, -5)
-rotation = -1.5707964
-scale = Vector2(1.075, 1.075)
-script = ExtResource("6_sd0nw")
-
 [node name="Boss_Fight_Music" type="AudioStreamPlayer" parent="." unique_id=79362965]
 stream = ExtResource("7_6fvlv")
 volume_db = -5.0
@@ -122,3 +56,69 @@ position = Vector2(962, -793)
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("9_1fah4")
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
+
+[node name="Torch1" type="Node2D" parent="Iluminacion" unique_id=64839201 instance=ExtResource("5_aphb8")]
+position = Vector2(1055.00003, -1125.999943)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch2" type="Node2D" parent="Iluminacion" unique_id=1805437772 instance=ExtResource("5_aphb8")]
+position = Vector2(832.000031, -1127.99995)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch3" type="Node2D" parent="Iluminacion" unique_id=868791242 instance=ExtResource("5_aphb8")]
+position = Vector2(870.000025, -916.999946)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch4" type="Node2D" parent="Iluminacion" unique_id=1215546867 instance=ExtResource("5_aphb8")]
+position = Vector2(1045.000026, -924.999993)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch5" type="Node2D" parent="Iluminacion" unique_id=1067770952 instance=ExtResource("5_aphb8")]
+position = Vector2(862.000019, -697.000007)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch6" type="Node2D" parent="Iluminacion" unique_id=773236604 instance=ExtResource("5_aphb8")]
+position = Vector2(1037.999959, -689.999994)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch7" type="Node2D" parent="Iluminacion" unique_id=68025239 instance=ExtResource("5_aphb8")]
+position = Vector2(630.999976, -798.000024)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch8" type="Node2D" parent="Iluminacion" unique_id=1522838084 instance=ExtResource("5_aphb8")]
+position = Vector2(1288.999978, -816.000006)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch9" type="Node2D" parent="Iluminacion" unique_id=440313328 instance=ExtResource("5_aphb8")]
+position = Vector2(673.999952, -471.000021)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch10" type="Node2D" parent="Iluminacion" unique_id=525341 instance=ExtResource("5_aphb8")]
+position = Vector2(1266.999952, -457.999977)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")
+
+
+[node name="Torch11" type="Node2D" parent="Iluminacion" unique_id=1702159094 instance=ExtResource("5_aphb8")]
+position = Vector2(959.999951, -445)
+scale = Vector2(1.075, 1.075)
+script = ExtResource("6_sd0nw")

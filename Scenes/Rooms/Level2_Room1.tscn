@@ -45,57 +45,69 @@ scale = Vector2(1.5, 1.5)
 chest_type = "trap"
 metadata/_edit_group_ = true
 
-[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("5_1pc7k")]
-position = Vector2(336, -456)
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
 
-[node name="BarrelSpawnPoint2" parent="." unique_id=56848724 instance=ExtResource("5_1pc7k")]
-position = Vector2(768, -440)
-
-[node name="Candles" type="Node2D" parent="." unique_id=1462153621]
-
-[node name="Wall" type="Node2D" parent="Candles" unique_id=1251621624]
-
-[node name="Wall_candle" parent="Candles/Wall" unique_id=1560626091 instance=ExtResource("7_73ejj")]
+[node name="Wall_candle" parent="Iluminacion" unique_id=1560626091 instance=ExtResource("7_73ejj")]
 position = Vector2(273, -622)
 
-[node name="Wall_candle2" parent="Candles/Wall" unique_id=416550842 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle2" parent="Iluminacion" unique_id=416550842 instance=ExtResource("7_73ejj")]
 position = Vector2(625, -622)
 
-[node name="Wall_candle3" parent="Candles/Wall" unique_id=511134565 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle3" parent="Iluminacion" unique_id=511134565 instance=ExtResource("7_73ejj")]
 position = Vector2(977, -622)
 
-[node name="Wall_candle4" parent="Candles/Wall" unique_id=630402480 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle4" parent="Iluminacion" unique_id=630402480 instance=ExtResource("7_73ejj")]
 position = Vector2(1134, -400)
-rotation = 1.5707964
+rotation = 1.570796
 
-[node name="Wall_candle5" parent="Candles/Wall" unique_id=174758021 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle5" parent="Iluminacion" unique_id=174758021 instance=ExtResource("7_73ejj")]
 position = Vector2(82, -337)
-rotation = -1.5707964
+rotation = -1.570796
 
-[node name="Wall_candle6" parent="Candles/Wall" unique_id=600455779 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle6" parent="Iluminacion" unique_id=600455779 instance=ExtResource("7_73ejj")]
 position = Vector2(82, -530)
-rotation = -1.5707964
+rotation = -1.570796
 
-[node name="Wall_candle7" parent="Candles/Wall" unique_id=1481844130 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle7" parent="Iluminacion" unique_id=1481844130 instance=ExtResource("7_73ejj")]
 position = Vector2(273, -242)
-rotation = 3.1415925
+rotation = 3.141593
 
-[node name="Wall_candle8" parent="Candles/Wall" unique_id=1059182386 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle8" parent="Iluminacion" unique_id=1059182386 instance=ExtResource("7_73ejj")]
 position = Vector2(625, -242)
-rotation = 3.1415925
+rotation = 3.141593
 
-[node name="Wall_candle9" parent="Candles/Wall" unique_id=1360257352 instance=ExtResource("7_73ejj")]
+
+[node name="Wall_candle9" parent="Iluminacion" unique_id=1360257352 instance=ExtResource("7_73ejj")]
 position = Vector2(977, -242)
-rotation = 3.1415925
+rotation = 3.141593
 
-[node name="Floor_candle" parent="Candles" unique_id=64839211 instance=ExtResource("6_torch")]
+
+[node name="Floor_candle" parent="Iluminacion" unique_id=64839211 instance=ExtResource("6_torch")]
 position = Vector2(450, -459)
 
-[node name="Floor_candle2" parent="Candles" unique_id=64839201 instance=ExtResource("6_torch")]
+
+[node name="Floor_candle2" parent="Iluminacion" unique_id=64839201 instance=ExtResource("6_torch")]
 position = Vector2(721, -348)
 
-[node name="Floor_candle3" parent="Candles" unique_id=995634449 instance=ExtResource("6_torch")]
+
+[node name="Floor_candle3" parent="Iluminacion" unique_id=995634449 instance=ExtResource("6_torch")]
 position = Vector2(918, -472)
 
-[node name="Floor_candle4" parent="Candles" unique_id=1478637219 instance=ExtResource("6_torch")]
+
+[node name="Floor_candle4" parent="Iluminacion" unique_id=1478637219 instance=ExtResource("6_torch")]
 position = Vector2(238, -517)
+[node name="Barrels" type="Node2D" parent="." unique_id=40404040]
+
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("5_1pc7k")]
+position = Vector2(336, -456)
+
+
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=56848724 instance=ExtResource("5_1pc7k")]
+position = Vector2(768, -440)

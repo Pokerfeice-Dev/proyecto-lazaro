@@ -164,7 +164,7 @@ func _on_body_entered(body: Node2D) -> void:
 	hit_enemies.append(body)
 	_apply_damage_to_enemy(body)
 
-func _apply_damage_to_enemy(body: Node2D) -> void:
+func _apply_damage_to_enemy(body: Node2D, damage_scale: float = 1.0) -> void:
 	var final_dmg = damage
 	var final_kb = knockback_force
 	var is_crit = false
@@ -183,12 +183,16 @@ func _apply_damage_to_enemy(body: Node2D) -> void:
 	if randf() <= crit_chance:
 		final_dmg = int(final_dmg * crit_damage)
 		is_crit = true
+	final_dmg = maxi(1, roundi(final_dmg * damage_scale))
 
 	var is_marked_hit = false
 	if equip_owner and body.has_meta("werewolf_mark") and equip_owner.has_method("_is_hombre_lobo_active") and equip_owner._is_hombre_lobo_active():
 		is_marked_hit = true
 	var was_enemy_alive = not (body.get("is_dying") == true)
-	body.take_damage(final_dmg, is_crit)
+	var protocol_mult: float = equip_owner.protocol_damage_multiplier() if equip_owner and equip_owner.has_method("protocol_damage_multiplier") else 1.0
+	ProtocolRuntime.deal_damage(body, final_dmg * protocol_mult, is_crit, "overload_damage" if protocol_mult > 1.0 else "", 1.0 - 1.0 / protocol_mult)
+	if equip_owner and equip_owner.has_method("record_enemy_hit"):
+		equip_owner.record_enemy_hit(body)
 	_apply_knockback_to_enemy(body, final_kb)
 	
 	if was_enemy_alive and body.get("is_dying") == true and equip_owner and equip_owner.has_method("check_nemesis_kill_heal"):

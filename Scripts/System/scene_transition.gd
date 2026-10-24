@@ -321,6 +321,45 @@ func _handle_scene_music(path: String) -> void:
 		stop_combat_music()
 		stop_level2_music()
 
+func change_scene_through_portal(path: String, screen_origin: Vector2) -> void:
+	if is_transitioning: return
+	var packed = load(path) as PackedScene
+	if not packed: return
+	is_transitioning = true
+	await RenderingServer.frame_post_draw
+	var snapshot := ImageTexture.create_from_image(get_viewport().get_texture().get_image())
+	var overlay := TextureRect.new()
+	overlay.process_mode = Node.PROCESS_MODE_ALWAYS
+	overlay.texture = snapshot
+	overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var mat := ShaderMaterial.new()
+	mat.shader = preload("res://Art/Effects/portal_reveal.gdshader")
+	var view_size := get_viewport().get_visible_rect().size
+	mat.set_shader_parameter("center", screen_origin / view_size)
+	mat.set_shader_parameter("aspect", view_size.x / view_size.y)
+	overlay.material = mat
+	add_child(overlay)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var was_paused := get_tree().paused
+	get_tree().paused = true
+	var error := get_tree().change_scene_to_packed(packed)
+	if error != OK:
+		get_tree().paused = was_paused
+		overlay.queue_free()
+		is_transitioning = false
+		return
+	await get_tree().scene_changed
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_handle_scene_music(path)
+	var wave := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	wave.tween_method(func(value: float): mat.set_shader_parameter("progress", value), 0.0, 1.0, 1.15).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	await wave.finished
+	overlay.queue_free()
+	get_tree().paused = was_paused
+	is_transitioning = false
+
 func change_scene(path: String) -> void:
 	if is_transitioning:
 		return

@@ -30,7 +30,7 @@ func _physics_process(delta: float) -> void:
 	_handle_attack(delta)
 
 func _update_target_player() -> void:
-	if not target_player:
+	if not is_instance_valid(target_player):
 		var players = get_tree().get_nodes_in_group("player")
 		if not players.is_empty():
 			target_player = players[0]
@@ -56,7 +56,11 @@ func _handle_attack(delta: float) -> void:
 		_attack_nearest_enemy()
 
 func _attack_nearest_enemy() -> void:
-	var enemies = get_tree().get_nodes_in_group("enemy")
+	if not is_instance_valid(target_player) or target_player.get("is_cutscene_frozen") == true: return
+	if GameData.active_protocol != "enjambre_residual":
+		queue_free()
+		return
+	var enemies = get_tree().get_nodes_in_group("enemy").filter(ProtocolRuntime.valid_enemy)
 	if enemies.is_empty():
 		return
 	
@@ -67,13 +71,24 @@ func _attack_nearest_enemy() -> void:
 		if d < min_d:
 			nearest = e
 			min_d = d
+	var protocols = target_player.get("protocols")
+	if protocols:
+		var preferred = protocols.preferred_target()
+		if preferred and global_position.distance_to(preferred.global_position) < 300.0:
+			nearest = preferred
+			min_d = global_position.distance_to(preferred.global_position)
 			
 	if min_d < 300.0:
 		cooldown_timer = attack_cooldown
 		var bee_proj_scene = load("res://Scenes/Projectiles/BeeProjectile.tscn")
 		if bee_proj_scene:
 			var proj = bee_proj_scene.instantiate()
+			proj.set_meta("protocol_metric", "bee_damage")
 			get_tree().current_scene.add_child(proj)
 			proj.global_position = global_position
 			var dir = global_position.direction_to(nearest.global_position)
-			proj.setup(dir, damage, "enemy", false)
+			var scaled_damage := damage
+			if target_player.has_method("_get_weapon_damage"):
+				scaled_damage += clampf(target_player._get_weapon_damage() * 0.2, 0.0, 12.0)
+			proj.setup(dir, scaled_damage, "enemy", false)
+			proj.set_homing_target(nearest)

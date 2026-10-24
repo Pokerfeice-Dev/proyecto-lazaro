@@ -34,7 +34,7 @@ const CRYPT_ENEMY_SCENES := {
 @export_category("Aparición de sala")
 ## Si está prendido, los objetos sueltos de la sala (puerta, cofres, props)
 ## aparecen con un rebote al cargar la sala en vez de estar ahí de una.
-@export var reveal_props_on_load: bool = true
+@export var reveal_props_on_load: bool = false
 ## Velocidad (px/seg) a la que se expande la "ola" de aparición desde
 ## player_spawn hacia el resto de la sala. Más alto = aparece todo más rápido.
 @export var reveal_wave_speed: float = 500.0
@@ -58,6 +58,7 @@ var spawn_timer: Timer
 var spawn_points: Array[Node] = []
 var astar_nav: AStar2D = null
 var _nav_cell_to_id: Dictionary = {}
+var _enemy_navigation: RefCounted
 
 func _ready() -> void:
 	add_to_group("combat_room")
@@ -213,8 +214,10 @@ func _setup_player() -> void:
 			players[0].global_position = p_spawn.global_position
 
 func _setup_spawn_points() -> void:
-	# Busca todos los nodos que se llamen Spawn1, Spawn2, etc.
-	for child in get_children():
+	# Busca puntos de spawn directamente o dentro del contenedor Spawns
+	var spawn_container = get_node_or_null("Spawns")
+	var nodes_to_check: Array = spawn_container.get_children() if spawn_container else get_children()
+	for child in nodes_to_check:
 		if child.name.begins_with("Spawn") and child is Node2D:
 			spawn_points.append(child)
 
@@ -320,6 +323,7 @@ func _on_enemy_died(_enemy) -> void:
 			_clear_room()
 
 func _clear_room() -> void:
+	if room_cleared: return
 	room_cleared = true
 	room_started = false
 	_open_door()
@@ -331,7 +335,7 @@ func _clear_room() -> void:
 	if GameData.get_active_protocol() == "reparacion_autonoma":
 		var player = get_tree().get_first_node_in_group("player")
 		if player and "stats" in player and player.stats.has_method("heal"):
-			player.stats.heal(1)
+			ProtocolRuntime.heal_player(player, 3)
 
 func _award_clear_scrap() -> void:
 	GameData.add_scrap(scrap_reward)
@@ -530,7 +534,12 @@ func _can_traverse_diagonal(cell: Vector2i, offset: Vector2i) -> bool:
 	var adj2 = cell + Vector2i(0, offset.y)
 	return _nav_cell_to_id.has(adj1) and _nav_cell_to_id.has(adj2)
 
-func get_nav_path(from_pos: Vector2, to_pos: Vector2) -> PackedVector2Array:
+func get_nav_path(from_pos: Vector2, to_pos: Vector2, clearance: float = 10.0) -> PackedVector2Array:
+	if not _enemy_navigation:
+		_enemy_navigation = preload("res://Scripts/World/enemy_navigation.gd").new(self)
+	return _enemy_navigation.get_path(from_pos, to_pos, clearance)
+
+func _get_legacy_nav_path(from_pos: Vector2, to_pos: Vector2) -> PackedVector2Array:
 	if not astar_nav or astar_nav.get_point_count() == 0:
 		return PackedVector2Array()
 	var start_id = astar_nav.get_closest_point(from_pos)

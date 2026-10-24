@@ -6,6 +6,23 @@ extends Control
 @onready var exit_button: Button = $VBoxContainer/ExitButton
 @onready var button_group: VBoxContainer = $VBoxContainer # Referencia para animar el menú.
 @onready var logo: TextureRect = get_node_or_null("Logo_Franken")
+var _atmosphere: Control
+var _menu_motion := true
+var _parallax := Vector2.ZERO
+var _leaving := false
+var _button_tweens: Dictionary = {}
+
+func _process(delta: float) -> void:
+	var target := Vector2.ZERO
+	if _menu_motion and not is_instance_valid(_options_screen) and not _leaving:
+		target = (get_local_mouse_position() / size - Vector2(0.5, 0.5)).clamp(Vector2(-0.5, -0.5), Vector2(0.5, 0.5))
+	_parallax = _parallax.lerp(target, 1.0 - exp(-delta * 3.0))
+	for node_name in ["Background", "Barrotes"]:
+		var plane = get_node_or_null(node_name) as Control
+		if plane:
+			plane.pivot_offset = plane.size / 2.0
+			plane.scale = Vector2.ONE * 1.035
+			plane.position = _parallax * (-12.0 if node_name == "Background" else -24.0)
 
 func _ready():
 	play_button.pressed.connect(_on_play_pressed)
@@ -28,6 +45,11 @@ func _ready():
 	_animate_logo()
 	_setup_button_fx()
 	_apply_menu_settings()
+	_atmosphere = preload("res://Scripts/UI/menu_atmosphere.gd").new()
+	add_child(_atmosphere)
+	move_child(_atmosphere, logo.get_index() if logo else button_group.get_index())
+	_atmosphere.motion_enabled = _menu_motion
+	_atmosphere.particles_enabled = FxSettings.on("particulas_menu")
 
 # Animación de aparición: fade + leve escala desde el centro del bloque de botones.
 func _play_intro_animation() -> void:
@@ -75,6 +97,7 @@ func _on_setting_changed(_section: String, key: String, value: Variant) -> void:
 		"fondo_animado_menu": _set_menu_background_anim(bool(value))
 
 func _set_menu_particles(enabled: bool) -> void:
+	if is_instance_valid(_atmosphere): _atmosphere.particles_enabled = enabled
 	for n in ["RainParticles", "SnowParticles"]:
 		var p = get_node_or_null(n)
 		if not p: continue
@@ -83,6 +106,8 @@ func _set_menu_particles(enabled: bool) -> void:
 
 # sin el material, Lazaro queda quieto (la imagen es la misma, solo deja de respirar)
 func _set_menu_background_anim(enabled: bool) -> void:
+	_menu_motion = enabled
+	if is_instance_valid(_atmosphere): _atmosphere.motion_enabled = enabled
 	if not has_node("Background"): return
 	$Background.material = _fondo_material if enabled else null
 
@@ -157,9 +182,13 @@ func _play_buttons_cascade() -> void:
 		t.tween_property(btn, "modulate:a", 1.0 if not btn.disabled else 0.55, 0.3).set_delay(0.25 + i * 0.09)
 
 func _on_button_hover(btn: Button, entered: bool) -> void:
-	if btn.disabled: return
+	if btn.disabled or _leaving: return
+	entered = btn.is_hovered() or btn.has_focus()
+	if _button_tweens.has(btn) and _button_tweens[btn].is_valid():
+		_button_tweens[btn].kill()
 	var mat = btn.material as ShaderMaterial
 	var t = create_tween().set_parallel(true)
+	_button_tweens[btn] = t
 	t.tween_property(btn, "scale", Vector2(1.07, 1.07) if entered else Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t.tween_property(btn, "rotation_degrees", randf_range(-1.2, 1.2) if entered else 0.0, 0.18)
 	if mat:
@@ -171,6 +200,7 @@ func _on_button_hover(btn: Button, entered: bool) -> void:
 
 func _on_button_down(btn: Button) -> void:
 	if btn.disabled: return
+	if is_instance_valid(_atmosphere): _atmosphere.surge()
 	var mat = btn.material as ShaderMaterial
 	var t = create_tween().set_parallel(true)
 	t.tween_property(btn, "scale", Vector2(0.94, 0.94), 0.06)
@@ -184,6 +214,7 @@ func _on_button_up(btn: Button) -> void:
 	create_tween().tween_property(btn, "scale", Vector2(1.07, 1.07), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _burst_sparks(btn: Button, amount: int) -> void:
+	if not FxSettings.on("particulas_menu"): return
 	var p = btn.get_node_or_null("Chispas") as CPUParticles2D
 	if not p: return
 	p.amount = amount
@@ -239,6 +270,9 @@ func _on_logo_spark_timer(timer: Timer) -> void:
 
 # Animación de salida antes de cambiar de escena o cerrar el juego, para que no corte seco.
 func _play_exit_animation(on_finished: Callable) -> void:
+	if _leaving: return
+	_leaving = true
+	for btn in _botones: btn.disabled = true
 	var tween = create_tween().set_parallel(true)
 	tween.tween_property(button_group, "modulate:a", 0.0, 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.tween_property(button_group, "scale", Vector2(0.92, 0.92), 0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)

@@ -55,7 +55,7 @@ const VICTORY_SUBTITLE := "VENCISTE A PROMETEO, EL ANDROIDE QUE AUTOMATIZÓ LA J
 @export var phase_three_threshold: float = 0.30
 @export var clone_health_ratio: float = 0.18
 @export var clone_lifetime: float = 18.0
-## Segundos entre que muere y aparece la pantalla de victoria (se gana la run).
+## Segundos entre que muere y aparece el portal de regreso al laboratorio.
 @export var victory_delay: float = 3.5
 ## Música de cada fase (opcional). Si están vacías sigue sonando la de la sala.
 @export var phase_two_music: AudioStream
@@ -705,16 +705,21 @@ func die() -> void:
 
 # Prometeo es el jefe final: al caer se gana la run, sin importar desde dónde se
 # llegó (run normal, sala de prueba o menú de debug). Después de la explosión
-# sale la pantalla de victoria y su botón lleva al laboratorio.
+# aparece el portal de regreso; el jugador decide cuándo cruzarlo.
 func _win_run() -> void:
 	await get_tree().create_timer(victory_delay, false).timeout
 	var next_scene = GameData.win_run()
-	GameData.just_won_run = false # la pantalla la mostramos acá, no la puerta
-	var player = get_tree().get_first_node_in_group("player")
-	if player and player.has_method("show_win_screen"):
-		player.show_win_screen(next_scene, VICTORY_TITLE, VICTORY_SUBTITLE)
-		return
-	SceneTransition.change_scene(next_scene)
+	GameData.just_won_run = false
+	RunLog.finish("victoria")
+	_spawn_victory_portal(next_scene)
+
+func _spawn_victory_portal(next_scene: String) -> void:
+	if get_tree().get_first_node_in_group("exit_portal"): return
+	var portal = preload("res://Scenes/World/CosmicPortal.tscn").instantiate()
+	portal.destination_scene = next_scene
+	portal.name = "VictoryPortal"
+	get_tree().current_scene.add_child(portal)
+	portal.global_position = global_position
 
 func _stop_auras() -> void:
 	for aura_name in ["ShadowAura", "EmberAura"]:
@@ -744,7 +749,7 @@ func _play_death_fx() -> void:
 	burst.emitting = true
 	if not is_clone:
 		shake(22.0, 1.2)
-	# el original espera a mostrar la victoria antes de borrarse
+	# El original espera a crear el portal antes de borrarse.
 	var free_delay = 3.0 if is_clone else maxf(3.0, victory_delay + 0.5)
 	get_tree().create_timer(free_delay, false).timeout.connect(queue_free)
 

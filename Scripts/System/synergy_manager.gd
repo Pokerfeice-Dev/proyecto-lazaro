@@ -280,6 +280,31 @@ func get_active_weapon_display_synergy(equipment: Object, active_weapon_id: Stri
 			return syn_id
 	return ""
 
+## Retorna la primera sinergia corporal activa (sin arma requerida), si la hay.
+func get_active_body_synergy(equipment: Object) -> String:
+	if not equipment:
+		return ""
+	for syn_id in SYNERGIES.keys():
+		var def: Dictionary = SYNERGIES[syn_id]
+		if def.get("required_weapon", "") != "":
+			continue
+		if _is_synergy_active(syn_id, equipment, "", true):
+			return syn_id
+	return ""
+
+## Resumen breve para la sección de personaje en atributos de la UI.
+func get_body_synergy_short_description(syn_id: String) -> String:
+	match syn_id:
+		"acorazado_muscular":
+			return "+25% Vida, +3 Armadura, +20% Daño, +15% Empuje, -5% Vel."
+		"bestia_de_caza":
+			return "Doble arma melee. +15% Daño, +20% Vel. Ataque y Mov, -2 Armadura. Dash activa Furia."
+		"trituradora_biomecanica":
+			return "+10% Vel. Mov, -15% CD Dash. Carga cinética: dash con onda expansiva e invulnerabilidad."
+		_:
+			var def: Dictionary = SYNERGIES.get(syn_id, {})
+			return str(def.get("description", ""))
+
 func _get_single_synergy_weapon_override(syn_id: String) -> String:
 	var def = SYNERGIES[syn_id]
 	var path = def.get("weapon_scene_override", "")

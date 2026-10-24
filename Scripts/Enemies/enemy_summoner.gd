@@ -23,6 +23,8 @@ var summon_timer: float = 2.5
 @onready var attack_light: PointLight2D = get_node_or_null("Attack_light")
 
 var _light_tween: Tween = null
+const SwarmFX = preload("res://Scripts/Effects/swarm_summon_fx.gd")
+var _swarm_fx: Node2D
 
 func _ready() -> void:
 	super._ready()
@@ -64,8 +66,19 @@ func _cleanup_dead_summons() -> void:
 	active_summons = valid_summons
 
 func _start_summon() -> void:
+	if is_dying or current_state == State.SUMMON: return
 	current_state = State.SUMMON
 	velocity = Vector2.ZERO
+	if is_instance_valid(_swarm_fx): _swarm_fx.queue_free()
+	_swarm_fx = SwarmFX.new()
+	var source := summon_anim if summon_anim else anim_sprite
+	var animation := &"summon" if summon_anim else &"attack"
+	if source and source.sprite_frames and source.sprite_frames.has_animation(animation):
+		var frames := source.sprite_frames
+		var length := 0.0
+		for i in frames.get_frame_count(animation): length += frames.get_frame_duration(animation, i)
+		_swarm_fx.duration = length / maxf(frames.get_animation_speed(animation) * absf(source.speed_scale), 0.01)
+	add_child(_swarm_fx)
 	if anim_sprite:
 		anim_sprite.play("attack")
 		
@@ -106,6 +119,8 @@ func _disable_attack_light() -> void:
 		attack_light.enabled = false
 
 func _on_summon_animation_finished() -> void:
+	if is_dying or current_state != State.SUMMON: return
+	if is_instance_valid(_swarm_fx): _swarm_fx.release()
 	if summon_anim:
 		summon_anim.hide()
 	_trigger_attack_light_fade_out()
@@ -127,6 +142,10 @@ func _spawn_bee() -> void:
 		bee.enemy_died.connect(_on_bee_died)
 		
 	get_parent().add_child(bee)
+	var birth_fx := SwarmFX.new()
+	birth_fx.birth = true
+	birth_fx.release()
+	bee.add_child(birth_fx)
 	active_summons.append(bee)
 
 func _on_bee_died(bee: EnemyBase) -> void:

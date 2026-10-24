@@ -46,22 +46,28 @@ position = Vector2(989, -831)
 scale = Vector2(1.5, 1.5)
 color = Color(0.12, 0.14, 0.22, 1)
 
-[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_q7oph")]
-position = Vector2(86.66667, -128.66666)
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
+
+[node name="Torch1" parent="Iluminacion" unique_id=64839201 instance=ExtResource("5_q7oph")]
+position = Vector2(1075.66667, -959.66666)
 scale = Vector2(0.63, 0.63)
 
-[node name="Torch2" parent="CanvasModulate" unique_id=747930312 instance=ExtResource("5_q7oph")]
-position = Vector2(-101.999985, -128.66666)
+
+[node name="Torch2" parent="Iluminacion" unique_id=747930312 instance=ExtResource("5_q7oph")]
+position = Vector2(887.000015, -959.66666)
 scale = Vector2(0.63, 0.63)
 
-[node name="Torch3" parent="CanvasModulate" unique_id=1838131759 instance=ExtResource("5_q7oph")]
-position = Vector2(-137.33331, 84)
+
+[node name="Torch3" parent="Iluminacion" unique_id=1838131759 instance=ExtResource("5_q7oph")]
+position = Vector2(851.66669, -747)
 scale = Vector2(0.63, 0.63)
 
-[node name="Torch4" parent="CanvasModulate" unique_id=650713677 instance=ExtResource("5_q7oph")]
-position = Vector2(-1.3333282, -45.999985)
+
+[node name="Torch4" parent="Iluminacion" unique_id=650713677 instance=ExtResource("5_q7oph")]
+position = Vector2(987.666672, -876.999985)
 scale = Vector2(0.63, 0.63)
 
-[node name="Torch5" parent="CanvasModulate" unique_id=1151598348 instance=ExtResource("5_q7oph")]
-position = Vector2(112.66667, 94.666664)
+
+[node name="Torch5" parent="Iluminacion" unique_id=1151598348 instance=ExtResource("5_q7oph")]
+position = Vector2(1101.66667, -736.333336)
 scale = Vector2(0.63, 0.63)

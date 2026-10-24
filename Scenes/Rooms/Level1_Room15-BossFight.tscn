@@ -49,31 +49,32 @@ parameters/looping = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=958300347]
 
-[node name="Spawn1" type="Marker2D" parent="." unique_id=1315336209]
-position = Vector2(-286, -203)
-
-[node name="Spawn2" type="Marker2D" parent="." unique_id=1894963541]
-position = Vector2(289, -203)
-
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=380184592]
 color = Color(0.36, 0.38, 0.5, 1)
 
-[node name="Lampara_pie" parent="CanvasModulate" unique_id=1509059318 instance=ExtResource("6_a1jql")]
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
+
+[node name="Lampara_pie" parent="Iluminacion" unique_id=1509059318 instance=ExtResource("6_a1jql")]
 position = Vector2(-226.99998, -292)
 scale = Vector2(0.9696379, 0.9696379)
 
-[node name="Lampara_pie" parent="CanvasModulate/Lampara_pie" unique_id=1598574605 instance=ExtResource("6_a1jql")]
-position = Vector2(468.216, -1.031311)
+
+[node name="Lampara_pie2" parent="Iluminacion" unique_id=1598574605 instance=ExtResource("6_a1jql")]
+position = Vector2(241.21602, -293.031311)
 scale = Vector2(0.9696379, 0.9696379)
 
-[node name="lampara_pared" parent="CanvasModulate" unique_id=1368619277 instance=ExtResource("7_pesim")]
+
+[node name="lampara_pared" parent="Iluminacion" unique_id=1368619277 instance=ExtResource("7_pesim")]
 position = Vector2(-347, 92)
 
-[node name="lampara_pared2" parent="CanvasModulate" unique_id=624065153 instance=ExtResource("7_pesim")]
+
+[node name="lampara_pared2" parent="Iluminacion" unique_id=624065153 instance=ExtResource("7_pesim")]
 position = Vector2(345, 91)
+[node name="Spawns" type="Node2D" parent="." unique_id=30303030]
 
-[node name="lampara_pared3" parent="CanvasModulate" unique_id=503514216 instance=ExtResource("7_pesim")]
-position = Vector2(344, -349)
+[node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=1315336209]
+position = Vector2(-286, -203)
 
-[node name="lampara_pared4" parent="CanvasModulate" unique_id=427152504 instance=ExtResource("7_pesim")]
-position = Vector2(-345, -351)
+
+[node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=1894963541]
+position = Vector2(289, -203)

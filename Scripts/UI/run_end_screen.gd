@@ -190,12 +190,41 @@ func _fill_rows() -> void:
 		_add_row(ICON_ROOM, "SALAS RECORRIDAS", "", _text_value("1 - %d" % GameData.current_run_room))
 	_add_row(ICON_KILLS, "ENEMIGOS ELIMINADOS", "", _count_value(GameData.run_enemies_killed))
 	_add_row(ICON_SCRAP, "CHATARRA OBTENIDA", "EN ESTA RUN", _count_value(GameData.run_scrap_collected))
+	_add_protocol_summary()
 	if not victory:
 		var killer = _text_value(GameData.last_killer)
 		killer.add_theme_color_override("font_color", COLOR_DEATH)
 		killer.add_theme_font_size_override("font_size", 22)
 		_add_row(ICON_KILLER, "TE HA MATADO", "FUENTE DE DAÑO", killer)
 		_add_joke(GameData.last_killer)
+
+func _add_protocol_summary() -> void:
+	var summary: String = GameData.protocol_summary()
+	if summary.is_empty(): return
+	var definition = OmniaCatalog.protocol_definition(GameData.active_protocol)
+	if definition.is_empty(): return
+	_rows.add_child(UIStyle.divider())
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	var frame = UIStyle.panel(UIStyle.TEX_SLOT["normal"])
+	frame.custom_minimum_size = Vector2(44, 44)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var icon = UIStyle.icon(OmniaCatalog.load_icon(definition.icon), 26)
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if GameData.active_protocol != "reciclaje_instantaneo":
+		icon.modulate = UIStyle.COLOR_TEAL
+	frame.add_child(icon)
+	row.add_child(frame)
+	var texts = VBoxContainer.new()
+	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texts.add_theme_constant_override("separation", 3)
+	var title = UIStyle.label(definition.name, 17, UIStyle.COLOR_TEAL)
+	texts.add_child(title)
+	var contribution = UIStyle.label(summary, 14, UIStyle.COLOR_MUTED)
+	contribution.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	texts.add_child(contribution)
+	row.add_child(texts)
+	_rows.add_child(row)
 
 # Frase graciosa para algunas muertes (por ejemplo, con tu propia gasolina).
 func _add_joke(killer: String) -> void:

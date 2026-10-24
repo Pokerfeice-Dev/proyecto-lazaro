@@ -5,52 +5,35 @@ class_name HUD
 @export var scrap_label: Label
 @export var flesh_label: Label
 @export var dash_cd_bar: TextureProgressBar
-@export var health_label: Label
-@export var health_particles: CPUParticles2D
 
 @export var primary_weapon_rect: TextureRect
 @export var secondary_weapon_rect: TextureRect
 var _dash_was_on_cooldown: bool = false
-@export_group("Particles High Health (+70%)")
-@export var particles_high_color: Color = Color(0.4, 0.9, 0.6, 0.7)
-@export var particles_high_speed: float = 1.0
-@export var particles_high_vel_min: float = 80.0
-@export var particles_high_vel_max: float = 120.0
-@export var particles_high_lifetime: float = 2.0
-
-@export_group("Particles Mid Health (30%-70%)")
-@export var particles_mid_color: Color = Color(0.7, 0.3, 0.9, 0.8)
-@export var particles_mid_speed: float = 1.8
-@export var particles_mid_vel_min: float = 140.0
-@export var particles_mid_vel_max: float = 200.0
-@export var particles_mid_lifetime: float = 1.2
-
-@export_group("Particles Low Health (-30%)")
-@export var particles_low_color: Color = Color(1.0, 0.2, 0.2, 0.9)
-@export var particles_low_speed: float = 3.0
-@export var particles_low_vel_min: float = 220.0
-@export var particles_low_vel_max: float = 320.0
-@export var particles_low_lifetime: float = 0.8
-
-@export_group("Particles Fallback Setup")
-@export var fallback_particles_amount: int = 40
-@export_enum("Point", "Sphere", "Rectangle", "Points", "Directed Points") var fallback_particles_shape: int = 2
-@export var fallback_particles_extents: Vector2 = Vector2(1, 20)
-@export var fallback_particles_direction: Vector2 = Vector2(1, 0)
-@export var fallback_particles_spread: float = 15.0
-@export var fallback_particles_gravity: Vector2 = Vector2(0, 0)
-@export var fallback_particles_position: Vector2 = Vector2(148, 98)
 
 @export_category("Cartel de entrada a la sala")
 ## Prendido: cartel nuevo (RoomTitleCard). Apagado: el texto animado de antes.
 @export var use_new_room_title: bool = true
 
+@export_category("Eyelight Settings")
+@export var eyelight_color: Color = Color(0.9, 0.05, 0.05, 1.0)
+@export var eyelight_low_health_threshold: float = 0.25
+
+var _eyelights: Array[PointLight2D] = []
+var _eyelight_heartbeat_tween: Tween = null
+var _is_eyelight_pulsing: bool = false
+var _protocol_panel: PanelContainer
+var _protocol_icon: TextureRect
+var _protocol_name_label: Label
+var _protocol_status_label: Label
+var _protocol_displayed_id := ""
+var _protocol_refresh_left := 0.0
+
 func _ready():
 	add_to_group("hud")
-	_setup_health_label()
+	_setup_eyelights()
 	_setup_dash_cooldown()
-	_setup_health_particles()
 	_setup_weapon_hud()
+	_setup_protocol_hud()
 	update_scrap(GameData.scrap)
 	update_flesh(GameData.flesh)
 	_initialize_health()
@@ -66,6 +49,59 @@ func _setup_weapon_hud() -> void:
 	if secondary_panel and secondary_panel is TextureRect:
 		secondary_panel.texture = circle_bg
 
+func _setup_protocol_hud() -> void:
+	var control = get_node_or_null("Control")
+	if not control: return
+	_protocol_panel = UIStyle.panel(UIStyle.TEX_PANEL_INSET)
+	_protocol_panel.name = "ProtocolHUD"
+	_protocol_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_protocol_panel.position = Vector2(32, 170)
+	_protocol_panel.custom_minimum_size = Vector2(354, 58)
+	_protocol_panel.visible = false
+	control.add_child(_protocol_panel)
+	var margin = UIStyle.padded(8)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_protocol_panel.add_child(margin)
+	var row = HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 10)
+	margin.add_child(row)
+	_protocol_icon = UIStyle.icon(null, 24)
+	_protocol_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_protocol_icon.modulate = UIStyle.COLOR_TEAL
+	_protocol_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_protocol_icon)
+	var texts = VBoxContainer.new()
+	texts.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texts.add_theme_constant_override("separation", 2)
+	row.add_child(texts)
+	_protocol_name_label = UIStyle.label("", 16, UIStyle.COLOR_TEAL)
+	_protocol_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texts.add_child(_protocol_name_label)
+	_protocol_status_label = UIStyle.label("", 13, UIStyle.COLOR_MUTED)
+	_protocol_status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texts.add_child(_protocol_status_label)
+
+func _update_protocol_hud(player: Node2D, delta: float) -> void:
+	if not is_instance_valid(_protocol_panel): return
+	_protocol_refresh_left -= delta
+	if _protocol_refresh_left > 0.0: return
+	_protocol_refresh_left = 0.1
+	var id: String = GameData.active_protocol
+	var in_lab: bool = player.has_method("_is_in_lab_room") and player._is_in_lab_room()
+	_protocol_panel.visible = not id.is_empty() and not in_lab and "protocols" in player and player.protocols != null
+	if not _protocol_panel.visible: return
+	if id != _protocol_displayed_id:
+		_protocol_displayed_id = id
+		var definition = OmniaCatalog.protocol_definition(id)
+		_protocol_name_label.text = OmniaCatalog.protocol_name(id)
+		_protocol_icon.texture = OmniaCatalog.load_icon(str(definition.get("icon", "icon_energy")))
+		_protocol_icon.modulate = Color.WHITE if id == "reciclaje_instantaneo" else UIStyle.COLOR_TEAL
+	var status: String = player.protocols.status_text()
+	if _protocol_status_label.text != status:
+		_protocol_status_label.text = status
+
 func _create_filled_circle_texture(bg_color: Color, border_color: Color) -> ImageTexture:
 	var img = Image.create(80, 80, false, Image.FORMAT_RGBA8)
 	var center = Vector2(40, 40)
@@ -79,32 +115,6 @@ func _create_filled_circle_texture(bg_color: Color, border_color: Color) -> Imag
 			else:
 				img.set_pixel(x, y, Color.TRANSPARENT)
 	return ImageTexture.create_from_image(img)
-
-func _setup_health_label() -> void:
-	if health_label: return
-	if _find_health_label_node(): return
-	_create_health_label_fallback()
-
-func _find_health_label_node() -> bool:
-	if not health_bar: return false
-	var found = health_bar.get_parent().get_node_or_null("HealthLabel")
-	if found:
-		health_label = found
-		return true
-	return false
-
-func _create_health_label_fallback() -> void:
-	if not health_bar: return
-	health_label = Label.new()
-	health_label.add_theme_font_size_override("font_size", 18)
-	health_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	health_label.add_theme_constant_override("outline_size", 4)
-	health_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	health_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	health_bar.get_parent().add_child(health_label)
-	health_label.size = Vector2(272, 40)
-	health_label.position = health_bar.position + Vector2(192, 64)
-
 
 func _initialize_health() -> void:
 	var players = get_tree().get_nodes_in_group("player")
@@ -184,9 +194,11 @@ func _create_dash_label() -> Label:
 	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
 	return lbl
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var players = get_tree().get_nodes_in_group("player")
 	if players.is_empty():
+		if is_instance_valid(_protocol_panel):
+			_protocol_panel.visible = false
 		return
 	var p = players[0]
 	if "dash_cd_timer" in p and p.dash_cd_timer:
@@ -194,6 +206,7 @@ func _process(_delta: float) -> void:
 		var max_time = p.dash_cd_timer.wait_time
 		update_dash_cooldown(time_left, max_time)
 	_update_weapons_hud(p)
+	_update_protocol_hud(p, delta)
 
 func _update_weapons_hud(p: Node2D) -> void:
 	# En el laboratorio no mostramos el HUD de armas (el jugador tampoco las
@@ -326,17 +339,84 @@ func _create_dash_ready_tween() -> void:
 
 func update_health(new_health: int, max_health: int):
 	_update_health_bar_values(new_health, max_health)
-	_update_health_label_text(new_health, max_health)
-	_update_health_particles(new_health, max_health)
+	_update_eyelights_health(new_health, max_health)
+
+func _setup_eyelights() -> void:
+	_eyelights.clear()
+	_collect_eyelights(self)
+	for light in _eyelights:
+		light.color = eyelight_color
+		light.energy = 0.0
+		light.visible = false
+		light.blend_mode = PointLight2D.BLEND_MODE_ADD
+		light.range_layer_min = -100
+		light.range_layer_max = 100
+
+func _collect_eyelights(node: Node) -> void:
+	for child in node.get_children():
+		if child is PointLight2D and "eyelight" in child.name.to_lower():
+			_eyelights.append(child)
+		_collect_eyelights(child)
+
+func _update_eyelights_health(new_health: int, max_health: int) -> void:
+	if _eyelights.is_empty() or max_health <= 0: return
+	var health_ratio = float(new_health) / float(max_health)
+	var is_critical = new_health > 0 and health_ratio < eyelight_low_health_threshold
+	if is_critical:
+		_start_eyelight_heartbeat()
+	else:
+		_stop_eyelight_heartbeat()
+
+func _start_eyelight_heartbeat() -> void:
+	if _is_eyelight_pulsing: return
+	_is_eyelight_pulsing = true
+	_set_eyelights_visible(true)
+	_animate_eyelight_heartbeat()
+
+func _stop_eyelight_heartbeat() -> void:
+	if not _is_eyelight_pulsing:
+		_set_eyelights_visible(false)
+		return
+	_is_eyelight_pulsing = false
+	if _eyelight_heartbeat_tween and _eyelight_heartbeat_tween.is_valid():
+		_eyelight_heartbeat_tween.kill()
+	_set_eyelights_visible(false)
+
+func _set_eyelights_visible(target_visible: bool) -> void:
+	for light in _eyelights:
+		if not is_instance_valid(light): continue
+		light.visible = target_visible
+		if not target_visible:
+			light.energy = 0.0
+
+func _animate_eyelight_heartbeat() -> void:
+	if not _is_eyelight_pulsing: return
+	if _eyelight_heartbeat_tween and _eyelight_heartbeat_tween.is_valid():
+		_eyelight_heartbeat_tween.kill()
+	_eyelight_heartbeat_tween = create_tween()
+	# Primer latido fuerte (Sístole 1)
+	_eyelight_heartbeat_tween.tween_method(_set_eyelights_energy, 0.4, 2.5, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_eyelight_heartbeat_tween.tween_method(_set_eyelights_energy, 2.5, 0.6, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	# Segundo latido rebote (Sístole 2)
+	_eyelight_heartbeat_tween.tween_method(_set_eyelights_energy, 0.6, 1.8, 0.10).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_eyelight_heartbeat_tween.tween_method(_set_eyelights_energy, 1.8, 0.3, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	# Pausa de diástole antes del próximo ciclo de latido
+	_eyelight_heartbeat_tween.tween_interval(0.42)
+	_eyelight_heartbeat_tween.finished.connect(_on_eyelight_heartbeat_cycle_finished)
+
+func _on_eyelight_heartbeat_cycle_finished() -> void:
+	if _is_eyelight_pulsing:
+		_animate_eyelight_heartbeat()
+
+func _set_eyelights_energy(val: float) -> void:
+	for light in _eyelights:
+		if is_instance_valid(light):
+			light.energy = val
 
 func _update_health_bar_values(new_health: int, max_health: int) -> void:
 	if health_bar:
 		health_bar.max_value = max_health
 		health_bar.value = new_health
-
-func _update_health_label_text(new_health: int, max_health: int) -> void:
-	if health_label:
-		health_label.text = "%d / %d" % [new_health, max_health]
 
 func update_scrap(amount: int):
 	if scrap_label:
@@ -345,49 +425,6 @@ func update_scrap(amount: int):
 func update_flesh(amount: int):
 	if flesh_label:
 		flesh_label.text = str(amount)
-
-func _setup_health_particles() -> void:
-	if health_particles: return
-	if _find_health_particles_node(): return
-	_create_health_particles_fallback()
-
-func _find_health_particles_node() -> bool:
-	if not health_bar: return false
-	var found = health_bar.get_parent().get_node_or_null("HealthParticles")
-	if found:
-		health_particles = found
-		return true
-	return false
-
-func _create_health_particles_fallback() -> void:
-	if not health_bar: return
-	health_particles = CPUParticles2D.new()
-	health_particles.name = "HealthParticles"
-	health_particles.amount = fallback_particles_amount
-	health_particles.emission_shape = fallback_particles_shape as CPUParticles2D.EmissionShape
-	health_particles.emission_rect_extents = fallback_particles_extents
-	health_particles.direction = fallback_particles_direction
-	health_particles.spread = fallback_particles_spread
-	health_particles.gravity = fallback_particles_gravity
-	health_particles.position = fallback_particles_position
-	health_bar.get_parent().add_child(health_particles)
-
-func _update_health_particles(new_health: int, max_health: int) -> void:
-	if not health_particles: return
-	var pct = float(new_health) / float(max_health)
-	if pct > 0.70:
-		_set_particles_state(particles_high_color, particles_high_speed, particles_high_vel_min, particles_high_vel_max, particles_high_lifetime)
-	elif pct >= 0.30:
-		_set_particles_state(particles_mid_color, particles_mid_speed, particles_mid_vel_min, particles_mid_vel_max, particles_mid_lifetime)
-	else:
-		_set_particles_state(particles_low_color, particles_low_speed, particles_low_vel_min, particles_low_vel_max, particles_low_lifetime)
-
-func _set_particles_state(color: Color, speed: float, vel_min: float, vel_max: float, lifetime: float) -> void:
-	health_particles.color = color
-	health_particles.speed_scale = speed
-	health_particles.initial_velocity_min = vel_min
-	health_particles.initial_velocity_max = vel_max
-	health_particles.lifetime = lifetime
 
 func _play_intro_room_animation() -> void:
 	var intro_node = get_node_or_null("Control/Intro_room")

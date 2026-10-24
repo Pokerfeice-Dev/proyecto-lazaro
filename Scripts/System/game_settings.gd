@@ -54,8 +54,13 @@ var _fps_timer: float = 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_apply_web_optimizations()
 	_load_settings()
 	_apply_all()
+
+func _apply_web_optimizations() -> void:
+	if not OS.has_feature("web"): return
+	Engine.max_fps = 60
 
 # ---- acceso desde cualquier script ----
 

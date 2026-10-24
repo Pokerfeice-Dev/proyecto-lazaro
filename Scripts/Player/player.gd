@@ -9,6 +9,8 @@ class_name Player
 @export var projectile_scene: PackedScene = preload("res://Scenes/Projectiles/Projectile.tscn")
 @export var weapon_scene: PackedScene = preload("res://Scenes/Weapon/main_weapon.tscn")
 @export var second_weapon_scene: PackedScene = preload("res://Scenes/Weapon/second_weapon.tscn")
+## Variantes de materialización para comparar desde el Inspector.
+@export_enum("Muerte inversa", "Convergencia radial", "Desde el suelo") var arrival_pixel_style: int = 0
 
 @export_category("Weapon Animation Offsets")
 @export var animation_frame_offsets: Dictionary = {
@@ -95,17 +97,18 @@ const ALTO_OCTANAJE_RATIO := 1.5 # daño de la explosión respecto del hachazo
 const ALTO_OCTANAJE_MIN := 15
 const ALTO_OCTANAJE_MAX := 40
 
-var first_hit_taken_in_room: bool = false
-var is_blindaje_reactivo_active: bool = false
-var blindaje_reactivo_timer: Timer = null
+var protocols: ProtocolRuntime
 var dash_start_pos: Vector2 = Vector2.ZERO
 
 var _default_modulate: Color = Color.WHITE
 var _flash_tween: Tween = null
 var drop_shadow: DropShadow = null
 var _arrogancia_shield: Node2D
+var _last_enemy_hit_msec: int = 0
+var _arrival_scene_id: int = 0
 
 func _ready() -> void:
+	_last_enemy_hit_msec = Time.get_ticks_msec()
 	_init_timers()
 	setup_damage_effect()
 	_init_stats()
@@ -130,6 +133,28 @@ func _ready() -> void:
 		equip.equipment_changed.connect(_on_equipment_changed)
 		equip.body_part_equipped.connect(_on_body_part_equipped)
 	_update_player_stats()
+	get_tree().scene_changed.connect(_queue_arrival_fx)
+	hide() # Evita ver el cuerpo completo antes de reunir los píxeles.
+	_queue_arrival_fx.call_deferred()
+
+func _queue_arrival_fx() -> void:
+	# Espera el posicionamiento de la sala y el final del fade/portal para
+	# que los 0,36 segundos del efecto no se consuman detrás de la transición.
+	if not is_inside_tree(): return
+	await get_tree().process_frame
+	if not is_inside_tree(): return
+	var scene := get_tree().current_scene
+	if not is_instance_valid(scene): return
+	var scene_id := scene.get_instance_id()
+	if _arrival_scene_id == scene_id: return
+	_arrival_scene_id = scene_id
+	hide()
+	while SceneTransition.is_transitioning:
+		await get_tree().process_frame
+		if not is_inside_tree(): return
+		if not is_instance_valid(scene) or get_tree().current_scene != scene: return
+	if is_inside_tree() and stats and stats.current_health > 0:
+		preload("res://Scripts/Effects/player_arrival_fx.gd").spawn(self)
 
 func _setup_player_shadow() -> void:
 	drop_shadow = DropShadow.attach_to(self, Vector2(26.0, 12.0), Vector2(0.0, 15.0), 0.38)
@@ -262,14 +287,6 @@ func _init_timers() -> void:
 	_create_furia_timer()
 	_create_footstep_timer()
 	_create_low_health_timer()
-
-	blindaje_reactivo_timer = Timer.new()
-	blindaje_reactivo_timer.one_shot = true
-	add_child(blindaje_reactivo_timer)
-	blindaje_reactivo_timer.timeout.connect(_on_blindaje_reactivo_timeout)
-
-func _on_blindaje_reactivo_timeout() -> void:
-	is_blindaje_reactivo_active = false
 
 func _create_shoot_timer() -> void:
 	shoot_timer = Timer.new()
@@ -433,6 +450,13 @@ func _physics_process(delta: float) -> void:
 	_arrogancia_shield.set_active(_is_arrogancia_reflect_active())
 	move_and_slide()
 	update_animation()
+
+func record_enemy_hit(_enemy: Node2D = null) -> void:
+	_last_enemy_hit_msec = Time.get_ticks_msec()
+	if protocols: protocols.note_target(_enemy)
+
+func get_seconds_since_enemy_hit() -> float:
+	return float(Time.get_ticks_msec() - _last_enemy_hit_msec) / 1000.0
 
 func _check_dash_input() -> void:
 	if not Input.is_action_just_pressed("dash"): return
@@ -793,8 +817,8 @@ func _get_equip_stat(stat_name: String, is_main: bool = true) -> float:
 	if stat_name == "attack_speed":
 		if is_furia_active:
 			bonus += 0.50
-		if GameData.get_active_protocol() == "furia_de_titanio" and stats.current_health <= stats.max_health * 0.3:
-			bonus += 0.25
+		if protocols and protocols.is_fury_active():
+			bonus += 0.35
 		
 	if is_main:
 		bonus += _get_minigun_stat_bonus(stat_name)
@@ -968,7 +992,7 @@ func _instantiate_bullets(p_scene: PackedScene, count: int, start_angle: float, 
 	for i in range(count):
 		_spawn_single_bullet(p_scene, i, count, start_angle, step_angle, dir, dmg, p_speed, spawn_pos, piercing, crit_chance, crit_damage, lifetime)
 
-func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle: float, step_angle: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float, crit_damage: float, lifetime: float) -> void:
+func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle: float, step_angle: float, dir: Vector2, dmg: float, p_speed: float, spawn_pos: Vector2, piercing: int, crit_chance: float, crit_damage: float, lifetime: float) -> Node2D:
 	var final_dir = dir
 	if count > 1:
 		final_dir = Vector2.RIGHT.rotated(start_angle + (step_angle * float(i)))
@@ -976,7 +1000,10 @@ func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle:
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = spawn_pos
 	
-	var final_dmg = dmg
+	var final_dmg = dmg * protocol_damage_multiplier()
+	if protocol_damage_multiplier() > 1.0:
+		proj.set_meta("protocol_metric", "overload_damage")
+		proj.set_meta("protocol_bonus_ratio", 1.0 - 1.0 / protocol_damage_multiplier())
 	var is_crit = false
 	if randf() <= crit_chance:
 		final_dmg *= crit_damage
@@ -991,6 +1018,7 @@ func _spawn_single_bullet(p_scene: PackedScene, i: int, count: int, start_angle:
 	_apply_bullet_proc_status_if_supported(proj)
 	_configure_bee_swarm_if_supported(proj, i, count, final_dir)
 	_assign_homing_target_if_supported(proj, i)
+	return proj
 
 func _apply_bullet_proc_status_if_supported(proj: Node2D) -> void:
 	if not proj.has_method("set_status_effect"): return
@@ -1350,6 +1378,7 @@ func _trigger_trituradora_shockwave() -> void:
 		var dist = global_position.distance_to(enemy.global_position)
 		if dist < dmg_radius:
 			enemy.take_damage(int(base_dmg))
+			record_enemy_hit(enemy)
 			if enemy.has_method("apply_knockback"):
 				var dir = (enemy.global_position - global_position).normalized()
 				if dir == Vector2.ZERO: dir = Vector2.UP
@@ -1434,23 +1463,11 @@ func take_damage(amount: int, source_name: String = "Infección Lázaro", source
 	if is_invulnerable: return
 	is_invulnerable = true
 	
-	var base_amount = amount
-	if GameData.get_active_protocol() == "circuito_emergencia" and not first_hit_taken_in_room:
-		first_hit_taken_in_room = true
-		base_amount = int(base_amount * 0.7)
-		
-	if GameData.get_active_protocol() == "blindaje_reactivo":
-		is_blindaje_reactivo_active = true
-		if blindaje_reactivo_timer:
-			blindaje_reactivo_timer.start(3.0)
-			
 	var armor = _get_equip_stat("armor", false)
 	var perm_armor = GameData.core_upgrades.get("blindaje_compuesto", 0) * 0.2
-	if is_blindaje_reactivo_active:
-		perm_armor += 2.0
-		
-	var final_amount = maxi(1, base_amount - int(armor + perm_armor))
-	
+	var total_armor := int(armor + perm_armor)
+	var final_amount := protocols.modify_incoming(amount, total_armor) if protocols else maxi(1, amount - total_armor)
+
 	if stats.current_health - final_amount <= 0:
 		GameData.last_killer = source_name
 	
@@ -2177,6 +2194,7 @@ func _trigger_werewolf_mark_explosion(enemy: Node2D) -> void:
 		var dist = pos.distance_to(other.global_position)
 		if dist > 0.1 and dist < 140.0 and other.has_method("take_damage"):
 			other.take_damage(explosion_dmg)
+			record_enemy_hit(other)
 			if other.has_method("apply_knockback"):
 				var dir = (other.global_position - pos).normalized()
 				if dir == Vector2.ZERO: dir = Vector2.UP
@@ -2249,29 +2267,12 @@ func _force_stop_flame_stream() -> void:
 	_animate_cerberus_idle()
 
 func _initialize_protocols() -> void:
-	first_hit_taken_in_room = false
-	
-	if GameData.get_active_protocol() == "enjambre_residual":
-		_spawn_allied_bee()
-		
-	if GameData.get_active_protocol() == "sobrecarga" and get_tree().current_scene and get_tree().current_scene.has_method("_clear_room"):
-		_activate_sobrecarga()
+	protocols = ProtocolRuntime.new()
+	protocols.name = "Protocols"
+	add_child(protocols)
 
-func _spawn_allied_bee() -> void:
-	var bee_script = load("res://Scripts/Player/allied_bee.gd")
-	if not bee_script:
-		return
-	var bee = CharacterBody2D.new()
-	bee.set_script(bee_script)
-	bee.global_position = global_position + Vector2(-40, -40)
-	get_tree().current_scene.call_deferred("add_child", bee)
-
-func _activate_sobrecarga() -> void:
-	GameData.temporary_damage_multiplier = 1.10
-	_apply_game_data_upgrades()
-	
-	var t = get_tree().create_timer(5.0)
-	t.timeout.connect(GameData.clear_temporary_damage_multiplier, CONNECT_ONE_SHOT)
+func protocol_damage_multiplier() -> float:
+	return protocols.damage_multiplier() if protocols else 1.0
 
 func _spawn_dash_hologram(start_pos: Vector2) -> void:
 	if not anim_sprite:
@@ -2286,7 +2287,7 @@ func _spawn_dash_hologram(start_pos: Vector2) -> void:
 	holo.flip_h = anim_sprite.flip_h
 	get_tree().current_scene.add_child(holo)
 	
-	var targets = get_tree().get_nodes_in_group("enemy")
+	var targets = get_tree().get_nodes_in_group("enemy").filter(ProtocolRuntime.valid_enemy)
 	var target_dir = Vector2.RIGHT
 	if not targets.is_empty():
 		var nearest = targets[0]
@@ -2300,19 +2301,44 @@ func _spawn_dash_hologram(start_pos: Vector2) -> void:
 	else:
 		target_dir = dash_dir
 		
-	var p_scene = projectile_scene
-	if active_weapon:
-		p_scene = _get_weapon_proj_scene(p_scene)
-		
-	var dmg = (10.0 + _get_equip_stat("damage")) * (1.0 + _get_equip_stat("damage_multiplier"))
-	if active_weapon:
-		dmg = (_get_weapon_damage() + _get_equip_stat("damage")) * (_get_weapon_damage_multiplier() + _get_equip_stat("damage_multiplier"))
-		
-	_spawn_bullets(p_scene, 1, 0.0, target_dir, dmg, 500.0, start_pos, 0, 0.0, 2.0, 3.0)
-	
+	_spawn_protocol_echo(holo, target_dir)
+
 	var tween = create_tween()
+	tween.tween_interval(0.2)
 	tween.tween_property(holo, "modulate:a", 0.0, 0.4)
 	tween.chain().tween_callback(holo.queue_free)
+
+func _spawn_protocol_echo(holo: Node2D, direction: Vector2) -> void:
+	if not active_weapon: return
+	var dmg := (_get_weapon_damage() + _get_equip_stat("damage")) * (_get_weapon_damage_multiplier() + _get_equip_stat("damage_multiplier")) * 0.5
+	if _is_cerberus_active():
+		var stream = preload("res://Scenes/Weapon/FlameStream.tscn").instantiate()
+		stream.set_meta("protocol_metric", "echo_damage")
+		holo.add_child(stream)
+		stream.rotation = direction.angle()
+		stream.setup(dmg * _get_weapon_attack_speed(), 1, 0.4, 0.8)
+		var stop := holo.create_tween()
+		stop.tween_interval(0.25)
+		stop.tween_callback(stream.start_extinguish)
+		return
+	var p_scene := _get_weapon_proj_scene(projectile_scene)
+	var syns := SynergyManager.get_active_synergies(get_node_or_null("Equipment"), get_active_ranged_weapon_id(), true)
+	var override_scene := SynergyManager.get_synergies_projectile_override(syns)
+	if override_scene: p_scene = override_scene
+	var count := _calculate_final_bullet_count(_get_weapon_bullets() + int(_get_equip_stat("bullet_count")), p_scene, get_active_ranged_weapon_id())
+	var spread := _calculate_final_spread(maxf(0, _get_weapon_spread() - _get_equip_stat("cone_spread_angle")), p_scene, get_active_ranged_weapon_id())
+	var volley := func():
+		for i in count:
+			var shot := _spawn_single_bullet(p_scene, i, count, _get_start_angle(direction, count, spread), _get_step_angle(count, spread), direction, dmg, _get_weapon_proj_speed(), holo.global_position, _get_weapon_piercing(), 0.0, 2.0, _get_weapon_lifetime())
+			shot.set_meta("protocol_metric", "echo_damage")
+			shot.set_meta("protocol_bonus_ratio", 0.0)
+	volley.call()
+	if get_active_ranged_weapon_id() == "uzi":
+		var burst := holo.create_tween()
+		burst.tween_interval(0.08)
+		burst.tween_callback(volley)
+		burst.tween_interval(0.08)
+		burst.tween_callback(volley)
 
 ## Sinergia The Bride (relampago): mientras este activa, la UZI en mano se tine de un
 ## color electrico para que se note visualmente que esta equipada.

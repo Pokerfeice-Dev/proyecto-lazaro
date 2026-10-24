@@ -9,75 +9,16 @@
 [ext_resource type="Texture2D" uid="uid://c2vm16gvoykkt" path="res://Art/HUD/hudhealthbar.png" id="7_pydgx"]
 [ext_resource type="Texture2D" uid="uid://3igxvpgfyfeo" path="res://Art/HUD/hudstaminabar.png" id="8_eebq5"]
 [ext_resource type="Texture2D" uid="uid://b06510pa6633t" path="res://Art/Flesh/Flesh_icon.png" id="9_flesh_icon"]
-[ext_resource type="FontFile" uid="uid://cxpt1p2k7cuah" path="res://Art/Fonts/Dekatron-SemiBold.otf" id="9_yenib"]
+[ext_resource type="Texture2D" uid="uid://oina1ptfu6mo" path="res://Art/Lights/candle_light_mask.svg" id="11_pydgx"]
 
-[sub_resource type="Animation" id="Animation_pydgx"]
-resource_name = "Intro_room"
-length = 3.0
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Name_room:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0.7, 1.3, 2, 2.7, 3),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(-1300, 528.5), Vector2(624, 528.5), Vector2(664, 528.5), Vector2(704, 528.5), Vector2(1926, 528.5)]
-}
-
-[sub_resource type="Animation" id="Animation_eebq5"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Name_room:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(664, 528.5)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_18ujm"]
-_data = {
-&"Intro_room": SubResource("Animation_pydgx"),
-&"RESET": SubResource("Animation_eebq5")
-}
-
-[sub_resource type="LabelSettings" id="LabelSettings_jt2rc"]
-font = ExtResource("9_yenib")
-font_size = 72
-outline_size = 4
-outline_color = Color(0, 0, 0, 1)
-shadow_size = 8
-shadow_color = Color(0, 0, 0, 0.64705884)
-shadow_offset = Vector2(4, 4)
-
-[node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label", "flesh_label", "dash_cd_bar", "health_label", "health_particles", "primary_weapon_rect", "secondary_weapon_rect")]
+[node name="HUD" type="CanvasLayer" unique_id=187926971 node_paths=PackedStringArray("health_bar", "scrap_label", "flesh_label", "dash_cd_bar", "primary_weapon_rect", "secondary_weapon_rect")]
 script = ExtResource("1_hud")
 health_bar = NodePath("Control/TextureProgressBar")
 scrap_label = NodePath("Control/CurrencyContainer/Scrap_container/Scrap_count")
 flesh_label = NodePath("Control/CurrencyContainer/Flesh_container/Flesh_count")
 dash_cd_bar = NodePath("Control/DashCDBar")
-health_label = NodePath("Control/TextureProgressBar/HealthLabel")
-health_particles = NodePath("HealthParticles")
 primary_weapon_rect = NodePath("Control/WeaponHUD/PrimaryPanel/PrimaryWeaponIcon")
 secondary_weapon_rect = NodePath("Control/WeaponHUD/SecondaryPanel/SecondaryWeaponIcon")
-particles_high_color = Color(0.4, 0.9019608, 0.6, 0.79607844)
-particles_high_speed = 0.8
-particles_high_vel_min = 60.0
-particles_high_vel_max = 80.0
-particles_high_lifetime = 3.2
-particles_mid_color = Color(0.69803923, 0.3019608, 0.9019608, 0.8745098)
-particles_mid_vel_min = 100.0
-particles_mid_vel_max = 140.0
-particles_low_color = Color(1, 0.2, 0.2, 0.9529412)
-particles_low_vel_min = 140.0
-particles_low_vel_max = 180.0
 
 [node name="Control" type="Control" parent="." unique_id=1458845397]
 layout_mode = 3
@@ -190,86 +131,48 @@ offset_left = 32.0
 offset_top = 32.0
 offset_right = 136.0
 offset_bottom = 68.0
-scale = Vector2(3, 3)
+scale = Vector2(3.4, 3.4)
 value = 100.0
 texture_under = ExtResource("5_i4i0y")
 texture_over = ExtResource("6_yenib")
 texture_progress = ExtResource("7_pydgx")
 texture_progress_offset = Vector2(31, 14)
 
-[node name="HealthLabel" type="Label" parent="Control/TextureProgressBar" unique_id=595281680]
-visible = false
-layout_mode = 0
-offset_left = 100.0
-offset_top = -70.0
-offset_right = 200.0
-offset_bottom = -41.0
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 18
-text = "100 / 100"
-label_settings = ExtResource("5_1ree7")
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="DashCDBar" type="TextureProgressBar" parent="Control" unique_id=688935870]
 layout_mode = 0
-offset_left = 125.0
-offset_top = 89.0
-offset_right = 179.0
-offset_bottom = 92.0
-scale = Vector2(3, 3)
+offset_left = 137.0
+offset_top = 96.99999
+offset_right = 191.0
+offset_bottom = 99.99999
+scale = Vector2(3.4, 3.4)
+offset_transform_enabled = true
+offset_transform_position = Vector2(0.115, -0.12)
 max_value = 5.0
 step = 0.05
 value = 5.0
 texture_progress = ExtResource("8_eebq5")
 
-[node name="Intro_room" type="Control" parent="Control" unique_id=838477063]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Control/Intro_room" unique_id=1329000709]
-libraries/ = SubResource("AnimationLibrary_18ujm")
-autoplay = &"Intro_room"
-
-[node name="Name_room" type="Label" parent="Control/Intro_room" unique_id=816338210]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -296.0
-offset_top = -11.5
-offset_right = 904.0
-offset_bottom = 148.5
-grow_horizontal = 2
-grow_vertical = 2
-text = "Ciudad Asphodel"
-label_settings = SubResource("LabelSettings_jt2rc")
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 1
-
-[node name="HealthParticles" type="CPUParticles2D" parent="." unique_id=481555703]
-visible = false
-position = Vector2(129, 78.00001)
-scale = Vector2(1.3, 1.3)
-amount = 40
-lifetime = 3.1999999999999997
-emission_shape = 3
-emission_rect_extents = Vector2(1, 1)
-spread = 4.0
-gravity = Vector2(0, 0)
-initial_velocity_min = 60.0
-initial_velocity_max = 80.0
-scale_amount_min = 1.3
-scale_amount_max = 1.6
-color = Color(0.77254903, 0, 0.08627451, 0.3254902)
-
 [node name="InventoryUI" parent="." unique_id=977028758 instance=ExtResource("5_ykvyr")]
 visible = false
+
+[node name="Eyelight" type="PointLight2D" parent="." unique_id=553443514]
+visible = false
+position = Vector2(89, 80)
+color = Color(0.9019608, 0.050980393, 0.050980393, 1)
+energy = 1.8
+blend_mode = 1
+range_layer_min = -100
+range_layer_max = 100
+texture = ExtResource("11_pydgx")
+texture_scale = 0.1
+
+[node name="Eyelight2" type="PointLight2D" parent="." unique_id=1751700178]
+visible = false
+position = Vector2(89, 107)
+color = Color(0.9019608, 0.050980393, 0.050980393, 1)
+energy = 1.8
+blend_mode = 1
+range_layer_min = -100
+range_layer_max = 100
+texture = ExtResource("11_pydgx")
+texture_scale = 0.1

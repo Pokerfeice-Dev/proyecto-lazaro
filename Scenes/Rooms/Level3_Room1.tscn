@@ -39,24 +39,6 @@ position = Vector2(949, 78)
 rotation = 1.5707964
 start_locked = false
 
-[node name="Spawn1" type="Marker2D" parent="." unique_id=1902399526]
-position = Vector2(1138, 452)
-
-[node name="Spawn2" type="Marker2D" parent="." unique_id=235618080]
-position = Vector2(764, 477)
-
-[node name="Spawn3" type="Marker2D" parent="." unique_id=699654588]
-position = Vector2(1149, 656)
-
-[node name="Spawn4" type="Marker2D" parent="." unique_id=986481909]
-position = Vector2(438, 593)
-
-[node name="Spawn5" type="Marker2D" parent="." unique_id=430801653]
-position = Vector2(614, 459)
-
-[node name="Spawn6" type="Marker2D" parent="." unique_id=26105324]
-position = Vector2(756, 744)
-
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
 position = Vector2(1447, 244)
 scale = Vector2(3.0042567, 3.0042567)
@@ -64,15 +46,6 @@ scale = Vector2(3.0042567, 3.0042567)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area_entered" unique_id=552831508]
 position = Vector2(-50.59488, 2.3300247)
 shape = SubResource("RectangleShape2D_5n313")
-
-[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_1rfp2")]
-position = Vector2(470, 634)
-
-[node name="BarrelSpawnPoint2" parent="." unique_id=1524372349 instance=ExtResource("4_1rfp2")]
-position = Vector2(1016, 653)
-
-[node name="BarrelSpawnPoint3" parent="." unique_id=2141047689 instance=ExtResource("4_1rfp2")]
-position = Vector2(727, 363)
 
 [node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1185336654]
 layer = -10
@@ -89,3 +62,41 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("5_biow0")
 stretch_mode = 1
+[node name="Spawns" type="Node2D" parent="." unique_id=30303030]
+
+[node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=1902399526]
+position = Vector2(1138, 452)
+
+
+[node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=235618080]
+position = Vector2(764, 477)
+
+
+[node name="Spawn3" type="Marker2D" parent="Spawns" unique_id=699654588]
+position = Vector2(1149, 656)
+
+
+[node name="Spawn4" type="Marker2D" parent="Spawns" unique_id=986481909]
+position = Vector2(438, 593)
+
+
+[node name="Spawn5" type="Marker2D" parent="Spawns" unique_id=430801653]
+position = Vector2(614, 459)
+
+
+[node name="Spawn6" type="Marker2D" parent="Spawns" unique_id=26105324]
+position = Vector2(756, 744)
+
+
+[node name="Barrels" type="Node2D" parent="." unique_id=40404040]
+
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("4_1rfp2")]
+position = Vector2(470, 634)
+
+
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1524372349 instance=ExtResource("4_1rfp2")]
+position = Vector2(1016, 653)
+
+
+[node name="BarrelSpawnPoint3" parent="Barrels" unique_id=2141047689 instance=ExtResource("4_1rfp2")]
+position = Vector2(727, 363)

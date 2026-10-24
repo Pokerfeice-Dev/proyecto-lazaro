@@ -36,6 +36,10 @@ static var _node: InputMode
 var gamepad := false
 var aim_dir := Vector2.RIGHT
 var _has_aimed := false
+var _locked_target: Node2D
+var _stick := Vector2.ZERO
+var _selection_direction := Vector2.RIGHT
+var _switch_armed := true
 var _trigger_down := {} # eje del gatillo -> apretado
 var _memo_event: InputEvent
 var _memo_tap := false
@@ -111,13 +115,21 @@ func _input(event: InputEvent) -> void:
 func _set_gamepad(on: bool) -> void:
 	if gamepad == on: return
 	gamepad = on
+	_locked_target = null
+	_switch_armed = true
 	mode_changed.emit(on)
 
 # --- Apuntado ---
 
 func _process(_delta: float) -> void:
-	if not gamepad: return
+	if not gamepad or get_tree().paused or PadFocus.has_modal(): return
 	var stick = Vector2(Input.get_joy_axis(_pad(), JOY_AXIS_RIGHT_X), Input.get_joy_axis(_pad(), JOY_AXIS_RIGHT_Y))
+	_update_aim_stick(stick)
+
+func _update_aim_stick(stick: Vector2) -> void:
+	_stick = stick
+	if stick.length() <= AIM_DEADZONE:
+		_switch_armed = true
 	if stick.length() > AIM_DEADZONE:
 		aim_dir = stick.normalized()
 		_has_aimed = true
@@ -130,20 +142,42 @@ func _aim_point(from: Vector2, move_dir: Vector2) -> Vector2:
 	var dir = aim_dir
 	if not _has_aimed and move_dir.length() > 0.1:
 		dir = move_dir.normalized()
-	var target = _assist_target(from, dir)
-	if target:
-		return target.global_position
+	if not FxSettings.on("asistencia_apuntado"):
+		_locked_target = null
+		return from + dir * AIM_DISTANCE
+	if not _valid_target(_locked_target, from):
+		_locked_target = _assist_target(from, dir)
+		if _locked_target:
+			_selection_direction = dir
+			_switch_armed = false
+	elif _stick.length() >= 0.65:
+		# Un giro claro o una nueva inclinación permite cambiar de blanco.
+		# Mantener el stick quieto conserva al enemigo aunque se mueva.
+		if _switch_armed or absf(_selection_direction.angle_to(dir)) >= deg_to_rad(22.0):
+			var candidate = _assist_target(from, dir, deg_to_rad(40.0))
+			if candidate and candidate != _locked_target:
+				_locked_target = candidate
+			_selection_direction = dir
+			_switch_armed = false
+	if is_instance_valid(_locked_target):
+		return _locked_target.global_position
 	return from + dir * AIM_DISTANCE
 
-# Ayuda suave: si hay un enemigo casi en la línea del analógico, apunta a él.
+func _valid_target(enemy: Variant, from: Vector2) -> bool:
+	return is_instance_valid(enemy) and enemy.is_inside_tree() \
+		and enemy.is_in_group("enemy") and enemy.is_visible_in_tree() \
+		and enemy.get("is_dying") != true \
+		and from.distance_to(enemy.global_position) <= AIM_ASSIST_RANGE
+
+# Adquiere un blanco alineado; el seguimiento lo conserva _aim_point.
 # Se puede apagar en Opciones > Juego > Asistencia de apuntado.
-func _assist_target(from: Vector2, dir: Vector2) -> Node2D:
+func _assist_target(from: Vector2, dir: Vector2, cone: float = AIM_ASSIST_ANGLE) -> Node2D:
 	if not FxSettings.on("asistencia_apuntado"): return null
 	var best: Node2D = null
-	var best_angle := AIM_ASSIST_ANGLE
+	var best_angle := cone
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not is_instance_valid(enemy) or not enemy is Node2D: continue
-		if enemy.get("is_dying") == true: continue
+		if not _valid_target(enemy, from): continue
 		var to = enemy.global_position - from
 		if to.length() > AIM_ASSIST_RANGE or to.length() < 1.0: continue
 		var angle = absf(dir.angle_to(to))

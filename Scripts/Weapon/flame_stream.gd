@@ -201,5 +201,13 @@ func _apply_tick_to_body(body: Node2D, tick_damage: float) -> void:
 	if not body.is_in_group("enemy"):
 		return
 	if body.has_method("take_damage"):
-		body.take_damage(tick_damage, false)
+		var player = get_tree().get_first_node_in_group("player")
+		var metric: String = get_meta("protocol_metric", "")
+		var multiplier := 1.0
+		if metric.is_empty() and player and player.has_method("protocol_damage_multiplier"):
+			multiplier = player.protocol_damage_multiplier()
+			if multiplier > 1.0: metric = "overload_damage"
+		ProtocolRuntime.deal_damage(body, tick_damage * multiplier, false, metric, 1.0 - 1.0 / multiplier if multiplier > 1.0 else 0.0)
+		if metric != "echo_damage" and player and player.has_method("record_enemy_hit"):
+			player.record_enemy_hit(body)
 	IgniteEffect.apply_ignite(body, ignite_damage_per_tick, ignite_tick_interval, ignite_duration)

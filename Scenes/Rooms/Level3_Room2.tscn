@@ -38,18 +38,6 @@ position = Vector2(1194, 912)
 rotation = 3.1415927
 start_locked = false
 
-[node name="Spawn1" type="Marker2D" parent="." unique_id=1902399526]
-position = Vector2(257, 606)
-
-[node name="Spawn2" type="Marker2D" parent="." unique_id=235618080]
-position = Vector2(708, 752)
-
-[node name="Spawn3" type="Marker2D" parent="." unique_id=699654588]
-position = Vector2(944, 915)
-
-[node name="Spawn4" type="Marker2D" parent="." unique_id=986481909]
-position = Vector2(438, 593)
-
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
 position = Vector2(278.00012, 372)
 scale = Vector2(3.0042567, 3.0042567)
@@ -57,15 +45,6 @@ scale = Vector2(3.0042567, 3.0042567)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area_entered" unique_id=552831508]
 position = Vector2(-3.9943542, 2.9957504)
 shape = SubResource("RectangleShape2D_5n313")
-
-[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_80fbp")]
-position = Vector2(744, 966)
-
-[node name="BarrelSpawnPoint2" parent="." unique_id=1524372349 instance=ExtResource("4_80fbp")]
-position = Vector2(263, 886)
-
-[node name="BarrelSpawnPoint3" parent="." unique_id=2141047689 instance=ExtResource("4_80fbp")]
-position = Vector2(703, 593)
 
 [node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1185336654]
 layer = -10
@@ -82,3 +61,33 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("5_fpjhy")
 stretch_mode = 1
+[node name="Spawns" type="Node2D" parent="." unique_id=30303030]
+
+[node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=1902399526]
+position = Vector2(257, 606)
+
+
+[node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=235618080]
+position = Vector2(708, 752)
+
+
+[node name="Spawn3" type="Marker2D" parent="Spawns" unique_id=699654588]
+position = Vector2(944, 915)
+
+
+[node name="Spawn4" type="Marker2D" parent="Spawns" unique_id=986481909]
+position = Vector2(438, 593)
+
+
+[node name="Barrels" type="Node2D" parent="." unique_id=40404040]
+
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("4_80fbp")]
+position = Vector2(744, 966)
+
+
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1524372349 instance=ExtResource("4_80fbp")]
+position = Vector2(263, 886)
+
+
+[node name="BarrelSpawnPoint3" parent="Barrels" unique_id=2141047689 instance=ExtResource("4_80fbp")]
+position = Vector2(703, 593)

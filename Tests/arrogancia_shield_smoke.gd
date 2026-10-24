@@ -34,7 +34,7 @@ func _verify() -> void:
 	bullet._on_body_entered(player)
 	assert(player.stats.current_health == health)
 	assert(shield._impacts.size() == 1)
-	var crypt_bullet = load("res://Scripts/Projectiles/crypt_projectile.gd").new()
+	var crypt_bullet = load("res://Scenes/Projectiles/crypt_projectile.tscn").instantiate()
 	add_child(crypt_bullet)
 	crypt_bullet.global_position = player.global_position + Vector2(-18, -8)
 	crypt_bullet._hit(player)

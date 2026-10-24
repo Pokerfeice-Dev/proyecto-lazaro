@@ -187,6 +187,7 @@ func _input(event: InputEvent) -> void:
 	_transition_room()
 
 func _transition_room() -> void:
+	if SceneTransition.is_transitioning: return
 	if is_start_run_door:
 		_show_weapon_selection_popup()
 		return

@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://wf6c8rvrignp"]
+
+[ext_resource type="Script" uid="uid://cskk8pnww4p81" path="res://Scripts/World/cosmic_portal.gd" id="1"]
+
+[sub_resource type="CircleShape2D" id="Trigger"]
+radius = 42.0
+
+[node name="CosmicPortal" type="Area2D" unique_id=201454190]
+collision_layer = 0
+monitorable = false
+script = ExtResource("1")
+defeated_boss = null
+advance_after_boss = null
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1785487700]
+shape = SubResource("Trigger")
+
+[node name="Prompt" type="Label" parent="." unique_id=195109388]
+visible = false
+offset_left = -65.0
+offset_top = -100.0
+offset_right = 65.0
+offset_bottom = -76.0
+theme_override_colors/font_color = Color(0.65, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.06, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "[E] Entrar"
+horizontal_alignment = 1

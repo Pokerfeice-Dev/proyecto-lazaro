@@ -39,24 +39,6 @@ position = Vector2(768, -638.98)
 rotation = 1.5707964
 start_locked = false
 
-[node name="Spawn1" type="Marker2D" parent="." unique_id=1902399526]
-position = Vector2(848, -960)
-
-[node name="Spawn2" type="Marker2D" parent="." unique_id=235618080]
-position = Vector2(522, -606)
-
-[node name="Spawn3" type="Marker2D" parent="." unique_id=699654588]
-position = Vector2(1080, -912)
-
-[node name="Spawn4" type="Marker2D" parent="." unique_id=986481909]
-position = Vector2(490, -358)
-
-[node name="Spawn5" type="Marker2D" parent="." unique_id=430801653]
-position = Vector2(506, -824.625)
-
-[node name="Spawn6" type="Marker2D" parent="." unique_id=26105324]
-position = Vector2(930, -374)
-
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
 visible = false
 position = Vector2(856.00006, -968)
@@ -66,59 +48,104 @@ scale = Vector2(3.0042567, 3.0042567)
 position = Vector2(-31.954681, 30.956062)
 shape = SubResource("RectangleShape2D_5n313")
 
-[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_x4avk")]
-position = Vector2(776, -424)
-
-[node name="BarrelSpawnPoint2" parent="." unique_id=1466600850 instance=ExtResource("4_x4avk")]
-position = Vector2(464, -936)
-
-[node name="BarrelSpawnPoint3" parent="." unique_id=280227443 instance=ExtResource("4_x4avk")]
-position = Vector2(1064, -944)
-
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1769089670]
 position = Vector2(1064, -944)
 color = Color(0.12, 0.14, 0.22, 1)
 
-[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_cj2jc")]
-position = Vector2(-520, 640)
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
 
-[node name="Torch2" parent="CanvasModulate" unique_id=1717490016 instance=ExtResource("5_cj2jc")]
-position = Vector2(-72, 640)
+[node name="Torch1" parent="Iluminacion" unique_id=64839201 instance=ExtResource("5_cj2jc")]
+position = Vector2(544, -304)
 
-[node name="Torch3" parent="CanvasModulate" unique_id=1778889446 instance=ExtResource("5_cj2jc")]
-position = Vector2(-296, 440)
 
-[node name="Torch4" parent="CanvasModulate" unique_id=1218204144 instance=ExtResource("5_cj2jc")]
-position = Vector2(-536, 240)
+[node name="Torch2" parent="Iluminacion" unique_id=1717490016 instance=ExtResource("5_cj2jc")]
+position = Vector2(992, -304)
 
-[node name="Torch5" parent="CanvasModulate" unique_id=258540736 instance=ExtResource("5_cj2jc")]
-position = Vector2(-72, 240)
 
-[node name="Torch6" parent="CanvasModulate" unique_id=386624716 instance=ExtResource("5_cj2jc")]
-position = Vector2(40, -88)
+[node name="Torch3" parent="Iluminacion" unique_id=1778889446 instance=ExtResource("5_cj2jc")]
+position = Vector2(768, -504)
 
-[node name="Torch7" parent="CanvasModulate" unique_id=254026356 instance=ExtResource("5_cj2jc")]
-position = Vector2(-312, -88)
 
-[node name="Torch8" parent="CanvasModulate" unique_id=1154768242 instance=ExtResource("5_cj2jc")]
-position = Vector2(-656, -88)
+[node name="Torch4" parent="Iluminacion" unique_id=1218204144 instance=ExtResource("5_cj2jc")]
+position = Vector2(528, -704)
 
-[node name="Wall_candle" parent="CanvasModulate" unique_id=1538470561 instance=ExtResource("6_x56av")]
-position = Vector2(-136, -112)
 
-[node name="Wall_candle2" parent="CanvasModulate" unique_id=433822689 instance=ExtResource("6_x56av")]
-position = Vector2(-488, -112)
+[node name="Torch5" parent="Iluminacion" unique_id=258540736 instance=ExtResource("5_cj2jc")]
+position = Vector2(992, -704)
 
-[node name="Wall_candle3" parent="CanvasModulate" unique_id=1716328794 instance=ExtResource("6_x56av")]
-position = Vector2(56, 520)
-rotation = 1.5707964
 
-[node name="Wall_candle5" parent="CanvasModulate" unique_id=1993380126 instance=ExtResource("6_x56av")]
-position = Vector2(-232, 280)
+[node name="Torch6" parent="Iluminacion" unique_id=386624716 instance=ExtResource("5_cj2jc")]
+position = Vector2(1104, -1032)
 
-[node name="Wall_candle4" parent="CanvasModulate" unique_id=1698685827 instance=ExtResource("6_x56av")]
-position = Vector2(-648, 504)
-rotation = -1.5707964
 
-[node name="Wall_candle" parent="CanvasModulate/Wall_candle4" unique_id=1373301004 instance=ExtResource("6_x56av")]
-position = Vector2(-120, -456)
+[node name="Torch7" parent="Iluminacion" unique_id=254026356 instance=ExtResource("5_cj2jc")]
+position = Vector2(752, -1032)
+
+
+[node name="Torch8" parent="Iluminacion" unique_id=1154768242 instance=ExtResource("5_cj2jc")]
+position = Vector2(408, -1032)
+
+
+[node name="Wall_candle" parent="Iluminacion" unique_id=1538470561 instance=ExtResource("6_x56av")]
+position = Vector2(928, -1056)
+
+
+[node name="Wall_candle2" parent="Iluminacion" unique_id=433822689 instance=ExtResource("6_x56av")]
+position = Vector2(576, -1056)
+
+
+[node name="Wall_candle3" parent="Iluminacion" unique_id=1716328794 instance=ExtResource("6_x56av")]
+position = Vector2(1120, -424)
+rotation = 1.570796
+
+
+[node name="Wall_candle5" parent="Iluminacion" unique_id=1993380126 instance=ExtResource("6_x56av")]
+position = Vector2(832, -664)
+
+
+[node name="Wall_candle4" parent="Iluminacion" unique_id=1698685827 instance=ExtResource("6_x56av")]
+position = Vector2(416, -440)
+rotation = -1.570796
+
+
+[node name="Wall_candle6" parent="Iluminacion" unique_id=1373301004 instance=ExtResource("6_x56av")]
+position = Vector2(-39.999991, -319.999967)
+rotation = -1.570796
+[node name="Spawns" type="Node2D" parent="." unique_id=30303030]
+
+[node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=1902399526]
+position = Vector2(848, -960)
+
+
+[node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=235618080]
+position = Vector2(522, -606)
+
+
+[node name="Spawn3" type="Marker2D" parent="Spawns" unique_id=699654588]
+position = Vector2(1080, -912)
+
+
+[node name="Spawn4" type="Marker2D" parent="Spawns" unique_id=986481909]
+position = Vector2(490, -358)
+
+
+[node name="Spawn5" type="Marker2D" parent="Spawns" unique_id=430801653]
+position = Vector2(506, -824.625)
+
+
+[node name="Spawn6" type="Marker2D" parent="Spawns" unique_id=26105324]
+position = Vector2(930, -374)
+
+
+[node name="Barrels" type="Node2D" parent="." unique_id=40404040]
+
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("4_x4avk")]
+position = Vector2(776, -424)
+
+
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1466600850 instance=ExtResource("4_x4avk")]
+position = Vector2(464, -936)
+
+
+[node name="BarrelSpawnPoint3" parent="Barrels" unique_id=280227443 instance=ExtResource("4_x4avk")]
+position = Vector2(1064, -944)

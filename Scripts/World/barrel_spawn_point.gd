@@ -23,7 +23,7 @@ class_name BarrelSpawnPoint
 ## "player_spawn", el rebote sale como una ola desde ahí (mismo timing que
 ## usa CombatRoom para el resto de los props); si no lo encuentra, usa un
 ## delay random chico.
-@export var reveal_with_bounce: bool = true
+@export var reveal_with_bounce: bool = false
 
 func _ready() -> void:
 	_roll_for_barrel()

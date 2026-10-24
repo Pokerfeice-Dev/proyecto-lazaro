@@ -7,8 +7,11 @@ class_name EnemyCompass
 const EDGE_MARGIN: float = 42.0
 const OFFSCREEN_MARGIN: float = 40.0
 const MAX_TRACKED_ENEMIES: int = 2
+const INACTIVITY_SECONDS: float = 10.0
 
 var arrows: Array[CompassArrow] = []
+var inactivity_arrow: CompassArrow
+var exit_arrow: CompassArrow
 
 func _ready() -> void:
 	z_index = 4095
@@ -19,29 +22,55 @@ func _ready() -> void:
 func _create_arrows() -> void:
 	for i in range(MAX_TRACKED_ENEMIES):
 		_add_arrow_instance()
+	inactivity_arrow = _add_arrow_instance(Color(0.24, 0.92, 0.82, 0.95), Color(0.64, 1.0, 0.9, 0.9))
+	exit_arrow = _add_arrow_instance(Color(1.0, 0.8, 0.18, 0.95), Color(1.0, 0.94, 0.55, 0.9))
 
-func _add_arrow_instance() -> void:
+func _add_arrow_instance(body_color: Color = Color(1.0, 0.42, 0.16, 0.95), pip_color: Color = Color(1.0, 0.68, 0.25, 0.9)) -> CompassArrow:
 	var arrow = CompassArrow.new()
+	arrow.body_color = body_color
+	arrow.pip_color = pip_color
 	arrows.append(arrow)
 	add_child(arrow)
+	return arrow
 
 func _process(delta: float) -> void:
 	_update_compass(delta)
 
 func _update_compass(delta: float) -> void:
+	if _is_room_cleared():
+		_hide_enemy_arrows(delta)
+		_update_exit_arrow(delta)
+		return
+	var alive_enemies = _get_alive_enemies()
 	if not _is_room_eligible():
-		_hide_all_arrows(delta)
+		_hide_regular_enemy_arrows(delta)
+		exit_arrow.fade_out(delta)
+		_update_inactivity_guidance_during_combat(alive_enemies, delta)
 		return
 
-	var alive_enemies = _get_alive_enemies()
 	if alive_enemies.is_empty():
 		_hide_all_arrows(delta)
 		return
 	if alive_enemies.size() > MAX_TRACKED_ENEMIES:
-		_hide_all_arrows(delta)
+		_hide_regular_enemy_arrows(delta)
+		_update_inactivity_arrow(alive_enemies, delta)
+		exit_arrow.fade_out(delta)
 		return
 
 	_update_arrow_tracking(alive_enemies, delta)
+	_update_inactivity_arrow(alive_enemies, delta)
+	exit_arrow.fade_out(delta)
+
+func _update_inactivity_guidance_during_combat(alive_enemies: Array[Node2D], delta: float) -> void:
+	var room = get_tree().get_first_node_in_group("combat_room")
+	if room and room.get("room_started") == true and not alive_enemies.is_empty():
+		_update_inactivity_arrow(alive_enemies, delta)
+		return
+	inactivity_arrow.fade_out(delta)
+
+func _is_room_cleared() -> bool:
+	var room = get_tree().get_first_node_in_group("combat_room")
+	return room != null and room.get("room_cleared") == true
 
 func _is_room_eligible() -> bool:
 	var room = get_tree().get_first_node_in_group("combat_room")
@@ -95,9 +124,18 @@ func _update_arrow_slot(slot: int, enemies: Array[Node2D], viewport_size: Vector
 	_track_enemy_with_arrow(arrow, enemy, viewport_size, delta)
 
 func _track_enemy_with_arrow(arrow: CompassArrow, enemy: Node2D, viewport_size: Vector2, delta: float) -> void:
-	var screen_pos = enemy.get_global_transform_with_canvas().origin
-	if not _is_pos_offscreen(screen_pos, viewport_size):
+	_track_target(arrow, enemy, viewport_size, delta, false)
+
+func _track_target(arrow: CompassArrow, target: Node2D, viewport_size: Vector2, delta: float, show_when_visible: bool) -> void:
+	if not is_instance_valid(target):
 		arrow.fade_out(delta)
+		return
+	var screen_pos = target.get_global_transform_with_canvas().origin
+	if not _is_pos_offscreen(screen_pos, viewport_size):
+		if show_when_visible:
+			arrow.update_pointer(screen_pos + Vector2(0.0, -42.0), PI * 0.5, delta)
+		else:
+			arrow.fade_out(delta)
 		return
 	var center = viewport_size / 2.0
 	var dir = (screen_pos - center).normalized()
@@ -105,6 +143,46 @@ func _track_enemy_with_arrow(arrow: CompassArrow, enemy: Node2D, viewport_size: 
 		dir = Vector2.UP
 	var target_pos = _calculate_edge_position(dir, viewport_size)
 	arrow.update_pointer(target_pos, dir.angle(), delta)
+
+func _update_inactivity_arrow(alive_enemies: Array[Node2D], delta: float) -> void:
+	if not _player_has_been_inactive():
+		inactivity_arrow.fade_out(delta)
+		return
+	var player = get_tree().get_first_node_in_group("player") as Node2D
+	if not player:
+		inactivity_arrow.fade_out(delta)
+		return
+	var closest_enemy = _get_closest_enemy(player, alive_enemies)
+	_track_target(inactivity_arrow, closest_enemy, get_viewport_rect().size, delta, true)
+
+func _player_has_been_inactive() -> bool:
+	var player = get_tree().get_first_node_in_group("player")
+	return player != null and player.has_method("get_seconds_since_enemy_hit") and player.get_seconds_since_enemy_hit() >= INACTIVITY_SECONDS
+
+func _get_closest_enemy(player: Node2D, enemies: Array[Node2D]) -> Node2D:
+	var closest_enemy: Node2D = null
+	var closest_distance := INF
+	for enemy in enemies:
+		var distance = player.global_position.distance_squared_to(enemy.global_position)
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_enemy = enemy
+	return closest_enemy
+
+func _update_exit_arrow(delta: float) -> void:
+	var exit_door = _get_open_exit_door()
+	if not exit_door:
+		exit_arrow.fade_out(delta)
+		return
+	_track_target(exit_arrow, exit_door, get_viewport_rect().size, delta, true)
+
+func _get_open_exit_door() -> Node2D:
+	var portal = get_tree().get_first_node_in_group("exit_portal") as Node2D
+	if portal: return portal
+	for door in get_tree().get_nodes_in_group("door"):
+		if door is Node2D and door.get("is_locked") == false:
+			return door as Node2D
+	return null
 
 func _is_pos_offscreen(pos: Vector2, viewport_size: Vector2) -> bool:
 	var rect = Rect2(Vector2.ZERO, viewport_size).grow(-OFFSCREEN_MARGIN)
@@ -118,13 +196,23 @@ func _calculate_edge_position(dir: Vector2, viewport_size: Vector2) -> Vector2:
 	return center + dir * minf(t_x, t_y)
 
 func _hide_all_arrows(delta: float) -> void:
-	for arrow in arrows:
-		arrow.fade_out(delta)
+	_hide_enemy_arrows(delta)
+	exit_arrow.fade_out(delta)
+
+func _hide_enemy_arrows(delta: float) -> void:
+	_hide_regular_enemy_arrows(delta)
+	inactivity_arrow.fade_out(delta)
+
+func _hide_regular_enemy_arrows(delta: float) -> void:
+	for i in range(MAX_TRACKED_ENEMIES):
+		arrows[i].fade_out(delta)
 
 # Flecha indicadora individual con dibujo vectorial y animación suave
 class CompassArrow extends Node2D:
 	var current_alpha: float = 0.0
 	var target_alpha: float = 0.0
+	var body_color: Color = Color(1.0, 0.42, 0.16, 0.95)
+	var pip_color: Color = Color(1.0, 0.68, 0.25, 0.9)
 
 	func _ready() -> void:
 		visible = false
@@ -151,10 +239,10 @@ class CompassArrow extends Node2D:
 			Vector2(-4, 0),
 			Vector2(-9, 9)
 		])
-		draw_colored_polygon(body_points, Color(1.0, 0.42, 0.16, 0.95))
+		draw_colored_polygon(body_points, body_color)
 
 	func _draw_pip() -> void:
-		draw_circle(Vector2(-15, 0), 2.5, Color(1.0, 0.68, 0.25, 0.9))
+		draw_circle(Vector2(-15, 0), 2.5, pip_color)
 
 	func update_pointer(target_pos: Vector2, target_rot: float, delta: float) -> void:
 		target_alpha = 1.0

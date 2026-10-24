@@ -35,24 +35,6 @@ scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AADt//j/AAAAAAQAAADt//n/AAAAAAUAAADt//r/AAAEAAQAAADt//v/AAAEAAUAAADt//z/AAAAAAYAAADt//3/AAAAAAQAAADt//7/AAAAAAYAAADt////AAAAAAYAAADt/wAAAAAAAAYAAADt/wEAAAAAAAYAAADt/wIAAAAAAAYAAADt/wMAAAAAAAQAAADt/wQAAAAAAAUAAADt/wUAAAAEAAQAAADt/wYAAAAEAAUAAADt/wcAAAAAAAYAAADt/wgAAAAAAAYAAADt/wkAAAAAAAQAAADt//b/AAAIAAAAAADt//f/AAAAAAYAAADu//b/AAAAAAAAAADu//f/AAAIAAIAAADu/wcAAAABAAYAAADu/wgAAAABAAYAAADu/wkAAAABAAQAAADu/wQAAAABAAUAAADu/wUAAAAFAAQAAADu/wYAAAAFAAUAAADu/wEAAAABAAYAAADu/wIAAAABAAYAAADu/wMAAAABAAQAAADu//7/AAABAAYAAADu////AAABAAYAAADu/wAAAAABAAYAAADu//v/AAAFAAUAAADu//z/AAABAAYAAADu//3/AAABAAQAAADu//j/AAABAAQAAADu//n/AAABAAUAAADu//r/AAAFAAQAAADv//b/AAAAAAAAAADv//f/AAAAAAEAAADw//b/AAAAAAAAAADw//f/AAAAAAEAAADx//b/AAAAAAAAAADx//f/AAAAAAEAAADy//b/AAABAAAAAADy//f/AAAAAAEAAADz//b/AAAAAAAAAADz//f/AAAAAAEAAAD0//b/AAAAAAAAAAD0//f/AAAAAAEAAAD1//b/AAAAAAAAAAD1//f/AAAAAAEAAAD2//b/AAADAAAAAAD2//f/AAADAAEAAAD3//b/AAAEAAAAAAD3//f/AAAEAAEAAAD4//b/AAAAAAAAAAD4//f/AAAAAAEAAAD5//b/AAABAAAAAAD5//f/AAABAAEAAAD6//b/AAACAAAAAAD6//f/AAACAAEAAAD7//b/AAAAAAAAAAD7//f/AAAAAAEAAAD8//b/AAAAAAAAAAD8//f/AAAAAAEAAAD9//b/AAAAAAAAAAD9//f/AAAAAAEAAAD+//b/AAAAAAAAAAD+//f/AAAJAAIAAAD///b/AAAJAAAAAAD///f/AAAHAAYAAAD+//j/AAAKAAQA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AADy/wwAAAANAAAAAADz/wwAAAANAAAAAAD0/wwAAAANAAAAAAD1/wwAAAANAAAAAAD2/wwAAAANAAAAAAD3/wwAAAANAAAAAAD4/wwAAAANAAAAAAD5/wwAAAANAAAAAAD6/wwAAAANAAAAAAD7/wwAAAANAAAAAAD8/wwAAAANAAAAAAD9/wwAAAANAAAAAAD+/wwAAAANAAAAAAD//wwAAAANAAAAAADs//f/AAAMAAAAAADs//j/AAAMAAAAAADs//n/AAAMAAAAAADs//r/AAAMAAAAAADs//v/AAAMAAAAAADs//z/AAAMAAAAAADs//3/AAAMAAAAAADs//7/AAAMAAAAAADs////AAAMAAAAAADs/wAAAAAMAAAAAADs/wEAAAAMAAAAAADs/wIAAAAMAAAAAADs/wMAAAAMAAAAAADs/wQAAAAMAAAAAADs/wUAAAAMAAAAAADs/wYAAAAMAAAAAADs/wcAAAAMAAAAAADs/wgAAAAMAAAAAADs/wkAAAAMAAAAAADs//b/AAAMAAAAAADs/woAAAAMAAAAAADs/wsAAAAMAAAAAADs/wwAAAAMAAMAAAAAAAwAAAANAAMAAAAAAPX/AAANAAIAAADs//X/AAAMAAIAAAA=")
 tile_set = ExtResource("2_t3g6d")
 
-[node name="Spawn1" type="Marker2D" parent="." unique_id=106740552]
-position = Vector2(-418, 195)
-
-[node name="Spawn2" type="Marker2D" parent="." unique_id=846472731]
-position = Vector2(-398, 2)
-
-[node name="Spawn3" type="Marker2D" parent="." unique_id=1186884550]
-position = Vector2(-417, -192)
-
-[node name="Spawn4" type="Marker2D" parent="." unique_id=898612542]
-position = Vector2(-190, -162)
-
-[node name="Spawn5" type="Marker2D" parent="." unique_id=324017365]
-position = Vector2(-192, 161)
-
-[node name="Spawn6" type="Marker2D" parent="." unique_id=2083287490]
-position = Vector2(-352, 5)
-
 [node name="player_spawn" type="Marker2D" parent="." unique_id=1522395861]
 position = Vector2(-95, 4)
 
@@ -67,39 +49,76 @@ shape = SubResource("RectangleShape2D_476il")
 [node name="Door" parent="." unique_id=1891772166 instance=ExtResource("new_door_1")]
 position = Vector2(-576, 16)
 
-[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_t3g6d")]
-position = Vector2(-137, -167)
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
 
-[node name="BarrelSpawnPoint" parent="BarrelSpawnPoint" unique_id=1397155521 instance=ExtResource("4_t3g6d")]
-position = Vector2(-305, 405)
-
-[node name="Lampara_pie" parent="." unique_id=1509059318 instance=ExtResource("5_kigbv")]
+[node name="Lampara_pie" parent="Iluminacion" unique_id=1509059318 instance=ExtResource("5_kigbv")]
 position = Vector2(-273, -165)
 scale = Vector2(0.9696379, 0.9696379)
 
-[node name="Lampara_pie" parent="Lampara_pie" unique_id=1426326967 instance=ExtResource("5_kigbv")]
-position = Vector2(-1.0313416, 163.97873)
+
+[node name="Lampara_pie2" parent="Iluminacion" unique_id=1426326967 instance=ExtResource("5_kigbv")]
+position = Vector2(-274.031342, -1.02127)
 scale = Vector2(0.9696379, 0.9696379)
 
-[node name="Lampara_pie" parent="Lampara_pie/Lampara_pie" unique_id=1559336041 instance=ExtResource("5_kigbv")]
-position = Vector2(2.1272278, 176.55862)
+
+[node name="Lampara_pie3" parent="Iluminacion" unique_id=1559336041 instance=ExtResource("5_kigbv")]
+position = Vector2(-271.904114, 175.53735)
 scale = Vector2(0.9696379, 0.9696379)
 
-[node name="lampara_pared" parent="." unique_id=1368619277 instance=ExtResource("6_rqo7d")]
+
+[node name="lampara_pared" parent="Iluminacion" unique_id=1368619277 instance=ExtResource("6_rqo7d")]
 position = Vector2(-591, -113)
-rotation = -1.5707964
+rotation = -1.570796
 
-[node name="lampara_pared2" parent="." unique_id=1249335306 instance=ExtResource("6_rqo7d")]
+
+[node name="lampara_pared2" parent="Iluminacion" unique_id=1249335306 instance=ExtResource("6_rqo7d")]
 position = Vector2(-497, 367)
-rotation = 3.1415927
+rotation = 3.141593
 
-[node name="lampara_pared3" parent="." unique_id=215192852 instance=ExtResource("6_rqo7d")]
+
+[node name="lampara_pared3" parent="Iluminacion" unique_id=215192852 instance=ExtResource("6_rqo7d")]
 position = Vector2(-113, 367)
-rotation = 3.1415927
+rotation = 3.141593
 
-[node name="lampara_pared4" parent="." unique_id=661028293 instance=ExtResource("6_rqo7d")]
+
+[node name="lampara_pared4" parent="Iluminacion" unique_id=661028293 instance=ExtResource("6_rqo7d")]
 position = Vector2(-14, 50)
-rotation = 1.5707964
+rotation = 1.570796
 
-[node name="lampara_pared5" parent="." unique_id=1566888150 instance=ExtResource("6_rqo7d")]
+
+[node name="lampara_pared5" parent="Iluminacion" unique_id=1566888150 instance=ExtResource("6_rqo7d")]
 position = Vector2(-336, -305)
+[node name="Spawns" type="Node2D" parent="." unique_id=30303030]
+
+[node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=106740552]
+position = Vector2(-418, 195)
+
+
+[node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=846472731]
+position = Vector2(-398, 2)
+
+
+[node name="Spawn3" type="Marker2D" parent="Spawns" unique_id=1186884550]
+position = Vector2(-417, -192)
+
+
+[node name="Spawn4" type="Marker2D" parent="Spawns" unique_id=898612542]
+position = Vector2(-190, -162)
+
+
+[node name="Spawn5" type="Marker2D" parent="Spawns" unique_id=324017365]
+position = Vector2(-192, 161)
+
+
+[node name="Spawn6" type="Marker2D" parent="Spawns" unique_id=2083287490]
+position = Vector2(-352, 5)
+
+
+[node name="Barrels" type="Node2D" parent="." unique_id=40404040]
+
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("4_t3g6d")]
+position = Vector2(-137, -167)
+
+
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1397155521 instance=ExtResource("4_t3g6d")]
+position = Vector2(-442, 238)

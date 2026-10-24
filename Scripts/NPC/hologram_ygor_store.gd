@@ -38,6 +38,7 @@ var time_passed: float = 0.0
 var purchased: bool = false
 
 func _ready() -> void:
+	add_to_group("ygor_shop_pedestal")
 	_init_default_type_from_name()
 	_configure_stats_and_visuals()
 	_update_label()

@@ -20,12 +20,12 @@
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="18_shadow"]
 [ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="19_ioa2q"]
 
-[sub_resource type="Gradient" id="Gradient_25c3m"]
+[sub_resource type="Gradient" id="Gradient_ioa2q"]
 offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_3mnni"]
-gradient = SubResource("Gradient_25c3m")
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_nv1xj"]
+gradient = SubResource("Gradient_ioa2q")
 height = 32
 fill = 1
 fill_from = Vector2(0.5, 0.5)
@@ -89,7 +89,7 @@ modulate = Color(0, 0, 0, 0.48)
 show_behind_parent = true
 position = Vector2(0, 26)
 scale = Vector2(1, 0.875)
-texture = SubResource("GradientTexture2D_3mnni")
+texture = SubResource("GradientTexture2D_nv1xj")
 script = ExtResource("18_shadow")
 shadow_size = Vector2(64, 28)
 shadow_offset = Vector2(0, 26)
@@ -121,7 +121,7 @@ stream = ExtResource("4_a5hpl")
 
 [node name="Laser_sound" type="AudioStreamPlayer2D" parent="." unique_id=117921572]
 stream = ExtResource("5_a5hpl")
-volume_db = -12.0
+volume_db = -9.0
 pitch_scale = 1.4
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1102546276]

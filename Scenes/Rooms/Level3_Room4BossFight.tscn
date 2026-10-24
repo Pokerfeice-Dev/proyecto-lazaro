@@ -37,18 +37,6 @@ position = Vector2(1274, -64)
 rotation = 1.5707964
 start_locked = false
 
-[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_j0d4h")]
-position = Vector2(809, 790)
-
-[node name="BarrelSpawnPoint4" parent="." unique_id=291530695 instance=ExtResource("4_j0d4h")]
-position = Vector2(1353, 438)
-
-[node name="BarrelSpawnPoint2" parent="." unique_id=1524372349 instance=ExtResource("4_j0d4h")]
-position = Vector2(1905, 331)
-
-[node name="BarrelSpawnPoint3" parent="." unique_id=2141047689 instance=ExtResource("4_j0d4h")]
-position = Vector2(855, 926)
-
 [node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1185336654]
 layer = -10
 
@@ -73,3 +61,19 @@ bus = &"Music"
 
 [node name="Boss3_Prometeo" parent="." unique_id=23777509 instance=ExtResource("7_j0d4h")]
 position = Vector2(1293, 333)
+[node name="Barrels" type="Node2D" parent="." unique_id=40404040]
+
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("4_j0d4h")]
+position = Vector2(809, 790)
+
+
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=291530695 instance=ExtResource("4_j0d4h")]
+position = Vector2(1353, 438)
+
+
+[node name="BarrelSpawnPoint3" parent="Barrels" unique_id=1524372349 instance=ExtResource("4_j0d4h")]
+position = Vector2(1905, 331)
+
+
+[node name="BarrelSpawnPoint4" parent="Barrels" unique_id=2141047689 instance=ExtResource("4_j0d4h")]
+position = Vector2(855, 926)

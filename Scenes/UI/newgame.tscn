@@ -7,31 +7,6 @@
 [ext_resource type="Texture2D" uid="uid://cjghxl8dyp3s6" path="res://Art/Menu/Animado/menu_lazaro_cuerpo.png" id="4_jkl6y"]
 [ext_resource type="Texture2D" uid="uid://cbr53ikcsq5g8" path="res://Art/Menu/Animado/menu_lazaro_barrotes.png" id="5_rct4p"]
 
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gu4kh"]
-particle_flag_align_y = true
-particle_flag_disable_z = true
-emission_shape = 3
-emission_box_extents = Vector3(1200, 1, 1)
-direction = Vector3(-0.1, 1, 0)
-spread = 5.0
-initial_velocity_min = 800.0
-initial_velocity_max = 1200.0
-gravity = Vector3(0, 98, 0)
-scale_max = 3.0
-color = Color(0.6, 0.8, 1, 0.5)
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_3ol4p"]
-particle_flag_disable_z = true
-emission_shape = 3
-emission_box_extents = Vector3(1200, 1, 1)
-direction = Vector3(-0.3, 1, 0)
-spread = 20.0
-initial_velocity_min = 100.0
-initial_velocity_max = 200.0
-gravity = Vector3(0, 40, 0)
-scale_min = 2.0
-scale_max = 4.0
-color = Color(1, 1, 1, 0.8)
 
 [node name="newgame" type="Control" unique_id=1220767714]
 layout_mode = 3
@@ -61,20 +36,37 @@ anchor_bottom = 1.0
 mouse_filter = 2
 texture = ExtResource("5_rct4p")
 
-[node name="RainParticles" type="GPUParticles2D" parent="." unique_id=2128081778]
-position = Vector2(960, -50)
-amount = 400
-lifetime = 2.0
-preprocess = 2.0
-process_material = SubResource("ParticleProcessMaterial_gu4kh")
-
-[node name="SnowParticles" type="GPUParticles2D" parent="." unique_id=1346824337]
-modulate = Color(1, 1, 1, 0.31764707)
+[node name="RainParticles" type="CPUParticles2D" parent="." unique_id=2128081778]
 position = Vector2(960, -50)
 amount = 300
+lifetime = 2.0
+preprocess = 2.0
+emission_shape = 3
+emission_rect_extents = Vector2(1200, 1)
+direction = Vector2(-0.1, 1)
+spread = 5.0
+gravity = Vector2(0, 98)
+initial_velocity_min = 800.0
+initial_velocity_max = 1200.0
+scale_amount_max = 3.0
+color = Color(0.6, 0.8, 1, 0.5)
+
+[node name="SnowParticles" type="CPUParticles2D" parent="." unique_id=1346824337]
+modulate = Color(1, 1, 1, 0.31764707)
+position = Vector2(960, -50)
+amount = 200
 lifetime = 10.0
 preprocess = 10.0
-process_material = SubResource("ParticleProcessMaterial_3ol4p")
+emission_shape = 3
+emission_rect_extents = Vector2(1200, 1)
+direction = Vector2(-0.3, 1)
+spread = 20.0
+gravity = Vector2(0, 40)
+initial_velocity_min = 100.0
+initial_velocity_max = 200.0
+scale_amount_min = 2.0
+scale_amount_max = 4.0
+color = Color(1, 1, 1, 0.8)
 
 [node name="Logo" type="TextureRect" parent="." unique_id=1969163400]
 visible = false

@@ -57,6 +57,57 @@ func clear_temporary_damage_multiplier() -> void:
 	if player and player.has_method("_apply_game_data_upgrades"):
 		player._apply_game_data_upgrades()
 var vampiric_kills_counter: int = 0
+var protocol_recycled_levels: Array[int] = []
+var protocol_run_stats: Dictionary = {}
+
+func reset_protocol_run() -> void:
+	vampiric_kills_counter = 0
+	temporary_damage_multiplier = 1.0
+	protocol_recycled_levels.clear()
+	protocol_run_stats.clear()
+
+func record_protocol(metric: String, amount: float) -> void:
+	if active_protocol.is_empty() or amount <= 0.0: return
+	protocol_run_stats[metric] = float(protocol_run_stats.get(metric, 0.0)) + amount
+
+func protocol_enemy_defeated(enemy: Node2D) -> void:
+	if enemy.get("is_clone") == true: return
+	if active_protocol == "nucleo_vampirico":
+		vampiric_kills_counter += 1
+		if vampiric_kills_counter >= 10:
+			vampiric_kills_counter -= 10
+			var clot = preload("res://Scripts/Effects/protocol_clot.gd").new()
+			clot.position = get_tree().current_scene.to_local(enemy.global_position) if get_tree().current_scene is Node2D else enemy.global_position
+			get_tree().current_scene.add_child.call_deferred(clot)
+	if active_protocol == "reciclaje_instantaneo" and enemy.get_script().resource_path.get_file() in ["boss1.gd", "boss2.gd", "boss3_prometeo.gd"]:
+		var before := scrap
+		add_scrap(50)
+		record_protocol("scrap", scrap - before)
+
+func can_recycle_protocol(item: ItemData, inventory: Inventory) -> bool:
+	var scene := get_tree().current_scene
+	return active_protocol == "reciclaje_instantaneo" and scene != null and scene.is_in_group("combat_room") and current_run_room > 0 and not protocol_recycled_levels.has(current_level) and item != null and inventory != null and inventory.items.has(item)
+
+func recycle_protocol_item(item: ItemData, inventory: Inventory) -> bool:
+	if not can_recycle_protocol(item, inventory): return false
+	# Marcar antes de emitir inventory_updated para que el botón se refresque bloqueado.
+	protocol_recycled_levels.append(current_level)
+	inventory.remove_item(item)
+	var before := scrap
+	add_scrap(40)
+	record_protocol("scrap", scrap - before)
+	return true
+
+func protocol_summary() -> String:
+	match active_protocol:
+		"circuito_emergencia", "blindaje_reactivo": return "%d daño evitado" % int(protocol_run_stats.get("blocked", 0))
+		"reparacion_autonoma", "nucleo_vampirico": return "%d HP recuperados" % int(protocol_run_stats.get("healed", 0))
+		"sobrecarga": return "%d daño extra" % int(protocol_run_stats.get("overload_damage", 0))
+		"reflejo_sintetico": return "%d daño de ecos" % int(protocol_run_stats.get("echo_damage", 0))
+		"enjambre_residual": return "%d daño de abeja" % int(protocol_run_stats.get("bee_damage", 0))
+		"furia_de_titanio": return "%d s en furia" % int(protocol_run_stats.get("furia_seconds", 0))
+		"reciclaje_instantaneo": return "%d chatarra extra" % int(protocol_run_stats.get("scrap", 0))
+	return ""
 
 # ── Level Progression: zona 1 -> boss 1 -> zona 2 -> boss 2 -> zona 3 -> Prometeo -> gana la run ──
 const MAX_LEVEL_FOR_NOW: int = 3
@@ -96,6 +147,8 @@ func is_event_build() -> bool:
 var demo_completed_pending := false
 
 func finish_first_boss_demo() -> void:
+	if not is_event_build() and not is_event_demo():
+		return
 	if demo_completed_pending:
 		return
 	demo_completed_pending = true
@@ -191,19 +244,7 @@ var current_run_room: int = 0
 var run_start_time_msec: int = 0 # para calcular el tiempo sobrevivido en la pantalla de muerte
 var run_enemies_killed: int = 0:
 	set(val):
-		var diff = val - run_enemies_killed
 		run_enemies_killed = val
-		if diff > 0:
-			_on_enemy_killed_protocol_check(diff)
-
-func _on_enemy_killed_protocol_check(diff: int) -> void:
-	if active_protocol == "nucleo_vampirico":
-		vampiric_kills_counter += diff
-		while vampiric_kills_counter >= 25:
-			vampiric_kills_counter -= 25
-			var player = get_tree().get_first_node_in_group("player")
-			if player and "stats" in player and player.stats.has_method("heal"):
-				player.stats.heal(2)
 var run_scrap_collected: int = 0
 var last_killer: String = "Infección Lázaro"
 var rooms_pool: Array[String] = []
@@ -239,6 +280,7 @@ func _add_room_if_valid(file_name: String, path: String, prefix: String, result:
 
 func start_new_run() -> String:
 	RunLog.begin()
+	reset_protocol_run()
 	# El build de Buenos Aires Game Dev conserva el flujo normal de inicio;
 	# cambia sólo la configuración de la run al confirmarla.
 	if is_event_build():
@@ -253,6 +295,7 @@ func start_new_run() -> String:
 	run_scrap_collected = 0
 	run_start_time_msec = Time.get_ticks_msec()
 	last_killer = "Infección Lázaro"
+	last_room_path = ""
 	reset_boss_state()
 	save_game()
 	return get_random_room_from_pool()
@@ -337,7 +380,7 @@ func check_for_ygor_room() -> String:
 func roll_for_ygor_room() -> String:
 	var roll: float = randf()
 	if roll < 0.5:
-		return get_ygor_room_for_current_level()
+		return _remember_room(get_ygor_room_for_current_level())
 	return get_random_room_from_pool()
 
 func get_zone_name(level: int) -> String:
@@ -356,17 +399,31 @@ func get_random_room_from_pool() -> String:
 	var pool: Array[String] = _get_current_pool()
 	if pool.is_empty():
 		return "res://Scenes/Rooms/lab_room.tscn"
-	
-	if pool.size() == 1:
-		last_room_path = pool[0]
-		return pool[0]
-		
-	var next_room = pool.pick_random()
-	while next_room == last_room_path:
-		next_room = pool.pick_random()
-		
-	last_room_path = next_room
-	return next_room
+	var candidates := _get_valid_room_candidates(pool)
+	if candidates.is_empty():
+		candidates = pool.duplicate()
+	return _remember_room(candidates.pick_random())
+
+func _get_valid_room_candidates(pool: Array[String]) -> Array[String]:
+	var result: Array[String] = []
+	for room_path in pool:
+		if room_path == last_room_path:
+			continue
+		if _is_treasure_room(room_path) and _is_special_reward_room(last_room_path):
+			continue
+		result.append(room_path)
+	return result
+
+func _is_treasure_room(room_path: String) -> bool:
+	return "treasure" in room_path.to_lower()
+
+func _is_special_reward_room(room_path: String) -> bool:
+	var name_lower = room_path.to_lower()
+	return "treasure" in name_lower or "ygor" in name_lower
+
+func _remember_room(room_path: String) -> String:
+	last_room_path = room_path
+	return room_path
 
 func get_room_config() -> Dictionary:
 	var config: Dictionary = _create_base_config()
@@ -904,6 +961,7 @@ func clear_items() -> void:
 	flesh_changed.emit(flesh)
 
 func reset_data() -> void:
+	reset_protocol_run()
 	scrap = 0
 	flesh = 0
 	weapon_damage = 10.0
@@ -1015,7 +1073,7 @@ func unlock_all_omnia() -> void:
 		if not unlocked_synergies.has(s):
 			unlocked_synergies.append(s)
 			
-	var all_protos = ["sobrecarga", "reciclaje_instantaneo", "enjambre_residual", "escudo_reactivo", "sangre_acida"]
+	var all_protos = ["circuito_emergencia", "reparacion_autonoma", "nucleo_vampirico", "sobrecarga", "reflejo_sintetico", "enjambre_residual", "blindaje_reactivo", "furia_de_titanio", "reciclaje_instantaneo"]
 	for p in all_protos:
 		if not unlocked_protocols.has(p):
 			unlocked_protocols.append(p)

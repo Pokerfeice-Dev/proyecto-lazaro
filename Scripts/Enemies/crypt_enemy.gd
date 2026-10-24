@@ -153,7 +153,10 @@ func _steer(desired: Vector2, delta: float) -> void:
 		_move_dir = Vector2.ZERO
 		return
 	_move_dir = _move_dir.lerp(desired, minf(1.0, turn_rate * delta))
-	_move_dir = _move_dir.normalized() if _move_dir.length_squared() > 0.0001 else desired
+	_move_dir = _move_dir.normalized() * desired.length() if _move_dir.length_squared() > 0.0001 else desired
+	# El giro suave no debe recortar la esquina elegida por el navegador.
+	if not _can_walk_segment(global_position, global_position + _move_dir * maxf(20, move_speed * delta * 2)):
+		_move_dir = desired
 
 func player_has_back_turned() -> bool:
 	if not is_instance_valid(target): return false

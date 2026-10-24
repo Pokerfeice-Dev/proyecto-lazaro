@@ -7,6 +7,8 @@ var direction: Vector2 = Vector2.RIGHT
 var damage: float = 10.0
 var target_group: String = "player"
 var source_name: String = "Infección Lázaro"
+var _boss_fx: Node2D
+var _exploding := false
 
 @onready var anim_sprite = $AnimatedSprite2D
 
@@ -23,9 +25,18 @@ func _ready():
 func _physics_process(delta):
 	global_position += direction * speed * delta
 
+func enable_boss_comet(enhanced: bool = false) -> void:
+	if is_instance_valid(_boss_fx): return
+	_boss_fx = preload("res://Scripts/Effects/boss_projectile_fx.gd").new()
+	_boss_fx.enhanced = enhanced
+	_boss_fx.flight_speed = speed
+	add_child(_boss_fx)
+	anim_sprite.hide()
+
 # --- Señales ---
 
 func _on_body_entered(body: Node2D):
+	if _exploding: return
 	if body.is_in_group(target_group):
 		if body.is_in_group("player") and body.has_method("_is_arrogancia_reflect_active") and body._is_arrogancia_reflect_active():
 			if body.has_method("on_arrogancia_reflect"):
@@ -65,11 +76,17 @@ func _spawn_reflected_projectile() -> void:
 		reflected.modulate = Color(1.4, 1.1, 0.3)
 
 func _explode():
+	if _exploding: return
+	_exploding = true
 	set_physics_process(false)
 	# Desactivamos monitoreo para no colisionar más de una vez
 	set_deferred("monitoring", false)
 	set_deferred("monitorable", false)
 	
+	if is_instance_valid(_boss_fx):
+		_boss_fx.impact()
+	else:
+		anim_sprite.show()
 	anim_sprite.play("explosion")
 	
 	# Usamos un timer o la señal de la animación para borrarlo

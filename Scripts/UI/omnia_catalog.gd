@@ -15,7 +15,7 @@ const CATEGORY_INFO := {
 	"RECURSOS": "Mejoras para conseguir más chatarra, carne y objetos.",
 	"ARSENAL": "Armas nuevas para elegir al empezar cada run.",
 	"SINERGIAS": "Combinaciones de arma y piezas que transforman tu equipo.",
-	"PROTOCOLOS": "Un protocolo activo por run, con un efecto especial.",
+	"PROTOCOLOS": "Desbloqueo permanente. Solo un protocolo equipado a la vez.",
 }
 
 const UPGRADE_COST_STEP := 50
@@ -68,15 +68,15 @@ const SINERGIAS := [
 const ADVANCED_REQUIRES := ["pistola_mente_colmena", "roadkill"]
 
 const PROTOCOLOS := [
-	{"id": "circuito_emergencia", "name": "Circuito de Emergencia", "desc": "El primer golpe de cada sala hace un 30% menos de daño.", "cost": 400, "icon": "icon_armor"},
-	{"id": "reparacion_autonoma", "name": "Reparación Autónoma", "desc": "Al limpiar una sala: +1 HP.", "cost": 500, "icon": "icon_health"},
-	{"id": "nucleo_vampirico", "name": "Núcleo Vampírico", "desc": "Cada 25 enemigos derrotados: +2 HP.", "cost": 600, "icon": "icon_health"},
-	{"id": "sobrecarga", "name": "Sobrecarga", "desc": "Al entrar a una sala: +10% de daño durante 5 segundos.", "cost": 700, "icon": "icon_energy"},
-	{"id": "reflejo_sintetico", "name": "Reflejo Sintético", "desc": "Después de un dash dejas una copia holográfica que dispara una vez.", "cost": 800, "icon": "icon_compare"},
-	{"id": "enjambre_residual", "name": "Enjambre Residual", "desc": "Empiezas cada run con una abeja mecánica aliada.", "cost": 900, "icon": "icon_projectiles"},
-	{"id": "blindaje_reactivo", "name": "Blindaje Reactivo", "desc": "Al recibir daño ganas +2 de defensa durante 3 segundos.", "cost": 900, "icon": "icon_armor"},
-	{"id": "furia_de_titanio", "name": "Furia de Titanio", "desc": "Con menos del 30% de vida: +25% de velocidad de ataque.", "cost": 1000, "icon": "icon_fire_rate"},
-	{"id": "reciclaje_instantaneo", "name": "Reciclaje Instantáneo", "desc": "Cada jefe derrotado te da 50 de chatarra extra.", "cost": 1200, "icon": "res://Art/Scrap/Scrap_icon.png"},
+	{"id": "circuito_emergencia", "name": "Circuito de Emergencia", "desc": "Reduce un 50% el daño del primer golpe de cada sala. El escudo se recarga al cambiar de sala.", "cost": 400, "icon": "icon_armor"},
+	{"id": "reparacion_autonoma", "name": "Reparación Autónoma", "desc": "Recuperas 3 HP al limpiar una sala de combate.", "cost": 500, "icon": "icon_health"},
+	{"id": "nucleo_vampirico", "name": "Núcleo Vampírico", "desc": "Cada 10 enemigos derrotados generan un coágulo. Recógelo para recuperar 2 HP.", "cost": 600, "icon": "icon_health"},
+	{"id": "sobrecarga", "name": "Sobrecarga", "desc": "+20% de daño durante los primeros 6 segundos de cada combate.", "cost": 600, "icon": "icon_energy"},
+	{"id": "reflejo_sintetico", "name": "Reflejo Sintético", "desc": "Cada dash deja un holograma que repite un ataque de tu arma principal al 50% de daño.", "cost": 700, "icon": "icon_compare"},
+	{"id": "enjambre_residual", "name": "Enjambre Residual", "desc": "Una abeja mecánica te acompaña y prioriza al enemigo que golpeas. Su daño parte de 12 y mejora con tu arma principal.", "cost": 700, "icon": "icon_projectiles"},
+	{"id": "blindaje_reactivo", "name": "Blindaje Reactivo", "desc": "Tras recibir un golpe, ganas +2 de defensa durante 3 segundos para los siguientes impactos. Se recarga en 7 segundos desde su activación.", "cost": 600, "icon": "icon_armor"},
+	{"id": "furia_de_titanio", "name": "Furia de Titanio", "desc": "Con menos del 30% de vida: +35% de velocidad de ataque.", "cost": 700, "icon": "icon_fire_rate"},
+	{"id": "reciclaje_instantaneo", "name": "Reciclaje Instantáneo", "desc": "Recicla una pieza de tu mochila por zona desde el inventario y obtén 40 de chatarra. Cada jefe derrotado también otorga 50 de chatarra extra.", "cost": 700, "icon": "res://Art/Scrap/Scrap_icon.png"},
 ]
 
 # --- Entradas listas para mostrar ---
@@ -171,9 +171,18 @@ static func _protocol_entries() -> Array:
 		result.append({
 			"id": p.id, "name": p.name, "desc": p.desc, "kind": "protocol",
 			"icon": load_icon(p.icon), "cost": p.cost, "state": state,
-			"action": {"activo": "DESACTIVAR", "comprado": "EQUIPAR"}.get(state, "DESBLOQUEAR"),
+			"action": {"activo": "DESEQUIPAR", "comprado": "EQUIPAR"}.get(state, "DESBLOQUEAR Y EQUIPAR"),
 		})
 	return result
+
+static func protocol_definition(id: String) -> Dictionary:
+	for protocol in PROTOCOLOS:
+		if protocol.id == id:
+			return protocol
+	return {}
+
+static func protocol_name(id: String) -> String:
+	return str(protocol_definition(id).get("name", "Ninguno"))
 
 # --- Para otras pantallas (el códice) ---
 
@@ -246,26 +255,34 @@ static func purchase(entry: Dictionary) -> bool:
 	return true
 
 static func _use_protocol(entry: Dictionary) -> bool:
-	match entry.state:
-		"activo":
-			GameData.active_protocol = ""
-		"comprado":
-			GameData.active_protocol = entry.id
-		_:
-			if not GameData.spend_scrap(entry.cost): return false
-			if not GameData.unlocked_protocols.has(entry.id):
-				GameData.unlocked_protocols.append(entry.id)
+	var definition = protocol_definition(str(entry.get("id", "")))
+	if definition.is_empty(): return false
+	var id: String = definition.id
+	# El catálogo visible puede haber quedado viejo tras una compra. La
+	# propiedad actual decide si cobrar; nunca se vuelve a pagar por equipar.
+	if not GameData.unlocked_protocols.has(id):
+		if not GameData.spend_scrap(int(definition.cost)): return false
+		GameData.unlocked_protocols.append(id)
+		GameData.active_protocol = id
+	elif GameData.active_protocol == id and entry.get("state", "") == "activo":
+		GameData.active_protocol = ""
+	else:
+		GameData.active_protocol = id
 	GameData.save_game()
 	return true
 
 ## ¿El botón de la entrada se puede apretar?
 static func can_act(entry: Dictionary) -> bool:
-	if entry.kind == "protocol" and entry.state in ["activo", "comprado"]:
-		return true
+	if entry.kind == "protocol":
+		var definition = protocol_definition(str(entry.get("id", "")))
+		return not definition.is_empty() and (GameData.unlocked_protocols.has(definition.id) or GameData.scrap >= definition.cost)
 	return entry.state == "disponible" and GameData.scrap >= entry.cost
 
 ## Precio a mostrar (0 = no se muestra).
 static func shown_cost(entry: Dictionary) -> int:
+	if entry.kind == "protocol":
+		var definition = protocol_definition(str(entry.get("id", "")))
+		return 0 if definition.is_empty() or GameData.unlocked_protocols.has(definition.id) else int(definition.cost)
 	if entry.state != "disponible":
 		return 0
 	return entry.cost

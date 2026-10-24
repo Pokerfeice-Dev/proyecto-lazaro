@@ -74,6 +74,7 @@ func _physics_process(delta: float) -> void:
 			
 	if current_state == State.PREPARE_CHARGE and target:
 		charge_target_position = target.global_position
+		_face_direction(charge_target_position - global_position)
 		if charge_line:
 			charge_line.clear_points()
 			charge_line.add_point(Vector2.ZERO)
@@ -114,7 +115,7 @@ func _start_charge() -> void:
 	velocity = charge_direction * charge_speed
 	if anim_sprite:
 		anim_sprite.play("attack")
-		anim_sprite.flip_h = charge_direction.x > 0
+		_face_direction(charge_direction)
 
 func _start_cooldown() -> void:
 	current_state = State.COOLDOWN
@@ -171,7 +172,12 @@ func _process_bee_chase() -> void:
 	velocity = dir * move_speed
 	if anim_sprite:
 		anim_sprite.play("walk")
-		anim_sprite.flip_h = dir.x > 0
+		_face_direction(dir)
 		
 	if has_line_of_sight_to_player() and global_position.distance_to(target.global_position) <= min_dist_to_charge:
 		_start_prepare()
+
+func _face_direction(dir: Vector2) -> void:
+	# El spritesheet original mira a la derecha. En vuelo vertical conserva su lado.
+	if anim_sprite and absf(dir.x) > 0.01:
+		anim_sprite.flip_h = dir.x < 0.0

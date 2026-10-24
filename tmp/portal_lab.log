@@ -1,0 +1,16 @@
+Godot Engine v4.8.dev3.official.51105ccbe - https://godotengine.org
+
+Codex unlocked: levels -> distrito_1
+Codex unlocked: weapons -> pistol
+Codex unlocked: weapons -> daga
+SCRIPT ERROR: Invalid assignment of property or key 'own_world_2d' with value of type 'bool' on a base object of type 'SubViewport'.
+   at: _ready (res://Scripts/Effects/door_destination_preview.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://Scripts/Effects/door_destination_preview.gd:12)
+       [1] _prepare_portal_preview (res://Scripts/World/door.gd:61)
+SCRIPT ERROR: Invalid assignment of property or key 'own_world_2d' with value of type 'bool' on a base object of type 'SubViewport'.
+   at: _ready (res://Scripts/Effects/door_destination_preview.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://Scripts/Effects/door_destination_preview.gd:12)
+       [1] _prepare_portal_preview (res://Scripts/World/door.gd:61)
+[SYNERGY DEBUG] No active synergies. Reverting to base weapon.

@@ -9,22 +9,6 @@
 [ext_resource type="Texture2D" uid="uid://b65bru6j0waiw" path="res://Art/Player_art/lazaro_walk_spritesheet_invert.png" id="5_8t5qx"]
 [ext_resource type="Texture2D" uid="uid://vpmqig7jb24g" path="res://Art/Player_art/lazaro_walk_spritesheet.png" id="6_8rd5p"]
 [ext_resource type="AudioStream" uid="uid://cchgx2sxk0k7a" path="res://Audio/Dash_sound.wav" id="29_7xdrn"]
-[ext_resource type="Texture2D" uid="uid://dhmg78hw1hexl" path="res://Art/Player_art/animatios/Summon/1.png" id="35_tgfvv"]
-[ext_resource type="Texture2D" uid="uid://cewqwgh5onjs0" path="res://Art/Player_art/animatios/Summon/2.png" id="36_yi34y"]
-[ext_resource type="Texture2D" uid="uid://b6nnoutxum4tq" path="res://Art/Player_art/animatios/Summon/3.png" id="37_daopn"]
-[ext_resource type="Texture2D" uid="uid://bmtacl2mxdvhf" path="res://Art/Player_art/animatios/Summon/4.png" id="38_tkwhe"]
-[ext_resource type="Texture2D" uid="uid://chokh1ttls3un" path="res://Art/Player_art/animatios/Summon/5.png" id="39_b7nrf"]
-[ext_resource type="Texture2D" uid="uid://r2rak25k1ocu" path="res://Art/Player_art/animatios/Summon/6.png" id="40_ykffh"]
-[ext_resource type="Texture2D" uid="uid://cbaoil1jwj0ix" path="res://Art/Player_art/animatios/Summon/7.png" id="41_5xs4v"]
-[ext_resource type="Texture2D" uid="uid://dioyxhyrqik4m" path="res://Art/Player_art/animatios/Summon/8.png" id="42_4emfg"]
-[ext_resource type="Texture2D" uid="uid://daj7upnd1k553" path="res://Art/Player_art/animatios/Summon/9.png" id="43_ntbx5"]
-[ext_resource type="Texture2D" uid="uid://lwg5f86ide1l" path="res://Art/Player_art/animatios/Summon/10.png" id="44_t4n31"]
-[ext_resource type="Texture2D" uid="uid://cgcugujedyawe" path="res://Art/Player_art/animatios/Summon/11.png" id="45_mhihw"]
-[ext_resource type="Texture2D" uid="uid://cmkexcmao87l" path="res://Art/Player_art/animatios/Summon/12.png" id="46_r6bkq"]
-[ext_resource type="Texture2D" uid="uid://bsb86lof4ixnt" path="res://Art/Player_art/animatios/Summon/13.png" id="47_yygk0"]
-[ext_resource type="Texture2D" uid="uid://ncxp5bl5wi2g" path="res://Art/Player_art/animatios/Summon/14.png" id="48_m2cil"]
-[ext_resource type="Texture2D" uid="uid://ghoaeu5nq8g" path="res://Art/Player_art/animatios/Summon/15.png" id="49_g14s4"]
-[ext_resource type="Texture2D" uid="uid://ccy6sweojuo71" path="res://Art/Player_art/animatios/Summon/16.png" id="50_sissg"]
 [ext_resource type="AudioStream" uid="uid://bjwuj3cm3jxcw" path="res://Audio/Sfx/damage_4_meghan.wav" id="51_yi34y"]
 [ext_resource type="PackedScene" uid="uid://mpouyawdwg70" path="res://Scenes/UI/HUD.tscn" id="52_daopn"]
 [ext_resource type="Script" uid="uid://bs5ls16658xo0" path="res://Scripts/Inventory/inventory.gd" id="100_inv"]
@@ -36,12 +20,12 @@
 script = ExtResource("2_ft8w5")
 metadata/_custom_type_script = "uid://bi0sm5p5ejgtm"
 
-[sub_resource type="Gradient" id="Gradient_g7gci"]
+[sub_resource type="Gradient" id="Gradient_esmjy"]
 offsets = PackedFloat32Array(0, 0.45, 0.75, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0.4, 1, 1, 1, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_r6t50"]
-gradient = SubResource("Gradient_g7gci")
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6tu5v"]
+gradient = SubResource("Gradient_esmjy")
 height = 32
 fill = 1
 fill_from = Vector2(0.5, 0.5)
@@ -1181,65 +1165,6 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(12, 33)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_jbjyn"]
-animations = [{
-"frames": [{
-"duration": 1.5,
-"texture": ExtResource("35_tgfvv")
-}, {
-"duration": 1.5,
-"texture": ExtResource("36_yi34y")
-}, {
-"duration": 1.5,
-"texture": ExtResource("37_daopn")
-}, {
-"duration": 1.0,
-"texture": ExtResource("38_tkwhe")
-}, {
-"duration": 1.0,
-"texture": ExtResource("39_b7nrf")
-}, {
-"duration": 1.0,
-"texture": ExtResource("40_ykffh")
-}, {
-"duration": 1.0,
-"texture": ExtResource("41_5xs4v")
-}, {
-"duration": 1.0,
-"texture": ExtResource("42_4emfg")
-}, {
-"duration": 1.0,
-"texture": ExtResource("43_ntbx5")
-}, {
-"duration": 1.0,
-"texture": ExtResource("44_t4n31")
-}, {
-"duration": 1.0,
-"texture": ExtResource("45_mhihw")
-}, {
-"duration": 1.0,
-"texture": ExtResource("46_r6bkq")
-}, {
-"duration": 1.0,
-"texture": ExtResource("47_yygk0")
-}, {
-"duration": 1.0,
-"texture": ExtResource("48_m2cil")
-}, {
-"duration": 1.0,
-"texture": ExtResource("49_g14s4")
-}, {
-"duration": 1.0,
-"texture": ExtResource("50_sissg")
-}, {
-"duration": 1.0,
-"texture": null
-}],
-"loop": 0,
-"name": &"summon",
-"speed": 24.0
-}]
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_tgfvv"]
 
 [node name="Player" type="CharacterBody2D" unique_id=672756116 groups=["player"]]
@@ -1249,17 +1174,6 @@ script = ExtResource("1_pl1")
 stats = SubResource("Resource_b7nrf")
 friction = 1000.0
 dash_speed = 370.0
-
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1758516561]
-z_index = -2
-z_as_relative = false
-offset_left = -1013.99994
-offset_top = -857.0
-offset_right = -973.99994
-offset_bottom = -817.0
-scale = Vector2(48.44163, 39.65629)
-mouse_filter = 2
-color = Color(0, 0, 0, 1)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1722248368]
 zoom = Vector2(2.4, 2.4)
@@ -1283,7 +1197,7 @@ modulate = Color(0, 0, 0, 0.38)
 show_behind_parent = true
 position = Vector2(0, 15)
 scale = Vector2(0.40625, 0.375)
-texture = SubResource("GradientTexture2D_r6t50")
+texture = SubResource("GradientTexture2D_6tu5v")
 script = ExtResource("102_shadow")
 shadow_offset = Vector2(0, 15)
 
@@ -1297,15 +1211,6 @@ frame = 7
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1078907818]
 position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_player")
-
-[node name="Summon_anim" type="AnimatedSprite2D" parent="." unique_id=903373837]
-position = Vector2(0, -136)
-scale = Vector2(0.8, 0.8)
-sprite_frames = SubResource("SpriteFrames_jbjyn")
-animation = &"summon"
-autoplay = "summon"
-frame = 16
-frame_progress = 1.0
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1115865836]
 position = Vector2(14, -3)

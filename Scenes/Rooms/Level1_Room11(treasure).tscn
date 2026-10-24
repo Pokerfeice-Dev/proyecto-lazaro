@@ -43,34 +43,40 @@ scale = Vector2(1.5, 1.5)
 chest_type = "trap"
 metadata/_edit_group_ = true
 
-[node name="Lights" type="Node2D" parent="." unique_id=95083335]
-position = Vector2(1058, -348)
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
 
-[node name="lampara_pared" parent="Lights" unique_id=1368619277 instance=ExtResource("5_edgl6")]
-position = Vector2(-560, -469)
+[node name="lampara_pared" parent="Iluminacion" unique_id=1368619277 instance=ExtResource("5_edgl6")]
+position = Vector2(498, -817)
 
-[node name="lampara_pared2" parent="Lights" unique_id=2025996282 instance=ExtResource("5_edgl6")]
-position = Vector2(-754, -339)
 
-[node name="lampara_pared3" parent="Lights" unique_id=866219439 instance=ExtResource("5_edgl6")]
-position = Vector2(-304, -339)
+[node name="lampara_pared2" parent="Iluminacion" unique_id=2025996282 instance=ExtResource("5_edgl6")]
+position = Vector2(304, -687)
 
-[node name="lampara_pared4" parent="Lights" unique_id=631197681 instance=ExtResource("5_edgl6")]
-position = Vector2(-947, -150)
-rotation = -1.5707964
 
-[node name="lampara_pared5" parent="Lights" unique_id=1221509254 instance=ExtResource("5_edgl6")]
-position = Vector2(-756, 202)
-rotation = -3.1415927
+[node name="lampara_pared3" parent="Iluminacion" unique_id=866219439 instance=ExtResource("5_edgl6")]
+position = Vector2(754, -687)
 
-[node name="lampara_pared6" parent="Lights" unique_id=1088872483 instance=ExtResource("5_edgl6")]
-position = Vector2(-468, 332)
-rotation = -3.1415927
 
-[node name="lampara_pared7" parent="Lights" unique_id=1493887925 instance=ExtResource("5_edgl6")]
-position = Vector2(-342, 202)
-rotation = -3.1415927
+[node name="lampara_pared4" parent="Iluminacion" unique_id=631197681 instance=ExtResource("5_edgl6")]
+position = Vector2(111, -498)
+rotation = -1.570796
 
-[node name="lampara_pared8" parent="Lights" unique_id=1143697306 instance=ExtResource("5_edgl6")]
-position = Vector2(-145, -52)
-rotation = 1.5707964
+
+[node name="lampara_pared5" parent="Iluminacion" unique_id=1221509254 instance=ExtResource("5_edgl6")]
+position = Vector2(302, -146)
+rotation = -3.141593
+
+
+[node name="lampara_pared6" parent="Iluminacion" unique_id=1088872483 instance=ExtResource("5_edgl6")]
+position = Vector2(590, -16)
+rotation = -3.141593
+
+
+[node name="lampara_pared7" parent="Iluminacion" unique_id=1493887925 instance=ExtResource("5_edgl6")]
+position = Vector2(716, -146)
+rotation = -3.141593
+
+
+[node name="lampara_pared8" parent="Iluminacion" unique_id=1143697306 instance=ExtResource("5_edgl6")]
+position = Vector2(913, -400)
+rotation = 1.570796

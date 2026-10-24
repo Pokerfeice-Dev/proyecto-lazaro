@@ -11,6 +11,9 @@ class_name Boss1
 @export_group("Boss Laser Settings")
 @export var laser_sweep_base_speed: float = 1.2
 @export var laser_damage_tick_rate: float = 0.15
+## Aviso fijo antes del barrido; nunca causa daño durante la carga.
+@export_range(0.35, 1.5, 0.05) var laser_charge_duration: float = 0.75
+@export var laser_volume_db: float = -11.0
 
 @export_group("Boss Pattern Settings")
 @export var time_between_patterns: float = 4.0
@@ -26,8 +29,8 @@ class_name Boss1
 # Laser nodes
 var left_raycast: RayCast2D
 var right_raycast: RayCast2D
-var left_laser_line: Line2D
-var right_laser_line: Line2D
+var left_laser_line: BossLaserFX
+var right_laser_line: BossLaserFX
 
 # Attack states
 var pattern_timer: Timer
@@ -36,6 +39,12 @@ var laser_angle: float = PI / 2 # straight down (90 deg)
 var laser_sweep_speed: float = 1.2
 var laser_sweep_dir: float = 1.0
 var laser_damage_cooldown: float = 0.0
+var _laser_charge_left := 0.0
+var _laser_firing := false
+var _laser_charge_audio: AudioStreamPlayer2D
+var _laser_accent_audio: AudioStreamPlayer2D
+var _laser_audio_tween: Tween
+var _laser_node_volume_db := 0.0
 
 const BOSS_NAME := "Centinela Génesis"
 const EMERGE_SHADER := preload("res://Art/Effects/emerge_clip.gdshader")
@@ -231,31 +240,18 @@ func _finish_cinematic_and_start_fight(cinema_layer: CanvasLayer, player: Node) 
 	_apply_phase_two_buffs()
 
 func _setup_lasers() -> void:
-	# Left Laser setup
 	left_raycast = RayCast2D.new()
-	left_raycast.collision_mask = 1 | 4 # Player (1) and Walls (3)
-	left_raycast.collide_with_areas = false
-	left_raycast.collide_with_bodies = true
-	add_child(left_raycast)
-	
-	left_laser_line = Line2D.new()
-	left_laser_line.width = 12.0
-	left_laser_line.default_color = Color(1.0, 0.1, 0.1, 0.8) # Red laser
-	left_laser_line.visible = false
-	add_child(left_laser_line)
-	
-	# Right Laser setup
 	right_raycast = RayCast2D.new()
-	right_raycast.collision_mask = 1 | 4
-	right_raycast.collide_with_areas = false
-	right_raycast.collide_with_bodies = true
-	add_child(right_raycast)
-	
-	right_laser_line = Line2D.new()
-	right_laser_line.width = 12.0
-	right_laser_line.default_color = Color(1.0, 0.1, 0.1, 0.8)
-	right_laser_line.visible = false
+	for ray in [left_raycast, right_raycast]:
+		ray.collision_mask = 1 | 4 # Jugador y paredes.
+		ray.collide_with_areas = false
+		ray.collide_with_bodies = true
+		add_child(ray)
+	left_laser_line = BossLaserFX.new()
+	right_laser_line = BossLaserFX.new()
+	add_child(left_laser_line)
 	add_child(right_laser_line)
+	_setup_laser_audio()
 
 func _setup_pattern_timer() -> void:
 	pattern_timer = Timer.new()
@@ -442,15 +438,14 @@ func _physics_process(delta: float) -> void:
 	_process_laser_logic(delta)
 
 func _process_laser_logic(delta: float) -> void:
-	if not is_laser_active:
-		left_laser_line.visible = false
-		right_laser_line.visible = false
-		return
-		
-	left_laser_line.visible = true
-	right_laser_line.visible = true
-	
-	_update_laser_angle(delta)
+	laser_damage_cooldown = maxf(0.0, laser_damage_cooldown - delta)
+	if not is_laser_active: return
+	if _laser_charge_left > 0.0:
+		_laser_charge_left = maxf(0.0, _laser_charge_left - delta)
+		if _laser_charge_left <= 0.0:
+			_ignite_lasers()
+	elif _laser_firing:
+		_update_laser_angle(delta)
 	_update_laser_beam(left_raycast, left_laser_line, muzzle_left.position, laser_angle, delta)
 	_update_laser_beam(right_raycast, right_laser_line, muzzle_right.position, laser_angle, delta)
 
@@ -464,7 +459,7 @@ func _update_laser_angle(delta: float) -> void:
 		laser_sweep_dir = 1.0
 		laser_angle = PI / 4
 
-func _update_laser_beam(ray: RayCast2D, line: Line2D, muzzle_local_pos: Vector2, angle: float, delta: float) -> void:
+func _update_laser_beam(ray: RayCast2D, line: BossLaserFX, muzzle_local_pos: Vector2, angle: float, delta: float) -> void:
 	var dir = Vector2.from_angle(angle)
 	ray.position = muzzle_local_pos
 	ray.target_position = dir * 1000.0
@@ -475,15 +470,15 @@ func _update_laser_beam(ray: RayCast2D, line: Line2D, muzzle_local_pos: Vector2,
 	if ray.is_colliding():
 		var global_col = ray.get_collision_point()
 		local_col_point = to_local(global_col)
-		_check_laser_damage(ray.get_collider(), delta)
+		if _laser_firing:
+			_check_laser_damage(ray.get_collider(), delta)
 		
 	# Restore raycast state
 	ray.position = muzzle_local_pos
 	ray.target_position = dir * 1000.0
 	
-	line.clear_points()
-	line.add_point(muzzle_local_pos)
-	line.add_point(local_col_point)
+	var normal: Vector2 = ray.get_collision_normal() if ray.is_colliding() else -dir
+	line.update_beam(muzzle_local_pos, local_col_point, 1.0 - _laser_charge_left / maxf(laser_charge_duration, 0.01), _laser_firing, ray.is_colliding(), normal.rotated(-global_rotation))
 
 func _perform_raycast_shifting(ray: RayCast2D, muzzle_local_pos: Vector2, dir: Vector2) -> void:
 	var max_steps = 10
@@ -502,10 +497,8 @@ func _perform_raycast_shifting(ray: RayCast2D, muzzle_local_pos: Vector2, dir: V
 		ray.force_raycast_update()
 		current_step += 1
 
-func _check_laser_damage(collider: Object, delta: float) -> void:
-	if laser_damage_cooldown > 0.0:
-		laser_damage_cooldown -= delta
-		return
+func _check_laser_damage(collider: Object, _delta: float) -> void:
+	if not _laser_firing or laser_damage_cooldown > 0.0: return
 		
 	if collider and collider.is_in_group("player") and collider.has_method("take_damage"):
 		var tick_damage = maxi(1, int(float(damage) / 3.0))
@@ -514,7 +507,9 @@ func _check_laser_damage(collider: Object, delta: float) -> void:
 		laser_damage_cooldown = base_cooldown / 1.5 if is_phase_two else base_cooldown
 
 func _on_pattern_timeout() -> void:
-	if is_dying: return
+	if is_dying or is_transitioning_phase: return
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.get("is_cutscene_frozen") == true: return
 	_toggle_attack_pattern()
 	_update_spawn_counter()
 
@@ -536,8 +531,8 @@ func _execute_phase_two_pattern() -> void:
 	if is_laser_active and phase_two_attack_step != 0:
 		is_laser_active = false
 		_update_laser_audio_state()
-		left_laser_line.visible = false
-		right_laser_line.visible = false
+		left_laser_line.stop()
+		right_laser_line.stop()
 	
 	if phase_two_attack_step == 0:
 		is_laser_active = true
@@ -587,6 +582,8 @@ func _spawn_projectile_at_angle(pos: Vector2, angle: float) -> void:
 	proj.setup(base_dir, damage, "player")
 	if is_phase_two and "speed" in proj:
 		proj.speed = proj.speed * 1.25
+	if proj.has_method("enable_boss_comet"):
+		proj.enable_boss_comet(is_phase_two)
 
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	if is_transitioning_phase: return
@@ -611,8 +608,8 @@ func _trigger_phase_two_teleport() -> void:
 	if is_laser_active:
 		is_laser_active = false
 		_update_laser_audio_state()
-		left_laser_line.visible = false
-		right_laser_line.visible = false
+		left_laser_line.stop()
+		right_laser_line.stop()
 	
 	GameData.boss_fight_phase = 2
 	GameData.boss_persisted_max_health = max_health
@@ -649,13 +646,53 @@ func _update_hud_health() -> void:
 func die() -> void:
 	if is_dying:
 		return
+	is_dying = true
+	_disable_physics()
+	if pattern_timer: pattern_timer.stop()
+	is_laser_active = false
+	if left_laser_line: left_laser_line.hide()
+	if right_laser_line: right_laser_line.hide()
+	_stop_all_boss_sounds()
+	var body = _get_sprite()
+	if body is AnimatedSprite2D: body.stop()
+	var death_tween := create_tween()
+	for i in 5:
+		death_tween.tween_callback(_death_small_blast)
+		if body:
+			death_tween.tween_property(body, "modulate", Color(2.0, 0.7, 0.35), 0.07)
+			death_tween.tween_property(body, "modulate", Color.WHITE, 0.16)
+		else:
+			death_tween.tween_interval(0.23)
+	death_tween.tween_interval(0.25)
+	death_tween.tween_callback(_finish_dramatic_death)
+
+func _death_small_blast() -> void:
+	_spawn_death_blast(Vector2(randf_range(-45, 45), randf_range(-60, 15)), 0.55)
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(4.0, 0.18)
+
+func _spawn_death_blast(offset: Vector2, power: float) -> void:
+	var blast = preload("res://Scripts/Effects/boss_death_blast.gd").new()
+	blast.position = global_position + offset
+	blast.strength = power
+	get_tree().current_scene.add_child(blast)
+
+func _finish_dramatic_death() -> void:
+	_spawn_death_blast(Vector2(0, -25), 1.8)
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(16.0, 0.65)
+	# La muerte base entrega recompensas y avisa a la sala recién al explotar.
+	is_dying = false
 	super.die()
+	# Los efectos ya viven en la sala: el cuerpo no debe persistir esperando audio.
+	hide()
 	GameData.reset_boss_state()
 	_hide_hud_health()
 	_stop_all_boss_sounds()
-	if GameData.get_active_protocol() == "reciclaje_instantaneo":
-		GameData.add_scrap(50)
-	GameData.finish_first_boss_demo.call_deferred()
+	if GameData.is_event_build() or GameData.is_event_demo():
+		GameData.finish_first_boss_demo.call_deferred()
 
 func _hide_hud_health() -> void:
 	if healthbar_instance and is_instance_valid(healthbar_instance):
@@ -766,18 +803,79 @@ func _play_spawn_roar() -> void:
 		add_child(roar_player)
 		roar_player.play()
 
+func _setup_laser_audio() -> void:
+	if not laser_sound:
+		laser_sound = AudioStreamPlayer2D.new()
+		laser_sound.name = "Laser_sound"
+		laser_sound.stream = load("res://Audio/Enemy_snd/Boss1/Laser.mp3")
+		add_child(laser_sound)
+	# Laser_sound conserva el stream, tono y espacialización de la escena.
+	_laser_node_volume_db = laser_sound.volume_db
+	laser_sound.bus = "SFX"
+	if not laser_sound.finished.is_connected(_on_laser_sound_finished):
+		laser_sound.finished.connect(_on_laser_sound_finished)
+	_laser_charge_audio = AudioStreamPlayer2D.new()
+	_laser_accent_audio = AudioStreamPlayer2D.new()
+	add_child(_laser_charge_audio)
+	add_child(_laser_accent_audio)
+	for audio in [_laser_charge_audio, _laser_accent_audio]:
+		audio.bus = "SFX"
+		audio.max_distance = 1600
+		audio.volume_db = laser_volume_db
+	_laser_charge_audio.stream = load("res://Audio/Enemy_snd/Boss1/laser_charge.wav")
+
+func _on_laser_sound_finished() -> void:
+	if is_laser_active and _laser_firing and not is_dying:
+		laser_sound.play()
+
 func _update_laser_audio_state() -> void:
-	if not laser_sound: return
+	if _laser_audio_tween and _laser_audio_tween.is_valid(): _laser_audio_tween.kill()
 	if is_laser_active:
-		if not laser_sound.playing:
-			laser_sound.play()
+		_laser_firing = false
+		_laser_charge_left = laser_charge_duration
+		laser_damage_cooldown = 0.0
+		if laser_sound: laser_sound.stop()
+		if _laser_charge_audio:
+			_laser_charge_audio.pitch_scale = 0.75 / maxf(laser_charge_duration, 0.01)
+			_laser_charge_audio.play()
 	else:
-		if laser_sound.playing:
-			laser_sound.stop()
+		_laser_charge_left = 0.0
+		_laser_firing = false
+		if _laser_charge_audio: _laser_charge_audio.stop()
+		if left_laser_line: left_laser_line.stop()
+		if right_laser_line: right_laser_line.stop()
+		if laser_sound and laser_sound.playing:
+			_play_laser_accent("release")
+			_laser_audio_tween = create_tween()
+			_laser_audio_tween.tween_property(laser_sound, "volume_db", -45.0, 0.18)
+			_laser_audio_tween.tween_callback(laser_sound.stop)
+
+func _ignite_lasers() -> void:
+	if is_dying or not is_laser_active: return
+	_laser_firing = true
+	if _laser_charge_audio: _laser_charge_audio.stop()
+	_play_laser_accent("ignite")
+	if laser_sound:
+		laser_sound.volume_db = _laser_node_volume_db
+		laser_sound.play()
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(3.5, 0.16)
+
+func _play_laser_accent(kind: String) -> void:
+	if not _laser_accent_audio: return
+	_laser_accent_audio.stream = load("res://Audio/Enemy_snd/Boss1/laser_%s.wav" % kind)
+	_laser_accent_audio.play()
 
 func _stop_all_boss_sounds() -> void:
-	if laser_sound and laser_sound.playing:
-		laser_sound.stop()
+	is_laser_active = false
+	_laser_firing = false
+	_laser_charge_left = 0.0
+	if _laser_audio_tween and _laser_audio_tween.is_valid(): _laser_audio_tween.kill()
+	for audio in [laser_sound, _laser_charge_audio, _laser_accent_audio]:
+		if is_instance_valid(audio): audio.stop()
+	if left_laser_line: left_laser_line.stop(true)
+	if right_laser_line: right_laser_line.stop(true)
 
 func _play_death_sound() -> void:
 	var ds = get_node_or_null("death_sound")

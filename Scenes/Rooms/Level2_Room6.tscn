@@ -39,24 +39,6 @@ position = Vector2(1790, -895)
 rotation = 1.5707964
 start_locked = false
 
-[node name="Spawn1" type="Marker2D" parent="." unique_id=1902399526]
-position = Vector2(1376, -747)
-
-[node name="Spawn2" type="Marker2D" parent="." unique_id=235618080]
-position = Vector2(986, -606)
-
-[node name="Spawn3" type="Marker2D" parent="." unique_id=699654588]
-position = Vector2(1135, -769)
-
-[node name="Spawn4" type="Marker2D" parent="." unique_id=986481909]
-position = Vector2(1096, -535)
-
-[node name="Spawn5" type="Marker2D" parent="." unique_id=430801653]
-position = Vector2(1626, -716)
-
-[node name="Spawn6" type="Marker2D" parent="." unique_id=26105324]
-position = Vector2(762, -587)
-
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
 position = Vector2(615.00006, -534)
 scale = Vector2(3.0042567, 3.0042567)
@@ -66,39 +48,77 @@ visible = false
 position = Vector2(-31.954681, 30.956062)
 shape = SubResource("RectangleShape2D_5n313")
 
-[node name="BarrelSpawnPoint" parent="." unique_id=50616672 instance=ExtResource("4_cdiqx")]
-position = Vector2(838, -557)
-
-[node name="BarrelSpawnPoint2" parent="." unique_id=1619352271 instance=ExtResource("4_cdiqx")]
-position = Vector2(1564, -770)
-
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1737551861]
 position = Vector2(1564, -770)
 color = Color(0.12, 0.14, 0.22, 1)
 
-[node name="Torch1" parent="CanvasModulate" unique_id=64839201 instance=ExtResource("5_qsf37")]
-position = Vector2(-981, 133)
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
 
-[node name="Torch2" parent="CanvasModulate" unique_id=526633615 instance=ExtResource("5_qsf37")]
-position = Vector2(-742, 261)
+[node name="Torch1" parent="Iluminacion" unique_id=64839201 instance=ExtResource("5_qsf37")]
+position = Vector2(583, -637)
 
-[node name="Torch3" parent="CanvasModulate" unique_id=1732008374 instance=ExtResource("5_qsf37")]
-position = Vector2(-267, 83)
 
-[node name="Torch4" parent="CanvasModulate" unique_id=100070875 instance=ExtResource("5_qsf37")]
-position = Vector2(-101, -85)
+[node name="Torch2" parent="Iluminacion" unique_id=526633615 instance=ExtResource("5_qsf37")]
+position = Vector2(822, -509)
 
-[node name="Torch5" parent="CanvasModulate" unique_id=219325397 instance=ExtResource("5_qsf37")]
-position = Vector2(-413, 255)
 
-[node name="Torch6" parent="CanvasModulate" unique_id=361176848 instance=ExtResource("5_qsf37")]
-position = Vector2(236, 62)
+[node name="Torch3" parent="Iluminacion" unique_id=1732008374 instance=ExtResource("5_qsf37")]
+position = Vector2(1297, -687)
 
-[node name="Wall_candle" parent="CanvasModulate" unique_id=1686303880 instance=ExtResource("6_2gt4m")]
-position = Vector2(-369, -127)
 
-[node name="Wall_candle2" parent="CanvasModulate" unique_id=1623595733 instance=ExtResource("6_2gt4m")]
-position = Vector2(-833, 61)
+[node name="Torch4" parent="Iluminacion" unique_id=100070875 instance=ExtResource("5_qsf37")]
+position = Vector2(1463, -855)
 
-[node name="Wall_candle3" parent="CanvasModulate" unique_id=23239027 instance=ExtResource("6_2gt4m")]
-position = Vector2(74, -135)
+
+[node name="Torch5" parent="Iluminacion" unique_id=219325397 instance=ExtResource("5_qsf37")]
+position = Vector2(1151, -515)
+
+
+[node name="Torch6" parent="Iluminacion" unique_id=361176848 instance=ExtResource("5_qsf37")]
+position = Vector2(1800, -708)
+
+
+[node name="Wall_candle" parent="Iluminacion" unique_id=1686303880 instance=ExtResource("6_2gt4m")]
+position = Vector2(1195, -897)
+
+
+[node name="Wall_candle2" parent="Iluminacion" unique_id=1623595733 instance=ExtResource("6_2gt4m")]
+position = Vector2(731, -709)
+
+
+[node name="Wall_candle3" parent="Iluminacion" unique_id=23239027 instance=ExtResource("6_2gt4m")]
+position = Vector2(1638, -905)
+[node name="Spawns" type="Node2D" parent="." unique_id=30303030]
+
+[node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=1902399526]
+position = Vector2(1376, -747)
+
+
+[node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=235618080]
+position = Vector2(986, -606)
+
+
+[node name="Spawn3" type="Marker2D" parent="Spawns" unique_id=699654588]
+position = Vector2(1135, -769)
+
+
+[node name="Spawn4" type="Marker2D" parent="Spawns" unique_id=986481909]
+position = Vector2(1096, -535)
+
+
+[node name="Spawn5" type="Marker2D" parent="Spawns" unique_id=430801653]
+position = Vector2(1626, -716)
+
+
+[node name="Spawn6" type="Marker2D" parent="Spawns" unique_id=26105324]
+position = Vector2(762, -587)
+
+
+[node name="Barrels" type="Node2D" parent="." unique_id=40404040]
+
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("4_cdiqx")]
+position = Vector2(838, -557)
+
+
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1619352271 instance=ExtResource("4_cdiqx")]
+position = Vector2(1564, -770)

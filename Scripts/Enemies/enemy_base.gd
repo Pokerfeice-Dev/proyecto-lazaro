@@ -53,6 +53,10 @@ var _nav_recalc_timer: float = 0.0
 var _nav_target_last_pos: Vector2 = Vector2.ZERO
 var _avoidance_angle_bias: float = 1.0
 var _avoidance_bias_timer: float = 0.0
+const EnemyNavigation = preload("res://Scripts/World/enemy_navigation.gd")
+var _nav_clearance := 0.0
+var _nav_probe: PhysicsShapeQueryParameters2D
+var _nav_probe_refresh := 0
 
 var is_elite: bool = false
 signal enemy_died(enemy: EnemyBase)
@@ -128,7 +132,7 @@ func _find_player() -> void:
 		# el jugador termine de instanciarse (se agrega con call_deferred). Reintenta
 		# en el próximo idle frame hasta que exista, en vez de quedarse sin target.
 		if is_inside_tree():
-			call_deferred("_find_player")
+			get_tree().create_timer(0.1).timeout.connect(_find_player, CONNECT_ONE_SHOT)
 		return
 	target = players[0]
 	add_collision_exception_with(target)
@@ -327,7 +331,7 @@ func has_line_of_sight_to_player() -> bool:
 	var space_state = get_world_2d().direct_space_state
 	var query = PhysicsRayQueryParameters2D.create(global_position, target.global_position)
 	query.exclude = [self.get_rid(), target.get_rid()]
-	query.collision_mask = 1
+	query.collision_mask = EnemyNavigation.OBSTACLE_MASK
 	var result = space_state.intersect_ray(query)
 	return result.is_empty()
 
@@ -363,10 +367,12 @@ func get_nav_direction_to_target() -> Vector2:
 	if not target or not is_instance_valid(target):
 		return Vector2.ZERO
 	
-	var has_los = has_line_of_sight_to_player()
+	var has_los = _can_walk_segment(global_position, target.global_position)
 	if has_los and not is_stuck:
 		_clear_nav_path()
 		return (target.global_position - global_position).normalized()
+	if not _can_walk_segment(global_position, global_position):
+		return _escape_obstacle_margin()
 		
 	return _get_pathing_direction()
 
@@ -379,18 +385,18 @@ func _get_pathing_direction() -> Vector2:
 func _update_nav_path_if_needed() -> void:
 	_nav_recalc_timer -= get_physics_process_delta_time()
 	var target_moved = target.global_position.distance_to(_nav_target_last_pos) > 64.0
-	if _nav_recalc_timer > 0.0 and not target_moved and not _current_nav_path.is_empty():
+	if _nav_recalc_timer > 0.0 and not target_moved:
 		return
 	_recalculate_nav_path()
 
 func _recalculate_nav_path() -> void:
-	_nav_recalc_timer = 0.4
+	_nav_recalc_timer = 0.35 + float(get_instance_id() % 11) * 0.013
 	_nav_target_last_pos = target.global_position
 	var room = _get_current_combat_room()
 	if not room:
 		_current_nav_path.clear()
 		return
-	_current_nav_path = room.get_nav_path(global_position, target.global_position)
+	_current_nav_path = room.get_nav_path(global_position, target.global_position, _get_nav_clearance())
 	_trim_reached_waypoints()
 
 func _get_current_combat_room() -> Node:
@@ -407,19 +413,66 @@ func _has_valid_waypoints() -> bool:
 func _get_direction_from_waypoints() -> Vector2:
 	_trim_reached_waypoints()
 	if _current_nav_path.is_empty():
-		return (target.global_position - global_position).normalized()
+		return _get_feeler_avoidance_direction()
+	# Solo se acorta la ruta cuando cabe el cuerpo entero, sin cortar esquinas.
+	for i in range(mini(_current_nav_path.size() - 1, 6), 0, -1):
+		if _can_walk_segment(global_position, _current_nav_path[i]):
+			for skipped in i: _current_nav_path.remove_at(0)
+			break
 	var next_point = _current_nav_path[0]
-	return (next_point - global_position).normalized()
+	if not _can_walk_segment(global_position, next_point):
+		return _get_feeler_avoidance_direction()
+	var offset: Vector2 = next_point - global_position
+	return offset.normalized() * minf(1.0, offset.length() / maxf(move_speed * get_physics_process_delta_time(), 0.01))
 
 func _trim_reached_waypoints() -> void:
 	while not _current_nav_path.is_empty():
 		var next_wp = _current_nav_path[0]
-		if global_position.distance_to(next_wp) > 28.0:
+		if global_position.distance_to(next_wp) > maxf(2.0, move_speed * get_physics_process_delta_time()):
+			break
+		if _current_nav_path.size() > 1 and not _can_walk_segment(global_position, _current_nav_path[1]):
 			break
 		_current_nav_path.remove_at(0)
 
 func _clear_nav_path() -> void:
 	_current_nav_path.clear()
+	_nav_recalc_timer = 0.0
+
+func _get_nav_clearance() -> float:
+	if _nav_clearance > 0.0: return _nav_clearance
+	_nav_clearance = 6.0
+	for child in get_children():
+		if child is CollisionShape2D and child.shape and not child.disabled:
+			var rect: Rect2 = child.shape.get_rect()
+			var extent: Vector2 = rect.size * 0.5 * child.global_scale.abs()
+			var radius := extent.length() if child.shape is RectangleShape2D else maxf(extent.x, extent.y)
+			_nav_clearance = maxf(_nav_clearance, radius + global_position.distance_to(child.global_position) + 1.5)
+	return _nav_clearance
+
+func _can_walk_segment(start: Vector2, finish: Vector2) -> bool:
+	var now := Time.get_ticks_msec()
+	if not _nav_probe or now >= _nav_probe_refresh:
+		_nav_probe = EnemyNavigation.query_for(_get_nav_clearance(), EnemyNavigation.actor_exclusions(get_tree()))
+		_nav_probe_refresh = now + 400
+	return EnemyNavigation.clear_segment(get_world_2d().direct_space_state, _nav_probe, start, finish)
+
+func _escape_obstacle_margin() -> Vector2:
+	# Una colisión con otro enemigo puede empujarnos dentro del margen de seguridad.
+	# Salimos con el cuerpo físico antes de volver a pedir una ruta con margen.
+	var desired := (target.global_position - global_position).normalized()
+	var best := Vector2.ZERO
+	var best_score := -INF
+	for i in 16:
+		var direction := Vector2.from_angle(float(i) * TAU / 16)
+		var motion := direction * maxf(12, _get_nav_clearance())
+		if test_move(global_transform, motion): continue
+		if not _can_walk_segment(global_position + motion, global_position + motion): continue
+		var score := desired.dot(direction) + velocity.normalized().dot(direction) * 0.3
+		if score > best_score:
+			best_score = score
+			best = direction
+	_nav_recalc_timer = 0.0
+	return best
 
 # --- Evasión Local con Ray Probes (Feeler Avoidance) ---
 
@@ -427,14 +480,14 @@ func _get_feeler_avoidance_direction() -> Vector2:
 	var target_dir = (target.global_position - global_position).normalized()
 	_update_avoidance_bias()
 	
-	var best_dir = target_dir
+	var best_dir = Vector2.ZERO
 	var best_score = -999.0
 	var probe_angles = [0.0, 30.0, -30.0, 60.0, -60.0, 90.0, -90.0, 120.0, -120.0, 150.0, -150.0, 180.0]
 	
 	for angle_deg in probe_angles:
 		var test_dir = target_dir.rotated(deg_to_rad(angle_deg * _avoidance_angle_bias))
 		var score = _evaluate_direction_probe(test_dir, target_dir)
-		if score > best_score:
+		if score > -9.0 and score > best_score:
 			best_score = score
 			best_dir = test_dir
 			
@@ -448,15 +501,10 @@ func _update_avoidance_bias() -> void:
 		_avoidance_bias_timer = 0.8
 
 func _evaluate_direction_probe(dir: Vector2, target_dir: Vector2) -> float:
-	var probe_dist = 40.0
-	var space_state = get_world_2d().direct_space_state
-	var query = PhysicsRayQueryParameters2D.create(global_position, global_position + dir * probe_dist)
-	query.exclude = [self.get_rid()]
-	query.collision_mask = 1
-	var result = space_state.intersect_ray(query)
-	if not result.is_empty():
+	var probe_dist = maxf(18.0, move_speed * 0.2)
+	if not _can_walk_segment(global_position, global_position + dir * probe_dist):
 		return -10.0
-	return dir.dot(target_dir)
+	return dir.dot(target_dir) + dir.dot(velocity.normalized()) * 0.25
 
 func _update_health_bar() -> void:
 	var bar = get_node_or_null("HealthBar")
@@ -665,6 +713,7 @@ func die() -> void:
 	if is_dying: return
 	is_dying = true
 	GameData.run_enemies_killed += 1
+	GameData.protocol_enemy_defeated(self)
 	_unlock_bestiary_entry()
 	enemy_died.emit(self)
 	_attempt_drops()

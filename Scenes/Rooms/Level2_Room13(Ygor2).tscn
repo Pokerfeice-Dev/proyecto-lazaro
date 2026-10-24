@@ -5,9 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://c0l1odf8nhvug" path="res://Scenes/Ygor/ygor.tscn" id="5_whqgs"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="new_door_1"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_476il"]
-size = Vector2(105.1841, 146.45886)
-
 [node name="Room_13" type="Node2D" unique_id=836593513]
 script = ExtResource("1_bnc0w")
 
@@ -31,14 +28,6 @@ tile_set = ExtResource("2_whqgs")
 
 [node name="player_spawn" type="Marker2D" parent="." unique_id=1046753684]
 position = Vector2(767, -318)
-
-[node name="Area_entered" type="Area2D" parent="." unique_id=1929143561]
-position = Vector2(395, -359)
-scale = Vector2(3.0042567, 3.0042567)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area_entered" unique_id=1372758171]
-position = Vector2(31.954662, -22.967415)
-shape = SubResource("RectangleShape2D_476il")
 
 [node name="Ygor" parent="." unique_id=1918350765 instance=ExtResource("5_whqgs")]
 position = Vector2(524, -470)

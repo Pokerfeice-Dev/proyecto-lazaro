@@ -67,32 +67,35 @@ rotation = -1.5707964
 [node name="Npc_Chatarra" parent="." unique_id=718364386 instance=ExtResource("8_osdx6")]
 position = Vector2(7, -125)
 
-[node name="Lights" type="Node2D" parent="." unique_id=794153239]
+[node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
 
-[node name="Lampara_pie" parent="Lights" unique_id=1509059318 instance=ExtResource("8_gnq5d")]
+[node name="Lampara_pie" parent="Iluminacion" unique_id=1509059318 instance=ExtResource("8_gnq5d")]
 position = Vector2(-96.00001, 39.000023)
 scale = Vector2(0.9696379, 0.9696379)
 glitch_enabled = false
 enable_sparks = false
 
-[node name="Lampara_pie2" parent="Lights" unique_id=249296150 instance=ExtResource("8_gnq5d")]
+
+[node name="Lampara_pie2" parent="Iluminacion" unique_id=249296150 instance=ExtResource("8_gnq5d")]
 position = Vector2(96.000015, 41.999992)
 scale = Vector2(0.9401976, 0.9401976)
 glitch_enabled = false
 enable_sparks = false
 
-[node name="Pared" type="Node2D" parent="Lights" unique_id=1973836525]
 
-[node name="lampara_pared" parent="Lights/Pared" unique_id=1368619277 instance=ExtResource("9_iglo5")]
+[node name="lampara_pared" parent="Iluminacion" unique_id=1368619277 instance=ExtResource("9_iglo5")]
 position = Vector2(-144, -275)
 
-[node name="lampara_pared2" parent="Lights/Pared" unique_id=1120169377 instance=ExtResource("9_iglo5")]
+
+[node name="lampara_pared2" parent="Iluminacion" unique_id=1120169377 instance=ExtResource("9_iglo5")]
 position = Vector2(147, -277)
 
-[node name="lampara_pared3" parent="Lights/Pared" unique_id=2032950771 instance=ExtResource("9_iglo5")]
-position = Vector2(-240, -47)
-rotation = -1.5707964
 
-[node name="lampara_pared4" parent="Lights/Pared" unique_id=1708812857 instance=ExtResource("9_iglo5")]
+[node name="lampara_pared3" parent="Iluminacion" unique_id=2032950771 instance=ExtResource("9_iglo5")]
+position = Vector2(-240, -47)
+rotation = -1.570796
+
+
+[node name="lampara_pared4" parent="Iluminacion" unique_id=1708812857 instance=ExtResource("9_iglo5")]
 position = Vector2(246, -45)
-rotation = 1.5707964
+rotation = 1.570796

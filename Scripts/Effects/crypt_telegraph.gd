@@ -43,6 +43,10 @@ func strike(duration: float) -> void:
 	_charging = false
 	_strike = 1.0
 	_strike_time = maxf(duration, 0.05)
+	if style == Style.BEAM:
+		var scene = get_tree().current_scene if get_tree() else null
+		if scene:
+			DistortionShockwave.spawn(scene, global_position + direction * (beam_length * 0.5), beam_length * 0.45, 0.22, 0.035)
 
 func stop() -> void:
 	_charging = false

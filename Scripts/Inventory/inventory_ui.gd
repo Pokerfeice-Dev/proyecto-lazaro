@@ -29,9 +29,13 @@ var _default_margin_pos_y: float = 40.0
 var selected_item: ItemData = null
 var selected_source_slot: UISlot = null
 var is_comparing: bool = false
+var _recycle_btn: Button
 var _pad_holding: bool = false # joystick: objeto elegido con A esperando casillero
 var _synergy_tutorial_slot_highlights: Array[Control] = []
+var _synergy_tutorial_click_hints: Array[Control] = []
 var _synergy_tutorial_slots_visible := false
+
+const TUTORIAL_SYNERGY_ITEM_IDS := ["colmena", "cerebro", "cabeza_humana"]
 
 # Nodos principales
 @onready var dark_backdrop: ColorRect = %DarkBackdrop
@@ -76,11 +80,15 @@ var _synergy_tutorial_slots_visible := false
 
 # Columna 3: Atributos
 @onready var stats_char_vbox: VBoxContainer = %StatsCharVbox
+@onready var stats_body_synergy_container: VBoxContainer = %StatsBodySynergyContainer
+@onready var stats_body_synergy_title: Label = %StatsBodySynergyTitle
+@onready var stats_body_synergy_desc: Label = %StatsBodySynergyDesc
 @onready var stats_weapon_vbox: VBoxContainer = %StatsWeaponVbox
 @onready var stats_weapon_header_box: HBoxContainer = %StatsWeaponHeaderBox
 @onready var stats_weapon_icon: TextureRect = %StatsWeaponIcon
 @onready var stats_weapon_name: Label = %StatsWeaponName
 @onready var stats_preview_badge: HBoxContainer = %StatsPreviewBadge
+@onready var stats_synergy_description: Label = %StatsSynergyDescription
 @onready var stats_tab_primary_btn: Button = %StatsTabPrimaryBtn
 @onready var stats_tab_secondary_btn: Button = %StatsTabSecondaryBtn
 var active_weapon_stats_tab: String = "PRIMARY"
@@ -385,6 +393,8 @@ func update_ui() -> void:
 	_update_attributes_display()
 	_update_detail_panel()
 	_update_slot_highlights_and_targets()
+	if _synergy_tutorial_slots_visible:
+		_refresh_synergy_tutorial_guidance.call_deferred()
 
 	if current_tab == "CODEX":
 		_refresh_codex_grid()
@@ -745,22 +755,56 @@ func _get_available_slot_for_item(item: ItemData) -> ItemData.ItemSlot:
 # No cambia la lógica de equipamiento y se puede activar desde cualquier tutorial.
 func set_synergy_tutorial_weapon_slots(enabled: bool) -> void:
 	if enabled == _synergy_tutorial_slots_visible:
+		if enabled:
+			_refresh_synergy_tutorial_guidance.call_deferred()
 		return
 	_synergy_tutorial_slots_visible = enabled
-	for highlight in _synergy_tutorial_slot_highlights:
-		if is_instance_valid(highlight):
-			highlight.queue_free()
-	_synergy_tutorial_slot_highlights.clear()
+	_clear_synergy_tutorial_guidance()
 	if not enabled:
 		return
 	# El tutorial siempre abre donde están las piezas: mochila, filtro de armas.
 	_on_inventory_tab_pressed()
 	_on_filter_pressed("WEAPON")
+	_refresh_synergy_tutorial_guidance.call_deferred()
+
+func _refresh_synergy_tutorial_guidance() -> void:
+	if not _synergy_tutorial_slots_visible:
+		return
+	_clear_synergy_tutorial_guidance()
 	for slot in inventory_slots:
-		if slot.item and slot.item.type == ItemData.ItemType.WEAPON:
+		if _is_tutorial_synergy_piece(slot.item):
 			_add_synergy_tutorial_highlight(slot, UIStyle.COLOR_TEAL, "PIEZA")
+			_add_synergy_tutorial_right_click_hint(slot)
 	for slot in main_weapon_slots:
 		_add_synergy_tutorial_highlight(slot, UIStyle.COLOR_GOLD, "EQUIPA AQUÍ")
+
+func _clear_synergy_tutorial_guidance() -> void:
+	for highlight in _synergy_tutorial_slot_highlights:
+		if is_instance_valid(highlight):
+			highlight.queue_free()
+	_synergy_tutorial_slot_highlights.clear()
+	for hint in _synergy_tutorial_click_hints:
+		if is_instance_valid(hint):
+			hint.queue_free()
+	_synergy_tutorial_click_hints.clear()
+
+func _is_tutorial_synergy_piece(item: ItemData) -> bool:
+	return item != null and item.id in TUTORIAL_SYNERGY_ITEM_IDS
+
+func _add_synergy_tutorial_right_click_hint(slot: UISlot) -> void:
+	var hint := Control.new()
+	hint.name = "SynergyTutorialRightClickHint"
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hint.z_index = 2
+	slot.add_child(hint)
+	var mouse = TutorialInputIcon.create("MOUSE_R", 0.66, randf_range(0.0, TutorialInputIcon.PRESS_EVERY))
+	mouse.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse.size = mouse.custom_minimum_size
+	mouse.set_anchors_preset(Control.PRESET_CENTER)
+	mouse.position = -mouse.size / 2.0 + Vector2(18.0, 8.0)
+	hint.add_child(mouse)
+	_synergy_tutorial_click_hints.append(hint)
 
 func _add_synergy_tutorial_highlight(slot: UISlot, color: Color, caption: String) -> void:
 	var highlight := Panel.new()
@@ -797,6 +841,16 @@ func _add_synergy_tutorial_highlight(slot: UISlot, color: Color, caption: String
 # ── Ficha de Detalle y Comparación ─────────────────────────────────────────────
 
 func _update_detail_panel() -> void:
+	if not is_instance_valid(_recycle_btn):
+		_recycle_btn = Button.new()
+		_recycle_btn.text = "Reciclar +40"
+		_recycle_btn.theme_type_variation = &"InventorySecondary"
+		_recycle_btn.add_theme_font_size_override("font_size", 18)
+		detail_compare_btn.get_parent().add_child(_recycle_btn)
+		_recycle_btn.pressed.connect(_ask_protocol_recycle)
+	_recycle_btn.visible = GameData.active_protocol == "reciclaje_instantaneo" and selected_item != null
+	_recycle_btn.disabled = not GameData.can_recycle_protocol(selected_item, inventory)
+	_recycle_btn.tooltip_text = "Convierte una pieza de la mochila en 40 de chatarra base. Una vez por zona."
 	if selected_item == null:
 		detail_empty_label.visible = true
 		detail_content_box.visible = false
@@ -813,8 +867,36 @@ func _update_detail_panel() -> void:
 
 	detail_desc_label.text = _get_item_description(selected_item)
 
-	# Comparación de stats con el objeto actualmente equipado
-	detail_stats_label.text = _format_item_comparison_stats(selected_item)
+	detail_compare_btn.text = "Ver valores" if is_comparing else "Comparar"
+	if is_comparing:
+		var current_equipped = equipment.slots.get(_get_comparison_slot(selected_item))
+		detail_desc_label.text = "Comparando con: %s" % (current_equipped.item_name if current_equipped else "casillero vacío")
+		detail_stats_label.text = _format_item_comparison_stats(selected_item)
+	else:
+		var lines: Array[String] = []
+		for key in selected_item.stats:
+			var value: float = selected_item.stats[key]
+			lines.append(_format_single_stat_diff_line(key, value, value))
+		detail_stats_label.text = "\n".join(lines) if not lines.is_empty() else "[color=#8DAAB4]Sin mejoras adicionales[/color]"
+
+func _ask_protocol_recycle() -> void:
+	if not GameData.can_recycle_protocol(selected_item, inventory): return
+	var item := selected_item
+	var dialog := ConfirmationDialog.new()
+	dialog.title = "Reciclaje Instantáneo"
+	dialog.dialog_text = "¿Reciclar %s?\nLa pieza se consume y recibís 40 de chatarra base.\nSolo podés reciclar una pieza por zona." % item.item_name
+	dialog.ok_button_text = "Reciclar"
+	dialog.cancel_button_text = "Conservar"
+	dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(dialog)
+	dialog.confirmed.connect(func():
+		if GameData.recycle_protocol_item(item, inventory):
+			selected_item = null
+			update_ui()
+		dialog.queue_free()
+	)
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.popup_centered(Vector2i(470, 180))
 
 func _get_item_type_string(item: ItemData) -> String:
 	match item.type:
@@ -835,16 +917,27 @@ func _get_item_description(item: ItemData) -> String:
 		return "Botas cinéticas para optimizar la movilidad y el esquive."
 	return "Dispositivo avanzado de combate."
 
+func _get_comparison_slot(item: ItemData) -> ItemData.ItemSlot:
+	# Una pieza ya equipada se compara con su propio casillero.
+	for slot in equipment.slots:
+		if equipment.slots[slot] == item:
+			return slot
+	return _get_available_slot_for_item(item)
+
 func _format_item_comparison_stats(item: ItemData) -> String:
-	if item.stats.is_empty():
+	var target_slot = _get_comparison_slot(item)
+	var current_equipped = equipment.slots.get(target_slot)
+	var stat_keys: Array = item.stats.keys()
+	if current_equipped:
+		for key in current_equipped.stats:
+			if not stat_keys.has(key):
+				stat_keys.append(key)
+	if stat_keys.is_empty():
 		return "[color=#8DAAB4]Sin mejoras adicionales[/color]"
 
-	var target_slot = _get_available_slot_for_item(item)
-	var current_equipped = equipment.slots.get(target_slot)
-
 	var lines: Array[String] = []
-	for k in item.stats.keys():
-		var new_val: float = item.stats[k]
+	for k in stat_keys:
+		var new_val: float = item.stats.get(k, 0.0)
 		var old_val: float = current_equipped.stats.get(k, 0.0) if current_equipped else 0.0
 		var line = _format_single_stat_diff_line(k, old_val, new_val)
 		lines.append(line)
@@ -877,6 +970,8 @@ func _on_detail_equip_pressed() -> void:
 	_equip_item_direct(selected_item)
 
 func _toggle_compare_mode() -> void:
+	if selected_item == null:
+		return
 	is_comparing = !is_comparing
 	update_ui()
 
@@ -905,6 +1000,7 @@ func _update_attributes_display() -> void:
 	var armor = int(p._get_equip_stat("armor", false))
 	_set_attribute_value(stats_char_vbox.get_node("Health"), str(max_hp))
 	_set_attribute_value(stats_char_vbox.get_node("Armor"), str(armor))
+	_update_body_synergy_display(p)
 
 	for row in stats_weapon_vbox.get_children():
 		row.visible = (row.name not in ["Range", "Knockback"]) if active_weapon_stats_tab == "PRIMARY" else (row.name in ["Damage", "FireRate", "Range", "Knockback"])
@@ -914,6 +1010,39 @@ func _update_attributes_display() -> void:
 		_render_secondary_weapon_stats(p)
 
 	stats_preview_badge.visible = (selected_item != null)
+	_update_weapon_synergy_description(p)
+
+func _update_body_synergy_display(player: Node2D) -> void:
+	if not stats_body_synergy_container:
+		return
+	var equip: Object = player.get_node_or_null("Equipment")
+	var body_syn_id := SynergyManager.get_active_body_synergy(equip)
+	if body_syn_id.is_empty():
+		stats_body_synergy_container.hide()
+		return
+	var def: Dictionary = SynergyManager.SYNERGIES.get(body_syn_id, {})
+	var title: String = str(def.get("name", "Sinergia Corporal"))
+	var desc: String = SynergyManager.get_body_synergy_short_description(body_syn_id)
+	if stats_body_synergy_title:
+		stats_body_synergy_title.text = title
+	if stats_body_synergy_desc:
+		stats_body_synergy_desc.text = desc
+	stats_body_synergy_container.show()
+
+func _update_weapon_synergy_description(player: Node2D) -> void:
+	stats_synergy_description.text = ""
+	stats_synergy_description.hide()
+	var is_main := active_weapon_stats_tab == "PRIMARY"
+	var weapon: Node = player.active_weapon if is_main else player.second_weapon
+	if not weapon:
+		return
+	var synergy_id := SynergyManager.get_active_weapon_display_synergy(
+		player.get_node_or_null("Equipment"), _get_codex_weapon_id(weapon), is_main)
+	if synergy_id.is_empty():
+		return
+	var definition: Dictionary = SynergyManager.SYNERGIES.get(synergy_id, {})
+	stats_synergy_description.text = str(definition.get("description", ""))
+	stats_synergy_description.visible = not stats_synergy_description.text.is_empty()
 
 func _render_primary_weapon_stats(p: Node2D) -> void:
 	if stats_weapon_icon and p.active_weapon:

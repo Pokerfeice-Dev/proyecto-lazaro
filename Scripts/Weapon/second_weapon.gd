@@ -119,7 +119,10 @@ func _on_body_entered(body: Node2D) -> void:
 			is_crit = true
 			
 		var was_enemy_alive = not (body.get("is_dying") == true)
-		body.take_damage(final_dmg, is_crit)
+		var protocol_mult: float = p.protocol_damage_multiplier() if p and p.has_method("protocol_damage_multiplier") else 1.0
+		ProtocolRuntime.deal_damage(body, final_dmg * protocol_mult, is_crit, "overload_damage" if protocol_mult > 1.0 else "", 1.0 - 1.0 / protocol_mult)
+		if p and p.has_method("record_enemy_hit"):
+			p.record_enemy_hit(body)
 		if was_enemy_alive and body.get("is_dying") == true and p and p.has_method("check_nemesis_kill_heal"):
 			p.check_nemesis_kill_heal(body)
 		if final_kb > 0.0 and body.has_method("apply_knockback"):

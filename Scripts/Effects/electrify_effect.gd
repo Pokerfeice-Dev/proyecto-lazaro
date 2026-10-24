@@ -145,6 +145,8 @@ static func _spawn_zap_visual(target: Node) -> void:
 	tree.current_scene.add_child(ring)
 	ring.global_position = target.global_position
 
+	DistortionShockwave.spawn(tree.current_scene, target.global_position, 85.0, 0.25, 0.04)
+
 static func _play_zap_sound(target: Node) -> void:
 	var tree = target.get_tree()
 	if not tree or not tree.current_scene:
