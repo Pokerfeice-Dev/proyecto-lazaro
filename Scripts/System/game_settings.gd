@@ -43,6 +43,8 @@ const DEFAULTS := {
 		"brujula_enemigos": true,
 		"indicador_danio": true,
 		"asistencia_apuntado": true, # joystick: la mira se va un poco hacia el enemigo
+		"marcador_lazaro": true, # anillo turquesa debajo de Lázaro
+		"botones_armas_hud": true, # botón de cada arma encima de su círculo en el HUD
 	},
 }
 

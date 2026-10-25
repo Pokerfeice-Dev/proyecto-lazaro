@@ -445,6 +445,7 @@ shadow_alpha = 0.45
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2111728552]
 texture_filter = 1
 position = Vector2(0, -9)
+scale = Vector2(1.0833, 1.0833)
 sprite_frames = SubResource("SpriteFrames_kfsmf")
 animation = &"attack"
 autoplay = "idle"

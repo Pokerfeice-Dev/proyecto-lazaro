@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cu4m2mncty4vb" path="res://Art/Weapons/Distance/Uzi/Heavymetal/synergy_heavymetal_sprite.png" id="3_4yl44"]
-[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_7vofb"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/sinergia_heavy_metal.wav" id="3_7vofb"]
 
 [node name="Minigun" type="Node2D" unique_id=1431573810 node_paths=PackedStringArray("shoot_sound")]
 script = ExtResource("1_script")

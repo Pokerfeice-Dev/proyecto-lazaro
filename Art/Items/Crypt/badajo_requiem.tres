@@ -4,7 +4,7 @@
 [resource]
 script = ExtResource("1")
 id = "badajo_requiem"
-item_name = "Badajo de Réquiem"
+item_name = "Badajo"
 icon = ExtResource("2")
 type = 0
 slot = 0

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://bxpefmtn31a86" path="res://Art/Weapons/Distance/Uzi/weapon_uzi_sprite.png" id="2_7vofb"]
-[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_7vofb"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/disparo_uzi_2.wav" id="3_7vofb"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_q1g7k"]
 animations = [{
@@ -42,7 +42,6 @@ animation = &"shoot"
 [node name="Bullet_sound" type="AudioStreamPlayer2D" parent="." unique_id=285722064]
 position = Vector2(6, -2.4000015)
 stream = ExtResource("3_7vofb")
-pitch_scale = 1.4
 
 [node name="Bullet_mark_right" type="Marker2D" parent="." unique_id=1778873977]
 position = Vector2(20.3143, -3.5571)

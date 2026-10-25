@@ -37,6 +37,7 @@ func _ready():
 	update_scrap(GameData.scrap)
 	update_flesh(GameData.flesh)
 	_initialize_health()
+	UIStyle.enlarge_texts(self)
 	# diferido: así ya están en el árbol los jefes de la sala (ver más abajo)
 	_play_intro_room_animation.call_deferred()
 
@@ -48,6 +49,44 @@ func _setup_weapon_hud() -> void:
 	var secondary_panel = get_node_or_null("Control/WeaponHUD/SecondaryPanel")
 	if secondary_panel and secondary_panel is TextureRect:
 		secondary_panel.texture = circle_bg
+	_add_weapon_button(primary_panel, "MOUSE_L")
+	_add_weapon_button(secondary_panel, "MOUSE_R")
+
+# Encima de cada arma, el botón que la usa (clic izq./der. o RT/LT): mucha
+# gente no se daba cuenta de que tenía un arma cuerpo a cuerpo.
+var _weapon_button_holders: Array[Control] = []
+
+func _add_weapon_button(panel: Control, key: String) -> void:
+	if not panel: return
+	var holder = Control.new()
+	holder.name = "WeaponButton"
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.size = Vector2(panel.size.x, 0)
+	panel.add_child(holder)
+	_fill_weapon_button(holder, key)
+	InputMode.instance().mode_changed.connect(func(_pad): _fill_weapon_button(holder, key))
+	# se ocultan desde Opciones > Juego ("Botones de las armas en el HUD")
+	holder.visible = FxSettings.on("botones_armas_hud")
+	_weapon_button_holders.append(holder)
+	var gs = FxSettings.instance()
+	if gs and not gs.setting_changed.is_connected(_on_weapon_buttons_setting):
+		gs.setting_changed.connect(_on_weapon_buttons_setting)
+
+func _on_weapon_buttons_setting(_section: String, key: String, value: Variant) -> void:
+	if key != "botones_armas_hud": return
+	for holder in _weapon_button_holders:
+		if is_instance_valid(holder): holder.visible = bool(value)
+
+func _fill_weapon_button(holder: Control, key: String) -> void:
+	if not is_instance_valid(holder): return
+	for c in holder.get_children():
+		c.queue_free()
+	var icon = TutorialInputIcon.create(key, 0.75)
+	icon.animate = false
+	icon.size = icon.custom_minimum_size
+	# abajo de la pantalla no hay lugar: va arriba del círculo
+	icon.position = Vector2((holder.size.x - icon.size.x) / 2.0, -icon.size.y - 4)
+	holder.add_child(icon)
 
 func _setup_protocol_hud() -> void:
 	var control = get_node_or_null("Control")

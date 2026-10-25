@@ -426,12 +426,24 @@ func _entry_icon(entry: Dictionary, size: float, index: int) -> TextureRect:
 	var art = PixelIcon.icon(entry.icon, size, PixelIcon.FIT if size > 100.0 else 2)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.self_modulate = entry.get("tint", Color.WHITE)
-	if entry.kind == "weapon" and not _is_revealed(entry):
+	if entry.kind in ["weapon", "synergy"] and not _is_revealed(entry):
 		var mat = ShaderMaterial.new()
 		mat.shader = LOCKED_SHADER
 		mat.set_shader_parameter("phase", fmod(index * 0.137, 1.0))
 		art.material = mat
+	if entry.kind == "synergy" and not _is_revealed(entry):
+		_add_small_lock(art, size)
 	return art
+
+# Candado chico en la esquina de la silueta: se sabe que falta descubrirla.
+func _add_small_lock(art: Control, size: float) -> void:
+	var lock = UIStyle.icon(ICON_LOCK, maxf(16.0, size * 0.22))
+	lock.modulate = UIStyle.COLOR_GOLD
+	lock.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	lock.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	lock.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	lock.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.add_child(lock)
 
 func _is_owned(entry: Dictionary) -> bool:
 	return entry.state in ["comprado", "activo", "maximo"]
@@ -529,11 +541,25 @@ func _add_kind_details(entry: Dictionary) -> void:
 			_detail_box.add_child(_level_pips(entry.level, entry.max, 12.0 if entry.max <= 10 else 6.0))
 			_detail_box.add_child(UIStyle.label("Bono actual: " + entry.bonus, 16, UIStyle.COLOR_TEAL if entry.level > 0 else UIStyle.COLOR_MUTED))
 		"synergy":
+			_add_base_weapon(entry)
 			_add_recipe(entry)
 			if entry.requirement != "":
 				_add_warning(entry.requirement)
 		"protocol":
 			_add_hint("Desbloqueo permanente. Puedes cambiar de protocolo gratis en O.M.N.I.A.; solo uno puede estar equipado.")
+
+# Arma base de la sinergia: junto con los 3 componentes, es la pista principal.
+func _add_base_weapon(entry: Dictionary) -> void:
+	var weapon_id: String = entry.get("weapon", "")
+	if weapon_id == "": return
+	var row = HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
+	var data: Dictionary = CodexData.DATA.get("weapons", {}).get(weapon_id, {})
+	if data.get("icon"):
+		row.add_child(PixelIcon.icon(data.icon, 40.0, PixelIcon.SLOT))
+	row.add_child(UIStyle.label("Arma base: " + SynergyManager.get_weapon_display_name(weapon_id), 17, UIStyle.COLOR_TEXT))
+	_detail_box.add_child(row)
 
 # Componentes y confirmación editables en escenas de Godot.
 func _add_recipe(entry: Dictionary) -> void:

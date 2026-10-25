@@ -1,6 +1,8 @@
 class_name Chest
 extends Node2D
 
+const HEAL_RATIO := 0.35
+
 ## Cofre interactivo con recompensa (vida, item de cuerpo o de arma para el
 ## jugador). Soporta 3 tipos via la propiedad chest_type, seleccionable desde
 ## el inspector:
@@ -489,11 +491,14 @@ func _apply_heal_effect() -> void:
 	if not player_ref.get("stats"):
 		return
 	var stats = player_ref.stats
+	# más curación: 35% de la vida máxima (sin pasarse de lo que falta)
 	var missing_health = stats.max_health - stats.current_health
-	var heal_amt = int(missing_health * 0.25)
+	var heal_amt = mini(missing_health, int(round(stats.max_health * HEAL_RATIO)))
 	if missing_health > 0 and heal_amt <= 0:
 		heal_amt = 1
 	stats.heal(heal_amt)
+	if heal_amt > 0 and player_ref.has_method("_show_heal_text"):
+		player_ref._show_heal_text(heal_amt)
 
 func _give_reward_item() -> void:
 	if not chosen_item_data:
@@ -501,7 +506,8 @@ func _give_reward_item() -> void:
 	var inv = player_ref.get_node_or_null("Inventory")
 	if not inv:
 		return
-	inv.add_item(chosen_item_data)
+	inv.add_or_drop(chosen_item_data) # si la mochila está llena, queda en el piso
+	RunLog.note_item(chosen_item_data)
 
 func _play_collection_effects() -> void:
 	var interact_sound = get_node_or_null("Interact") as AudioStreamPlayer2D

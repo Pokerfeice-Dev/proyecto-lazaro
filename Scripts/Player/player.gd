@@ -158,6 +158,7 @@ func _queue_arrival_fx() -> void:
 
 func _setup_player_shadow() -> void:
 	drop_shadow = DropShadow.attach_to(self, Vector2(26.0, 12.0), Vector2(0.0, 15.0), 0.38)
+	add_child(PlayerMarker.new()) # anillo celeste para no perder a Lázaro de vista
 
 func _setup_cinematic_vignette() -> void:
 	var vignette = CinematicVignette.new()
@@ -390,6 +391,11 @@ func _is_in_lab_room() -> bool:
 	var scene = get_tree().current_scene
 	return scene != null and scene.name == "Lab_room"
 
+# en la tienda de Ygor no se dispara (se compra)
+func _is_in_shop_room() -> bool:
+	var ygor = get_tree().get_first_node_in_group("ygor")
+	return ygor != null and ygor.is_inside_tree()
+
 func _is_in_training_room() -> bool:
 	var scene = get_tree().current_scene
 	return scene != null and scene.name in ["Training_Room", "Tutorial_Room"]
@@ -466,6 +472,7 @@ func _check_dash_input() -> void:
 
 func _start_dash() -> void:
 	is_dashing = true
+	RunLog.note("dashes")
 	dash_start_pos = global_position
 	set_collision_mask_value(2, false)
 	dash_timer.start(dash_duration)
@@ -589,7 +596,7 @@ func _animate_and_cleanup_ghost(ghost: Sprite2D) -> void:
 
 func _process_actions() -> void:
 	if is_dashing: return
-	if _is_in_lab_room(): return
+	if _is_in_lab_room() or _is_in_shop_room(): return
 	handle_shooting()
 	handle_melee()
 
@@ -1474,6 +1481,7 @@ func take_damage(amount: int, source_name: String = "Infección Lázaro", source
 	invuln_timer.start(0.5)
 	_invuln_blink_timer.start()
 	stats.take_damage(final_amount)
+	RunLog.note_damage(final_amount, source_name)
 	_show_damage_text(final_amount)
 	_play_hurt_sound()
 	_animate_damage_vignette()
@@ -1575,6 +1583,8 @@ func _play_hurt_sound() -> void:
 	if hurt_sounds.size() > 0:
 		hurt_sound.stream = hurt_sounds.pick_random()
 	hurt_sound.play()
+	# golpe seco debajo de la voz: que el daño se sienta
+	Sfx.play_at(Sfx.HURT, global_position, -2.0, 0.05)
 
 func _animate_damage_vignette() -> void:
 	if not damage_rect: return
@@ -1708,6 +1718,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	_handle_debug_cheats(event)
 
 func _handle_debug_cheats(event: InputEvent) -> void:
+	if not GameData.cheats_enabled():
+		return
 	if not event is InputEventKey:
 		return
 	if not event.pressed:

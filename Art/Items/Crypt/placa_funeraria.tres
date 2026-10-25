@@ -4,7 +4,7 @@
 [resource]
 script = ExtResource("1")
 id = "placa_funeraria"
-item_name = "Placa funeraria"
+item_name = "Lápida"
 icon = ExtResource("2")
 type = 0
 slot = 0

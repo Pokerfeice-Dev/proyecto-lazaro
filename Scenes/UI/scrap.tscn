@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://siy8tp7e77ku" path="res://Scripts/Items/scrap.gd" id="2_scrap"]
 [ext_resource type="Texture2D" uid="uid://evhu5eu2upic" path="res://Art/Lights/Cyan_light.png" id="3_qxo4c"]
 [ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://Art/Scrap/atlas_56a.png" id="3_y4j6m"]
-[ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://Art/Scrap/Scrap_snd.wav" id="4_dytfl"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/recoger_chatarra.wav" id="4_dytfl"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_yo6nm"]
 

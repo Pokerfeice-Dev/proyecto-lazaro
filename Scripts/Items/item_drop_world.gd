@@ -28,20 +28,6 @@ func _ready() -> void:
 func _setup_shadow() -> void:
 	DropShadow.attach_to(self, Vector2(16.0, 8.0), Vector2(0.0, 6.0), 0.28)
 
-func _check_and_show_inventory_tutorial() -> void:
-	if GameData.has_shown_inventory_tutorial:
-		return
-		
-	GameData.has_shown_inventory_tutorial = true
-	GameData.save_game()
-	
-	var popup_script = load("res://Scripts/UI/inventory_tutorial_popup.gd")
-	if not popup_script:
-		return
-	var popup = CanvasLayer.new()
-	popup.set_script(popup_script)
-	get_tree().current_scene.call_deferred("add_child", popup)
-
 func _create_interaction_label() -> void:
 	interaction_label = Label.new()
 	interaction_label.text = "E"
@@ -74,9 +60,14 @@ func _is_interact_action(event: InputEvent) -> bool:
 	return false
 
 func _collect() -> void:
+	# mochila llena: el objeto se queda en el piso hasta que se haga lugar (Q)
+	if target_inventory and target_inventory.is_full():
+		target_inventory.notify_full()
+		return
 	is_collected = true
 	if target_inventory:
 		target_inventory.add_item(item_data)
+		RunLog.note_item(item_data)
 	if interaction_label:
 		interaction_label.visible = false
 	_play_sound_and_free()
@@ -100,7 +91,6 @@ func _on_grab_area_body_entered(body: Node2D) -> void:
 	player_nearby = true
 	if interaction_label:
 		interaction_label.visible = true
-	_check_and_show_inventory_tutorial()
 
 func _on_grab_area_body_exited(body: Node2D) -> void:
 	if not body.is_in_group("player"): return

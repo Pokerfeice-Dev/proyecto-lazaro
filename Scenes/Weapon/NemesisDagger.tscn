@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://vx7ddnolq20o" path="res://Art/Weapons/Melee/Dagger/Nemesis/synergy_nemesis_sprite.png" id="1_nemesis"]
 [ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
-[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_sound"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/sinergia_nemesis.wav" id="3_sound"]
 [ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pq8rl"]
@@ -80,4 +80,3 @@ shape = SubResource("RectangleShape2D_d7jkh")
 
 [node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=1542019553]
 stream = ExtResource("3_sound")
-pitch_scale = 1.2

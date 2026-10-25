@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "bateria"
-item_name = "Batería de Alto Voltaje"
+item_name = "Batería"
 icon = ExtResource("1_tex")
 stats = {
 "stun_chance": 0.1

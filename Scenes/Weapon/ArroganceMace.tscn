@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bilaa5i6xvon1" path="res://Art/Weapons/Melee/Mace/Arrogance/synergy_arrogance_sprite.png" id="1_arrogance"]
 [ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
-[ext_resource type="AudioStream" uid="uid://cvcs1ic5lga56" path="res://Audio/Sfx/Melee/07_human_atk_sword_3.wav" id="3_sound"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/sinergia_arrogancia.wav" id="3_sound"]
 [ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
@@ -79,7 +79,6 @@ shape = SubResource("RectangleShape2D_d7jkh")
 
 [node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=1206396682]
 stream = ExtResource("3_sound")
-pitch_scale = 0.4
 
 [node name="attack_fx" type="AnimatedSprite2D" parent="." unique_id=1694405847]
 position = Vector2(27.999985, -18.999996)

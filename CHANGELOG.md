@@ -1,3 +1,63 @@
+## 2026-10-25 (Mochila de 12, sonidos de sinergias y opciones)
+
+- **Mochila limitada a 12 lugares** (prueba): cada objeto ocupa un casillero (los repetidos ya no se apilan). El inventario muestra 12 casilleros más grandes, en 4 x 3, y el contador se pone rojo cuando está llena.
+  - Con la mochila llena no se puede agarrar un objeto del piso ni comprarle uno a Ygor, y aparece "Mochila llena" sobre Lázaro. Las recompensas de cofres, hologramas y la máquina de la suerte caen al piso al lado del jugador.
+  - **Soltar objetos:** en el inventario, **Q** (o la **flecha arriba** de la cruceta del joystick) tira al piso el objeto elegido. Está en la barra de abajo del inventario.
+  - Si una partida guardada tenía más de 12, lo que sobra queda en el piso.
+  - `Inventory.CAPACITY`, `add_item()` devuelve si entró, `add_or_drop()` y `drop_item()`.
+- **Sonidos:**
+  - Disparo nuevo de la Uzi (`disparo_uzi_2.wav`). El de abrir recompensas vuelve a ser el de antes (`Interact_reward.mp3`).
+  - Sonido propio para cada arma de sinergia: Mente Colmena, Roadkill (y su rebote en las paredes), Heavy Metal, The Bride, Avalanche, Wolfsbane, Nemesis, Arrogancia, Holy Fire y Oil of the Sick. La lengua de Holy Fire tiene su propio escupitajo. Todos en `Audio/Sfx/IA/`. Cerberus sigue con el sonido del fuego y Speed Demon con el suyo.
+- **Música de Ygor:** ya no se corta al abrir el inventario en su tienda.
+- **Ygor comenta sus máquinas:** tres diálogos nuevos y frases cortas sobre su cabeza cuando usas la máquina de vida, la de la suerte o la recicladora, o cuando tienes la mochila llena.
+- **Opciones > Juego:** "Marca debajo de Lázaro" y "Botones de las armas en el HUD" se pueden apagar.
+- **Pantalla de título:** al tocar un botón, el brillo de los botones del menú quedaba cortado (se armaba mientras estaban ocultos). Ahora se arma recién cuando aparecen, después de que el menú acomoda los botones, y se vuelve a ajustar si cambian de tamaño ("Jugar" quedaba corrido, más grande y con el brillo a medias).
+
+## 2026-10-25 (Cambios del feedback del evento, para el viernes)
+
+- **Controles:** el dash también sale con **Shift** (además de Espacio) y el inventario con **Tab** (además de I), para no levantar la mano del mouse. Se agregan desde código en `InputMode`, así `project.godot` no cambia.
+- **Tutorial** (`Scripts/World/training_room.gd`, ahora 12 pasos):
+  - **Esquivar con dash:** después del paso del dash, el maniquí dispara balas lentas y hay que atravesar 2 con el dash.
+  - **Apuntar:** paso nuevo que pide mover la mira (stick derecho o mouse), porque con joystick mucha gente no sabía que podía apuntar.
+  - **Cuerpo a cuerpo:** paso nuevo que pide pegarle 2 veces al maniquí con el arma cuerpo a cuerpo.
+  - **Controles según el dispositivo:** los textos y los íconos cambian solos entre teclado y joystick. Con joystick, el paso de equipar dice "presiona X" con el ícono de la X (antes decía clic derecho con el ícono del RT).
+  - El aviso del inventario que aparecía en las runs se sacó: ya se enseña en el tutorial.
+- **HUD:** encima de cada arma aparece el botón que la usa (clic izquierdo y derecho, o RT y LT).
+- **Letra más grande** en HUD, tutorial, inventario, carteles y códice (`UIStyle.readable()` y `UIStyle.enlarge_texts()`).
+- **Lázaro más visible:** un anillo turquesa que late debajo de sus pies (`Scripts/Effects/player_marker.gd`).
+- **Delivery fijo:** la torreta ya no se mueve cuando la empujan otros enemigos.
+- **Ayuda para apuntar con joystick:** si no se mueve el stick derecho, la mira va sola al enemigo más cercano.
+- **O.M.N.I.A.:** las sinergias sin descubrir muestran la silueta del arma con un candado chico, el arma base y los tres componentes con "?".
+- **Pantalla de título:** el menú arranca con "PRESIONA CUALQUIER BOTÓN". "Salir del juego" se sacó del menú de pausa y queda solo en el menú principal. En el modo stand, cuando vuelve al menú por inactividad, vuelve a aparecer el título.
+- **Tienda de Ygor:**
+  - Tres máquinas de uso múltiple (`Scripts/NPC/ygor_machine.gd`), dibujadas por código hasta que haya arte: **vida** (cura 30%, cada uso cuesta 4 más; arranca en 8), **suerte** (6 de carne: objeto, algo de vida, carne de vuelta o nada; se agota después de dar 2 objetos) y **recicladora** (se come el último objeto de la mochila y devuelve 10 de carne, o 14 si es de arma). Aparecen en las tres salas de Ygor.
+  - La vida ya no se vende en un holograma: ese holograma ahora vende un objeto de arma, y la tienda no repite objetos.
+  - En la sala de Ygor no se puede disparar ni pegar (alguien le disparaba).
+- **Más curación:** las recompensas de vida (cofres y hologramas) curan el 35% de la vida máxima en vez del 25% de lo que faltaba, y muestran el número verde.
+- **Sonidos nuevos** (`Audio/Sfx/IA/`, hechos con IA): disparo de pistola, uzi y escopeta (antes las tres usaban el mismo), golpe al pegarle a un enemigo, golpe al recibir daño (debajo de la voz), juntar carne y juntar chatarra. Los golpes salen desde `Scripts/System/sfx.gd`.
+- **Tamaños de sprites:** el Perro, el Mecha y el conductor de Delivery quedan a la misma escala que Lázaro (1.3); antes estaban en 1.0, 1.2 y 1.0. Solo cambió el sprite: las colisiones son las mismas.
+- **Registro de runs:** columnas nuevas `tutorial_completado`, `cambio_armas` (si dejó Pistola + Daga o qué cambió), `primer_dash` (minuto), `pantallas_finales` (cuáles vio y cuánto tiempo en cada una: resultado, QR de opinión, video e itch.io) y `seg_pantallas_finales`. Con muerte o victoria, la fila se escribe cuando se cierra la última pantalla final.
+- **Nombres de objetos más cortos:** Licuadora, Batería, Gasolina, Nitrógeno, Aguijón, Cerebro, Cabeza de Perro, Pulmones, Motocicleta, Colmena, Cabeza Humana y Sierra; en la Cripta, Badajo, Corazón de Piedra, Mandíbula, Panal Podrido, Lápida y Tendón. Cambia solo el nombre que se ve (`item_name` y el códice): los ids siguen iguales, así no se rompen partidas guardadas ni recetas. Las hojas de recetas de `docs/evento/` se regeneraron con los nombres nuevos.
+
+## 2026-10-21 (Versión para itch.io)
+
+- **Modo evento apagado** (`frankengun/modo_evento = false`): vuelve el juego completo. Runs normales, sin sandbox, sin QR ni video al final, sin registro de runs y sin vuelta al menú por inactividad. Las armas y las sinergias ya no vienen habilitadas desde el principio. Todo sigue en el código: el preset "Buenos Aires Game Dev" sigue armando el build del evento.
+- **Primer jefe:** la demo terminaba al vencer al Centinela Génesis (volvía al laboratorio con "Demo completada") en cualquier build. Ahora eso pasa solo en el build del evento; en el juego completo se sigue a la zona 2.
+- **Laboratorio como antes:** la puerta a la sala de entrenamiento vuelve a verse y se sacaron las plantas que tapaban el paso a O.M.N.I.A. y a esa puerta.
+- **Cheats apagados:** nuevo interruptor `frankengun/cheats` (apagado). Controla el menú U / T, las teclas F1-F12, la "ç" para limpiar la sala y el cambio de armas con 1-6. Se prende desde Proyecto > Configuración del proyecto para probar. En el build del evento siguen prendidos. Ver `docs/event-demo.md`.
+
+## 2026-10-20 (Recetas impresas, video del stand, foco con joystick y registro en el juego)
+
+- **Build del evento con todo habilitado:** las seis armas (Pistola, Uzi, Escopeta, Daga, Hacha y Maza) se pueden elegir desde el principio y las 15 sinergias están habilitadas pero sin descubrir: su nombre y su sprite se revelan recién al armarlas (`GameData._apply_event_unlocks()`, solo con el modo evento). Además, las armas que se eligen en el laboratorio ya no vuelven a Pistola y Daga al empezar la run del evento.
+- **Registro de runs dentro del juego:** el menú de cheats (U / T) tiene una pestaña nueva, "Registro", que lee `registro_runs.csv` y muestra un resumen: cantidad de runs, duración promedio, resultados, hasta qué sala llegaron, qué los mató, armas elegidas, sinergias armadas y control usado, más las últimas 25 runs. Funciona en el .exe exportado, sin abrir Godot.
+  - Arriba de la pestaña está el botón "REGISTRO: ACTIVADO / DESACTIVADO". Solo se anotan las runs que empiezan con el registro prendido, así nuestras pruebas no se mezclan con las de los jugadores. Viene apagado y queda guardado aunque se cierre el juego (`user://registro_runs.cfg`).
+  - "Archivar runs anteriores" guarda el CSV actual con la fecha en el nombre y empieza uno vacío (no borra nada). El botón "Abrir carpeta del registro" abre la carpeta del CSV para pasarlo a Excel.
+  - **Más datos por run:** número de jugador (estimado: cambia cuando el modo stand vuelve al menú por inactividad) y cuántas runs lleva, salas completadas y tiempo en cada sala, golpes y daño recibidos (y de qué enemigo), curación, vida al final, vida que le quedaba al jefe, dashes, objetos agarrados (piso, cofres, tienda y hologramas), cuántas veces abrió el inventario, primera sinergia y en qué minuto, y FPS promedio (para ver si la PC del stand aguanta). La pestaña Registro suma promedios por run, cuántos abrieron el inventario y qué objetos se agarran más.
+  - Si el CSV es de una versión con otras columnas, se guarda aparte como `registro_runs_viejo_<fecha>.csv` y se empieza uno nuevo.
+- **Foco con joystick:** se sacó el marco dorado que rodeaba al botón seleccionado. Ahora el botón se marca igual que al pasarle el mouse (el celeste de cada botón). Si un control no tiene ningún estilo de hover ni reacciona al foco, se dibuja un marco celeste fino de respaldo (`Scripts/UI/pad_focus.gd`).
+- **Video del final del evento:** se volvió a grabar el clip de El Núcleo. El jugador automático aparecía en el medio de la sala con forma de aro, sobre el pozo, y se veía flotando. Ahora busca el piso libre más cercano y los enemigos también aparecen sobre el piso.
+- **Hojas de recetas para imprimir** (`docs/evento/`): dos A4, una para las armas a distancia y otra para las cuerpo a cuerpo. Cada receta muestra el arma base y las tres piezas, y el resultado aparece como silueta con "? ? ?", así la gente puede intentar armarlas sin que se revele la sinergia.
+
 ## 2026-10-20 (Build del evento: opinión, video de contenido, registro de runs y modo stand)
 
 - **Final de la run en el evento** (`Scripts/UI/event_outro.gd`): después del resumen de muerte o victoria aparecen dos ventanas, con el estilo de la UI y manejables con joystick (A sigue).

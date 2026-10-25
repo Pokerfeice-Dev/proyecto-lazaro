@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "cabeza_humana"
-item_name = "Cabeza Humana Preservada"
+item_name = "Cabeza Humana"
 icon = ExtResource("1_tex")
 stats = {
 "bullet_count": 1.0,

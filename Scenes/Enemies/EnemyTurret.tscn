@@ -169,6 +169,7 @@ frame = 1
 
 [node name="Sprite_CannonTurret" type="Sprite2D" parent="." unique_id=540660412]
 texture = ExtResource("4_aqbc5")
+scale = Vector2(1.3, 1.3)
 
 [node name="Bullet_Mark" type="Marker2D" parent="Sprite_CannonTurret" unique_id=861023991]
 position = Vector2(19, 0)

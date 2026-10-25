@@ -41,15 +41,50 @@ func _ready():
 		else:
 			continue_button.disabled = true
 	
-	_play_intro_animation() # Entrada prolija del menú (antes aparecía de golpe).
+	if GameData.show_title_screen:
+		_show_title_prompt()
+	else:
+		_play_intro_animation() # Entrada prolija del menú (antes aparecía de golpe).
 	_animate_logo()
-	_setup_button_fx()
+	# con el título, los efectos se arman al mostrar los botones: ocultos no
+	# tienen tamaño y el brillo del shader quedaba cortado
+	if not GameData.show_title_screen:
+		_setup_button_fx()
 	_apply_menu_settings()
 	_atmosphere = preload("res://Scripts/UI/menu_atmosphere.gd").new()
 	add_child(_atmosphere)
 	move_child(_atmosphere, logo.get_index() if logo else button_group.get_index())
 	_atmosphere.motion_enabled = _menu_motion
 	_atmosphere.particles_enabled = FxSettings.on("particulas_menu")
+
+# ---- Pantalla de título: los botones aparecen recién al tocar algo ----
+var _title_label: Label = null
+
+func _show_title_prompt() -> void:
+	button_group.visible = false
+	_title_label = UIStyle.label("PRESIONA CUALQUIER BOTÓN", 30, UIStyle.COLOR_GOLD)
+	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	add_child(_title_label)
+	await get_tree().process_frame
+	_title_label.size.x = maxf(button_group.size.x, _title_label.get_minimum_size().x)
+	_title_label.position = button_group.position + Vector2((button_group.size.x - _title_label.size.x) / 2.0, button_group.size.y / 2.0)
+	var t = _title_label.create_tween().set_loops()
+	t.tween_property(_title_label, "modulate:a", 0.35, 0.8).set_trans(Tween.TRANS_SINE)
+	t.tween_property(_title_label, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
+
+func _input(event: InputEvent) -> void:
+	if not is_instance_valid(_title_label): return
+	var pressed = (event is InputEventKey or event is InputEventJoypadButton or event is InputEventMouseButton) and event.is_pressed() and not event.is_echo()
+	if not pressed: return
+	get_viewport().set_input_as_handled()
+	GameData.show_title_screen = false
+	_title_label.queue_free()
+	_title_label = null
+	if has_node("Btn_snd"): $Btn_snd.play()
+	button_group.visible = true
+	await get_tree().process_frame # que el contenedor acomode los botones antes de animarlos
+	_play_intro_animation()
+	_setup_button_fx() # ya con los botones visibles y acomodados (incluye la cascada)
 
 # Animación de aparición: fade + leve escala desde el centro del bloque de botones.
 func _play_intro_animation() -> void:
@@ -122,6 +157,7 @@ var _botones: Array[Button] = []
 
 func _setup_button_fx() -> void:
 	await get_tree().process_frame
+	if not _botones.is_empty(): return
 	var i = 0
 	for child in button_group.get_children():
 		if child is Button:
@@ -146,6 +182,19 @@ func _prepare_button(btn: Button, index: int) -> void:
 	btn.focus_exited.connect(_on_button_hover.bind(btn, false))
 	btn.button_down.connect(_on_button_down.bind(btn))
 	btn.button_up.connect(_on_button_up.bind(btn))
+	btn.resized.connect(_on_button_resized.bind(btn))
+
+# Después de la pantalla de título los botones se acomodan un cuadro más tarde:
+# si el pivote y el shader se quedaban con el tamaño viejo, "Jugar" aparecía
+# corrido, más grande y con el brillo cortado.
+func _on_button_resized(btn: Button) -> void:
+	btn.pivot_offset = btn.size / 2.0
+	var mat = btn.material as ShaderMaterial
+	if mat: mat.set_shader_parameter("tam_px", btn.size)
+	var sparks = btn.get_node_or_null("Chispas") as CPUParticles2D
+	if sparks:
+		sparks.position = btn.size / 2.0
+		sparks.emission_rect_extents = btn.size / 2.0
 
 func _create_sparks(btn: Button) -> CPUParticles2D:
 	var p = CPUParticles2D.new()

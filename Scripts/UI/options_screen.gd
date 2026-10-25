@@ -48,6 +48,8 @@ const ROWS := {
 		{"tipo": "toggle", "clave": "brujula_enemigos", "texto": "Brújula de enemigos", "desc": "Flechas en el borde de la pantalla que apuntan a los últimos enemigos fuera de cámara."},
 		{"tipo": "toggle", "clave": "indicador_danio", "texto": "Indicador de dirección de daño", "desc": "Flecha roja que marca desde donde te golpearon."},
 		{"tipo": "toggle", "clave": "asistencia_apuntado", "texto": "Asistencia de apuntado (joystick)", "desc": "Con joystick, la mira se va un poco hacia el enemigo que está casi en tu línea de tiro. Desactívala para apuntar solo con el analógico."},
+		{"tipo": "toggle", "clave": "marcador_lazaro", "texto": "Marca debajo de Lázaro", "desc": "Anillo turquesa a los pies de Lázaro para no perderlo de vista entre los enemigos."},
+		{"tipo": "toggle", "clave": "botones_armas_hud", "texto": "Botones de las armas en el HUD", "desc": "Muestra encima de cada arma el botón que la usa (clic izquierdo y derecho, o RT y LT)."},
 	],
 }
 

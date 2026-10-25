@@ -153,7 +153,9 @@ static func _synergy_entries() -> Array:
 		result.append({
 			"id": s.id, "name": def.get("name", s.id) if discovered else "Investigación %02d" % (result.size() + 1),
 			"desc": def.get("description", "") if discovered else RESEARCH.clues.get(s.id, "Experimenta con componentes para descubrir esta combinación."),
-			"kind": "synergy", "icon": _synergy_icon(s, def) if discovered else load_icon("icon_lock"), "cost": s.cost,
+			# sin descubrir se ve la silueta del arma (con un candado chico), no un candado solo
+			"kind": "synergy", "icon": _synergy_icon(s, def), "cost": s.cost,
+			"weapon": def.get("required_weapon", ""),
 			"tint": s.get("tint", Color.WHITE),
 			"recipe": _recipe(def), "recipe_text": SynergyManager.get_synergy_recipe_string(s.id),
 			"requirement": "Requiere desbloquear las investigaciones 01 y 02." if blocked else "",

@@ -185,7 +185,6 @@ func _build_actions_column(container: Control) -> void:
 	box.add_child(UIStyle.divider())
 
 	_add_action(box, "VOLVER AL MENÚ PRINCIPAL", false, _on_menu_pressed)
-	_add_action(box, "SALIR DEL JUEGO", false, _on_quit_pressed)
 
 func _add_action(parent: Control, text: String, primary: bool, callback: Callable) -> Button:
 	var btn = UIStyle.button(text, primary)
@@ -393,8 +392,6 @@ func _restore_save_button_text() -> void:
 	if is_instance_valid(save_btn):
 		save_btn.text = SAVE_TEXT
 
-func _on_quit_pressed() -> void:
-	get_tree().quit()
 
 # --- Volumen (bus de música y bus de efectos) ---
 

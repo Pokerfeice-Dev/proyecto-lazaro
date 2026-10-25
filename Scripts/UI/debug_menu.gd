@@ -4,6 +4,8 @@ var is_open: bool = false
 var panel_node: PanelContainer = null
 var god_mode_btn: Button = null
 var status_label: Label = null
+var log_box: VBoxContainer = null
+var log_toggle_btn: Button = null
 
 const RANGED_WEAPONS: Array[Dictionary] = [
 	{"name": "Revólver Base", "path": "res://Scenes/Weapon/Revolver.tscn"},
@@ -31,15 +33,15 @@ const ITEMS: Array[Dictionary] = [
 	{"name": "Piernas Rodantes", "path": "res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres"},
 	{"name": "Piernas Caninas", "path": "res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres"},
 	{"name": "Piernas Biónicas", "path": "res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres"},
-	{"name": "Licuadora Mezcladora", "path": "res://Art/Items/Weapons/Item1.tres"},
-	{"name": "Aguijón Mecánico", "path": "res://Art/Items/Weapons/Item2.tres"},
+	{"name": "Licuadora", "path": "res://Art/Items/Weapons/Item1.tres"},
+	{"name": "Aguijón", "path": "res://Art/Items/Weapons/Item2.tres"},
 	{"name": "Cerebro", "path": "res://Art/Items/Weapons/Item3.tres"},
 	{"name": "Cabeza de Perro", "path": "res://Art/Items/Weapons/Item4.tres"},
 	{"name": "Pulmones", "path": "res://Art/Items/Weapons/Item5.tres"},
 	{"name": "Motocicleta", "path": "res://Art/Items/Weapons/Item6.tres"},
 	{"name": "Colmena", "path": "res://Art/Items/Weapons/Item7_Colmena.tres"},
 	{"name": "Cabeza Humana", "path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres"},
-	{"name": "Sierra Circular", "path": "res://Art/Items/Weapons/Item9_SierraCircular.tres"},
+	{"name": "Sierra", "path": "res://Art/Items/Weapons/Item9_SierraCircular.tres"},
 	{"name": "Batería", "path": "res://Art/Items/Weapons/Item10_Bateria.tres"},
 	{"name": "Gasolina", "path": "res://Art/Items/Weapons/Item11_Gasolina.tres"},
 	{"name": "Nitrógeno", "path": "res://Art/Items/Weapons/Item12_Nitrogeno.tres"}
@@ -94,6 +96,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey: return
 	if not event.pressed or event.echo: return
+	if not GameData.cheats_enabled(): return
 	if event.keycode == KEY_U or event.keycode == KEY_T:
 		_toggle_menu()
 		return
@@ -111,6 +114,7 @@ func open_menu() -> void:
 	visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_update_god_mode_btn()
+	_refresh_log()
 	_show_status("Menú de depuración y cheats abierto (Tecla U / T)")
 
 func close_menu() -> void:
@@ -207,6 +211,7 @@ func _build_tabs(parent: Control) -> void:
 	_create_weapons_tab(tabs)
 	_create_items_tab(tabs)
 	_create_spawner_tab(tabs)
+	_create_log_tab(tabs)
 
 func _create_button(text: String, callback: Callable, color: Color = Color.WHITE) -> Button:
 	var btn = Button.new()
@@ -275,7 +280,7 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_minigun()
 	)
 	
-	_add_synergy_card(tab, "Cerberus", "lanzallamas", "Escopeta + 3x Cabeza de Sabueso Metálica", func():
+	_add_synergy_card(tab, "Cerberus", "lanzallamas", "Escopeta + 3x Cabeza de Perro", func():
 		_activate_synergy_cerberus()
 	)
 	
@@ -291,7 +296,7 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_musculoso()
 	)
 
-	_add_synergy_card(tab, "Nemesis", "daga_del_odio", "Sierra Circular, Aguijón Mecánico, Cabeza de Perro", func():
+	_add_synergy_card(tab, "Nemesis", "daga_del_odio", "Sierra, Aguijón, Cabeza de Perro", func():
 		_activate_synergy_daga_del_odio()
 	)
 
@@ -303,7 +308,7 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_holy_fire()
 	)
 
-	_add_synergy_card(tab, "Wolfsbane", "hombre_lobo", "Cabeza Humana, Cabeza de Perro, Aguijón Mecánico", func():
+	_add_synergy_card(tab, "Wolfsbane", "hombre_lobo", "Cabeza Humana, Cabeza de Perro, Aguijón", func():
 		_activate_synergy_wolfsbane()
 	)
 
@@ -315,7 +320,7 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_the_bride()
 	)
 
-	_add_synergy_card(tab, "Speed Demon", "speed_demon", "Daga + Sierra Circular, Motocicleta, Batería", func():
+	_add_synergy_card(tab, "Speed Demon", "speed_demon", "Daga + Sierra, Motocicleta, Batería", func():
 		_activate_synergy_speed_demon()
 	)
 
@@ -346,7 +351,7 @@ func _add_synergy_card(parent: Control, syn_name: String, syn_id: String, req_de
 	var btn = _create_button("Desbloquear y Equipar " + syn_name, callback, Color(0.4, 1.0, 0.7))
 	card.add_child(btn)
 
-# "Hacha de Mano + Bidón de Gasolina, Núcleo de Motocicleta, Glándula tóxica"
+# "Hacha de Mano + Gasolina, Motocicleta, Glándula tóxica"
 func _recipe_text(syn_id: String, fallback: String) -> String:
 	var def: Dictionary = SynergyManager.SYNERGIES.get(syn_id, {})
 	if def.is_empty(): return fallback
@@ -865,3 +870,127 @@ func _get_player() -> Node:
 	var players = get_tree().get_nodes_in_group("player")
 	if players.is_empty(): return null
 	return players[0]
+
+# --- Registro de runs (lo que jugó la gente en el evento) ---
+
+func _create_log_tab(tabs: TabContainer) -> void:
+	var tab = _create_scroll_tab(tabs, "Registro")
+	log_toggle_btn = _create_button("", _toggle_log)
+	log_toggle_btn.custom_minimum_size.y = 48
+	tab.add_child(log_toggle_btn)
+	tab.add_child(_create_button("Actualizar", _refresh_log, Color(0.3, 0.85, 1.0)))
+	tab.add_child(_create_button("Abrir carpeta del registro (CSV para Excel)", _open_log_folder, Color(1.0, 0.85, 0.2)))
+	tab.add_child(_create_button("Archivar runs anteriores (empezar de cero)", _archive_log, Color(0.9, 0.6, 0.4)))
+	log_box = VBoxContainer.new()
+	log_box.add_theme_constant_override("separation", 6)
+	tab.add_child(log_box)
+
+# Solo cuentan las runs jugadas con el registro prendido (para no mezclar
+# nuestras pruebas con las de los jugadores).
+func _toggle_log() -> void:
+	RunLog.set_enabled(not RunLog.is_enabled())
+	_update_log_toggle()
+	_show_status("Registro de runs " + ("ACTIVADO: cuentan las runs que empiecen desde ahora" if RunLog.is_enabled() else "DESACTIVADO"))
+
+func _update_log_toggle() -> void:
+	if not log_toggle_btn: return
+	var on = RunLog.is_enabled()
+	log_toggle_btn.text = "REGISTRO: ACTIVADO (tocar para apagar)" if on else "REGISTRO: DESACTIVADO (tocar para prender)"
+	log_toggle_btn.add_theme_color_override("font_color", Color(0.35, 1.0, 0.5) if on else Color(1.0, 0.4, 0.4))
+	log_toggle_btn.add_theme_font_size_override("font_size", 16)
+
+func _archive_log() -> void:
+	var moved = RunLog.archive()
+	_show_status(("Registro anterior guardado como " + moved) if moved != "" else "No había runs para archivar")
+	_refresh_log()
+
+func _open_log_folder() -> void:
+	OS.shell_open(RunLog.folder_path())
+
+func _refresh_log() -> void:
+	if not log_box: return
+	for c in log_box.get_children():
+		c.queue_free()
+	_update_log_toggle()
+	var rows = RunLog.read_rows()
+	_log_line(RunLog.file_path(), Color(0.55, 0.6, 0.68), 11)
+	if rows.is_empty():
+		_log_line("Todavía no hay runs registradas.", Color.WHITE, 14)
+		return
+	var total_sec := 0
+	for r in rows:
+		total_sec += int(r.get("duracion_seg", "0"))
+	var avg: int = total_sec / rows.size()
+	var event_runs = rows.filter(func(r): return r.get("modo", "") == "evento").size()
+	var deaths = rows.filter(func(r): return r.get("resultado", "") == "muerte")
+	_log_title("RESUMEN")
+	_log_line("Runs: %d (del evento: %d)" % [rows.size(), event_runs], Color.WHITE, 14)
+	_log_line("Duración promedio: %d:%02d · tiempo total jugado: %d min" % [avg / 60, avg % 60, total_sec / 60], Color.WHITE, 14)
+	_log_line("Resultado: " + _count_text(rows, "resultado"), Color.WHITE, 13)
+	_log_line("Hasta dónde llegaron: " + _count_text(rows, "sala"), Color.WHITE, 13)
+	_log_line("Qué los mató: " + _count_text(deaths, "causa"), Color.WHITE, 13)
+	_log_line("Arma principal: " + _count_text(rows, "arma_principal"), Color.WHITE, 13)
+	_log_line("Arma secundaria: " + _count_text(rows, "arma_secundaria"), Color.WHITE, 13)
+	_log_line("Sinergias armadas: " + _count_text(rows, "sinergias", true), Color.WHITE, 13)
+	_log_line("Control: " + _count_text(rows, "control"), Color.WHITE, 13)
+	var inv = rows.filter(func(r): return int(r.get("veces_inventario", "0")) > 0).size()
+	_log_line("Abrieron el inventario: %d de %d runs" % [inv, rows.size()], Color.WHITE, 13)
+	_log_line("Jugadores (estimado): %d" % _distinct(rows, "jugador"), Color.WHITE, 13)
+	_log_line("Promedio por run: %s salas · %s golpes · %s de daño · %s objetos · %s dashes · %s FPS" % [
+		_avg(rows, "salas_completadas"), _avg(rows, "golpes_recibidos"), _avg(rows, "dano_recibido"),
+		_avg(rows, "objetos_recogidos"), _avg(rows, "dashes"), _avg(rows, "fps_promedio")], Color.WHITE, 13)
+	_log_line("Objetos agarrados: " + _count_text(rows, "objetos", true), Color.WHITE, 13)
+	_log_title("ÚLTIMAS RUNS")
+	for i in range(rows.size() - 1, maxi(rows.size() - 25, 0) - 1, -1):
+		var r = rows[i]
+		var syn: String = r.get("sinergias", "")
+		_log_line("%s %s · %s · %s · %s · %s + %s%s" % [
+			r.get("fecha", ""), r.get("hora_inicio", "").left(5), r.get("duracion", ""),
+			r.get("resultado", ""), r.get("sala", ""), r.get("arma_principal", ""),
+			r.get("arma_secundaria", ""), (" · " + syn) if syn != "" else ""], Color(0.85, 0.88, 0.92), 12)
+
+# "muerte 12 · victoria 3 ...", de mayor a menor. Con "split", una celda puede
+# traer varios valores separados por coma (las sinergias).
+func _count_text(rows: Array, column: String, split := false) -> String:
+	var counts := {}
+	for r in rows:
+		var cell: String = r.get(column, "")
+		var values = cell.split(",", false) if split else PackedStringArray([cell])
+		for v in values:
+			var key = v.strip_edges()
+			if key == "": continue
+			counts[key] = counts.get(key, 0) + 1
+	if counts.is_empty(): return "-"
+	var keys = counts.keys()
+	keys.sort_custom(func(a, b): return counts[a] > counts[b])
+	return " · ".join(keys.map(func(k): return "%s %d" % [k, counts[k]]))
+
+# Promedio de una columna numérica (las celdas vacías no cuentan).
+func _avg(rows: Array, column: String) -> String:
+	var total := 0.0
+	var n := 0
+	for r in rows:
+		var v: String = r.get(column, "")
+		if v.is_valid_float():
+			total += v.to_float()
+			n += 1
+	return "%.1f" % (total / n) if n > 0 else "-"
+
+func _distinct(rows: Array, column: String) -> int:
+	var seen := {}
+	for r in rows:
+		if r.get(column, "") != "": seen[r[column]] = true
+	return seen.size()
+
+func _log_title(text: String) -> void:
+	log_box.add_child(HSeparator.new())
+	_log_line(text, Color(1.0, 0.85, 0.2), 15)
+
+func _log_line(text: String, color: Color, size: int) -> void:
+	var l = Label.new()
+	l.text = text
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size.x = 480
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_color_override("font_color", color)
+	log_box.add_child(l)

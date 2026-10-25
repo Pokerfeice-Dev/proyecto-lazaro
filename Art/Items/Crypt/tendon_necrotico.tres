@@ -4,7 +4,7 @@
 [resource]
 script = ExtResource("1")
 id = "tendon_necrotico"
-item_name = "Tendón necrótico"
+item_name = "Tendón"
 icon = ExtResource("2")
 type = 0
 slot = 0

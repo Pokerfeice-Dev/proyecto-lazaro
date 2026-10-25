@@ -25,7 +25,7 @@ const ITEMS: Array[Dictionary] = [
 	{"name": "Weapon Upgrade 6", "path": "res://Art/Items/Weapons/Item6.tres"},
 	{"name": "Colmena", "path": "res://Art/Items/Weapons/Item7_Colmena.tres"},
 	{"name": "Cabeza Humana", "path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres"},
-	{"name": "Sierra Circular", "path": "res://Art/Items/Weapons/Item9_SierraCircular.tres"}
+	{"name": "Sierra", "path": "res://Art/Items/Weapons/Item9_SierraCircular.tres"}
 ]
 
 const RANGED_WEAPONS: Array[Dictionary] = [

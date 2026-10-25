@@ -7,6 +7,8 @@ extends Node2D
 enum TutorialState {
 	MOVE,
 	DASH,
+	DODGE,
+	AIM,
 	SHOOT,
 	MELEE,
 	MANNEQUIN,
@@ -21,7 +23,7 @@ enum TutorialState {
 var current_state: TutorialState = TutorialState.MOVE
 
 const ICON_CHECK := preload("res://Art/Ui/svg/icon_check.svg")
-const STEP_TOTAL := 9 # pasos antes de COMPLETE
+const STEP_TOTAL := 12 # pasos antes de COMPLETE
 const LEARNED := [
 	"Moverte y esquivar",
 	"Disparar y golpear cuerpo a cuerpo",
@@ -43,6 +45,16 @@ var mannequin_hits_received: int = 0
 var synergy_hits_received: int = 0
 var _synergy_transition_pending := false
 var _step_hint_elapsed := 0.0
+# Esquivar: el maniquí dispara despacio y hay que atravesar las balas con el dash.
+const DODGES_NEEDED := 2
+var _dodges := 0
+var _dodge_bullets: Array = []
+var _dodge_fire_timer := 0.0
+# Apuntar: tiempo acumulado moviendo la mira (mouse o analógico derecho).
+var _aim_time := 0.0
+# Golpes al maniquí con el arma cuerpo a cuerpo (paso MELEE).
+var _melee_hits := 0
+var _last_melee_msec := -10000
 
 func _ready() -> void:
 	# El inventario pausa el árbol: el tutorial debe detectar cuando se abre para
@@ -57,6 +69,12 @@ func _ready() -> void:
 		current_state = TutorialState.COMPLETE
 		return
 	_setup_tutorial_ui()
+	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
+	_update_dialogue_text()
+
+# Teclado <-> joystick: los textos del paso cambian (clic derecho / X, etc.).
+func _on_input_mode_changed(_gamepad: bool) -> void:
+	_last_step_text = ""
 	_update_dialogue_text()
 
 func _exit_tree() -> void:
@@ -64,6 +82,12 @@ func _exit_tree() -> void:
 	GameData.end_sandbox()
 
 func _process(delta: float) -> void:
+	if Input.is_action_just_pressed("attack_melee"):
+		_last_melee_msec = Time.get_ticks_msec()
+	if current_state == TutorialState.DODGE:
+		_process_dodge(delta)
+	elif current_state == TutorialState.AIM:
+		_process_aim(delta)
 	_check_state_transitions()
 	_check_drops_picked()
 	_step_hint_elapsed += delta
@@ -97,15 +121,64 @@ func _check_move_transition() -> void:
 
 func _check_dash_transition() -> void:
 	if Input.is_action_just_pressed("dash"):
-		_transition_to_state(TutorialState.SHOOT)
+		_transition_to_state(TutorialState.DODGE)
 
 func _check_shoot_transition() -> void:
 	if Input.is_action_just_pressed("shoot"):
 		_transition_to_state(TutorialState.MELEE)
 
 func _check_melee_transition() -> void:
-	if Input.is_action_just_pressed("attack_melee"):
+	if _melee_hits >= 2:
 		_transition_to_state(TutorialState.MANNEQUIN)
+
+# --- Esquivar con dash ---
+
+func _process_dodge(delta: float) -> void:
+	var player = get_tree().get_first_node_in_group("player")
+	if not player or not is_instance_valid(mannequin_inst): return
+	_dodge_fire_timer -= delta
+	if _dodge_fire_timer <= 0.0:
+		_dodge_fire_timer = 1.3
+		_fire_dodge_bullet(player)
+	for b in _dodge_bullets:
+		if not is_instance_valid(b) or b.has_meta("dodged"): continue
+		if player.get("is_dashing") == true and b.global_position.distance_to(player.global_position) < 34.0:
+			b.set_meta("dodged", true)
+			_dodges += 1
+			_update_dialogue_text()
+	_dodge_bullets = _dodge_bullets.filter(func(b): return is_instance_valid(b))
+	if _dodges >= DODGES_NEEDED:
+		_transition_to_state(TutorialState.AIM)
+
+# El maniquí dispara una bala lenta hacia el jugador.
+func _fire_dodge_bullet(player: Node2D) -> void:
+	var bullet = preload("res://Scenes/Enemies/enemy_shooter_projectile.tscn").instantiate()
+	bullet.speed = 230.0
+	bullet.source_name = "Maniquí de práctica"
+	get_tree().current_scene.add_child(bullet)
+	bullet.global_position = mannequin_inst.global_position
+	bullet.setup(player.global_position - mannequin_inst.global_position, 4.0, "player")
+	_dodge_bullets.append(bullet)
+
+func _clear_dodge_bullets() -> void:
+	for b in _dodge_bullets:
+		if is_instance_valid(b): b.queue_free()
+	_dodge_bullets.clear()
+
+# --- Apuntar ---
+
+func _process_aim(delta: float) -> void:
+	var aiming := false
+	if InputMode.is_gamepad():
+		var pads = Input.get_connected_joypads()
+		var pad = pads[0] if not pads.is_empty() else 0
+		aiming = Vector2(Input.get_joy_axis(pad, JOY_AXIS_RIGHT_X), Input.get_joy_axis(pad, JOY_AXIS_RIGHT_Y)).length() > 0.5
+	else:
+		aiming = Input.get_last_mouse_velocity().length() > 150.0
+	if aiming:
+		_aim_time += delta
+	if _aim_time >= 1.2:
+		_transition_to_state(TutorialState.SHOOT)
 
 func _check_synergy_equip_transition() -> void:
 	var players = get_tree().get_nodes_in_group("player")
@@ -128,6 +201,8 @@ func _transition_to_state(new_state: TutorialState) -> void:
 	current_state = new_state
 	_step_hint_elapsed = 0.0
 	# primero se arma el paso (enemigo, piezas) para que la manito tenga a quién señalar
+	if new_state != TutorialState.DODGE:
+		_clear_dodge_bullets()
 	if current_state == TutorialState.COMBAT:
 		_spawn_shooter()
 	elif current_state == TutorialState.SYNERGY_PICKUP:
@@ -199,6 +274,12 @@ func _spawn_mannequin() -> void:
 		get_tree().current_scene.call_deferred("add_child", mannequin_inst)
 
 func _on_mannequin_hit() -> void:
+	if current_state == TutorialState.MELEE:
+		# cuenta solo si el golpe llegó justo después de usar el arma cuerpo a cuerpo
+		if Time.get_ticks_msec() - _last_melee_msec < 700:
+			_melee_hits += 1
+			_update_dialogue_text()
+		return
 	if current_state == TutorialState.MANNEQUIN:
 		mannequin_hits_received += 1
 		_update_dialogue_text()
@@ -321,15 +402,19 @@ func _update_dialogue_text() -> void:
 		TutorialState.MOVE:
 			_show_step(0, "Muévete por la sala", ["W", "A", "S", "D"], true)
 		TutorialState.DASH:
-			_show_step(1, "Esquiva: por un instante eres intangible", ["ESPACIO"], true)
+			_show_step(1, _pad_or_keys("Esquiva con el dash: por un instante eres intangible", "Esquiva con ESPACIO o SHIFT: por un instante eres intangible"), ["ESPACIO"], true)
+		TutorialState.DODGE:
+			_show_step(2, "El maniquí dispara: atraviesa las balas con el dash", ["ESPACIO"], true, [mannequin_inst], "%d/%d" % [_dodges, DODGES_NEEDED])
+		TutorialState.AIM:
+			_show_step(3, _pad_or_keys("Apunta con el analógico derecho: la mira lo sigue", "Apunta con el mouse: tus armas siguen al cursor"), ["MOUSE_MOVE"], true)
 		TutorialState.SHOOT:
-			_show_step(2, "Dispara con tu arma a distancia", ["MOUSE_L"], true)
+			_show_step(4, "Dispara con tu arma a distancia", ["MOUSE_L"], true)
 		TutorialState.MELEE:
-			_show_step(3, "Golpea con tu arma cuerpo a cuerpo", ["MOUSE_R"], true)
+			_show_step(5, "Golpea al maniquí con tu arma cuerpo a cuerpo", ["MOUSE_R"], false, [mannequin_inst], "%d/2" % _melee_hits)
 		TutorialState.MANNEQUIN:
-			_show_step(4, "Golpea al maniquí", ["MOUSE_L", "MOUSE_R"], false, [mannequin_inst], "%d/3" % mannequin_hits_received)
+			_show_step(6, "Ahora dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % mannequin_hits_received)
 		TutorialState.COMBAT:
-			_show_step(5, "Elimina al enemigo. Los obstáculos bloquean sus disparos", ["MOUSE_L"], false, [shooter_inst])
+			_show_step(7, "Elimina al enemigo. Los obstáculos bloquean sus disparos", ["MOUSE_L"], false, [shooter_inst])
 		TutorialState.SYNERGY_PICKUP:
 			_show_synergy_pickup_step()
 		TutorialState.SYNERGY_OPEN_INVENTORY:
@@ -337,7 +422,7 @@ func _update_dialogue_text() -> void:
 		TutorialState.SYNERGY_EQUIP:
 			_show_synergy_right_click_step()
 		TutorialState.SYNERGY_ATTACK:
-			_show_step(8, "¡Tu pistola mutó en Mente Colmena! Dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % synergy_hits_received)
+			_show_step(11, "¡Tu pistola mutó en Mente Colmena! Dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % synergy_hits_received)
 		TutorialState.COMPLETE:
 			tutorial_hud.hide_card()
 			pointer.clear()
@@ -346,12 +431,12 @@ func _update_dialogue_text() -> void:
 func _show_synergy_pickup_step() -> void:
 	_set_synergy_tutorial_inventory_guidance(false)
 	var remaining = _synergy_drops.filter(func(d): return is_instance_valid(d))
-	_show_step(6, "Recoge las 3 piezas del suelo", ["E"], false, remaining, "%d/3" % _drops_picked, 26.0)
+	_show_step(8, "Recoge las 3 piezas del suelo", ["E"], false, remaining, "%d/3" % _drops_picked, 26.0)
 
 func _show_synergy_open_inventory_step() -> void:
 	var equipped_count := _get_equipped_synergy_piece_count()
 	_set_synergy_tutorial_inventory_guidance(false)
-	_show_step(6, "Abre el inventario para instalar las piezas de la sinergia", ["I"], true, [], "%d/3" % equipped_count)
+	_show_step(9, _pad_or_keys("Abre el inventario para instalar las piezas de la sinergia", "Abre el inventario (I o TAB) para instalar las piezas de la sinergia"), ["I"], true, [], "%d/3" % equipped_count)
 
 # Paso 8: el inventario ya está abierto; ahora se muestra la acción exacta.
 func _show_synergy_right_click_step() -> void:
@@ -360,7 +445,14 @@ func _show_synergy_right_click_step() -> void:
 		return
 	var equipped_count := _get_equipped_synergy_piece_count()
 	_set_synergy_tutorial_inventory_guidance(true)
-	_show_step(7, "Haz CLIC DERECHO sobre cada pieza. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["MOUSE_R"], false, [], "%d/3" % equipped_count)
+	if InputMode.is_gamepad():
+		_show_step(10, "Elige cada pieza y presiona X. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["E"], false, [], "%d/3" % equipped_count)
+	else:
+		_show_step(10, "Haz CLIC DERECHO sobre cada pieza. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["MOUSE_R"], false, [], "%d/3" % equipped_count)
+
+# Texto distinto para joystick y para teclado.
+func _pad_or_keys(pad_text: String, keys_text: String) -> String:
+	return pad_text if InputMode.is_gamepad() else keys_text
 
 func _get_equipped_synergy_piece_count() -> int:
 	var player = get_tree().get_first_node_in_group("player")

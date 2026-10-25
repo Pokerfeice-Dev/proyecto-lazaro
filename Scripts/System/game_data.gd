@@ -43,6 +43,9 @@ var unlocked_protocols: Array[String] = []
 var active_protocol: String = ""
 var has_died_once: bool = false
 var has_shown_inventory_tutorial: bool = false
+## Pantalla de título ("Presiona cualquier botón") al abrir el juego y cuando
+## el modo stand vuelve al menú para la próxima persona.
+var show_title_screen := true
 var has_completed_tutorial: bool = false # la sala de entrenamiento ya no repite los pasos
 var last_room_name: String = "" # nombre de la última sala de la que salimos, usado para elegir el spawn correcto
 var chosen_primary_weapon: String = "pistol"
@@ -144,6 +147,15 @@ const EVENT_SETTING := "frankengun/modo_evento"
 ## (editor y cualquier exportación).
 func is_event_build() -> bool:
 	return OS.has_feature("event_demo") or bool(ProjectSettings.get_setting(EVENT_SETTING, false))
+## Cheats (menú U / T, teclas F1-F12, "ç" para limpiar la sala, cambio de
+## armas con 1-6): apagados salvo que se prenda frankengun/cheats en la
+## configuración del proyecto. En el build del evento quedan prendidos
+## (ahí está la pestaña Registro).
+const CHEATS_SETTING := "frankengun/cheats"
+
+func cheats_enabled() -> bool:
+	return is_event_build() or bool(ProjectSettings.get_setting(CHEATS_SETTING, false))
+
 var demo_completed_pending := false
 
 func finish_first_boss_demo() -> void:
@@ -231,6 +243,7 @@ func _ready() -> void:
 	unlock_codex_entry("levels", "distrito_1", false)
 	unlock_codex_entry("weapons", "pistol", false)
 	unlock_codex_entry("weapons", "daga", false)
+	_apply_event_unlocks()
 
 func _process(delta: float) -> void:
 	if get_tree().paused: return
@@ -305,7 +318,12 @@ func start_event_demo() -> String:
 		end_event_demo()
 	begin_sandbox()
 	event_demo_active = true
+	# las armas que eligió en el laboratorio se mantienen
+	var primary = chosen_primary_weapon
+	var melee = chosen_melee_weapon
 	reset_data()
+	chosen_primary_weapon = primary
+	chosen_melee_weapon = melee
 	current_level = 1
 	current_run_room = 1
 	rooms_before_boss = EVENT_DEMO_ROOMS_BEFORE_BOSS
@@ -332,6 +350,7 @@ func is_event_demo() -> bool:
 	return event_demo_active
 
 func get_next_room() -> String:
+	RunLog.note_room()
 	current_run_room += 1
 	if current_run_room > max_reached_room:
 		max_reached_room = current_run_room
@@ -932,6 +951,7 @@ func load_game(slot: int) -> bool:
 	
 	scrap_changed.emit(scrap)
 	_save_global_settings(slot)
+	_apply_event_unlocks()
 	return true
 
 func _save_global_settings(last_slot: int) -> void:
@@ -959,6 +979,17 @@ func clear_items() -> void:
 		equipment_slots[k] = null
 	flesh = 0
 	flesh_changed.emit(flesh)
+
+## Build del evento: todas las armas se pueden elegir desde el principio y
+## todas las sinergias están habilitadas (no descubiertas: su sprite y su nombre
+## se revelan recién al armarlas).
+const EVENT_WEAPONS: Array[String] = ["pistol", "uzi", "shotgun", "daga", "hacha", "maze"]
+
+func _apply_event_unlocks() -> void:
+	if not is_event_build(): return
+	for id in EVENT_WEAPONS:
+		unlock_codex_entry("weapons", id, false)
+	unlock_all_synergies()
 
 func reset_data() -> void:
 	reset_protocol_run()
@@ -1010,6 +1041,7 @@ func reset_data() -> void:
 	chosen_primary_weapon = "pistol"
 	chosen_melee_weapon = "daga"
 	codex_unlocks["weapons"] = ["pistol", "daga"]
+	_apply_event_unlocks()
 	
 	scrap_changed.emit(scrap)
 	flesh_changed.emit(flesh)

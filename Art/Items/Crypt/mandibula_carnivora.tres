@@ -4,7 +4,7 @@
 [resource]
 script = ExtResource("1")
 id = "mandibula_carnivora"
-item_name = "Mandíbula carnívora"
+item_name = "Mandíbula"
 icon = ExtResource("2")
 type = 0
 slot = 0

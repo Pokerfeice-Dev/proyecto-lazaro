@@ -56,10 +56,30 @@ static func panel(tex: Texture2D) -> PanelContainer:
 	p.add_theme_stylebox_override("panel", nine_slice(tex))
 	return p
 
+## Tamaño de letra legible: en el evento la gente se acercaba a la pantalla
+## para leer. Sube más los textos chicos que los títulos (que ya se leen bien).
+static func readable(size: int) -> int:
+	if size <= 14: return size + 4
+	if size <= 20: return size + 3
+	if size <= 28: return size + 2
+	return size
+
+## Agranda (una sola vez) los textos de una pantalla armada en el editor:
+## Label, Button y RichTextLabel con tamaño propio o con el de por defecto.
+static func enlarge_texts(root: Node) -> void:
+	for node in [root] + root.find_children("*", "", true, false):
+		if not (node is Label or node is Button or node is RichTextLabel): continue
+		if node.has_meta("readable"): continue
+		node.set_meta("readable", true)
+		var key = "normal_font_size" if node is RichTextLabel else "font_size"
+		var current = node.get_theme_font_size(key)
+		node.add_theme_font_size_override(key, readable(current))
+
 static func label(text: String, size: int, color: Color) -> Label:
 	var l = Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", size)
+	l.set_meta("readable", true)
+	l.add_theme_font_size_override("font_size", readable(size))
 	l.add_theme_color_override("font_color", color)
 	return l
 
@@ -68,7 +88,8 @@ static func button(text: String, primary: bool, size: Vector2 = Vector2(0, 48), 
 	var btn = Button.new()
 	btn.text = text
 	btn.custom_minimum_size = size
-	btn.add_theme_font_size_override("font_size", font_size)
+	btn.set_meta("readable", true)
+	btn.add_theme_font_size_override("font_size", readable(font_size))
 	var textures = TEX_PRIMARY if primary else TEX_SECONDARY
 	for state in ["normal", "hover", "pressed", "disabled"]:
 		btn.add_theme_stylebox_override(state, nine_slice(textures[state]))

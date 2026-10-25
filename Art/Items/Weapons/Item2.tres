@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "aguijon_mecanico"
-item_name = "Aguijón Mecánico"
+item_name = "Aguijón"
 icon = ExtResource("1_tex")
 stats = {
 "damage": -1.0,

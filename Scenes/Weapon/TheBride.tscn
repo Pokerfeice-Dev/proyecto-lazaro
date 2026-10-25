@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://8hl74imo4k71" path="res://Art/Weapons/Distance/Uzi/TheBride/synergy_thebride_sprite.png" id="2_bride"]
-[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_sound"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/sinergia_the_bride.wav" id="3_sound"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_thebride"]
 animations = [{

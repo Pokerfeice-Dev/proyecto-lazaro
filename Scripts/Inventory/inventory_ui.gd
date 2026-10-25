@@ -137,9 +137,9 @@ const STAT_LABELS: Dictionary = {
 }
 
 func _ready() -> void:
+	UIStyle.enlarge_texts(self) # letra más grande (en el evento costaba leer)
 	_auto_fetch_player_nodes()
-	for slot in inventory_grid.get_children():
-		if slot is UISlot: inventory_slots.append(slot)
+	_limit_inventory_slots()
 	for node in main_three_columns.find_children("*", "PanelContainer", true, false):
 		if not node is UISlot or not node.is_equipped_slot: continue
 		ui_slots.append(node)
@@ -169,9 +169,69 @@ func _setup_pad_hints() -> void:
 	_pad_keycap(hints.get_node("HBoxContainer2/PanelContainer"), "X")
 	_pad_keycap(hints.get_node("HBoxContainer3/PanelContainer"), "RS")
 	_pad_keycap(hints.get_node("HBoxContainer4/PanelContainer"), "B")
+	_add_drop_hint(hints)
 	_pad_keycap(top_bar.get_node("HBoxContainer/HBoxContainer/PanelContainer"), "B")
 	KeycapSwitch.add_tab_hints(top_bar.get_node("TabsBox"), 34.0)
 	KeycapSwitch.add_tab_hints(%CodexCategories, 34.0, "LT", "RT")
+
+# Mochila de Inventory.CAPACITY lugares (prueba: 12): sobran casilleros de la escena.
+# Con menos lugares, los casilleros son más grandes (4 x 3) y se ve todo sin scroll.
+const SLOT_COLUMNS := 4
+const SLOT_SIZE := Vector2(104, 104)
+
+func _limit_inventory_slots() -> void:
+	inventory_grid.columns = SLOT_COLUMNS
+	for slot in inventory_grid.get_children():
+		if not slot is UISlot: continue
+		if inventory_slots.size() < Inventory.CAPACITY:
+			inventory_slots.append(slot)
+			slot.custom_minimum_size = SLOT_SIZE
+		else:
+			inventory_grid.remove_child(slot)
+			slot.queue_free()
+
+# "Q Soltar" en la barra de abajo (con joystick, la cruceta).
+func _add_drop_hint(hints: Node) -> void:
+	var drop = hints.get_node("HBoxContainer2").duplicate()
+	drop.name = "DropHint"
+	hints.add_child(drop)
+	hints.move_child(drop, hints.get_node("HBoxContainer4").get_index())
+	(drop.get_node("PanelContainer/Label") as Label).text = "Q"
+	for child in drop.get_children():
+		if child is Label: child.text = "Soltar"
+	_pad_keycap(drop.get_node("PanelContainer"), "DPAD")
+
+# Q o flecha arriba del joystick: tira al piso el objeto elegido.
+func _is_drop_input(event: InputEvent) -> bool:
+	if event is InputEventKey and event.pressed and not event.echo:
+		return event.physical_keycode == KEY_Q
+	if event is InputEventJoypadButton and event.pressed:
+		return event.button_index == JOY_BUTTON_DPAD_UP
+	return false
+
+func _drop_target_item() -> ItemData:
+	var focus = get_viewport().gui_get_focus_owner()
+	if focus is UISlot and inventory_slots.has(focus) and focus.item:
+		return focus.item
+	for slot in inventory_slots:
+		if slot.is_hovered and slot.item:
+			return slot.item
+	if selected_item and inventory.items.has(selected_item):
+		return selected_item
+	return null
+
+func _drop_selected_item() -> void:
+	var item = _drop_target_item()
+	if not item:
+		_play_cancel_sound()
+		return
+	inventory.drop_item(item)
+	if selected_item == item and not inventory.items.has(item):
+		selected_item = null
+	_clear_pad_selection()
+	_play_cancel_sound()
+	update_ui()
+	_refresh_pad_tooltip()
 
 func _pad_keycap(cap: PanelContainer, pad: String) -> void:
 	KeycapSwitch.attach(cap, cap.get_child(0) as Label, pad)
@@ -194,6 +254,7 @@ func toggle_visibility() -> void:
 
 func _animate_open() -> void:
 	_is_animating = true
+	RunLog.note("inventario")
 	visible = true
 	get_tree().paused = true
 	SceneTransition.set_menu_muffle(true)
@@ -269,6 +330,11 @@ func _input(event: InputEvent) -> void:
 			_clear_pad_selection() # B suelta el objeto elegido; otra B cierra
 		else:
 			toggle_visibility()
+		return
+
+	if current_tab == "INVENTORY" and _is_drop_input(event):
+		_drop_selected_item()
+		get_viewport().set_input_as_handled()
 		return
 
 	if _handle_pad_input(event):
@@ -404,6 +470,7 @@ func update_ui() -> void:
 func _update_header_data() -> void:
 	if capacity_label and inventory:
 		capacity_label.text = "%d / %d" % [inventory.items.size(), inventory_slots.size()]
+		capacity_label.modulate = UIStyle.COLOR_WARNING if inventory.is_full() else Color.WHITE
 
 func _auto_fetch_player_nodes() -> void:
 	if inventory and equipment and player_sprite: return
@@ -430,16 +497,10 @@ func _update_portrait() -> void:
 func update_items_list() -> void:
 	if not inventory: return
 
+	# un objeto por casillero: con la mochila limitada, los repetidos ocupan lugar
 	var grouped: Array = []
 	for item_data in inventory.items:
-		var found = false
-		for entry in grouped:
-			if entry.item.id == item_data.id:
-				entry.count += 1
-				found = true
-				break
-		if not found:
-			grouped.append({"item": item_data, "count": 1})
+		grouped.append({"item": item_data, "count": 1})
 
 	_sort_grouped_items(grouped)
 
@@ -690,7 +751,7 @@ func _install_item(item: ItemData, target_slot_type: ItemData.ItemSlot) -> void:
 	inventory.remove_item(item)
 
 	if old_item and not equipment.is_body_part(old_item):
-		inventory.add_item(old_item)
+		inventory.add_item(old_item, true) # ocupa el lugar que dejó la pieza nueva
 
 	equipment.equip_item(item)
 	_play_equip_sound()
@@ -701,6 +762,10 @@ func _unequip_item_direct(item: ItemData, slot_type: ItemData.ItemSlot) -> void:
 	# (si volvían, se podían poner y quitar para curarse sin límite)
 	if equipment.is_body_part(item):
 		BodyPartWarning.ask_remove(item, _destroy_body_part.bind(item, slot_type))
+		return
+	if inventory.is_full(): # no hay lugar para devolverla a la mochila
+		inventory.notify_full()
+		_play_cancel_sound()
 		return
 	equipment.slots[slot_type] = null
 	equipment.equipment_changed.emit()

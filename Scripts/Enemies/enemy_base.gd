@@ -301,6 +301,7 @@ func take_damage(amount: int, is_crit: bool = false) -> void:
 	alert_to_player()
 	_show_damage_text(amount, is_crit)
 	_flash_hit()
+	Sfx.play_at(Sfx.HIT, global_position, -4.0 if not is_crit else 0.0)
 	_update_health_bar()
 	_check_death()
 

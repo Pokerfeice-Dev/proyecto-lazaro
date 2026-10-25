@@ -50,7 +50,7 @@ const PAD_FOR_KEY := {
 	"I": "Y", "ESPACIO": "A", "SPACE": "A", "SHIFT": "X", "TAB": "Y",
 	"MOUSE_L": "RT", "MOUSE_R": "LT", "Q": "LB", "R": "RB",
 	"W": "LS", "A": "LS", "S": "LS", "D": "LS", "P": "START",
-	"MOUSE": "A",
+	"MOUSE": "A", "MOUSE_MOVE": "RS",
 }
 
 func _ready() -> void:
@@ -145,6 +145,13 @@ func _aim_point(from: Vector2, move_dir: Vector2) -> Vector2:
 	if not FxSettings.on("asistencia_apuntado"):
 		_locked_target = null
 		return from + dir * AIM_DISTANCE
+	# Sin tocar el analógico derecho, la mira va sola al enemigo más cercano:
+	# en el evento mucha gente no sabía que podía apuntar.
+	if _stick.length() <= AIM_DEADZONE:
+		if not _valid_target(_locked_target, from):
+			_locked_target = _nearest_target(from)
+		if is_instance_valid(_locked_target):
+			return _locked_target.global_position
 	if not _valid_target(_locked_target, from):
 		_locked_target = _assist_target(from, dir)
 		if _locked_target:
@@ -186,6 +193,17 @@ func _assist_target(from: Vector2, dir: Vector2, cone: float = AIM_ASSIST_ANGLE)
 			best = enemy
 	return best
 
+func _nearest_target(from: Vector2) -> Node2D:
+	var best: Node2D = null
+	var best_dist := AIM_ASSIST_RANGE
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if not enemy is Node2D or not _valid_target(enemy, from): continue
+		var d = from.distance_to(enemy.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = enemy
+	return best
+
 func _pad() -> int:
 	var pads = Input.get_connected_joypads()
 	return pads[0] if not pads.is_empty() else 0
@@ -203,6 +221,8 @@ func _bind_gamepad() -> void:
 	_axis("shoot", JOY_AXIS_TRIGGER_RIGHT, 1.0)
 	_axis("attack_melee", JOY_AXIS_TRIGGER_LEFT, 1.0)
 	_button("dash", JOY_BUTTON_A)
+	_key("dash", KEY_SHIFT) # además de Espacio
+	_key("toggle_inventory", KEY_TAB) # además de I: queda cerca de WASD
 	_button("interact", JOY_BUTTON_X)
 	_button("toggle_inventory", JOY_BUTTON_Y)
 	_button("toggle_inventory", JOY_BUTTON_BACK)
@@ -239,6 +259,13 @@ func _button(action: String, button: JoyButton) -> void:
 	_ensure_action(action)
 	var ev = InputEventJoypadButton.new()
 	ev.button_index = button
+	ev.device = -1
+	_add_event(action, ev)
+
+func _key(action: String, key: Key) -> void:
+	_ensure_action(action)
+	var ev = InputEventKey.new()
+	ev.physical_keycode = key
 	ev.device = -1
 	_add_event(action, ev)
 

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "nitrogeno"
-item_name = "Cilindro de Nitrógeno Líquido"
+item_name = "Nitrógeno"
 icon = ExtResource("1_tex")
 stats = {
 "slow_chance": 0.3

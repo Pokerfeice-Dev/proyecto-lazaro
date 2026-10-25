@@ -9,7 +9,7 @@ class_name HolyFireTongue
 ## La maneja el jugador (player.gd): HolyFireTongue.spawn(enemigo, daño) / attach().
 
 const SHEET := preload("res://Art/Effects/HolyFire/statuseffect_firetongue_spritesheet.png")
-const SPIT_SOUND := preload("res://Audio/Sfx/Flamethrower_sfx.mp3")
+const SPIT_SOUND := preload("res://Audio/Sfx/IA/lengua_escupe.wav") # lengua que escupe fuego (antes, el lanzallamas)
 const FRAMES := 4
 const FPS := 10.0
 const SPIT_INTERVAL := 1.2

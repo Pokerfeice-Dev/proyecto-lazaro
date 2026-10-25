@@ -6,14 +6,14 @@ Las escenas están en `Scenes/Enemies/Crypt/`. Todas heredan `crypt_enemy_base.t
 
 | Escena | Comportamiento | Componente propio |
 | --- | --- | --- |
-| CryptGargoyle | Persigue y golpea; anticipa la petrificación, bloquea daño y empuje durante 2 segundos, luego queda vulnerable. | Corazón pétreo |
-| CryptGhoul | Persigue; acelera cuando **el jugador le da la espalda** y recupera su velocidad normal al enfrentarlo. | Tendón necrótico |
+| CryptGargoyle | Persigue y golpea; anticipa la petrificación, bloquea daño y empuje durante 2 segundos, luego queda vulnerable. | Corazón de Piedra |
+| CryptGhoul | Persigue; acelera cuando **el jugador le da la espalda** y recupera su velocidad normal al enfrentarlo. | Tendón |
 | CryptCentipede | Anticipa un cono fijo y descarga gas. El veneno se renueva sin acumular instancias y termina al expirar su duración. | Glándula tóxica |
-| CryptDeathSquad | Fija una dirección y dispara tres proyectiles consecutivos, separados por 0,16 segundos. | Placa funeraria |
+| CryptDeathSquad | Fija una dirección y dispara tres proyectiles consecutivos, separados por 0,16 segundos. | Lápida |
 | CryptLaserEye | Inmóvil. Sigue al jugador durante la carga inicial; fija la línea durante los últimos 0,55 segundos antes del rayo. Las paredes bloquean el rayo. | Lente sepulcral |
-| CryptDeadBeekeeperSummoner | Invoca hasta tres abejas tiradoras; al morir elimina su enjambre. Las invocaciones no generan botín. | Panal cadavérico |
-| CryptBellKeeper | Tres campanadas marcan posiciones sucesivas del jugador; cada eco estalla un segundo después. Luego se detiene durante la recuperación. Al morir cancela sus ecos pendientes. | Badajo de Réquiem |
-| CryptFleshBee | Se acerca, anticipa y dispara un proyectil. | Mandíbula carnívora, disponible como recurso para variantes no invocadas |
+| CryptDeadBeekeeperSummoner | Invoca hasta tres abejas tiradoras; al morir elimina su enjambre. Las invocaciones no generan botín. | Panal Podrido |
+| CryptBellKeeper | Tres campanadas marcan posiciones sucesivas del jugador; cada eco estalla un segundo después. Luego se detiene durante la recuperación. Al morir cancela sus ecos pendientes. | Badajo |
+| CryptFleshBee | Se acerca, anticipa y dispara un proyectil. | Mandíbula, disponible como recurso para variantes no invocadas |
 
 Los componentes están en `Art/Items/Crypt/`, como recursos ItemData con íconos SVG provisionales. Los enemigos principales tienen 18% de probabilidad base de soltar su componente. Los efectos actuales usan estadísticas que ya soporta el juego; nombres y valores son una primera propuesta de balance. No se añadieron recetas nuevas de sinergias para estos componentes.
 

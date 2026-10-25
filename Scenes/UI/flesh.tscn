@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://b06510pa6633t" path="res://Art/Flesh/Flesh_icon.png" id="2_bhe41"]
 [ext_resource type="Texture2D" uid="uid://evhu5eu2upic" path="res://Art/Lights/Cyan_light.png" id="3_52gp0"]
 [ext_resource type="Texture2D" uid="uid://wpoydryyg0w8" path="res://Art/Scrap/atlas_56a.png" id="4_o0mdh"]
-[ext_resource type="AudioStream" uid="uid://b4mpemoojpkon" path="res://Art/Scrap/Scrap_snd.wav" id="5_o4a1k"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/recoger_carne.wav" id="5_o4a1k"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="6_shadow"]
 
 

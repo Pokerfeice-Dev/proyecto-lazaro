@@ -90,7 +90,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if get_tree().current_scene:
 		is_debug = "debug" in get_tree().current_scene.name.to_lower()
 		
-	if GameData.debug_god_mode or is_debug:
+	if GameData.cheats_enabled() and (GameData.debug_god_mode or is_debug):
 		_handle_weapon_switch_keys(event.keycode)
 
 func _handle_weapon_switch_keys(keycode: int) -> void:

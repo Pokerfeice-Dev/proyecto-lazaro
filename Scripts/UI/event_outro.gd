@@ -35,6 +35,7 @@ static func is_showing() -> bool:
 
 static func play(on_done: Callable) -> void:
 	_showing = true
+	RunLog.screen("QR opinión")
 	var w = UIWindow.open("  ¿QUÉ TE PARECIÓ?", ICON_INFO, 820.0)
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 28)
@@ -50,6 +51,7 @@ static func play(on_done: Callable) -> void:
 
 static func _show_more(on_done: Callable) -> void:
 	var w = UIWindow.open("  ESTO ES SOLO EL COMIENZO", ICON_INFO, 1260.0)
+	RunLog.screen("Video e itch.io")
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 28)
 	w.body.add_child(row)
@@ -73,6 +75,7 @@ static func _show_more(on_done: Callable) -> void:
 
 static func _finish(on_done: Callable) -> void:
 	_showing = false
+	RunLog.screens_done()
 	if on_done.is_valid():
 		on_done.call()
 

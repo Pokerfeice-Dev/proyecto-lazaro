@@ -28,6 +28,7 @@ var _inputs: Array = []
 func _ready() -> void:
 	layer = 95
 	_build()
+	UIStyle.enlarge_texts(self)
 	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
 
 # Teclado <-> joystick: vuelve a dibujar las teclas o los botones.

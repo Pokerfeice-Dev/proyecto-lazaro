@@ -43,7 +43,9 @@ func add_flesh(amount: int) -> void:
 	GameData.add_flesh(amount)
 
 func heal(amount: int) -> void:
+	var before = current_health
 	current_health = clampi(current_health + amount, 0, max_health)
+	RunLog.note_heal(current_health - before)
 	health_changed.emit(current_health, max_health)
 
 func apply_upgrade(type: String, value: float) -> void:

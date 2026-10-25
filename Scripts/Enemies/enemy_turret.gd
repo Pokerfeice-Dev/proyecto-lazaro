@@ -46,6 +46,17 @@ func _play_attack_sound() -> void:
 func apply_knockback(_force: float, _direction: Vector2) -> void:
 	pass # Fixed turret does not receive knockback
 
+# Torreta anclada: ni los empujones de otros enemigos la mueven. Se fija donde
+# está en su primer cuadro de física y vuelve ahí después de cada move_and_slide.
+var _anchor := Vector2.INF
+
+func _physics_process(delta: float) -> void:
+	super(delta)
+	if _anchor == Vector2.INF:
+		_anchor = global_position
+	elif global_position != _anchor:
+		global_position = _anchor
+
 func process_movement(delta: float) -> void:
 	velocity = Vector2.ZERO
 	if is_dying: return

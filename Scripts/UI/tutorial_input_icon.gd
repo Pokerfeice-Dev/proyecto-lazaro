@@ -5,6 +5,8 @@ class_name TutorialInputIcon
 ## loop para mostrar qué hay que tocar. El mouse ilumina el botón que corresponde.
 ## Con joystick se dibuja el botón equivalente (W/A/S/D -> analógico izq.,
 ## ESPACIO -> A, MOUSE_L -> RT, MOUSE_R -> LT; ver InputMode).
+## "MOUSE_MOVE" es el mouse moviéndose (apuntar; con joystick, el analógico derecho).
+## Con animate = false queda quieto (para el HUD).
 ## Uso: TutorialInputIcon.create("W"), create("MOUSE_L"), create("ESPACIO")
 ## Para armar una fila: TutorialInputIcon.for_mode(teclas) saca los repetidos
 ## (con joystick, W A S D son un solo analógico).
@@ -13,6 +15,7 @@ const PRESS_EVERY := 1.4
 
 var key := ""
 var press_delay := 0.0
+var animate := true
 var _time := 0.0
 var _pressed := 0.0
 
@@ -48,6 +51,11 @@ static func _base_size(p_key: String) -> Vector2:
 	return Vector2(maxf(48.0, 16.0 + p_key.length() * 16.0), 48)
 
 func _process(delta: float) -> void:
+	if not animate:
+		if _pressed != 0.0:
+			_pressed = 0.0
+			queue_redraw()
+		return
 	_time += delta
 	var t = fmod(_time + PRESS_EVERY - press_delay, PRESS_EVERY)
 	_pressed = 1.0 if t < 0.22 else 0.0
@@ -57,6 +65,8 @@ func _draw() -> void:
 	var pad = InputMode.pad_label(key)
 	if InputMode.is_gamepad() and pad != key:
 		PadGlyph.draw_button(self, Rect2(Vector2.ZERO, size), pad, _pressed)
+	elif key == "MOUSE_MOVE":
+		_draw_mouse_move()
 	elif key.begins_with("MOUSE"):
 		_draw_mouse(key == "MOUSE_L")
 	else:
@@ -101,3 +111,22 @@ func _draw_mouse(left: bool) -> void:
 	if _pressed > 0.0:
 		var c = button.get_center()
 		draw_arc(c, 14.0, 0.0, TAU, 20, Color(UIStyle.COLOR_GOLD, 0.7), 2.0)
+
+# Mouse que se mueve de lado a lado, con flechitas: apuntar.
+func _draw_mouse_move() -> void:
+	var w = size.x
+	var h = size.y
+	var shift = sin(_time * 4.0) * w * 0.12 if animate else 0.0
+	var body = StyleBoxFlat.new()
+	body.bg_color = Color("#23353B")
+	body.border_color = UIStyle.COLOR_TEAL
+	body.set_border_width_all(2)
+	body.set_corner_radius_all(int(w * 0.45))
+	draw_style_box(body, Rect2(Vector2(shift, 0), size))
+	draw_line(Vector2(w / 2.0 + shift, 3), Vector2(w / 2.0 + shift, h * 0.45), UIStyle.COLOR_TEAL, 2.0)
+	var c = Vector2(w / 2.0, h + 6.0)
+	for side in [-1.0, 1.0]:
+		var tip = c + Vector2(side * w * 0.55, 0)
+		draw_line(c + Vector2(side * w * 0.2, 0), tip, UIStyle.COLOR_GOLD, 2.0)
+		draw_line(tip, tip + Vector2(-side * 6, -5), UIStyle.COLOR_GOLD, 2.0)
+		draw_line(tip, tip + Vector2(-side * 6, 5), UIStyle.COLOR_GOLD, 2.0)

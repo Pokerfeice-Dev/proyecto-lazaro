@@ -1,0 +1,87 @@
+>>> IMAGEN: logo_titulo_640.png (carpeta pagina)
+
+Eres Lázaro, un experimento hecho de piezas. Sal del laboratorio, abre fuego contra todo lo que se mueva y arma tu propio arsenal con lo que les arrancas a tus enemigos. Cada partida es distinta: salas al azar, objetos al azar y jefes que no perdonan.
+
+FRANKEN-GUN está en BETA. Es una versión en desarrollo: puede haber errores, arte provisorio y cambios de balance. ¡Tu opinión nos ayuda muchísimo! Déjanos un comentario abajo.
+
+>>> IMAGEN: combate_oil_of_the_sick.gif (carpeta gifs)
+
+>>> IMAGEN: sobre_el_juego.png (carpeta secciones)
+
+FRANKEN-GUN es un roguelike de acción con vista desde arriba. Combinas un arma a distancia y una cuerpo a cuerpo, esquivas con el dash y te abres paso sala por sala hasta el jefe de cada zona.
+
+Lo que encuentras en el camino se instala en tu cuerpo y en tus armas. Con las piezas correctas, el arma muta en algo nuevo: una pistola que dispara abejas, una escopeta de tres cabezas que escupe fuego, un hacha bañada en gasolina...
+
+Si caes, vuelves al laboratorio con la chatarra que juntaste para mejorar a Lázaro en O.M.N.I.A. y volver a intentarlo.
+
+>>> IMAGEN: sinergia_avalanche.gif (carpeta gifs)
+
+>>> IMAGEN: caracteristicas.png (carpeta secciones)
+
+- 6 armas base: Pistola, Uzi y Escopeta a distancia; Daga, Hacha y Maza cuerpo a cuerpo.
+- 15 sinergias por descubrir: junta las tres piezas correctas y tu arma se transforma. Nadie te dice cuáles son.
+- Partes del cuerpo: torsos, brazos y piernas que cambian cómo juegas. Ojo: cambiar una pieza la destruye para siempre.
+- 3 zonas: el Distrito Asphodel, una ciudad en ruinas tomada por androides; La Cripta; y El Núcleo.
+- 3 jefes: Centinela Génesis, El Primogénito y Prometeo, tu reflejo más oscuro.
+- O.M.N.I.A.: mejoras permanentes entre partidas con la chatarra que recolectas.
+- Códice: guarda cada enemigo, objeto y sinergia que vas descubriendo.
+- Joystick: se detecta solo y toda la interfaz se maneja con el control.
+- Banda sonora original.
+
+>>> IMAGEN: jefe_centinela.gif (carpeta gifs)
+
+>>> IMAGEN: controles.png (carpeta secciones)
+
+>>> IMAGEN: controles_960x640.png (carpeta pagina)
+
+Moverse: W A S D · Stick izquierdo
+Apuntar: Mouse · Stick derecho
+Disparar: Clic izquierdo · RT
+Cuerpo a cuerpo: Clic derecho · LT
+Dash: Espacio o Shift · A
+Interactuar: E · X
+Inventario: I o Tab · Y
+Soltar objeto (en el inventario): Q · Cruceta arriba
+Pausa: Esc · Start
+
+Joystick: para jugar con joystick, conéctalo y toca cualquier botón: los íconos del juego cambian solos.
+Recomendado: Chrome o Edge en PC, y el botón de pantalla completa (abajo a la derecha del juego).
+
+>>> IMAGEN: la_cripta.gif (carpeta gifs)
+
+>>> IMAGEN: beta.png (carpeta secciones)
+
+Esta beta incluye las tres zonas y sus jefes, pero el juego sigue en desarrollo:
+
+- Algunos enemigos de las zonas 2 y 3 todavía tienen arte provisorio.
+- Puede haber errores y el balance va a cambiar entre versiones.
+- Tu progreso se guarda en el navegador: si borras los datos del sitio, se pierde.
+
+¿Encontraste un error o tienes una idea? Escríbenos en los comentarios. Leemos todo.
+
+>>> IMAGEN: jefe_prometeo.gif (carpeta gifs)
+
+>>> IMAGEN: equipo.png (carpeta secciones)
+
+Hecho por KidGunz:
+
+- [NOMBRE] — [ROL]
+- [NOMBRE] — [ROL]
+- [NOMBRE] — Arte
+- Marcos Amigorena — Música y diseño de sonido
+
+Hecho con Godot Engine.
+
+>>> IMAGEN: english.png (carpeta secciones)
+
+You are Lázaro, an experiment made of parts. Blast your way out of the lab, rip pieces off your enemies and build your own arsenal. FRANKEN-GUN is a top-down action roguelike: pick a ranged and a melee weapon, dash through randomized rooms and take down the boss of each zone.
+
+- 6 base weapons and 15 hidden synergies: find the right three parts and your weapon mutates.
+- Body parts that change how you play (swapping one destroys it forever).
+- 3 zones and 3 bosses, all the way to Prometeo, your darkest reflection.
+- Permanent upgrades between runs in O.M.N.I.A.
+- Full gamepad support, detected automatically.
+
+Controls: WASD move · Mouse aim · Left click shoot · Right click melee · Space or Shift dash · E interact · I or Tab inventory · Esc pause. Gamepad: left stick move, right stick aim, RT shoot, LT melee, A dash, X interact, Y inventory, Start pause.
+
+This is a BETA: expect bugs, placeholder art and balance changes. The game is in Spanish for now. Feedback in the comments is very welcome!

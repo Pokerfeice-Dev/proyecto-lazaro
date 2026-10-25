@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_script")
 id = "sierra_circular"
-item_name = "Sierra Circular"
+item_name = "Sierra"
 icon = ExtResource("1_tex")
 stats = {
 "crit_damage": 0.2,

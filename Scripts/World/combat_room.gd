@@ -92,10 +92,19 @@ func _is_crypt_room() -> bool:
 	return GameData.current_level == 2 or get_scene_file_path().get_file().begins_with("Level2_")
 
 func _ensure_room_music_bus() -> void:
+	_keep_music_playing(get_node_or_null("Ygor_music") as AudioStreamPlayer)
 	var boss_music = get_node_or_null("Boss_Fight_Music") as AudioStreamPlayer
 	if not boss_music: return
 	boss_music.bus = "Music"
 	boss_music.process_mode = Node.PROCESS_MODE_ALWAYS # sigue sonando con el inventario abierto
+
+# La música de la tienda de Ygor se cortaba al abrir el inventario (pausa el juego).
+func _keep_music_playing(music: AudioStreamPlayer) -> void:
+	if not music: return
+	music.bus = "Music"
+	music.process_mode = Node.PROCESS_MODE_ALWAYS
+	if music.stream and "loop" in music.stream:
+		music.stream.loop = true
 
 func _init_adaptive_music() -> void:
 	var start_area = get_node_or_null("Area_entered")

@@ -16,11 +16,34 @@ var dialogue_lines: Array[String] = [
 	"La carne es la única moneda que importa en estos laboratorios.",
 	"Mira mis hologramas. Modifica tu cuerpo antes de que la infección lo haga por ti.",
 	"No confíes en las máquinas de este lugar... solo confía en el acero que lleves pegado a los huesos.",
-	"El Centinela Génesis no tolerará tu presencia por mucho tiempo. Prepárate."
+	"El Centinela Génesis no tolerará tu presencia por mucho tiempo. Prepárate.",
+	"¿Ves la máquina roja? Te remienda la carne... y cada vez cobra un poco más. Así es el negocio.",
+	"La máquina de la suerte es honesta: a veces te da algo, a veces te da nada. Como la vida misma.",
+	"¿Mochila llena? Échale tus porquerías a la recicladora. Yo pago en carne, no en sentimientos.",
 ]
+
+## Comentarios cortos que Ygor suelta (sobre su cabeza) cuando usas sus máquinas
+const QUIPS := {
+	"vida": ["Así me gusta, bien remendado.", "Cada parche sale más caro, espécimen.", "Otra costura más... ya pareces un mapa."],
+	"vida_llena": ["Estás entero. No vendo salud a quien no la necesita... bueno, sí, pero hoy no."],
+	"azar_nada": ["Jeje. La casa siempre gana.", "Mala suerte. Prueba otra vez... insisto.", "Nada. Qué pena. Para ti."],
+	"azar_premio": ["¡Vaya! Esa máquina no suele ser tan generosa.", "Disfrútalo. No va a pasar seguido."],
+	"azar_rota": ["Rompiste mi máquina. Ya no da más premios, codicioso."],
+	"reciclaje": ["Mm, chatarra con olor a carne. Me sirve.", "Todo se aprovecha en este laboratorio.", "Gracias por la donación."],
+	"mochila_llena": ["Tu mochila no da para más. Suelta algo con Q... o recicla."],
+}
+var _quip_label: Label = null
+var _quip_cooldown := 0.0
 var current_dialogue_index: int = -1
 
+## Máquinas de la tienda: posición relativa a Ygor según la sala
+const MACHINE_KINDS := ["vida", "azar", "reciclaje"]
+const MACHINE_OFFSETS := [Vector2(-88, 184), Vector2(0, 184), Vector2(88, 184)]
+const MACHINE_OFFSETS_YGOR2 := [Vector2(-128, 102), Vector2(0, 102), Vector2(128, 102)]
+
 func _ready() -> void:
+	add_to_group("ygor")
+	call_deferred("_spawn_machines")
 	interact_area.body_entered.connect(_on_body_entered)
 	interact_area.body_exited.connect(_on_body_exited)
 	_setup_interact_label()
@@ -30,6 +53,53 @@ func _ready() -> void:
 	dialogue_box.closed.connect(_on_dialogue_closed)
 	_setup_shadow()
 	anim_sprite.play("idle")
+
+func _process(delta: float) -> void:
+	_quip_cooldown = maxf(0.0, _quip_cooldown - delta)
+
+## Una máquina avisa qué pasó; Ygor a veces lo comenta (siempre la primera vez).
+func comment(kind: String, always: bool = false) -> void:
+	if not QUIPS.has(kind): return
+	if _quip_cooldown > 0.0 and not always: return
+	if not always and randf() > 0.6: return
+	_quip_cooldown = 4.0
+	_show_quip(QUIPS[kind].pick_random())
+
+func _show_quip(text: String) -> void:
+	if is_instance_valid(_quip_label): _quip_label.queue_free()
+	var l = UIStyle.label(text, 22, Color(0.55, 0.95, 1.0))
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
+	l.add_theme_constant_override("outline_size", 6)
+	l.size = Vector2(520, 0)
+	l.scale = Vector2(0.4, 0.4)
+	l.position = Vector2(-104, -78)
+	l.z_index = 70
+	add_child(l)
+	_quip_label = l
+	l.modulate.a = 0.0
+	var t = l.create_tween()
+	t.tween_property(l, "modulate:a", 1.0, 0.2)
+	t.tween_interval(2.8)
+	t.tween_property(l, "modulate:a", 0.0, 0.4)
+	t.tween_callback(l.queue_free)
+
+func _spawn_machines() -> void:
+	var room = get_parent()
+	if not room or room.get_node_or_null("YgorMachines"): return
+	var holder = Node2D.new()
+	holder.name = "YgorMachines"
+	room.add_child(holder)
+	var offsets = MACHINE_OFFSETS_YGOR2 if _room_file().contains("Ygor2") else MACHINE_OFFSETS
+	for i in MACHINE_KINDS.size():
+		var m = YgorMachine.create(MACHINE_KINDS[i])
+		m.position = position + offsets[i]
+		holder.add_child(m)
+
+func _room_file() -> String:
+	var room = owner if owner else get_parent()
+	return room.scene_file_path if room else ""
 
 func _portrait() -> Texture2D:
 	var atlas = AtlasTexture.new()

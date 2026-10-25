@@ -33,6 +33,8 @@ func _handle_wall_bounce() -> void:
 		return
 	_bounce_off_wall()
 
+const BOUNCE_SOUND := preload("res://Audio/Sfx/IA/roadkill_rebote.wav")
+
 func _bounce_off_wall() -> void:
 	var space_state = get_world_2d().direct_space_state
 	var from_pos = global_position - direction * 15.0
@@ -46,6 +48,7 @@ func _bounce_off_wall() -> void:
 
 func _apply_bounce_result(result: Dictionary) -> void:
 	_spawn_wall_sparks()
+	Sfx.play_at(BOUNCE_SOUND, global_position, -3.0)
 	if result.is_empty():
 		_fallback_bounce()
 		return

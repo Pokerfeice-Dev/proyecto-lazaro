@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://fhyiowu84lf4" path="res://Scripts/Weapon/weapon.gd" id="1_qekul"]
 [ext_resource type="Texture2D" uid="uid://cp6ft2xsq3kti" path="res://Art/Weapons/Distance/Pistol/weapon_revolver_sprite.png" id="2_02r8m"]
-[ext_resource type="AudioStream" uid="uid://c5q4fa5a8mr7i" path="res://Audio/Sfx/Bullets/762x39 Single Isolated WAV.wav" id="3_4slri"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/disparo_pistola.wav" id="3_4slri"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_mkhcp"]
 animations = [{

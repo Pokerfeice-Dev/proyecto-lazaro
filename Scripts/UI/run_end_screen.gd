@@ -86,6 +86,7 @@ func _ready() -> void:
 	else:
 		_fill_rows()
 	PadFocus.push_modal(self, _button) # con joystick el botón arranca enfocado
+	RunLog.screen("Resultado")
 	_animate_in()
 
 func _input(event: InputEvent) -> void:
@@ -330,6 +331,8 @@ func _on_demo_continue() -> void:
 	# en el evento: QR de opinión y video de lo que falta ver
 	if EventOutro.should_show():
 		EventOutro.play(Callable())
+	else:
+		RunLog.screens_done()
 
 func _on_demo_menu() -> void:
 	if _leaving: return
@@ -339,6 +342,7 @@ func _on_demo_menu() -> void:
 	if EventOutro.should_show():
 		EventOutro.play(SceneTransition.change_scene.bind("res://Scenes/UI/MainMenu.tscn"))
 	else:
+		RunLog.screens_done()
 		SceneTransition.change_scene("res://Scenes/UI/MainMenu.tscn")
 
 func _on_return() -> void:
@@ -364,4 +368,5 @@ func _leave() -> void:
 	if outro:
 		EventOutro.play(SceneTransition.change_scene.bind(next_scene))
 	else:
+		RunLog.screens_done()
 		SceneTransition.change_scene(next_scene)

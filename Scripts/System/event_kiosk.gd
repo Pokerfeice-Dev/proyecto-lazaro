@@ -81,6 +81,8 @@ func _reset_to_menu() -> void:
 	_resetting = true
 	_hide_toast()
 	RunLog.finish("inactividad")
+	RunLog.new_player()
+	GameData.show_title_screen = true # el que viene arranca en "Presiona cualquier botón"
 	_close_overlays()
 	get_tree().paused = false
 	Engine.time_scale = 1.0

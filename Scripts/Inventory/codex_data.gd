@@ -145,14 +145,14 @@ const DATA = {
 		}
 	},
 	"items": {
-		"badajo_requiem": {"name": "Badajo de Réquiem", "lore": "Badajo de la campana del Campanero de Réquiem. Todavía vibra con cada golpe.", "stats": "+30% daño crítico", "icon": preload("res://Art/Items/Crypt/badajo_requiem.png")},
-		"corazon_petreo": {"name": "Corazón pétreo", "lore": "Núcleo de piedra que late dentro de cada Gárgola. Endurece los golpes de quien lo lleva.", "stats": "+15% daño", "icon": preload("res://Art/Items/Crypt/corazon_petreo.png")},
-		"tendon_necrotico": {"name": "Tendón necrótico", "lore": "Tendón del Ghoul, elástico aun después de muerto. Acelera los movimientos del arma.", "stats": "+15% cadencia", "icon": preload("res://Art/Items/Crypt/tendon_necrotico.png")},
+		"badajo_requiem": {"name": "Badajo", "lore": "Badajo de la campana del Campanero de Réquiem. Todavía vibra con cada golpe.", "stats": "+30% daño crítico", "icon": preload("res://Art/Items/Crypt/badajo_requiem.png")},
+		"corazon_petreo": {"name": "Corazón de Piedra", "lore": "Núcleo de piedra que late dentro de cada Gárgola. Endurece los golpes de quien lo lleva.", "stats": "+15% daño", "icon": preload("res://Art/Items/Crypt/corazon_petreo.png")},
+		"tendon_necrotico": {"name": "Tendón", "lore": "Tendón del Ghoul, elástico aun después de muerto. Acelera los movimientos del arma.", "stats": "+15% cadencia", "icon": preload("res://Art/Items/Crypt/tendon_necrotico.png")},
 		"glandula_toxica": {"name": "Glándula tóxica", "lore": "Glándula de gas del Ciempiés tóxico. Concentrada, vuelve letales los impactos críticos.", "stats": "+25% daño crítico", "icon": preload("res://Art/Items/Crypt/glandula_toxica.png")},
-		"placa_funeraria": {"name": "Placa funeraria", "lore": "Placa de identificación de un soldado del Escuadrón de la muerte. Pesa más de lo que parece.", "stats": "+18% daño", "icon": preload("res://Art/Items/Crypt/placa_funeraria.png")},
+		"placa_funeraria": {"name": "Lápida", "lore": "Placa de identificación de un soldado del Escuadrón de la muerte. Pesa más de lo que parece.", "stats": "+18% daño", "icon": preload("res://Art/Items/Crypt/placa_funeraria.png")},
 		"lente_sepulcral": {"name": "Lente sepulcral", "lore": "Cristalino del Ojo torreta. Enfoca los disparos hasta atravesar a un enemigo más.", "stats": "+1 perforación", "icon": preload("res://Art/Items/Crypt/lente_sepulcral.png")},
-		"panal_cadaverico": {"name": "Panal cadavérico", "lore": "Trozo de la colmena podrida de la Apicultora muerta. Sus celdas guían los disparos hacia los puntos débiles.", "stats": "+12% prob. crítica", "icon": preload("res://Art/Items/Crypt/panal_cadaverico.png")},
-		"mandibula_carnivora": {"name": "Mandíbula carnívora", "lore": "Mandíbula de una Abeja carnívora. Desgarra la carne en los impactos críticos.", "stats": "+15% daño crítico", "icon": preload("res://Art/Items/Crypt/mandibula_carnivora.png")},
+		"panal_cadaverico": {"name": "Panal Podrido", "lore": "Trozo de la colmena podrida de la Apicultora muerta. Sus celdas guían los disparos hacia los puntos débiles.", "stats": "+12% prob. crítica", "icon": preload("res://Art/Items/Crypt/panal_cadaverico.png")},
+		"mandibula_carnivora": {"name": "Mandíbula", "lore": "Mandíbula de una Abeja carnívora. Desgarra la carne en los impactos críticos.", "stats": "+15% daño crítico", "icon": preload("res://Art/Items/Crypt/mandibula_carnivora.png")},
 
 		"torso_blindado": {
 			"name": "Torso Musculoso",
@@ -209,73 +209,73 @@ const DATA = {
 			"icon": preload("res://Art/Items/Player/Arms/Item4_BrazoArmado.png")
 		},
 		"mezcladora": {
-			"name": "Licuadora Mezcladora",
+			"name": "Licuadora",
 			"lore": "Dispositivo para procesar tejidos mutados y obtener fluidos estabilizados.",
 			"stats": "+5 Daño, +30 Empuje, -50 Vel. Proyectil",
 			"icon": preload("res://Art/Items/Weapons/Item1_Mezcladora.png")
 		},
 		"aguijon_mecanico": {
-			"name": "Aguijón Mecánico",
+			"name": "Aguijón",
 			"lore": "Componente ofensivo que inyecta neurotoxinas desestabilizadoras.",
 			"stats": "+1 Perforación, +50 Vel. Proyectil, -1 Daño",
 			"icon": preload("res://Art/Items/Weapons/Item2_AguijonMecanico.png")
 		},
 		"cerebro": {
-			"name": "Cerebro Sintético",
+			"name": "Cerebro",
 			"lore": "Un procesador bio-orgánico que asiste en los algoritmos de disparo del arma.",
 			"stats": "-5 Dispersión, +1.0s Tiempo de Vida",
 			"icon": preload("res://Art/Items/Weapons/Item3_Cerebro.png")
 		},
 		"cabeza_de_perro": {
-			"name": "Cabeza de Sabueso Metálica",
+			"name": "Cabeza de Perro",
 			"lore": "Reliquia de combate cibernética que infunde ferocidad defensiva.",
 			"stats": "+1 Proyectiles, +10% Vel. Ataque, +5 Dispersión",
 			"icon": preload("res://Art/Items/Weapons/Item4_CabezaDePerro.png")
 		},
 		"pulmones": {
-			"name": "Pulmones Bio-Asistidos",
+			"name": "Pulmones",
 			"lore": "Implante pulmonar artificial que optimiza el flujo de oxígeno bajo estrés de combate.",
 			"stats": "+20% Vel. Ataque, +50 Empuje",
 			"icon": preload("res://Art/Items/Weapons/Item5_Pulmones.png")
 		},
 		"motocicleta": {
-			"name": "Núcleo de Motocicleta",
+			"name": "Motocicleta",
 			"lore": "Micro-motor de combustión adaptado para forzar la potencia del armamento.",
 			"stats": "+30% Vel. Ataque, -2 Daño",
 			"icon": preload("res://Art/Items/Weapons/Item6_Motocicleta.png")
 		},
 		"colmena": {
-			"name": "Colmena Bio-Mecánica",
+			"name": "Colmena",
 			"lore": "Un enjambre artificial encapsulado capaz de liberar micro-drones defensivos.",
 			"stats": "+10% Prob. Crítico",
 			"icon": preload("res://Art/Items/Weapons/Item7_Colmena.png")
 		},
 		"cabeza_humana": {
-			"name": "Cabeza Humana Preservada",
+			"name": "Cabeza Humana",
 			"lore": "Un cerebro intacto suspendido en solución de nutrientes, optimizando la concentración táctica.",
 			"stats": "+1 Proyectiles, -15% Multiplicador de Daño",
 			"icon": preload("res://Art/Items/Weapons/Item8_CabezaHumana.png")
 		},
 		"sierra_circular": {
-			"name": "Sierra Circular",
+			"name": "Sierra",
 			"lore": "Un disco de acero dentado de alta velocidad para cortar metal y carne.",
 			"stats": "+20% Multiplicador de Daño, +20% Daño Crítico",
 			"icon": preload("res://Art/Items/Weapons/Item9_SierraCircular.png")
 		},
 		"bateria": {
-			"name": "Batería de Alto Voltaje",
+			"name": "Batería",
 			"lore": "Condensador químico altamente inestable. Sobrecarga las balas con descargas eléctricas capaces de paralizar sistemas nerviosos y circuitos por 1 segundo.",
 			"stats": "+10% Probabilidad de Stun (1s), Proyectil Eléctrico Azul",
 			"icon": preload("res://Art/Items/Weapons/Item10_Bateria.png")
 		},
 		"gasolina": {
-			"name": "Bidón de Gasolina",
+			"name": "Gasolina",
 			"lore": "Combustible refinado altamente inflamable. Impregna los disparos para prender fuego a los objetivos durante 3 segundos.",
 			"stats": "+20% Probabilidad de Quemadura (3s), Proyectil Ígneo Rojo",
 			"icon": preload("res://Art/Items/Weapons/Item11_Gasolina.png")
 		},
 		"nitrogeno": {
-			"name": "Cilindro de Nitrógeno Líquido",
+			"name": "Nitrógeno",
 			"lore": "Cápsula criogénica a presión extrema. Congela parcialmente las articulaciones del enemigo al impacto, reduciendo su velocidad a la mitad durante 3 segundos.",
 			"stats": "+30% Probabilidad de Ralentización (3s), Proyectil Glacial Celeste",
 			"icon": preload("res://Art/Items/Weapons/Item12_Nitrogeno.png")

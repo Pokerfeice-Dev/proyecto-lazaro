@@ -3,8 +3,10 @@ class_name PadFocus
 
 ## Navegación de menús con joystick (lo crea InputMode, no hace falta ponerlo
 ## en ninguna escena):
-## - Marco dorado que late alrededor del control con foco, solo con joystick
-##   (con mouse no se ve; muchos botones no tienen estilo de foco propio).
+## - El control con foco se marca igual que cuando le pasas el mouse por
+##   encima (el celeste de los botones). Si el control no tiene ningún estilo
+##   de "hover" ni reacciona al foco, se dibuja un marco celeste de respaldo.
+##   Solo con joystick.
 ## - Si un menú se abre sin nada enfocado, la primera vez que mueves el
 ##   analógico o la cruceta enfoca el primer botón del menú de más arriba.
 ##   Solo con el juego en pausa o en menús sin jugador, para no robar
@@ -19,7 +21,7 @@ class_name PadFocus
 ##   la ventana) y al cerrarla vuelve a donde estaba en la ventana de abajo.
 ##   Se saca sola al salir del árbol, o con pop_modal(ventana).
 
-const RING_COLOR := Color("#F4C45E")
+const RING_COLOR := Color("#52D8C6")
 const RING_PAD := 4.0
 const SCROLL_SPEED := 900.0
 const SCROLL_DEADZONE := 0.35
@@ -35,6 +37,8 @@ var _rect := Rect2()
 var _has_target := false
 var _scroll_rest := 0.0 # parte fraccionaria del desplazamiento con el analógico
 var _stick_moving := false
+var _styled: Control # botón al que se le prestó el estilo de hover como foco
+var _ring_needed := false
 
 func _ready() -> void:
 	_self = self
@@ -52,6 +56,9 @@ func _ready() -> void:
 func _on_mode_changed(gamepad: bool) -> void:
 	if gamepad:
 		_keep_focus_inside()
+		_style_focus(get_viewport().gui_get_focus_owner())
+	else:
+		_restore_style()
 
 # --- Ventanas modales ---
 
@@ -84,8 +91,10 @@ static func _top() -> Variant:
 	return null
 
 func _on_focus_changed(control: Control) -> void:
-	if InputMode.is_gamepad() and not _stick_moving:
-		_reveal.call_deferred(control)
+	if InputMode.is_gamepad():
+		_style_focus(control)
+		if not _stick_moving:
+			_reveal.call_deferred(control)
 	var top = _top()
 	if top == null: return
 	if top.root.is_ancestor_of(control):
@@ -131,8 +140,8 @@ func _search_root() -> Node:
 func _process(delta: float) -> void:
 	_time += delta
 	var target = get_viewport().gui_get_focus_owner() if InputMode.is_gamepad() else null
-	_has_target = target != null and target.is_visible_in_tree()
-	if _has_target:
+	_has_target = target != null and target.is_visible_in_tree() and _ring_needed
+	if target and target.is_visible_in_tree():
 		_rect = _screen_rect(target).grow(RING_PAD)
 		_scroll_with_stick(target, delta)
 	_ring.queue_redraw()
@@ -148,6 +157,54 @@ func _draw_ring() -> void:
 	box.shadow_color = Color(RING_COLOR, 0.25 * pulse)
 	box.shadow_size = 6
 	_ring.draw_style_box(box, _rect)
+
+# --- Marca del foco ---
+
+# Con joystick el foco se ve como el hover del mouse: al botón enfocado se le
+# presta su estilo de hover como estilo de foco mientras lo tenga.
+func _style_focus(control: Control) -> void:
+	_restore_style()
+	_ring_needed = false
+	if not is_instance_valid(control): return
+	if control.has_meta("pad_ring"): # el control pide (o no) el marco a mano
+		_ring_needed = control.get_meta("pad_ring")
+		return
+	if control is Button:
+		if _visible_box(control.get_theme_stylebox("focus")): return
+		var hover = control.get_theme_stylebox("hover")
+		if _visible_box(hover):
+			var had = control.has_theme_stylebox_override("focus")
+			control.set_meta("pad_focus_prev", control.get_theme_stylebox("focus") if had else null)
+			control.add_theme_stylebox_override("focus", hover)
+			_styled = control
+			return
+	elif control is TextureButton:
+		if control.texture_focused: return
+		if control.texture_hover:
+			control.set_meta("pad_focus_prev", null)
+			control.texture_focused = control.texture_hover
+			_styled = control
+			return
+	# ya cambia de aspecto por su cuenta al recibir el foco (fichas, slots...)
+	if not control.focus_entered.get_connections().is_empty(): return
+	_ring_needed = true
+
+func _restore_style() -> void:
+	if not is_instance_valid(_styled):
+		_styled = null
+		return
+	var prev = _styled.get_meta("pad_focus_prev", null) if _styled.has_meta("pad_focus_prev") else null
+	_styled.remove_meta("pad_focus_prev")
+	if _styled is TextureButton:
+		_styled.texture_focused = null
+	elif prev:
+		_styled.add_theme_stylebox_override("focus", prev)
+	else:
+		_styled.remove_theme_stylebox_override("focus")
+	_styled = null
+
+func _visible_box(box: StyleBox) -> bool:
+	return box != null and not box is StyleBoxEmpty
 
 # Rectángulo del control en pantalla (contando la cámara/escala de su capa).
 func _screen_rect(c: Control) -> Rect2:

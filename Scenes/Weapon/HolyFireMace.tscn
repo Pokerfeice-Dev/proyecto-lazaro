@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://c6o0exugultbm" path="res://Art/Weapons/Melee/Mace/Holyfire/synergy_holyfire_sprite.png" id="1_holy"]
 [ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
-[ext_resource type="AudioStream" uid="uid://cvcs1ic5lga56" path="res://Audio/Sfx/Melee/07_human_atk_sword_3.wav" id="3_sound"]
+[ext_resource type="AudioStream" path="res://Audio/Sfx/IA/sinergia_holy_fire.wav" id="3_sound"]
 [ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
@@ -80,7 +80,6 @@ shape = SubResource("RectangleShape2D_d7jkh")
 
 [node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=1206396683]
 stream = ExtResource("3_sound")
-pitch_scale = 0.4
 
 [node name="attack_fx" type="AnimatedSprite2D" parent="." unique_id=1694405848]
 position = Vector2(32.99801, -28)

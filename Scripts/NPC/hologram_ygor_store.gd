@@ -60,8 +60,9 @@ func _init_default_type_from_name() -> void:
 	_assign_type_by_name()
 
 func _assign_type_by_name() -> void:
+	# la vida ahora se compra aparte, en la máquina de vida (ygor_machine.gd)
 	if name == "Hologram_Ygor_Store":
-		shop_item_type = "Heal"
+		shop_item_type = "WeaponItem"
 	elif name == "Hologram_Ygor_Store2":
 		shop_item_type = "BodyItem"
 	elif name == "Hologram_Ygor_Store3":
@@ -110,9 +111,18 @@ func _setup_heal_visuals() -> void:
 func _setup_random_item(paths: Array[String]) -> void:
 	if chosen_item_data:
 		return
-	var path = paths.pick_random()
+	var path = _pick_unused(paths)
 	chosen_item_data = load(path) as ItemData
 	_apply_item_data_visuals()
+
+# evita que dos hologramas de la misma tienda ofrezcan el mismo objeto
+func _pick_unused(paths: Array) -> String:
+	var taken := []
+	for other in get_tree().get_nodes_in_group("ygor_shop_pedestal"):
+		if other != self and other.chosen_item_data:
+			taken.append(other.chosen_item_data.resource_path)
+	var free = paths.filter(func(p): return not taken.has(p))
+	return (free if not free.is_empty() else paths).pick_random()
 
 func _apply_item_data_visuals() -> void:
 	if not chosen_item_data or not item_sprite:
@@ -204,10 +214,20 @@ func _is_key_e_pressed(event: InputEvent) -> bool:
 	return InputMode.is_interact(event) # E o X del joystick
 
 func _attempt_purchase() -> void:
+	if _inventory_full():
+		player_ref.get_node("Inventory").notify_full()
+		_flash_error_visuals()
+		return
 	if not _has_enough_flesh():
 		_flash_error_visuals()
 		return
 	_complete_purchase()
+
+# con la mochila llena no se venden objetos (la vida sí)
+func _inventory_full() -> bool:
+	if shop_item_type == "Heal" or not player_ref: return false
+	var inv = player_ref.get_node_or_null("Inventory")
+	return inv != null and inv.is_full()
 
 func _has_enough_flesh() -> bool:
 	return GameData.flesh >= cost
@@ -256,6 +276,7 @@ func _give_purchased_item() -> void:
 	if not inv:
 		return
 	inv.add_item(chosen_item_data)
+	RunLog.note_item(chosen_item_data)
 
 func _play_purchase_effects() -> void:
 	var sound = get_tree().get_first_node_in_group("teleport_sfx")
