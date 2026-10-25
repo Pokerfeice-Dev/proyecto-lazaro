@@ -216,9 +216,11 @@ func _setup_player() -> void:
 func _setup_spawn_points() -> void:
 	# Busca puntos de spawn directamente o dentro del contenedor Spawns
 	var spawn_container = get_node_or_null("Spawns")
-	var nodes_to_check: Array = spawn_container.get_children() if spawn_container else get_children()
+	spawn_points.clear()
+	var nodes_to_check: Array = get_children()
+	if spawn_container: nodes_to_check.append_array(spawn_container.get_children())
 	for child in nodes_to_check:
-		if child.name.begins_with("Spawn") and child is Node2D:
+		if child != spawn_container and child.name.begins_with("Spawn") and child is Node2D:
 			spawn_points.append(child)
 
 func _setup_spawn_timer() -> void:

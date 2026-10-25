@@ -82,7 +82,7 @@ func _init_sprite_animation() -> void:
 	anim_sprite.speed_scale = 1.0
 
 func _physics_process(delta: float) -> void:
-	if is_destroyed: return
+	if not _advance_lifetime(delta): return
 	elapsed_time += delta
 	_update_bee_state(delta)
 	_process_motion(delta)

@@ -27,7 +27,7 @@ func _on_mode_changed(gamepad: bool) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN if gamepad else Input.MOUSE_MODE_VISIBLE
 
 func _process(_delta: float) -> void:
-	var player = get_tree().get_first_node_in_group("player") as Node2D
+	var player = GameData.get_player()
 	var active = InputMode.is_gamepad() and player != null and player.is_visible_in_tree() \
 		and not get_tree().paused and not PadFocus.has_modal() and player.has_method("get_aim_position")
 	_sprite.visible = active

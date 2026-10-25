@@ -1,6 +1,8 @@
 extends Node2D
 class_name PrometeoFlameCone
 
+const EnemyNavigation = preload("res://Scripts/World/enemy_navigation.gd")
+
 ## Llamarada del lanzallamas de Prometeo (boss 3): un cono de fuego que el boss
 ## va girando despacio hacia el jugador. Quema por ticks mientras el jugador
 ## esté adentro (el dash lo atraviesa, como cualquier daño).
@@ -43,7 +45,7 @@ func _physics_process(delta: float) -> void:
 
 func _burn_targets() -> void:
 	for body in get_tree().get_nodes_in_group("player"):
-		if _is_inside_cone(body.global_position) and body.has_method("take_damage"):
+		if _is_inside_cone(body.global_position) and body.has_method("take_damage") and _clear_path(body.global_position):
 			body.take_damage(damage, source_name, global_position)
 
 func _is_inside_cone(pos: Vector2) -> bool:
@@ -55,3 +57,8 @@ func _build_particles() -> FlameConeParticles:
 	var p = FlameConeParticles.new()
 	p.set_cone(reach, half_angle_degrees)
 	return p
+
+func _clear_path(pos: Vector2) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(global_position, pos, 5)
+	query.exclude = EnemyNavigation.actor_exclusions(get_tree())
+	return get_world_2d().direct_space_state.intersect_ray(query).is_empty()

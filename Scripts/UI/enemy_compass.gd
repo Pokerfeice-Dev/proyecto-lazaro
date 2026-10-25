@@ -12,6 +12,9 @@ const INACTIVITY_SECONDS: float = 10.0
 var arrows: Array[CompassArrow] = []
 var inactivity_arrow: CompassArrow
 var exit_arrow: CompassArrow
+var _cached_alive_enemies: Array[Node2D] = []
+var _enemy_poll_timer: float = 0.0
+const ENEMY_POLL_INTERVAL: float = 0.12
 
 func _ready() -> void:
 	z_index = 4095
@@ -41,7 +44,7 @@ func _update_compass(delta: float) -> void:
 		_hide_enemy_arrows(delta)
 		_update_exit_arrow(delta)
 		return
-	var alive_enemies = _get_alive_enemies()
+	var alive_enemies = _get_alive_enemies(delta)
 	if not _is_room_eligible():
 		_hide_regular_enemy_arrows(delta)
 		exit_arrow.fade_out(delta)
@@ -87,12 +90,19 @@ func _is_room_eligible() -> bool:
 		return false
 	return true
 
-func _get_alive_enemies() -> Array[Node2D]:
-	var result: Array[Node2D] = []
-	var enemies = get_tree().get_nodes_in_group("enemy")
-	for enemy in enemies:
-		_collect_enemy_if_valid(enemy, result)
-	return result
+func _get_alive_enemies(delta: float) -> Array[Node2D]:
+	_enemy_poll_timer -= delta
+	if _enemy_poll_timer <= 0.0:
+		_enemy_poll_timer = ENEMY_POLL_INTERVAL
+		_cached_alive_enemies.clear()
+		var enemies = get_tree().get_nodes_in_group("enemy")
+		for enemy in enemies:
+			_collect_enemy_if_valid(enemy, _cached_alive_enemies)
+	else:
+		for i in range(_cached_alive_enemies.size() - 1, -1, -1):
+			if not is_instance_valid(_cached_alive_enemies[i]) or not _is_enemy_valid_target(_cached_alive_enemies[i]):
+				_cached_alive_enemies.remove_at(i)
+	return _cached_alive_enemies
 
 func _collect_enemy_if_valid(enemy: Node, result: Array[Node2D]) -> void:
 	if not (enemy is Node2D): return

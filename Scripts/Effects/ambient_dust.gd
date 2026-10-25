@@ -11,13 +11,10 @@ var floor_layer: TileMapLayer = null
 var time_since_update: float = 0.0
 var update_interval: float = 0.75
 var last_update_pos: Vector2 = Vector2.INF
+var _cached_used_cells: Array[Vector2i] = []
 
 func _ready() -> void:
 	add_to_group("ambient_dust")
-	if not is_globally_enabled:
-		visible = false
-		emitting = false
-		return
 		
 	top_level = true
 	global_position = Vector2.ZERO
@@ -29,7 +26,7 @@ func _ready() -> void:
 	_apply_biome_ambient_tint()
 	_find_floor_layer()
 	_update_visible_tile_points()
-	emitting = true
+	set_dust_enabled(is_globally_enabled)
 
 func _process(delta: float) -> void:
 	if not is_globally_enabled: return
@@ -46,12 +43,16 @@ func _find_floor_layer() -> void:
 	var floor_node = scene.find_child("Floor", true, false) as TileMapLayer
 	if floor_node:
 		floor_layer = floor_node
-		return
-	var nodes = scene.find_children("*", "TileMapLayer", true, false)
-	for node in nodes:
-		if "floor" in node.name.to_lower():
-			floor_layer = node as TileMapLayer
-			return
+	else:
+		var nodes = scene.find_children("*", "TileMapLayer", true, false)
+		for node in nodes:
+			if "floor" in node.name.to_lower():
+				floor_layer = node as TileMapLayer
+				break
+	if floor_layer:
+		_cached_used_cells = floor_layer.get_used_cells()
+		if not floor_layer.changed.is_connected(_invalidate_floor_cache):
+			floor_layer.changed.connect(_invalidate_floor_cache)
 
 func _get_camera_or_player_center() -> Vector2:
 	var viewport = get_viewport()
@@ -77,14 +78,19 @@ func _update_visible_tile_points() -> void:
 
 func _collect_valid_floor_points(view_rect: Rect2) -> PackedVector2Array:
 	var points = PackedVector2Array()
+	if _cached_used_cells.is_empty() and floor_layer:
+		_cached_used_cells = floor_layer.get_used_cells()
+		if not floor_layer.changed.is_connected(_invalidate_floor_cache):
+			floor_layer.changed.connect(_invalidate_floor_cache)
+
 	var min_cell = floor_layer.local_to_map(floor_layer.to_local(view_rect.position))
 	var max_cell = floor_layer.local_to_map(floor_layer.to_local(view_rect.end))
 	
-	for x in range(min_cell.x, max_cell.x + 1):
-		for y in range(min_cell.y, max_cell.y + 1):
-			var pt = _get_point_if_tile_valid(Vector2i(x, y))
-			if pt != Vector2.INF:
-				points.append(pt)
+	for cell in _cached_used_cells:
+		if cell.x >= min_cell.x and cell.x <= max_cell.x and cell.y >= min_cell.y and cell.y <= max_cell.y:
+			var tile_world = floor_layer.to_global(floor_layer.map_to_local(cell))
+			var jitter = Vector2(randf_range(-9.0, 9.0), randf_range(-9.0, 9.0))
+			points.append(tile_world + jitter)
 	return points
 
 func _get_point_if_tile_valid(cell: Vector2i) -> Vector2:
@@ -182,3 +188,7 @@ static func _update_all_dust_nodes_in_tree(tree: SceneTree, enabled: bool) -> vo
 		var dust = node as AmbientDust
 		if not dust: continue
 		dust.set_dust_enabled(enabled)
+
+func _invalidate_floor_cache() -> void:
+	_cached_used_cells.clear()
+	time_since_update = update_interval

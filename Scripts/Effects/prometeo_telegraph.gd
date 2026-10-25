@@ -21,10 +21,11 @@ var radius: float = 80.0
 var half_angle: float = 0.6
 var _elapsed: float = 0.0
 
-static func line(parent: Node, origin: Vector2, angle: float, p_length: float, p_duration: float, p_color: Color = COLOR_RANGED) -> PrometeoTelegraph:
+static func line(parent: Node, origin: Vector2, angle: float, p_length: float, p_duration: float, p_color: Color = COLOR_RANGED, p_width: float = 3.0) -> PrometeoTelegraph:
 	var t := PrometeoTelegraph.new()
 	t.shape = Shape.LINE
 	t.length = p_length
+	t.width = p_width
 	t.color = p_color
 	return t._place(parent, origin, angle, p_duration)
 
@@ -48,6 +49,7 @@ func _place(parent: Node, pos: Vector2, angle: float, p_duration: float) -> Prom
 	z_as_relative = false
 	z_index = 40
 	add_to_group("prometeo_telegraph")
+	top_level = true
 	parent.add_child(self)
 	global_position = pos
 	rotation = angle
@@ -71,6 +73,13 @@ func _draw() -> void:
 			_draw_circle_shape(k)
 
 func _draw_line_shape(k: float) -> void:
+	if width > 3.0:
+		var tint := Color(color, 0.22)
+		draw_circle(Vector2.ZERO, width * 0.5, tint)
+		draw_circle(Vector2(length, 0), width * 0.5, tint)
+		draw_rect(Rect2(0, -width * 0.5, length, width), tint)
+		draw_line(Vector2.ZERO, Vector2(length * k, 0), Color(color, 0.9), 2.0)
+		return
 	draw_line(Vector2.ZERO, Vector2(length, 0), Color(color, 0.22), width)
 	draw_line(Vector2.ZERO, Vector2(length * k, 0), Color(color, 0.9), width * 0.6)
 

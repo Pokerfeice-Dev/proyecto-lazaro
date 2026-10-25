@@ -10,6 +10,27 @@ signal scrap_changed(new_amount: int)
 var flesh: int = 0
 signal flesh_changed(new_amount: int)
 
+# ── Player Reference Cache ───────────────────────────────────────────────────
+var player_instance: Node2D = null
+
+func register_player(p: Node2D) -> void:
+	player_instance = p
+
+func unregister_player(p: Node2D) -> void:
+	if player_instance == p:
+		player_instance = null
+
+func get_player() -> Node2D:
+	if is_instance_valid(player_instance) and player_instance.is_inside_tree() and not player_instance.is_queued_for_deletion():
+		return player_instance
+	var tree = get_tree()
+	if tree:
+		var p = tree.get_first_node_in_group("player") as Node2D
+		if is_instance_valid(p) and not p.is_queued_for_deletion():
+			player_instance = p
+			return p
+	return null
+
 # ── Metadata ───────────────────────────────────────────────────────────────────
 var play_time: float = 0.0
 var current_slot: int = 1

@@ -54,6 +54,9 @@ func _setup_distortion_mesh() -> void:
 		_distortion_mat.set_shader_parameter("heat_speed", 20.0)
 
 		_distortion_mesh = MeshInstance2D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2.ONE
+		_distortion_mesh.mesh = quad
 		_distortion_mesh.material = _distortion_mat
 		_distortion_mesh.z_index = -1
 		_distortion_mesh.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -130,32 +133,12 @@ func _update_distortion_mesh() -> void:
 		return
 	
 	var dir = (endpoint - origin).normalized()
-	var side = dir.orthogonal()
-	var half_w = DISTORTION_WIDTH * 0.5 * power
-	
-	var p0 = origin - side * half_w
-	var p1 = origin + side * half_w
-	var p2 = endpoint + side * half_w
-	var p3 = endpoint - side * half_w
-	
-	var arr_mesh = ArrayMesh.new()
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	
-	var verts = PackedVector2Array([p0, p1, p2, p0, p2, p3])
-	var uvs = PackedVector2Array([
-		Vector2(0.0, 0.0),
-		Vector2(0.0, 1.0),
-		Vector2(1.0, 1.0),
-		Vector2(0.0, 0.0),
-		Vector2(1.0, 1.0),
-		Vector2(1.0, 0.0)
-	])
-	
-	arrays[Mesh.ARRAY_VERTEX] = verts
-	arrays[Mesh.ARRAY_TEX_UV] = uvs
-	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	_distortion_mesh.mesh = arr_mesh
+	var canvas := get_global_transform_with_canvas()
+	var screen_dir := ((canvas * endpoint) - (canvas * origin)).normalized()
+	_distortion_mat.set_shader_parameter("screen_normal", screen_dir.orthogonal())
+	_distortion_mesh.position = (origin + endpoint) * 0.5
+	_distortion_mesh.rotation = dir.angle()
+	_distortion_mesh.scale = Vector2(length, DISTORTION_WIDTH * power)
 	_distortion_mesh.show()
 
 func _draw() -> void:

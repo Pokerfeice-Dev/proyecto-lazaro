@@ -93,6 +93,11 @@ var _dash_time_left: float = 0.0
 var _dash_invulnerable: bool = false
 var _ghost_timer: float = 0.0
 var _dodge_cd: float = 0.0
+var _leap_tween: Tween
+var _leap_arc: Tween
+var _leap_serial := 0
+var _leap_base_y := 0.0
+var _punish_cooldown := 0.0
 var _is_airborne: bool = false
 var _player_was_dashing: bool = false
 var _too_close_time: float = 0.0
@@ -101,6 +106,7 @@ var _clones: Array[Node2D] = []
 var _bar_instance: BossHealthBar = null
 var _bar: Range = null
 var _sounds: Dictionary = {}
+var energy_fx: Node2D
 
 func _ready() -> void:
 	max_health = boss_max_health
@@ -112,6 +118,9 @@ func _ready() -> void:
 	_collect_sounds()
 	_build_threat_sensor()
 	_build_shadow_aura()
+	energy_fx = preload("res://Scripts/Effects/prometeo_energy_fx.gd").new()
+	energy_fx.name = "EnergyFX"
+	add_child(energy_fx)
 	if arsenal:
 		arsenal.setup(self)
 		arsenal.equip(_choose_next_weapon(), false)
@@ -159,8 +168,8 @@ func _physics_process(delta: float) -> void:
 
 func process_movement(delta: float) -> void:
 	if _dash_time_left > 0.0:
-		_dash_time_left -= delta
-		velocity = _dash_velocity
+		velocity = _dash_velocity * minf(1.0, _dash_time_left / maxf(delta, 0.001))
+		_dash_time_left = maxf(0.0, _dash_time_left - delta)
 		return
 	if _is_airborne or state == State.INTRO or state == State.TRANSITION:
 		velocity = Vector2.ZERO
@@ -174,6 +183,7 @@ func process_movement(delta: float) -> void:
 		_start_next_action()
 
 func _update_timers(delta: float) -> void:
+	_punish_cooldown = maxf(0.0, _punish_cooldown - delta)
 	_dodge_cd = maxf(0.0, _dodge_cd - delta)
 	_orbit_timer -= delta
 	if _orbit_timer <= 0.0:
@@ -191,8 +201,9 @@ func _read_player(delta: float) -> void:
 # aprovecha y ataca ya (el jugador no tiene con qué esquivar).
 func _punish_spent_dash() -> void:
 	var dashing = target.get("is_dashing") == true
-	if _player_was_dashing and not dashing and state == State.NEUTRAL and _player_dash_on_cooldown():
-		_action_timer = minf(_action_timer, 0.15)
+	if phase >= 2 and not is_clone and _punish_cooldown <= 0.0 and _player_was_dashing and not dashing and state == State.NEUTRAL and _player_dash_on_cooldown():
+		_action_timer = minf(_action_timer, 0.45)
+		_punish_cooldown = 6.0
 	_player_was_dashing = dashing
 
 func _player_dash_on_cooldown() -> bool:
@@ -229,21 +240,31 @@ func _neutral_velocity() -> Vector2:
 	if _is_blocked(dir):
 		_orbit_sign = -_orbit_sign
 		dir = (radial - tangent).normalized()
+		if _is_blocked(dir): dir = get_nav_direction_to_target()
 	return dir * move_speed * _pace
 
 func _is_blocked(dir: Vector2) -> bool:
-	return _ray_hit(global_position, global_position + dir * 40.0) != Vector2.INF
+	return not _can_walk_segment(global_position, global_position + dir * 40.0)
 
 func _ray_hit(from: Vector2, to: Vector2) -> Vector2:
 	var query = PhysicsRayQueryParameters2D.create(from, to)
-	query.exclude = [get_rid()]
-	query.collision_mask = 1
+	query.exclude = EnemyNavigation.actor_exclusions(get_tree())
+	query.collision_mask = 5
 	var result = get_world_2d().direct_space_state.intersect_ray(query)
 	return result.position if not result.is_empty() else Vector2.INF
 
 # --- Cerebro: elegir y ejecutar la próxima acción ---
 
 func _start_next_action() -> void:
+	if not is_instance_valid(target) or _dash_time_left > 0.0:
+		return
+	if is_clone and is_instance_valid(clone_owner) and clone_owner.state != State.NEUTRAL:
+		_action_timer = 0.25
+		return
+	for clone in _clones:
+		if is_instance_valid(clone) and not clone.is_dying and clone.state == State.ATTACKING:
+			_action_timer = 0.25
+			return
 	var serial = _action_serial
 	state = State.ATTACKING
 	_attack_mobility = 0.0
@@ -321,8 +342,8 @@ func set_attack_mobility(value: float) -> void:
 func dash(direction: Vector2, distance: float, invulnerable: bool) -> Signal:
 	var dir = direction.normalized()
 	var travel = _clamp_travel(dir, minf(distance, max_dash_distance))
-	var duration = maxf(travel / dash_speed, 0.05)
-	_dash_velocity = dir * dash_speed
+	var duration = maxf(travel / maxf(dash_speed, 1.0), 0.01)
+	_dash_velocity = dir * travel / duration
 	_dash_time_left = duration
 	_dash_invulnerable = invulnerable
 	_facing = dir
@@ -347,25 +368,59 @@ func leap_to(pos: Vector2, duration: float) -> void:
 	if collision_shape:
 		collision_shape.set_deferred("disabled", true)
 	play_sfx("dash")
-	var start = global_position
-	var t = create_tween().set_parallel(true)
-	t.tween_method(func(k: float): global_position = start.lerp(pos, k), 0.0, 1.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_leap_serial += 1
+	var serial := _leap_serial
+	_leap_tween = create_tween()
+	_leap_tween.tween_property(self, "global_position", pos, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	if sprite:
-		var base_y = sprite.position.y
-		var arc = create_tween()
-		arc.tween_property(sprite, "position:y", base_y - 36.0, duration * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		arc.tween_property(sprite, "position:y", base_y, duration * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	await t.finished
-	if collision_shape:
-		collision_shape.set_deferred("disabled", false)
+		_leap_base_y = sprite.position.y
+		_leap_arc = create_tween()
+		_leap_arc.tween_property(sprite, "position:y", _leap_base_y - 36.0, duration * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		_leap_arc.tween_property(sprite, "position:y", _leap_base_y, duration * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await get_tree().create_timer(duration, false).timeout
+	if serial != _leap_serial: return
+	global_position = pos
+	_cancel_motion()
+
+func _cancel_motion() -> void:
+	_leap_serial += 1
+	if _leap_tween and _leap_tween.is_valid(): _leap_tween.kill()
+	if _leap_arc and _leap_arc.is_valid(): _leap_arc.kill()
+	if _is_airborne:
+		global_position = safe_landing(global_position)
+		if sprite: sprite.position.y = _leap_base_y
 	_is_airborne = false
+	_dash_time_left = 0.0
+	_dash_invulnerable = false
+	velocity = Vector2.ZERO
+	if collision_shape and not is_dying: collision_shape.set_deferred("disabled", false)
 
 func _clamp_travel(dir: Vector2, distance: float) -> float:
-	var hit = _ray_hit(global_position, global_position + dir * distance)
-	if hit != Vector2.INF:
-		distance = maxf(0.0, global_position.distance_to(hit) - 22.0)
-	var end = clamp_to_arena(global_position + dir * distance)
-	return global_position.distance_to(end)
+	var travel := maxf(distance, 0.0)
+	for axis in range(2):
+		if absf(dir[axis]) > 0.0001:
+			var bound: float = home_position[axis] + arena_half_extents[axis] * signf(dir[axis])
+			travel = minf(travel, maxf(0.0, (bound - global_position[axis]) / dir[axis]))
+	var low := 0.0
+	var high := travel
+	if _can_walk_segment(global_position, global_position + dir * travel): return travel
+	for step in range(10):
+		var mid := (low + high) * 0.5
+		if _can_walk_segment(global_position, global_position + dir * mid): low = mid
+		else: high = mid
+	return low
+
+func safe_landing(pos: Vector2) -> Vector2:
+	var desired := clamp_to_arena(pos)
+	for radius in [0.0, 32.0, 64.0, 96.0, 144.0]:
+		for side in range(16):
+			var candidate := clamp_to_arena(desired + Vector2.from_angle(TAU * side / 16.0) * radius)
+			if _can_walk_segment(candidate, candidate + Vector2(0.01, 0)):
+				return candidate
+	return global_position
+
+func clear_attack_path(origin: Vector2, destination: Vector2) -> bool:
+	return _ray_hit(origin, destination) == Vector2.INF
 
 func clamp_to_arena(pos: Vector2) -> Vector2:
 	return Vector2(
@@ -419,6 +474,7 @@ func _update_visuals() -> void:
 		_facing = (target.global_position - global_position).normalized()
 		if arsenal:
 			arsenal.track(target.global_position)
+			if arsenal.aim_locked: _facing = Vector2.from_angle(arsenal.aim_angle)
 	_play_body_animation()
 
 func _play_body_animation() -> void:
@@ -458,6 +514,8 @@ func _update_dash_ghosts(delta: float) -> void:
 	if _ghost_timer > 0.0: return
 	_ghost_timer = 0.05
 	_spawn_ghost()
+	if is_instance_valid(energy_fx) and phase >= 2:
+		energy_fx.bolt(global_position, _facing.angle() + PI, 35.0)
 
 func _spawn_ghost() -> void:
 	if not sprite or not sprite.sprite_frames: return
@@ -536,6 +594,7 @@ func _check_phase_change() -> void:
 		_enter_phase(3)
 
 func _enter_phase(new_phase: int) -> void:
+	_cancel_motion()
 	phase = new_phase
 	_action_serial += 1
 	state = State.TRANSITION
@@ -544,6 +603,7 @@ func _enter_phase(new_phase: int) -> void:
 	velocity = Vector2.ZERO
 	arsenal.stop_all()
 	_clear_bullets()
+	energy_fx.transform_phase(new_phase == 3)
 	play_sfx("roar")
 	shake(18.0, 1.0)
 	_flash_sprite(Color(2.2, 0.3, 0.5))
@@ -580,12 +640,13 @@ func _split_clone() -> void:
 	clone.global_position = global_position
 	_clones.append(clone)
 	play_sfx("teleport")
+	energy_fx.burst(global_position, 85.0)
 	await clone.begin_as_clone(_clone_destination(), clone_lifetime)
 
 func _clone_destination() -> Vector2:
 	if not target: return clamp_to_arena(global_position + Vector2(160, 0))
 	var mirrored = target.global_position + (target.global_position - global_position).normalized() * 170.0
-	return clamp_to_arena(mirrored)
+	return safe_landing(mirrored)
 
 ## Lo llama el original: el clon sale de su cuerpo hasta su lugar y arranca.
 func begin_as_clone(destination: Vector2, lifetime: float) -> void:
@@ -605,7 +666,9 @@ func begin_as_clone(destination: Vector2, lifetime: float) -> void:
 ## El clon se desarma en humo (por tiempo, cambio de fase o muerte del original).
 func dissolve_clone() -> void:
 	if is_dying or not is_inside_tree(): return
+	_cancel_motion()
 	is_dying = true
+	_stop_auras()
 	_action_serial += 1
 	if arsenal:
 		arsenal.stop_all()
@@ -690,6 +753,7 @@ func predict_target_position(seconds: float) -> Vector2:
 
 func die() -> void:
 	if is_dying: return
+	_cancel_motion()
 	_action_serial += 1
 	if arsenal:
 		arsenal.stop_all()
@@ -722,6 +786,7 @@ func _spawn_victory_portal(next_scene: String) -> void:
 	portal.global_position = global_position
 
 func _stop_auras() -> void:
+	if is_instance_valid(energy_fx): energy_fx.stop()
 	for aura_name in ["ShadowAura", "EmberAura"]:
 		var aura = get_node_or_null(aura_name) as CPUParticles2D
 		if aura:
@@ -760,6 +825,11 @@ func _collect_sounds() -> void:
 		if child is AudioStreamPlayer2D:
 			child.bus = "SFX"
 			_sounds[String(child.name).trim_suffix("_sound").to_lower()] = child
+
+func stop_attack_sounds() -> void:
+	for sound_id in ["shot", "shotgun", "slash", "flame", "laser"]:
+		var sound = _sounds.get(sound_id) as AudioStreamPlayer2D
+		if sound: sound.stop()
 
 func play_sfx(sfx_name: String) -> void:
 	var player = _sounds.get(sfx_name) as AudioStreamPlayer2D

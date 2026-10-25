@@ -20,12 +20,15 @@ var glitch_progress: float = 0.0
 var glitch_duration: float = 0.11
 var spark_particles: CPUParticles2D = null
 var _update_accumulator: float = 0.0
+var _screen_notifier: VisibleOnScreenNotifier2D = null
+var _is_on_screen: bool = true
 
 func _ready() -> void:
 	add_to_group("flickering_lights")
 	_initialize_phase_and_timer()
 	_collect_point_lights()
 	_setup_spark_particles()
+	_setup_screen_culling()
 
 func _initialize_phase_and_timer() -> void:
 	phase_offset = randf_range(0.0, 100.0)
@@ -74,8 +77,15 @@ func _position_spark_particles() -> void:
 		return
 	spark_particles.position = lights[0].position
 
+func _setup_screen_culling() -> void:
+	_screen_notifier = VisibleOnScreenNotifier2D.new()
+	_screen_notifier.rect = Rect2(-180, -180, 360, 360)
+	_screen_notifier.screen_entered.connect(func(): _is_on_screen = true)
+	_screen_notifier.screen_exited.connect(func(): _is_on_screen = false)
+	add_child(_screen_notifier)
+
 func _process(delta: float) -> void:
-	if not is_globally_enabled:
+	if not is_globally_enabled or not _is_on_screen:
 		return
 	if lights.is_empty():
 		return

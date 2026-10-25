@@ -1,9 +1,13 @@
 [gd_scene format=3 uid="uid://b5lam2p4x8q1w"]
 
 [ext_resource type="Texture2D" uid="uid://bvppetkhruo2u" path="res://Art/Weapons/Melee/Dagger/Speeddemon/synergy_speeddemon_sprite.png" id="1_speed"]
-[ext_resource type="Script" uid="uid://oth5ltdxnr42" path="res://Scripts/Weapon/melee_weapon.gd" id="2_script"]
-[ext_resource type="AudioStream" uid="uid://b3w4nf8ig8qy4" path="res://Audio/Sfx/Melee/07_human_atk_sword_1.wav" id="3_sound"]
+[ext_resource type="Script" uid="uid://b4q30sehlcab8" path="res://Scripts/Weapon/speed_demon.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://bgek7lrwgg6" path="res://Art/Weapons/Melee/SpriteSheet.png" id="4_spritesheet"]
+[ext_resource type="AudioStream" uid="uid://cfixkp7wdrp3h" path="res://Audio/Sfx/Melee/Speeddemon/start.wav" id="5_start"]
+[ext_resource type="AudioStream" uid="uid://d26cb8rln2h0u" path="res://Audio/Sfx/Melee/Speeddemon/motor.wav" id="6_motor"]
+[ext_resource type="AudioStream" uid="uid://dhklcbywmehua" path="res://Audio/Sfx/Melee/Speeddemon/cut.wav" id="7_cut"]
+[ext_resource type="AudioStream" uid="uid://b5t6f8tgur3jv" path="res://Audio/Sfx/Melee/Speeddemon/stop.wav" id="8_stop"]
+[ext_resource type="AudioStream" uid="uid://be2xmaj5g1j05" path="res://Audio/Sfx/Melee/Speeddemon/wall.wav" id="9_wall"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xk7u0"]
 atlas = ExtResource("1_speed")
@@ -78,7 +82,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d7jkh"]
-size = Vector2(35.892857, 55.71428)
+size = Vector2(34, 20)
 
 [node name="SpeedDemonDagger" type="Node2D" unique_id=873535167]
 script = ExtResource("2_script")
@@ -86,12 +90,10 @@ id = "speed_demon_dagger"
 damage = 10
 attack_speed = 2.0
 knockback_force = 30.0
-swing_start_angle = -30.0
-swing_end_angle = 130.0
 
 [node name="Melee_sprite" type="AnimatedSprite2D" parent="." unique_id=619024553]
-scale = Vector2(1.3, 1.3)
 position = Vector2(68.9, -16.9)
+scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_y406o")
 animation = &"idle"
 autoplay = "idle"
@@ -101,6 +103,7 @@ frame_progress = 0.22602673
 position = Vector2(-53, 13)
 
 [node name="attack_fx" type="AnimatedSprite2D" parent="." unique_id=1910123972]
+visible = false
 position = Vector2(10, -10)
 sprite_frames = SubResource("SpriteFrames_clk6n")
 animation = &"attack"
@@ -109,15 +112,36 @@ frame_progress = 1.0
 flip_v = true
 
 [node name="Slash_attack" type="Area2D" parent="." unique_id=2088918540]
-position = Vector2(1, -3)
 collision_layer = 10
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Slash_attack" unique_id=1119203183]
-position = Vector2(12.437499, -0.5)
-scale = Vector2(0.7, 0.7)
+position = Vector2(28.000002, -1)
+scale = Vector2(1.2836932, 1.2836932)
 shape = SubResource("RectangleShape2D_d7jkh")
 
-[node name="Snd_mele1" type="AudioStreamPlayer" parent="." unique_id=1542019554]
-stream = ExtResource("3_sound")
-pitch_scale = 1.4
+[node name="Sounds" type="Node2D" parent="." unique_id=1867238081]
+
+[node name="Start" type="AudioStreamPlayer2D" parent="Sounds" unique_id=1374458646]
+stream = ExtResource("5_start")
+bus = &"SFX"
+
+[node name="Motor" type="AudioStreamPlayer2D" parent="Sounds" unique_id=259432101]
+stream = ExtResource("6_motor")
+volume_db = -3.0
+bus = &"SFX"
+
+[node name="Cut" type="AudioStreamPlayer2D" parent="Sounds" unique_id=1698036840]
+stream = ExtResource("7_cut")
+volume_db = -10.0
+pitch_scale = 0.45
+bus = &"SFX"
+
+[node name="Stop" type="AudioStreamPlayer2D" parent="Sounds" unique_id=1676378093]
+stream = ExtResource("8_stop")
+bus = &"SFX"
+
+[node name="Wall" type="AudioStreamPlayer2D" parent="Sounds" unique_id=995369617]
+stream = ExtResource("9_wall")
+volume_db = -6.0
+bus = &"SFX"

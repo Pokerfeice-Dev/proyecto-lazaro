@@ -5,6 +5,9 @@ class_name PrometeoProjectile
 ## velocidad, color y persecución configurables para imitar cada arma del
 ## jugador (pistola, escopeta, uzi, minigun, colmena...).
 
+var _energy_tail := PackedVector2Array()
+var _tail_clock := 0.0
+
 var homing_turn_rate: float = 0.0
 var _homing_left: float = 0.0
 var _homing_target: Node2D = null
@@ -26,6 +29,12 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_steer_towards_target(delta)
 	super._physics_process(delta)
+	_tail_clock -= delta
+	if _tail_clock <= 0.0:
+		_tail_clock = 0.025
+		_energy_tail.append(global_position)
+		if _energy_tail.size() > 7: _energy_tail.remove_at(0)
+	queue_redraw()
 
 # Las abejas de la colmena doblan un rato hacia el jugador y después siguen derecho.
 func _steer_towards_target(delta: float) -> void:
@@ -48,3 +57,12 @@ func dissolve() -> void:
 	var t = create_tween()
 	t.tween_property(self, "modulate:a", 0.0, 0.25)
 	t.tween_callback(queue_free)
+
+func _draw() -> void:
+	if _exploding or _energy_tail.size() < 2: return
+	for i in range(1, _energy_tail.size()):
+		var strength := float(i) / float(_energy_tail.size())
+		var a := to_local(_energy_tail[i - 1])
+		var b := to_local(_energy_tail[i])
+		draw_line(a, b, Color(1, 0.12, 0.25, strength * 0.65), 2.0 + strength * 4.0)
+		draw_line(a, b, Color(0.06, 0.01, 0.04, strength), 1.0 + strength * 2.0)

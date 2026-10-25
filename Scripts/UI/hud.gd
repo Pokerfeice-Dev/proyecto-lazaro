@@ -195,12 +195,11 @@ func _create_dash_label() -> Label:
 	return lbl
 
 func _process(delta: float) -> void:
-	var players = get_tree().get_nodes_in_group("player")
-	if players.is_empty():
+	var p = GameData.get_player()
+	if not p:
 		if is_instance_valid(_protocol_panel):
 			_protocol_panel.visible = false
 		return
-	var p = players[0]
 	if "dash_cd_timer" in p and p.dash_cd_timer:
 		var time_left = 0.0 if p.dash_cd_timer.is_stopped() else p.dash_cd_timer.time_left
 		var max_time = p.dash_cd_timer.wait_time
