@@ -39,6 +39,10 @@ const CLONE_WEAPONS: Array[String] = ["pistola", "uzi", "colmena", "minigun"]
 
 const WEAPON_ORBIT := 26.0
 const MUZZLE_DISTANCE := 38.0
+@export_group("Armas en mano")
+@export var hand_offset := Vector2(0, 8)
+@export var hand_orbit := 12.0
+@export var weapon_visual_scale := 1.35
 
 var boss: Node2D = null
 var current_id: String = "pistola"
@@ -52,6 +56,7 @@ var _weapon_pivot: Node2D
 var _muzzle_offset := Vector2(MUZZLE_DISTANCE - WEAPON_ORBIT, 0)
 var _equip_tween: Tween
 var _flame_cone: PrometeoFlameCone
+var _run: Dictionary = {}
 
 func _ready() -> void:
 	_weapon_pivot = Node2D.new()
@@ -100,9 +105,9 @@ func _process(_delta: float) -> void:
 
 func _update_weapon_transform() -> void:
 	var dir = Vector2.from_angle(aim_angle)
-	_weapon_pivot.position = dir * WEAPON_ORBIT
+	_weapon_pivot.position = hand_offset + dir * hand_orbit
 	_weapon_pivot.rotation = aim_angle
-	_weapon_pivot.scale = Vector2(1, -1 if dir.x < 0.0 else 1)
+	_weapon_pivot.scale = Vector2(weapon_visual_scale, -weapon_visual_scale if dir.x < 0.0 else weapon_visual_scale)
 	_weapon_pivot.z_index = -1 if dir.y < -0.3 else 1
 	_flame_cone.position = to_local(_muzzle())
 	_flame_cone.rotation = aim_angle
@@ -112,102 +117,111 @@ func hide_weapon() -> void:
 
 ## Corta cualquier ataque en curso (cambio de fase, muerte).
 func stop_all() -> void:
+	if not _run.is_empty(): _run.cancelled = true
 	aim_locked = false
 	if _flame_cone:
 		_flame_cone.stop()
 	if is_inside_tree():
-		for t in get_tree().get_nodes_in_group("prometeo_telegraph"):
-			t.queue_free()
+		for indicator in get_children():
+			if indicator is PrometeoTelegraph: indicator.queue_free()
+	if is_instance_valid(boss): boss.stop_attack_sounds()
 
 # --- Ejecución de ataques ---
 
 func perform(id: String) -> void:
 	if _cancelled(): return
+	var run := {"cancelled": false}
+	_run = run
 	aim_locked = true
 	match id:
-		"pistola": await _attack_pistola()
-		"escopeta": await _attack_escopeta()
-		"uzi": await _attack_uzi()
-		"minigun": await _attack_minigun()
-		"lanzallamas": await _attack_lanzallamas()
-		"colmena": await _attack_colmena()
-		"hacha": await _attack_hacha()
-		"daga": await _attack_daga()
-		"maza": await _attack_maza()
-		"espiral": await _attack_espiral()
+		"pistola": await _attack_pistola(run)
+		"escopeta": await _attack_escopeta(run)
+		"uzi": await _attack_uzi(run)
+		"minigun": await _attack_minigun(run)
+		"lanzallamas": await _attack_lanzallamas(run)
+		"colmena": await _attack_colmena(run)
+		"hacha": await _attack_hacha(run)
+		"daga": await _attack_daga(run)
+		"maza": await _attack_maza(run)
+		"espiral": await _attack_espiral(run)
+	if _cancelled(run): return
 	aim_locked = false
 
 ## Fase 3: después de un golpe cuerpo a cuerpo remata con un escopetazo rápido
 ## sin cambiar de arma ("doble arma", como el jugador con dos armas equipadas).
 func perform_follow_up() -> void:
 	if _cancelled(): return
+	var run := {"cancelled": false}
+	_run = run
 	aim_locked = true
 	var previous = current_id
 	_set_weapon_visual("escopeta")
 	_aim_at_target(0.0)
-	PrometeoTelegraph.arc(_scene_root(), _muzzle(), aim_angle, 120.0, deg_to_rad(22.0), 0.22, PrometeoTelegraph.COLOR_RANGED)
-	await _wait(0.22)
-	if not _cancelled():
+	PrometeoTelegraph.arc(self, _muzzle(), aim_angle, 408.0, deg_to_rad(23.0), 0.3, PrometeoTelegraph.COLOR_RANGED)
+	await _wait(0.3)
+	if not _cancelled(run):
 		_fire_fan(5, deg_to_rad(40.0), 300.0, 340.0, TINT_PELLET)
 		boss.play_sfx("shotgun")
 	await _wait(0.2)
+	if _cancelled(run): return
 	_set_weapon_visual(previous)
 	aim_locked = false
 
 # Pistola: tiros precisos que apuntan a donde va a estar el jugador.
-func _attack_pistola() -> void:
+func _attack_pistola(run: Dictionary) -> void:
 	var shots = 2 + boss.phase
-	_aim_at_target(0.0)
-	await _aim_warning(0.3, 260.0)
 	for i in range(shots):
-		if _cancelled(): return
+		if _cancelled(run): return
 		var speed = 360.0
 		_aim_at_target(_lead_time(speed))
+		await _aim_warning(0.3 / fire_rate_mult, 360.0)
+		if _cancelled(run): return
 		_fire_bullet(aim_angle, speed, TINT_BULLET)
 		boss.play_sfx("shot")
-		await _wait(0.3 / fire_rate_mult)
+		await _wait(0.08)
 	await _wait(0.2)
 
 # Escopeta: se mete cerca con un dash y suelta perdigones en abanico.
-func _attack_escopeta() -> void:
+func _attack_escopeta(run: Dictionary) -> void:
 	if boss.distance_to_target() > 150.0:
 		await boss.dash_towards_target(95.0)
 	var volleys = 3 if boss.phase >= 3 else 2
 	for v in range(volleys):
-		if _cancelled(): return
+		if _cancelled(run): return
 		_aim_at_target(0.0)
-		PrometeoTelegraph.arc(_scene_root(), _muzzle(), aim_angle, 150.0, deg_to_rad(24.0), 0.3, PrometeoTelegraph.COLOR_RANGED)
+		PrometeoTelegraph.arc(self, _muzzle(), aim_angle, 408.0, deg_to_rad(27.0), 0.3, PrometeoTelegraph.COLOR_RANGED)
 		await _wait(0.3)
-		if _cancelled(): return
+		if _cancelled(run): return
 		_fire_fan(6, deg_to_rad(48.0), 260.0, 340.0, TINT_PELLET)
 		boss.play_sfx("shotgun")
 		await _wait(0.25 / fire_rate_mult)
 
 # Uzi: ráfaga larga y desprolija mientras sigue moviéndose alrededor tuyo.
-func _attack_uzi() -> void:
+func _attack_uzi(run: Dictionary) -> void:
 	boss.set_attack_mobility(0.85)
 	_aim_at_target(0.0)
 	await _aim_warning(0.22, 220.0)
 	var bullets = 12 + 2 * boss.phase
 	for i in range(bullets):
-		if _cancelled(): break
+		if _cancelled(run): break
 		_aim_at_target(_lead_time(390.0) * 0.5)
 		_fire_bullet(aim_angle + randf_range(-0.13, 0.13), 390.0, TINT_BULLET)
 		boss.play_sfx("shot")
 		await _wait(0.075 / fire_rate_mult)
+	if _cancelled(run): return
 	boss.set_attack_mobility(0.0)
 	await _wait(0.2)
 
 # Minigun: se planta, la mira (línea) te sigue mientras gira y después barre
 # con una lluvia de balas que gira más lento de lo que corrés.
-func _attack_minigun() -> void:
+func _attack_minigun(run: Dictionary) -> void:
 	boss.set_attack_mobility(0.0)
 	_aim_at_target(0.0)
-	var warning = PrometeoTelegraph.line(_scene_root(), _muzzle(), aim_angle, 320.0, 0.8, PrometeoTelegraph.COLOR_RANGED)
+	var warning = PrometeoTelegraph.line(self, _muzzle(), aim_angle, 320.0, 0.8, PrometeoTelegraph.COLOR_RANGED)
 	boss.play_sfx("laser")
 	var spin = 0.0
 	while spin < 0.8:
-		if _cancelled(): return
+		if _cancelled(run): return
 		_turn_aim_towards_target(2.5, 0.05)
 		if is_instance_valid(warning):
 			warning.global_position = _muzzle()
@@ -217,7 +231,7 @@ func _attack_minigun() -> void:
 	var turn_rate = 1.3 + 0.35 * float(boss.phase - 2)
 	var elapsed = 0.0
 	while elapsed < 1.8:
-		if _cancelled(): return
+		if _cancelled(run): return
 		_turn_aim_towards_target(turn_rate, 0.05)
 		_fire_bullet(aim_angle + randf_range(-0.05, 0.05), 360.0, TINT_HEAVY)
 		if int(elapsed * 20.0) % 2 == 0:
@@ -227,31 +241,36 @@ func _attack_minigun() -> void:
 	await _wait(0.3)
 
 # Lanzallamas: se acerca, avisa con el abanico y te persigue con el fuego.
-func _attack_lanzallamas() -> void:
+func _attack_lanzallamas(run: Dictionary) -> void:
 	if boss.distance_to_target() > 120.0:
 		await boss.dash_towards_target(80.0)
+	if _cancelled(run): return
 	_aim_at_target(0.0)
-	PrometeoTelegraph.arc(_scene_root(), _muzzle(), aim_angle, _flame_cone.reach, deg_to_rad(_flame_cone.half_angle_degrees), 0.45, PrometeoTelegraph.COLOR_RANGED)
+	PrometeoTelegraph.arc(self, _muzzle(), aim_angle, _flame_cone.reach, deg_to_rad(_flame_cone.half_angle_degrees), 0.45, PrometeoTelegraph.COLOR_RANGED)
 	await _wait(0.45)
-	if _cancelled(): return
+	if _cancelled(run): return
 	_flame_cone.start(_scaled(boss.bullet_damage * 0.6), boss.boss_display_name)
 	boss.play_sfx("flame")
 	boss.set_attack_mobility(0.35)
 	var elapsed = 0.0
 	while elapsed < 2.2:
-		if _cancelled(): break
+		if _cancelled(run): break
 		_turn_aim_towards_target(1.3, 0.05)
+		boss.energy_fx.shot(_muzzle(), aim_angle)
 		elapsed += 0.05
 		await _wait(0.05)
+	if _cancelled(run): return
 	_flame_cone.stop()
+	boss.stop_attack_sounds()
 	boss.set_attack_mobility(0.0)
 	await _wait(0.3)
 
 # Colmena: suelta abejas que doblan hacia vos un rato y después siguen derecho.
-func _attack_colmena() -> void:
+func _attack_colmena(run: Dictionary) -> void:
 	_aim_at_target(0.0)
-	await _aim_warning(0.35, 160.0)
-	if _cancelled(): return
+	PrometeoTelegraph.arc(self, _muzzle(), aim_angle, 200.0, deg_to_rad(40.0), 0.35, PrometeoTelegraph.COLOR_RANGED)
+	await _wait(0.35)
+	if _cancelled(run): return
 	var count = 7 if boss.phase >= 3 else 5
 	var spread = deg_to_rad(80.0)
 	for i in range(count):
@@ -262,18 +281,17 @@ func _attack_colmena() -> void:
 	await _wait(0.6)
 
 # Hacha: se acerca, marca un abanico amplio y hachazo (doble en fase 3).
-func _attack_hacha() -> void:
+func _attack_hacha(run: Dictionary) -> void:
 	if boss.distance_to_target() > 95.0:
 		await boss.dash_towards_target(60.0)
 	var swings = 2 if boss.phase >= 3 else 1
 	for s in range(swings):
-		if _cancelled(): return
+		if _cancelled(run): return
 		_aim_at_target(0.0)
 		var center = boss.global_position
-		PrometeoTelegraph.arc(_scene_root(), center, aim_angle, 100.0, deg_to_rad(75.0), 0.42, PrometeoTelegraph.COLOR_MELEE)
+		PrometeoTelegraph.arc(self, center, aim_angle, 105.0, deg_to_rad(80.0), 0.42, PrometeoTelegraph.COLOR_MELEE)
 		await _wait(0.42)
-		if _cancelled(): return
-		await boss.lunge(aim_angle, 40.0)
+		if _cancelled(run): return
 		_slash_flash(boss.global_position, aim_angle, 105.0, deg_to_rad(80.0))
 		_hit_target_in_arc(boss.global_position, aim_angle, 105.0, deg_to_rad(80.0), boss.melee_damage)
 		boss.play_sfx("slash")
@@ -281,28 +299,31 @@ func _attack_hacha() -> void:
 	await _wait(0.3)
 
 # Daga: estocadas rápidas en cadena, cada una con su línea de aviso.
-func _attack_daga() -> void:
+func _attack_daga(run: Dictionary) -> void:
 	var stabs = 4 if boss.phase >= 3 else 3
 	for i in range(stabs):
-		if _cancelled(): return
+		if _cancelled(run): return
 		_aim_at_target(0.25)
-		var reach = clampf(boss.distance_to_target() + 30.0, 70.0, 150.0)
-		PrometeoTelegraph.line(_scene_root(), boss.global_position, aim_angle, reach, 0.24, PrometeoTelegraph.COLOR_MELEE)
+		var reach = boss._clamp_travel(Vector2.from_angle(aim_angle), clampf(boss.distance_to_target() + 30.0, 70.0, 150.0))
+		PrometeoTelegraph.line(self, boss.global_position, aim_angle, reach, 0.24, PrometeoTelegraph.COLOR_MELEE, 60.0)
 		await _wait(0.24)
-		if _cancelled(): return
+		if _cancelled(run): return
 		var start = boss.global_position
 		await boss.lunge(aim_angle, reach)
+		if _cancelled(run): return
+		boss.energy_fx.bolt(start, aim_angle, start.distance_to(boss.global_position))
+		boss.energy_fx.slash(boss.global_position, aim_angle, 25.0, 0.5)
 		_hit_target_near_segment(start, boss.global_position, 30.0, int(boss.melee_damage * 0.8))
 		boss.play_sfx("slash")
 		await _wait(0.16)
 	await _wait(0.3)
 
 # Maza: salto a donde vas a estar, aplastón con onda (y anillo de balas desde la fase 2).
-func _attack_maza() -> void:
-	var landing = boss.clamp_to_arena(boss.predict_target_position(0.45))
-	PrometeoTelegraph.circle(_scene_root(), landing, 105.0, 0.7, PrometeoTelegraph.COLOR_MELEE)
+func _attack_maza(run: Dictionary) -> void:
+	var landing = boss.safe_landing(boss.predict_target_position(0.45))
+	PrometeoTelegraph.circle(self, landing, 105.0, 0.7, PrometeoTelegraph.COLOR_MELEE)
 	await boss.leap_to(landing, 0.7)
-	if _cancelled(): return
+	if _cancelled(run): return
 	boss.play_sfx("slam")
 	boss.shake(14.0, 0.3)
 	_spawn_shockwave(landing, 110.0)
@@ -314,17 +335,18 @@ func _attack_maza() -> void:
 
 # Fase 3, "El fuego robado": vuelve al centro y gira espirales de fuego.
 # Hay huecos entre los brazos para pasar caminando.
-func _attack_espiral() -> void:
-	await boss.leap_to(boss.arena_center(), 0.6)
-	if _cancelled(): return
-	PrometeoTelegraph.circle(_scene_root(), boss.global_position, 60.0, 0.5, PrometeoTelegraph.COLOR_RANGED)
+func _attack_espiral(run: Dictionary) -> void:
+	await boss.leap_to(boss.safe_landing(boss.arena_center()), 0.6)
+	if _cancelled(run): return
+	PrometeoTelegraph.circle(self, boss.global_position, 60.0, 0.5, PrometeoTelegraph.COLOR_RANGED)
 	boss.play_sfx("roar")
+	boss.energy_fx.burst(boss.global_position, 80.0)
 	await _wait(0.5)
 	var base = randf() * TAU
 	var arms = 3
 	var elapsed = 0.0
 	while elapsed < 4.0:
-		if _cancelled(): return
+		if _cancelled(run): return
 		for a in range(arms):
 			_fire_bullet(base + TAU / float(arms) * a, 165.0, TINT_FIRE, 5.0, 0.0, 0.0, boss.global_position)
 		base += 0.21
@@ -350,7 +372,7 @@ func _lead_time(bullet_speed: float) -> float:
 	return boss.distance_to_target() / maxf(bullet_speed, 1.0) * boss.aim_lead
 
 func _aim_warning(duration: float, length: float) -> void:
-	PrometeoTelegraph.line(_scene_root(), _muzzle(), aim_angle, length, duration, PrometeoTelegraph.COLOR_RANGED)
+	PrometeoTelegraph.line(self, _muzzle(), aim_angle, length, duration, PrometeoTelegraph.COLOR_RANGED)
 	await _wait(duration)
 
 # --- Disparo ---
@@ -362,6 +384,7 @@ func _fire_bullet(angle: float, speed: float, tint: Color, p_lifetime: float = 4
 	_scene_root().add_child(bullet)
 	bullet.global_position = _muzzle() if origin == Vector2.INF else origin
 	bullet.setup(Vector2.from_angle(angle), _scaled(boss.bullet_damage), "player")
+	boss.energy_fx.shot(bullet.global_position, angle)
 
 func _fire_fan(count: int, spread: float, speed_min: float, speed_max: float, tint: Color) -> void:
 	for i in range(count):
@@ -370,10 +393,14 @@ func _fire_fan(count: int, spread: float, speed_min: float, speed_max: float, ti
 		_fire_bullet(angle, randf_range(speed_min, speed_max), tint, 1.2)
 
 func _muzzle() -> Vector2:
-	var offset = _muzzle_offset
-	if Vector2.from_angle(aim_angle).x < 0.0:
-		offset.y = -offset.y
-	return to_global((Vector2(WEAPON_ORBIT, 0) + offset).rotated(aim_angle))
+	_update_weapon_pose()
+	return _weapon_pivot.to_global(_muzzle_offset)
+
+func _update_weapon_pose() -> void:
+	var direction := Vector2.from_angle(aim_angle)
+	_weapon_pivot.position = hand_offset + direction * hand_orbit
+	_weapon_pivot.rotation = aim_angle
+	_weapon_pivot.scale = Vector2(weapon_visual_scale, -weapon_visual_scale if direction.x < 0 else weapon_visual_scale)
 
 func _scaled(value: float) -> int:
 	return maxi(1, int(value * damage_mult))
@@ -381,29 +408,32 @@ func _scaled(value: float) -> int:
 # --- Golpes cuerpo a cuerpo ---
 
 func _hit_target_in_arc(origin: Vector2, angle: float, radius: float, half_angle: float, dmg: float) -> void:
-	if not boss.target: return
+	if not is_instance_valid(boss.target) or not boss.clear_attack_path(origin, boss.target.global_position): return
 	var to_target = boss.target.global_position - origin
 	if to_target.length() > radius: return
 	if absf(wrapf(to_target.angle() - angle, -PI, PI)) > half_angle: return
 	boss.deal_damage_to_target(_scaled(dmg))
 
 func _hit_target_near_segment(a: Vector2, b: Vector2, width: float, dmg: float) -> void:
-	if not boss.target: return
+	if not is_instance_valid(boss.target): return
 	var closest = Geometry2D.get_closest_point_to_segment(boss.target.global_position, a, b)
+	if not boss.clear_attack_path(closest, boss.target.global_position): return
 	if closest.distance_to(boss.target.global_position) <= width:
 		boss.deal_damage_to_target(_scaled(dmg))
 
 func _hit_target_in_radius(origin: Vector2, radius: float, dmg: float) -> void:
-	if not boss.target: return
+	if not is_instance_valid(boss.target) or not boss.clear_attack_path(origin, boss.target.global_position): return
 	if boss.target.global_position.distance_to(origin) <= radius:
 		boss.deal_damage_to_target(_scaled(dmg))
 
 # --- Efectos ---
 
 func _slash_flash(center: Vector2, angle: float, radius: float, half_angle: float) -> void:
-	PrometeoTelegraph.arc(_scene_root(), center, angle, radius, half_angle, 0.12, PrometeoTelegraph.COLOR_SLASH)
+	boss.energy_fx.slash(center, angle, radius, half_angle)
+	PrometeoTelegraph.arc(self, center, angle, radius, half_angle, 0.12, PrometeoTelegraph.COLOR_SLASH)
 
 func _spawn_shockwave(pos: Vector2, radius: float) -> void:
+	boss.energy_fx.burst(pos, radius)
 	var wave = FuriaShockwave.new()
 	wave.max_radius = radius
 	wave.set_meta("color_fill", Color(0.5, 0.05, 0.2, 0.35))
@@ -466,8 +496,8 @@ func _scene_transform(node: Node2D, root: Node2D) -> Transform2D:
 
 # --- Utilidades ---
 
-func _cancelled() -> bool:
-	return not is_instance_valid(boss) or not boss.is_inside_tree() or boss.is_attack_cancelled()
+func _cancelled(run: Dictionary = {}) -> bool:
+	return run.get("cancelled", false) or not is_instance_valid(boss) or not boss.is_inside_tree() or boss.is_attack_cancelled() or not is_instance_valid(boss.target)
 
 func _wait(seconds: float) -> Signal:
 	return get_tree().create_timer(maxf(seconds, 0.01), false).timeout

@@ -7,15 +7,18 @@ var max_strength: float = 0.045
 var _elapsed: float = 0.0
 
 static func spawn(parent: Node, pos: Vector2, radius: float = 80.0, shock_duration: float = 0.28, strength: float = 0.045) -> void:
-	if not is_instance_valid(parent): return
+	if not is_instance_valid(parent) or not parent.is_inside_tree(): return
+	if parent.get_tree().get_nodes_in_group("distortion_shockwaves").size() >= (3 if OS.has_feature("web") else 8): return
 	var wave := DistortionShockwave.new()
 	wave.max_radius = radius
 	wave.duration = shock_duration
 	wave.max_strength = strength
-	wave.global_position = pos
+	wave.top_level = true
 	parent.add_child(wave)
+	wave.global_position = pos
 
 func _ready() -> void:
+	add_to_group("distortion_shockwaves")
 	z_index = 52
 	z_as_relative = false
 	centered = true

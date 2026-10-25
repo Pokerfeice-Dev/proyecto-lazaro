@@ -13,13 +13,13 @@ void fragment() {
 	
 	// Anillo de distorsión convexa
 	float ring = sin(clamp(dist * 3.14159265, 0.0, 3.14159265));
-	ring = pow(ring, 2.0);
+	ring = pow(ring, 2.0) * (1.0 - smoothstep(0.42, 0.5, dist));
 	
 	vec2 dir = normalize(diff + vec2(0.0001));
-	vec2 offset = dir * ring * strength * COLOR.a;
+	vec2 offset = dir * ring * strength * 200.0 * SCREEN_PIXEL_SIZE * COLOR.a;
 	
 	vec2 uv = SCREEN_UV - offset;
-	vec2 chroma = dir * chromatic_aberration * ring * COLOR.a;
+	vec2 chroma = dir * chromatic_aberration * 100.0 * SCREEN_PIXEL_SIZE * ring * COLOR.a;
 	
 	float r = texture(screen_texture, clamp(uv + chroma, vec2(0.001), vec2(0.999))).r;
 	float g = texture(screen_texture, clamp(uv, vec2(0.001), vec2(0.999))).g;

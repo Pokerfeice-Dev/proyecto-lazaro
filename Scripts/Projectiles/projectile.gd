@@ -18,6 +18,9 @@ var is_fragment: bool = false
 var is_destroyed: bool = false
 var trail_particles: CPUParticles2D = null
 var status_effect: String = ""
+var _lifetime_left: float = 3.0
+static var _shared_trail_curve: Curve = null
+static var _shared_trail_mat: CanvasItemMaterial = null
 
 func setup(dir: Vector2, dmg: float, target: String, crit: bool = false):
 	direction = dir.normalized()
@@ -57,7 +60,7 @@ func _ready() -> void:
 	z_as_relative = false
 	body_entered.connect(_on_body_entered)
 	_setup_comet_tail()
-	_start_lifetime_timer()
+	_lifetime_left = lifetime
 
 func _setup_comet_tail() -> void:
 	if not enable_trail: return
@@ -93,11 +96,12 @@ func _configure_trail_dynamics() -> void:
 	trail_particles.scale_amount_max = 2.5
 
 func _configure_trail_curve() -> void:
-	var curve = Curve.new()
-	curve.add_point(Vector2(0.0, 1.0))
-	curve.add_point(Vector2(0.4, 0.7))
-	curve.add_point(Vector2(1.0, 0.0))
-	trail_particles.scale_amount_curve = curve
+	if not _shared_trail_curve:
+		_shared_trail_curve = Curve.new()
+		_shared_trail_curve.add_point(Vector2(0.0, 1.0))
+		_shared_trail_curve.add_point(Vector2(0.4, 0.7))
+		_shared_trail_curve.add_point(Vector2(1.0, 0.0))
+	trail_particles.scale_amount_curve = _shared_trail_curve
 
 func _configure_trail_gradient() -> void:
 	var base_color = _get_trail_base_color()
@@ -114,23 +118,21 @@ func _get_trail_base_color() -> Color:
 	return light.color
 
 func _configure_trail_material() -> void:
-	var mat = CanvasItemMaterial.new()
-	mat.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
-	trail_particles.material = mat
+	if not _shared_trail_mat:
+		_shared_trail_mat = CanvasItemMaterial.new()
+		_shared_trail_mat.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+	trail_particles.material = _shared_trail_mat
 
-func _start_lifetime_timer() -> void:
-	await get_tree().physics_frame
-	_create_and_start_timer()
-
-func _create_and_start_timer() -> void:
-	var timer = Timer.new()
-	timer.one_shot = true
-	timer.timeout.connect(_destroy_projectile)
-	add_child(timer)
-	timer.start(lifetime)
+func _advance_lifetime(delta: float) -> bool:
+	if is_destroyed: return false
+	_lifetime_left -= delta
+	if _lifetime_left <= 0.0:
+		_destroy_projectile()
+		return false
+	return true
 
 func _physics_process(delta: float) -> void:
-	if is_destroyed: return
+	if not _advance_lifetime(delta): return
 	global_position += direction * speed * delta
 
 func _on_body_entered(body: Node2D) -> void:

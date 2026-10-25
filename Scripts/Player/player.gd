@@ -88,9 +88,9 @@ var _werewolf_marked_enemy: Node2D = null
 var _werewolf_mark_visual: Node2D = null
 # Sinergia Speed Demon: cada golpe de la daga tira al jugador un poco hacia adelante.
 const SPEED_DEMON_PUSH_SPEED: float = 420.0
-const SPEED_DEMON_PUSH_TIME: float = 0.1
 var _speed_demon_push_time: float = 0.0
 var _speed_demon_push_dir: Vector2 = Vector2.ZERO
+var _speed_demon_driver: Node2D
 const WEAPON_SHEET_FPS: float = 9.0 # hojas de varios cuadros de las armas (Holy Fire, etc.)
 var _holy_fire_tongue: HolyFireTongue = null
 const ALTO_OCTANAJE_RATIO := 1.5 # daño de la explosión respecto del hachazo
@@ -113,6 +113,7 @@ func _ready() -> void:
 	setup_damage_effect()
 	_init_stats()
 	add_to_group("player")
+	GameData.register_player(self)
 	_initialize_protocols()
 	_init_weapon()
 	_apply_game_data_upgrades()
@@ -601,17 +602,14 @@ func _process_actions() -> void:
 	handle_melee()
 
 func handle_melee() -> void:
-	# con Speed Demon se puede mantener apretado: la daga vuelve a pegar apenas termina el golpe
+	# Mantener el ataque encadena ciclos completos de motor de Speed Demon.
 	var speed_demon = _is_speed_demon_active()
 	var pressed = Input.is_action_pressed("attack_melee") if speed_demon else Input.is_action_just_pressed("attack_melee")
 	if not pressed: return
 	if not second_weapon: return
 	if not second_weapon.has_method("attack"): return
-	var was_attacking = second_weapon.has_method("is_attacking") and second_weapon.is_attacking()
 	_show_secondary_weapon()
 	second_weapon.attack()
-	if speed_demon and not was_attacking:
-		_start_speed_demon_push()
 
 func setup_damage_effect() -> void:
 	damage_canvas = CanvasLayer.new()
@@ -1206,6 +1204,9 @@ func _update_primary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radiu
 	active_weapon.show_behind_parent = dir.y < 0
 
 func _update_secondary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radius: float) -> void:
+	if is_instance_valid(_speed_demon_driver) and _speed_demon_driver.is_attacking():
+		dir = _speed_demon_driver.drive_direction
+		mouse_pos = global_position + dir * 1000.0
 	var base_pos = _get_weapon_base_position(dir)
 	if second_weapon:
 		second_weapon.look_at(mouse_pos)
@@ -2092,23 +2093,36 @@ func on_arrogancia_reflect(projectile_position: Vector2) -> void:
 	if is_instance_valid(_arrogancia_shield):
 		_arrogancia_shield.reflect_at(projectile_position)
 
-## Sinergia Speed Demon: la daga pega rapidísimo (ver stat_modifiers en
-## SynergyManager) y cada golpe empuja al jugador hacia donde apunta.
+## Speeddemon controla el arranque, el avance y la frenada desde su propia arma.
 func _is_speed_demon_active() -> bool:
 	var equip = get_node_or_null("Equipment")
 	var active_weapon_id = get_active_melee_weapon_id()
 	var active_syns = SynergyManager.get_active_synergies(equip, active_weapon_id, false)
 	return active_syns.has("speed_demon")
 
-func _start_speed_demon_push() -> void:
-	var dir = (get_aim_position() - global_position).normalized()
-	if dir == Vector2.ZERO: return
-	_speed_demon_push_dir = dir
-	_speed_demon_push_time = SPEED_DEMON_PUSH_TIME
-
 func _apply_speed_demon_push(delta: float) -> void:
+	if not is_instance_valid(_speed_demon_driver):
+		_speed_demon_push_time = 0
+		handle_movement(delta)
+		return
 	_speed_demon_push_time -= delta
-	velocity = _speed_demon_push_dir * SPEED_DEMON_PUSH_SPEED
+	velocity = _speed_demon_push_dir * SPEED_DEMON_PUSH_SPEED * _speed_demon_driver.drive_multiplier * _speed_demon_driver.drive_speed_multiplier
+	var collision := KinematicCollision2D.new()
+	if test_move(global_transform, velocity * delta, collision):
+		var obstacle := collision.get_collider()
+		if obstacle and not obstacle.is_in_group("enemy"):
+			_speed_demon_driver.brake_on_wall()
+			velocity = Vector2.ZERO
+
+func begin_speed_demon_drive(driver: Node2D, direction: Vector2, duration: float) -> void:
+	_speed_demon_driver = driver
+	_speed_demon_push_dir = direction
+	_speed_demon_push_time = duration
+
+func end_speed_demon_drive(driver: Node2D) -> void:
+	if _speed_demon_driver == driver:
+		_speed_demon_push_time = 0
+		velocity = Vector2.ZERO
 
 func _is_arrogancia_equipped() -> bool:
 	var equip = get_node_or_null("Equipment")
@@ -2373,3 +2387,6 @@ func _update_ranged_synergy_visual(_delta: float = 0.0) -> void:
 		sprite.modulate = Color(0.6, 0.9, 1.6)
 	else:
 		sprite.modulate = base_modulate
+
+func _exit_tree() -> void:
+	GameData.unregister_player(self)

@@ -7,7 +7,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	age += delta
-	var player = get_tree().get_first_node_in_group("player")
+	var player = GameData.get_player()
 	if player and player.global_position.distance_to(global_position) < 24.0 and player.stats.current_health < player.stats.max_health:
 		ProtocolRuntime.heal_player(player, 2)
 		queue_free()

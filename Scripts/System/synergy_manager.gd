@@ -134,7 +134,7 @@ const SYNERGIES = {
 	},
 	"speed_demon": {
 		"name": "Speed Demon",
-		"description": "La daga se vuelve una sierra motorizada: pega rapidísimo y se puede mantener apretado el ataque, pero cada golpe te empuja hacia adelante, así que hay que medir dónde te metes.",
+		"description": "Sierra de propulsión: mantén el ataque para atravesar enemigos con cuatro pulsos de corte. La velocidad de ataque aumenta también su alcance, impulso y daño. El motor pierde velocidad al triturar, acelera al matar y frena contra las paredes.",
 		"required_weapon": "daga",
 		"required_items": ["sierra_circular", "motocicleta", "bateria"],
 		"stat_modifiers": {
