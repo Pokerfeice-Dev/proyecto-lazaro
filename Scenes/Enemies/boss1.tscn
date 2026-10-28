@@ -31,8 +31,9 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.5, 0)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_kcty2"]
-size = Vector2(132, 137)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kcty2"]
+radius = 66
+height = 137
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_tgyt7"]
 animations = [{
@@ -101,7 +102,7 @@ texture = ExtResource("2_sprite")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1177821933]
 position = Vector2(1, -4.5)
-shape = SubResource("RectangleShape2D_kcty2")
+shape = SubResource("CapsuleShape2D_kcty2")
 debug_color = Color(0.92156863, 0, 0, 0.41960785)
 
 [node name="Muzzle_left" type="Marker2D" parent="." unique_id=326610499]

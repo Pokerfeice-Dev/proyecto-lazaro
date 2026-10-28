@@ -9,5 +9,6 @@ id = "bateria"
 item_name = "Batería"
 icon = ExtResource("1_tex")
 stats = {
-"stun_chance": 0.1
+"attack_speed": 0.06,
+"stun_chance": 0.08
 }

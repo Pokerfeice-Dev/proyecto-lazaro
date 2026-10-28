@@ -540,6 +540,7 @@ func _spawn_bone_ring(pos: Vector2) -> void:
 	for i in bone_ring_count:
 		var dir = Vector2.from_angle(offset_angle + TAU * float(i) / float(bone_ring_count))
 		var bone = bone_scene.instantiate()
+		register_attack(bone)
 		bone.direction = dir
 		bone.damage = int(float(damage) * bone_damage_ratio)
 		bone.speed = bone_speed

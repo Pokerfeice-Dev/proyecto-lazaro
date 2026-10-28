@@ -9,5 +9,6 @@ id = "gasolina"
 item_name = "Gasolina"
 icon = ExtResource("1_tex")
 stats = {
-"burn_chance": 0.2
+"burn_chance": 0.15,
+"damage_multiplier": 0.05
 }

@@ -10,17 +10,20 @@ script = ExtResource("2_tutorial_script")
 mannequin_scene = ExtResource("3_26882")
 shooter_scene = ExtResource("4_g0wk0")
 
-[node name="Dummy" parent="." index="5" unique_id=609782938]
+[node name="Dummy" parent="." index="4" unique_id=609782938]
 scale = Vector2(1.3, 1.3)
 
-[node name="WeaponTerminal" parent="." index="6" unique_id=1942696176]
+[node name="WeaponTerminal" parent="." index="5" unique_id=1942696176]
 visible = false
 position = Vector2(-119, -335)
 
-[node name="SynergyTerminal" parent="." index="7" unique_id=1942696177]
+[node name="SynergyTerminal" parent="." index="6" unique_id=1942696177]
 visible = false
 position = Vector2(-20, -336)
 
-[node name="VictoriaTrainer" parent="." index="9" unique_id=1462890512]
+[node name="ExitDoor" parent="." index="7" unique_id=1462890511]
+visible = false
+
+[node name="VictoriaTrainer" parent="." index="8" unique_id=1462890512]
 visible = false
 position = Vector2(-413, 210)

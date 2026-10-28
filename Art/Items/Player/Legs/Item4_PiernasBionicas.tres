@@ -13,6 +13,6 @@ slot = 9
 stats = {
 "armor": 1.0,
 "heal_on_flesh": 1.0,
-"max_health_percent": 0.15,
-"move_speed_percent": -0.05
+"max_health_percent": 0.08,
+"move_speed_percent": -0.06
 }

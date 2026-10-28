@@ -130,6 +130,7 @@ func _start_chase() -> void:
 		anim_sprite.play("walk")
 
 func _check_collision_damage() -> void:
+	if is_dying: return
 	if has_hit_player or not attack_area: return
 	
 	var bodies = attack_area.get_overlapping_bodies()

@@ -174,6 +174,7 @@ func _apply_damage_to_enemy(body: Node2D, damage_scale: float = 1.0) -> void:
 	var equip_owner = _find_equip_owner()
 	if equip_owner:
 		final_dmg += int(equip_owner._get_equip_stat("damage", false))
+		final_dmg = maxi(1, roundi(final_dmg * maxf(0.1, 1.0 + equip_owner._get_equip_stat("damage_multiplier", false))))
 		var flat_kb = equip_owner._get_equip_stat("knockback_force", false)
 		var pct_kb = equip_owner._get_equip_stat("knockback_percent", false)
 		final_kb = (final_kb + flat_kb) * (1.0 + pct_kb)
@@ -191,6 +192,8 @@ func _apply_damage_to_enemy(body: Node2D, damage_scale: float = 1.0) -> void:
 	var was_enemy_alive = not (body.get("is_dying") == true)
 	var protocol_mult: float = equip_owner.protocol_damage_multiplier() if equip_owner and equip_owner.has_method("protocol_damage_multiplier") else 1.0
 	ProtocolRuntime.deal_damage(body, final_dmg * protocol_mult, is_crit, "overload_damage" if protocol_mult > 1.0 else "", 1.0 - 1.0 / protocol_mult)
+	if equip_owner and equip_owner.has_method("apply_melee_item_status"):
+		equip_owner.apply_melee_item_status(body)
 	if equip_owner and equip_owner.has_method("record_enemy_hit"):
 		equip_owner.record_enemy_hit(body)
 	_apply_knockback_to_enemy(body, final_kb)

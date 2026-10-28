@@ -108,6 +108,7 @@ func _on_body_entered(body: Node2D) -> void:
 		
 		if p and p.has_method("_get_equip_stat"):
 			final_dmg += int(p._get_equip_stat("damage", false))
+			final_dmg = maxi(1, roundi(final_dmg * maxf(0.1, 1.0 + p._get_equip_stat("damage_multiplier", false))))
 			var flat_kb = p._get_equip_stat("knockback_force", false)
 			var pct_kb = p._get_equip_stat("knockback_percent", false)
 			final_kb = (final_kb + flat_kb) * (1.0 + pct_kb)
@@ -121,6 +122,8 @@ func _on_body_entered(body: Node2D) -> void:
 		var was_enemy_alive = not (body.get("is_dying") == true)
 		var protocol_mult: float = p.protocol_damage_multiplier() if p and p.has_method("protocol_damage_multiplier") else 1.0
 		ProtocolRuntime.deal_damage(body, final_dmg * protocol_mult, is_crit, "overload_damage" if protocol_mult > 1.0 else "", 1.0 - 1.0 / protocol_mult)
+		if p and p.has_method("apply_melee_item_status"):
+			p.apply_melee_item_status(body)
 		if p and p.has_method("record_enemy_hit"):
 			p.record_enemy_hit(body)
 		if was_enemy_alive and body.get("is_dying") == true and p and p.has_method("check_nemesis_kill_heal"):

@@ -15,8 +15,9 @@
 [ext_resource type="AudioStream" uid="uid://cv5n7p5nwrhpk" path="res://Audio/Sfx/Teleport/Teleport.wav" id="13_wlqgo"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_v51sc"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_b5cft"]
-size = Vector2(18, 50)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b5cft"]
+radius = 9
+height = 50
 
 [node name="Boss3_Prometeo" type="CharacterBody2D" unique_id=23777509]
 collision_layer = 2
@@ -33,7 +34,7 @@ frame_progress = 0.5580801
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1738336948]
 position = Vector2(0, 1)
-shape = SubResource("RectangleShape2D_b5cft")
+shape = SubResource("CapsuleShape2D_b5cft")
 
 [node name="Arsenal" type="Node2D" parent="." unique_id=1625819496]
 position = Vector2(0, -6)

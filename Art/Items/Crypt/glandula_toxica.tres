@@ -4,8 +4,11 @@
 [resource]
 script = ExtResource("1")
 id = "glandula_toxica"
-item_name = "Glándula tóxica"
+item_name = "Glándula"
 icon = ExtResource("2")
 type = 0
 slot = 0
-stats = {"crit_damage": 0.25}
+stats = {
+"burn_chance": 0.12,
+"crit_chance": 0.06
+}

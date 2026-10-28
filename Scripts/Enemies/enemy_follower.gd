@@ -145,6 +145,7 @@ func _on_animated_sprite_2d_frame_changed() -> void:
 		has_damaged_this_attack = true
 
 func _apply_damage_to_area() -> void:
+	if is_dying: return
 	var bodies = attack_area.get_overlapping_bodies()
 	for body in bodies:
 		if body.is_in_group("player") and body.has_method("take_damage"):

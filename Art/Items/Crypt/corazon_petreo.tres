@@ -4,8 +4,11 @@
 [resource]
 script = ExtResource("1")
 id = "corazon_petreo"
-item_name = "Corazón de Piedra"
+item_name = "Corazón"
 icon = ExtResource("2")
 type = 0
 slot = 0
-stats = {"damage_multiplier": 0.15}
+stats = {
+"damage_multiplier": 0.2,
+"attack_speed": -0.08
+}

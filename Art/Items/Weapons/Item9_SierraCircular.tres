@@ -9,6 +9,6 @@ id = "sierra_circular"
 item_name = "Sierra"
 icon = ExtResource("1_tex")
 stats = {
-"crit_damage": 0.2,
-"damage_multiplier": 0.2
+"attack_speed": -0.05,
+"damage_multiplier": 0.15
 }

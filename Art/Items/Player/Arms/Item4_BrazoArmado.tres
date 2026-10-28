@@ -11,7 +11,6 @@ icon = ExtResource("1_tex")
 type = 2
 slot = 7
 stats = {
-"armor": -1.0,
-"attack_range_percent": 0.2,
-"attack_speed": 0.15
+"attack_range_percent": 0.12,
+"crit_chance": 0.06
 }

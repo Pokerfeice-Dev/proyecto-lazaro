@@ -12,6 +12,6 @@ type = 1
 slot = 6
 stats = {
 "armor": 2.0,
-"max_health_percent": 0.25,
-"move_speed_percent": -0.05
+"max_health_percent": 0.2,
+"move_speed_percent": -0.06
 }

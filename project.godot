@@ -39,6 +39,7 @@ enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
 
 [frankengun]
 
+cheats=true
 modo_evento=false
 
 [global]

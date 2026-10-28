@@ -6,7 +6,8 @@ enum State {
 	CHASE,
 	SHOOT,
 	DEAD,
-	WANDER
+	WANDER,
+	REPOSITION
 }
 var current_state: State = State.WANDER
 
@@ -66,6 +67,10 @@ func process_movement(delta: float) -> void:
 		return
 		
 	match current_state:
+		State.REPOSITION:
+			if not process_ranged_reposition(delta):
+				current_state = State.CHASE
+				_update_logic_state()
 		State.WANDER:
 			_process_wander(delta)
 		State.CHASE:
@@ -101,10 +106,12 @@ func _process_shoot() -> void:
 	if not has_line_of_sight_to_player():
 		_update_logic_state()
 		return
+	if is_attacking or is_anticipating_shot: return
 	if shoot_timer.is_stopped():
 		shoot_timer.start(fire_rate)
 
 func _on_shoot_ready() -> void:
+	if current_state == State.REPOSITION: return
 	if is_dying or current_state == State.DEAD: return
 	if not target: return
 	if not has_line_of_sight_to_player():
@@ -178,6 +185,7 @@ func _on_shoot_area_body_exited(body: Node2D) -> void:
 		_update_logic_state()
 
 func _update_logic_state() -> void:
+	if is_dying or current_state == State.REPOSITION: return
 	if player_in_shoot_range and has_line_of_sight_to_player():
 		current_state = State.SHOOT
 		return
@@ -231,6 +239,7 @@ func shoot_at_target() -> void:
 
 func _spawn_projectile(dir: Vector2) -> void:
 	var proj = projectile_scene.instantiate()
+	register_attack(proj)
 	proj.source_name = "Carpenter"
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = global_position
@@ -250,6 +259,10 @@ func _on_attack_finished() -> void:
 	_restore_sprite_modulate()
 	if is_dying or current_state == State.DEAD: return
 	is_attacking = false
+	shoot_timer.stop()
+	if begin_ranged_reposition(220.0):
+		current_state = State.REPOSITION
+		return
 	if current_state == State.SHOOT:
 		_play_idle_animation()
 

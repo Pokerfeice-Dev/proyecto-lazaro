@@ -379,6 +379,7 @@ func _aim_warning(duration: float, length: float) -> void:
 
 func _fire_bullet(angle: float, speed: float, tint: Color, p_lifetime: float = 4.0, turn_rate: float = 0.0, homing_time: float = 0.0, origin: Vector2 = Vector2.INF) -> void:
 	var bullet = BULLET_SCENE.instantiate()
+	boss.register_attack(bullet)
 	bullet.configure(speed, tint, p_lifetime, turn_rate, homing_time)
 	bullet.source_name = boss.boss_display_name
 	_scene_root().add_child(bullet)

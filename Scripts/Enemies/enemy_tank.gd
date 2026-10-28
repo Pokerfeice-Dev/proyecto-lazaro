@@ -190,6 +190,11 @@ func take_damage(amount: int, is_crit: bool = false) -> void:
 		knockback_velocity = Vector2.ZERO
 
 func die() -> void:
+	if is_dying: return
+	current_state = State.DEAD
+	_can_attack = false
+	has_damaged_this_attack = true
+	if attack_fx: attack_fx.hide()
 	_kill_attack_light()
 	_stop_hydraulic_sound()
 	_hide_telegraph()
@@ -239,12 +244,14 @@ func perform_attack() -> void:
 	get_tree().create_timer(duration).timeout.connect(_on_attack_timeout, CONNECT_ONE_SHOT)
 
 func _on_attack_timeout() -> void:
+	if is_dying: return
 	if current_state != State.ATTACK: return
 	if not has_damaged_this_attack:
 		_trigger_ground_slam()
 	_finish_attack()
 
 func _on_animated_sprite_2d_frame_changed() -> void:
+	if is_dying: return
 	if current_state != State.ATTACK: return
 	if anim_sprite.animation != "attack": return
 	
@@ -256,6 +263,7 @@ func _on_animated_sprite_2d_frame_changed() -> void:
 		_trigger_ground_slam()
 
 func _trigger_ground_slam() -> void:
+	if is_dying: return
 	has_damaged_this_attack = true
 	_stop_hydraulic_sound()
 	_hide_telegraph()
@@ -273,6 +281,7 @@ func _play_slam_fx() -> void:
 	attack_fx.play("fx_attack")
 
 func _apply_damage_to_area() -> void:
+	if is_dying: return
 	var bodies = attack_area.get_overlapping_bodies()
 	var player_hit = false
 	for body in bodies:
@@ -283,6 +292,7 @@ func _apply_damage_to_area() -> void:
 	_apply_distance_damage_fallback()
 
 func _apply_distance_damage_fallback() -> void:
+	if is_dying: return
 	if not target or not target.is_in_group("player"): return
 	var center = global_position + slam_offset
 	if center.distance_to(target.global_position) > slam_radius: return
@@ -326,6 +336,7 @@ func _hide_telegraph() -> void:
 	queue_redraw()
 
 func _finish_attack() -> void:
+	if is_dying: return
 	if is_dying: return
 	_stop_hydraulic_sound()
 	_hide_telegraph()

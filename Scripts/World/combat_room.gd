@@ -15,6 +15,14 @@ var total_enemies_to_spawn: int = 15
 var max_concurrent_enemies: int = 5
 var spawn_interval: float = 1.5
 var enemy_pool: Array[PackedScene] = []
+var _enemy_weights: Dictionary = {}
+var _special_caps: Dictionary = {}
+var _elite_chance := 0.05
+var _scheduled_enemies: Array[WeakRef] = []
+const ENEMY_IDS := {
+	"EnemyFollower": "follower", "EnemyShooter": "shooter", "EnemyTank": "tank", "EnemyTurret": "turret", "EnemySummoner": "summoner",
+	"CryptGargoyle": "crypt_gargoyle", "CryptGhoul": "crypt_ghoul", "CryptDeathSquad": "crypt_death_squad", "CryptCentipede": "crypt_centipede", "CryptLaserEye": "crypt_laser_eye", "CryptDeadBeekeeperSummoner": "crypt_dead_beekeeper", "CryptBellKeeper": "crypt_bell_keeper"
+}
 
 const CRYPT_ENEMY_SCENES := {
 	"crypt_bell_keeper": "res://Scenes/Enemies/Crypt/CryptBellKeeper.tscn",
@@ -172,6 +180,9 @@ func _apply_difficulty_settings() -> void:
 	total_enemies_to_spawn = config.total_enemies
 	max_concurrent_enemies = config.max_concurrent
 	spawn_interval = config.spawn_interval
+	_enemy_weights = config.get("enemy_weights", {})
+	_special_caps = config.get("special_caps", {})
+	_elite_chance = config.get("elite_chance", 0.05)
 	_build_enemy_pool(config.allowed_enemies)
 
 func _build_enemy_pool(allowed: Array) -> void:
@@ -258,7 +269,7 @@ func _on_spawn_timer_timeout() -> void:
 		spawn_timer.stop()
 		return
 
-	if active_enemies >= max_concurrent_enemies:
+	if maxi(active_enemies, _living_encounter_enemies().size()) >= max_concurrent_enemies:
 		return # Esperar a que muera un enemigo
 
 	_spawn_single_enemy()
@@ -266,19 +277,21 @@ func _on_spawn_timer_timeout() -> void:
 func _spawn_single_enemy() -> void:
 	if spawn_points.is_empty() or enemy_pool.is_empty(): return
 
-	var point = spawn_points.pick_random()
+	var point = _choose_spawn_point()
+	if point == null: return
 	var random_enemy_scene = _pick_random_enemy_scene()
 
 	if not random_enemy_scene: return
 
 	var enemy = random_enemy_scene.instantiate()
+	_scheduled_enemies.append(weakref(enemy))
 	if _is_summoner_scene(random_enemy_scene):
 		_spawned_summoners.append(enemy)
 	enemy.global_position = point.global_position
 	enemy.enemy_died.connect(_on_enemy_died)
 
 	var escaner_lvl = GameData.core_upgrades.get("escaner_objetivos", 0)
-	var elite_chance = 0.05 + (escaner_lvl * 0.01)
+	var elite_chance = minf(0.12, _elite_chance + (escaner_lvl * 0.01)) if _elite_chance > 0.0 else 0.0
 	if randf() <= elite_chance:
 		enemy.is_elite = true
 
@@ -295,14 +308,23 @@ func _pick_random_enemy_scene() -> PackedScene:
 	var available_pool = _filter_available_enemy_pool()
 	if available_pool.is_empty():
 		return null # solo quedaban invocadores y ya hay 2: se espera al próximo turno
-	return available_pool.pick_random()
+	var total_weight := 0.0
+	for scene in available_pool: total_weight += float(_enemy_weights.get(_enemy_id(scene.resource_path), 1.0))
+	var roll := randf() * total_weight
+	for scene in available_pool:
+		roll -= float(_enemy_weights.get(_enemy_id(scene.resource_path), 1.0))
+		if roll <= 0.0: return scene
+	return available_pool.back()
 
 func _filter_available_enemy_pool() -> Array[PackedScene]:
 	var result: Array[PackedScene] = []
-	var summoners_count = _count_active_summoners()
+	var counts := {}
+	for enemy in _living_encounter_enemies():
+		var id := _enemy_id(enemy.scene_file_path)
+		counts[id] = int(counts.get(id, 0)) + 1
 	for scene in enemy_pool:
-		if _is_summoner_scene(scene) and summoners_count >= 2:
-			continue
+		var id := _enemy_id(scene.resource_path)
+		if int(counts.get(id, 0)) >= int(_special_caps.get(id, max_concurrent_enemies)): continue
 		result.append(scene)
 	return result
 
@@ -561,3 +583,35 @@ func _get_legacy_nav_path(from_pos: Vector2, to_pos: Vector2) -> PackedVector2Ar
 	if path.size() > 0:
 		path.append(to_pos)
 	return path
+
+func _enemy_id(path: String) -> String:
+	return str(ENEMY_IDS.get(path.get_file().get_basename(), "other"))
+
+func _living_encounter_enemies() -> Array[Node]:
+	var result: Array[Node] = []
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if is_instance_valid(enemy) and not enemy.is_queued_for_deletion() and enemy.get("is_dying") != true:
+			result.append(enemy)
+	_scheduled_enemies = _scheduled_enemies.filter(func(ref): return is_instance_valid(ref.get_ref()))
+	for ref in _scheduled_enemies:
+		var enemy = ref.get_ref()
+		if not enemy.is_queued_for_deletion() and not enemy.is_dying and not result.has(enemy): result.append(enemy)
+	return result
+
+func _choose_spawn_point() -> Node2D:
+	var player := GameData.get_player()
+	var living := _living_encounter_enemies()
+	var best: Node2D = null
+	var best_score := -INF
+	for point in spawn_points:
+		if not is_instance_valid(point): continue
+		var distance: float = point.global_position.distance_to(player.global_position) if is_instance_valid(player) else 300.0
+		if distance < 100.0: continue
+		var clearance := 100.0
+		for enemy in living: clearance = minf(clearance, point.global_position.distance_to(enemy.global_position))
+		if clearance < 35.0: continue
+		var score := minf(distance, 320.0) * 0.25 + clearance + randf_range(0, 30)
+		if score > best_score:
+			best_score = score
+			best = point
+	return best

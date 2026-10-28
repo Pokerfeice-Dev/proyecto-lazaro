@@ -9,5 +9,6 @@ id = "nitrogeno"
 item_name = "Nitrógeno"
 icon = ExtResource("1_tex")
 stats = {
-"slow_chance": 0.3
+"crit_chance": 0.04,
+"slow_chance": 0.22
 }

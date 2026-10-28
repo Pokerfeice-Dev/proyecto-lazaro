@@ -4,8 +4,11 @@
 [resource]
 script = ExtResource("1")
 id = "lente_sepulcral"
-item_name = "Lente sepulcral"
+item_name = "Lente"
 icon = ExtResource("2")
 type = 0
 slot = 0
-stats = {"piercing": 1}
+stats = {
+"damage_multiplier": 0.08,
+"crit_chance": 0.07
+}

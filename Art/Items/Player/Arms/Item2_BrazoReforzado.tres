@@ -12,6 +12,6 @@ type = 2
 slot = 7
 stats = {
 "armor": 1.0,
-"damage": 3.0,
-"knockback_percent": 0.15
+"attack_speed": -0.05,
+"damage": 2.0
 }

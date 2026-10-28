@@ -29,8 +29,9 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.5, 0)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_af2qg"]
-size = Vector2(30, 18)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_af2qg"]
+radius = 9
+height = 30
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_e7l14"]
 animations = [{
@@ -176,7 +177,8 @@ position = Vector2(19, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=749432307]
 position = Vector2(-1, 0)
-shape = SubResource("RectangleShape2D_af2qg")
+rotation = 1.57079632679
+shape = SubResource("CapsuleShape2D_af2qg")
 
 [node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=1713860462]
 scale = Vector2(0.8, 0.8)

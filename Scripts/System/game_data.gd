@@ -465,67 +465,39 @@ func _remember_room(room_path: String) -> String:
 	last_room_path = room_path
 	return room_path
 
+# Encounter budgets by room depth within each zone. Depths above 10 stay capped.
+const ROOM_BUDGETS := {
+	1: {"totals": [4, 6, 8, 10, 12, 14, 16, 18, 20, 22], "caps": [3, 3, 4, 4, 4, 5, 5, 5, 5, 5], "intervals": [1.6, 1.5, 1.45, 1.4, 1.35, 1.3, 1.25, 1.2, 1.15, 1.1]},
+	2: {"totals": [10, 12, 14, 16, 18, 20, 22, 24, 25, 26], "caps": [4, 4, 4, 5, 5, 5, 6, 6, 6, 6], "intervals": [1.5, 1.45, 1.4, 1.35, 1.3, 1.25, 1.2, 1.15, 1.1, 1.1]},
+	3: {"totals": [14, 16, 18, 20, 22, 24, 26, 28, 30, 30], "caps": [5, 5, 5, 6, 6, 6, 7, 7, 7, 7], "intervals": [1.3, 1.25, 1.2, 1.15, 1.1, 1.05, 1.0, 0.95, 0.9, 0.9]}
+}
+
 func get_room_config() -> Dictionary:
-	var config: Dictionary = _create_base_config()
-	_apply_room_scaling(config, current_run_room)
-	if current_level == 2:
-		config.allowed_enemies = ["crypt_gargoyle", "crypt_ghoul", "crypt_centipede", "crypt_death_squad", "crypt_laser_eye", "crypt_dead_beekeeper", "crypt_bell_keeper"]
-	return config
-
-func _create_base_config() -> Dictionary:
+	var level := clampi(current_level, 1, 3)
+	var depth := clampi(current_run_room, 1, 10)
+	var curve: Dictionary = ROOM_BUDGETS[level]
+	var weights: Dictionary
+	if level == 2:
+		weights = {"crypt_gargoyle": 4.0, "crypt_ghoul": 3.0, "crypt_death_squad": 2.0}
+		if depth >= 2: weights["crypt_centipede"] = 1.5
+		if depth >= 3: weights["crypt_laser_eye"] = 0.8
+		if depth >= 4: weights["crypt_dead_beekeeper"] = 0.7
+		if depth >= 5: weights["crypt_bell_keeper"] = 0.8
+	else:
+		weights = {"follower": 5.0}
+		if depth >= 2 or level == 3: weights["shooter"] = 3.0
+		if depth >= 4 or level == 3: weights["tank"] = 1.5
+		if depth >= 5 or level == 3: weights["turret"] = 1.0
+		if depth >= 6 or level == 3: weights["summoner"] = 0.75
 	return {
-		"total_enemies": 4,
-		"max_concurrent": 3,
-		"spawn_interval": 1.5,
-		"allowed_enemies": ["follower"]
+		"total_enemies": curve.totals[depth - 1],
+		"max_concurrent": curve.caps[depth - 1],
+		"spawn_interval": curve.intervals[depth - 1],
+		"allowed_enemies": weights.keys(),
+		"enemy_weights": weights,
+		"special_caps": {"summoner": 1, "tank": 2 if level == 3 else 1, "turret": 2 if level == 3 else 1, "crypt_dead_beekeeper": 1, "crypt_laser_eye": 1, "crypt_bell_keeper": 1, "crypt_centipede": 2},
+		"elite_chance": 0.0 if level == 1 and depth <= 2 else minf(0.08, 0.02 + 0.01 * level + 0.003 * depth)
 	}
-
-func _apply_room_scaling(config: Dictionary, room: int) -> void:
-	if room <= 1:
-		_set_room_1_config(config)
-		return
-	if room == 2:
-		_set_room_2_config(config)
-		return
-	_set_room_n_config(config, room)
-
-func _set_room_1_config(config: Dictionary) -> void:
-	config.total_enemies = 4
-	config.max_concurrent = 3
-	config.spawn_interval = 1.5
-	config.allowed_enemies = ["follower"]
-
-func _set_room_2_config(config: Dictionary) -> void:
-	config.total_enemies = 7
-	config.max_concurrent = 4
-	config.spawn_interval = 1.3
-	config.allowed_enemies = ["follower", "shooter"]
-
-func _set_room_n_config(config: Dictionary, room: int) -> void:
-	var extra_rooms = room - 3
-	config.total_enemies = 11 + (extra_rooms * 4)
-	config.max_concurrent = 5 + int(extra_rooms / 2.0)
-	
-	var new_interval = 1.1 - (extra_rooms * 0.05)
-	config.spawn_interval = maxf(0.3, new_interval)
-	
-	config.allowed_enemies = ["follower", "shooter"]
-	_add_tank_to_allowed_enemies(config, room)
-	_add_turret_to_allowed_enemies_if_level_4(config, room)
-	_add_summoner_to_allowed_enemies_if_level_5(config, room)
-
-func _add_tank_to_allowed_enemies(config: Dictionary, room: int) -> void:
-	if current_level <= 1 and room < 4:
-		return
-	config.allowed_enemies.append("tank")
-
-func _add_turret_to_allowed_enemies_if_level_4(config: Dictionary, room: int) -> void:
-	if room < 4: return
-	config.allowed_enemies.append("turret")
-
-func _add_summoner_to_allowed_enemies_if_level_5(config: Dictionary, room: int) -> void:
-	if room < 5: return
-	config.allowed_enemies.append("summoner")
 
 # ── Weapon upgrades ─────────────────────────────────────────────────────────
 var weapon_damage: float = 10.0

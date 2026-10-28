@@ -8,4 +8,7 @@ item_name = "Tendón"
 icon = ExtResource("2")
 type = 0
 slot = 0
-stats = {"attack_speed": 0.15}
+stats = {
+"attack_speed": 0.22,
+"damage_multiplier": -0.05
+}

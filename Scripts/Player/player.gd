@@ -478,7 +478,7 @@ func _start_dash() -> void:
 	set_collision_mask_value(2, false)
 	dash_timer.start(dash_duration)
 	var bonus_cd_pct = _get_equip_stat("dash_cooldown_percent", false)
-	var final_cd = 5.0 * (1.0 + bonus_cd_pct)
+	var final_cd = maxf(1.0, 5.0 * (1.0 + bonus_cd_pct))
 	dash_cd_timer.start(final_cd)
 	_set_dash_direction()
 	_play_dash_sound()
@@ -883,7 +883,7 @@ func fire_projectile(dir: Vector2) -> void:
 		dmg = (_get_weapon_damage() + _get_equip_stat("damage")) * (_get_weapon_damage_multiplier() + _get_equip_stat("damage_multiplier"))
 		p_speed = _get_weapon_proj_speed() + _get_equip_stat("projectile_speed")
 		bullets = _get_weapon_bullets() + int(_get_equip_stat("bullet_count"))
-		spread = maxf(0.0, _get_weapon_spread() - _get_equip_stat("cone_spread_angle"))
+		spread = maxf(0.0, _get_weapon_spread() + _get_equip_stat("cone_spread_angle"))
 		piercing = _get_weapon_piercing() + int(_get_equip_stat("piercing"))
 		crit_chance = _get_weapon_crit_chance() + _get_equip_stat("crit_chance")
 		crit_damage = _get_weapon_crit_damage() + _get_equip_stat("crit_damage")
@@ -1031,16 +1031,16 @@ func _apply_bullet_proc_status_if_supported(proj: Node2D) -> void:
 	if effect.is_empty(): return
 	proj.set_status_effect(effect)
 
-func _roll_bullet_status_effect() -> String:
+func _roll_bullet_status_effect(is_main: bool = true) -> String:
 	var active_effects: Array[String] = []
-	if _should_proc_status("stun_chance"): active_effects.append("stun")
-	if _should_proc_status("burn_chance"): active_effects.append("burn")
-	if _should_proc_status("slow_chance"): active_effects.append("slow")
+	if _should_proc_status("stun_chance", is_main): active_effects.append("stun")
+	if _should_proc_status("burn_chance", is_main): active_effects.append("burn")
+	if _should_proc_status("slow_chance", is_main): active_effects.append("slow")
 	if active_effects.is_empty(): return ""
 	return active_effects.pick_random()
 
-func _should_proc_status(stat_name: String) -> bool:
-	var chance = _get_equip_stat(stat_name)
+func _should_proc_status(stat_name: String, is_main: bool = true) -> bool:
+	var chance = clampf(_get_equip_stat(stat_name, is_main), 0.0, 1.0)
 	if chance <= 0.0: return false
 	return randf() <= chance
 
@@ -2352,7 +2352,7 @@ func _spawn_protocol_echo(holo: Node2D, direction: Vector2) -> void:
 	var override_scene := SynergyManager.get_synergies_projectile_override(syns)
 	if override_scene: p_scene = override_scene
 	var count := _calculate_final_bullet_count(_get_weapon_bullets() + int(_get_equip_stat("bullet_count")), p_scene, get_active_ranged_weapon_id())
-	var spread := _calculate_final_spread(maxf(0, _get_weapon_spread() - _get_equip_stat("cone_spread_angle")), p_scene, get_active_ranged_weapon_id())
+	var spread := _calculate_final_spread(maxf(0, _get_weapon_spread() + _get_equip_stat("cone_spread_angle")), p_scene, get_active_ranged_weapon_id())
 	var volley := func():
 		for i in count:
 			var shot := _spawn_single_bullet(p_scene, i, count, _get_start_angle(direction, count, spread), _get_step_angle(count, spread), direction, dmg, _get_weapon_proj_speed(), holo.global_position, _get_weapon_piercing(), 0.0, 2.0, _get_weapon_lifetime())
@@ -2390,3 +2390,8 @@ func _update_ranged_synergy_visual(_delta: float = 0.0) -> void:
 
 func _exit_tree() -> void:
 	GameData.unregister_player(self)
+
+func apply_melee_item_status(body: Node2D) -> void:
+	if not is_instance_valid(body) or body.get("is_dying") == true or not body.has_method("apply_status_effect"): return
+	var effect := _roll_bullet_status_effect(false)
+	if not effect.is_empty(): body.apply_status_effect(effect)

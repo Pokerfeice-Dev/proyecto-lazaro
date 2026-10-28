@@ -53,6 +53,9 @@ var _nav_recalc_timer: float = 0.0
 var _nav_target_last_pos: Vector2 = Vector2.ZERO
 var _avoidance_angle_bias: float = 1.0
 var _avoidance_bias_timer: float = 0.0
+const EnemyCrowd = preload("res://Scripts/World/enemy_crowd.gd")
+var _crowd_offset := Vector2.ZERO
+
 const EnemyNavigation = preload("res://Scripts/World/enemy_navigation.gd")
 var _nav_clearance := 0.0
 var _nav_probe: PhysicsShapeQueryParameters2D
@@ -107,6 +110,8 @@ func _ready() -> void:
 	_last_stuck_pos = global_position
 	current_health = max_health
 	add_to_group("enemy")
+	# Bodies keep the enemy layer for weapon hits; movement uses soft avoidance.
+	set_collision_mask_value(2, false)
 	_find_player()
 	
 	var sprite = _get_sprite()
@@ -252,6 +257,7 @@ func _physics_process(delta: float) -> void:
 		_check_detection_range()
 		process_movement(delta)
 	
+	_apply_crowd_avoidance(delta)
 	_update_stuck_detection(delta)
 	_process_knockback(delta)
 	move_and_slide()
@@ -296,6 +302,7 @@ func process_movement(_delta: float) -> void:
 	pass # To be overridden by specific enemy types
 
 func take_damage(amount: int, is_crit: bool = false) -> void:
+	if is_dying: return
 	current_health -= amount
 	hit_stun_timer = 0.15
 	alert_to_player()
@@ -713,12 +720,12 @@ func _check_death() -> void:
 func die() -> void:
 	if is_dying: return
 	is_dying = true
+	_disable_physics()
 	GameData.run_enemies_killed += 1
 	GameData.protocol_enemy_defeated(self)
 	_unlock_bestiary_entry()
 	enemy_died.emit(self)
 	_attempt_drops()
-	_disable_physics()
 	if not use_legacy_death_fx:
 		_spawn_pixel_death()
 	_hide_sprite()
@@ -842,11 +849,40 @@ func _spawn_item_at(pos: Vector2) -> void:
 	get_tree().current_scene.call_deferred("add_child", item_drop)
 	print("Item instanciado exitosamente.")
 
+var _owned_attacks: Array[WeakRef] = []
+
+func register_attack(attack: Node) -> void:
+	_owned_attacks = _owned_attacks.filter(func(ref): return is_instance_valid(ref.get_ref()))
+	_owned_attacks.append(weakref(attack))
+
 func _disable_physics() -> void:
 	set_physics_process(false)
-	var col = get_node_or_null("CollisionShape2D")
-	if not col: return
-	col.set_deferred("disabled", true)
+	velocity = Vector2.ZERO
+	knockback_velocity = Vector2.ZERO
+	collision_layer = 0
+	collision_mask = 0
+	_disable_attack_nodes(self)
+	for ref in _owned_attacks:
+		var attack = ref.get_ref()
+		if not is_instance_valid(attack): continue
+		attack.process_mode = Node.PROCESS_MODE_DISABLED
+		_disable_attack_nodes(attack)
+		if attack is CanvasItem: attack.hide()
+		attack.queue_free()
+	_owned_attacks.clear()
+
+func _disable_attack_nodes(root: Node) -> void:
+	if root is CollisionObject2D:
+		root.collision_layer = 0
+		root.collision_mask = 0
+	if root is Area2D:
+		root.set_deferred("monitoring", false)
+		root.set_deferred("monitorable", false)
+	if root is CollisionShape2D or root is CollisionPolygon2D:
+		root.set_deferred("disabled", true)
+	if root is Timer: root.stop()
+	if root is AnimationPlayer or root is AnimatedSprite2D: root.stop()
+	for child in root.get_children(): _disable_attack_nodes(child)
 
 func _hide_sprite() -> void:
 	var sprite = _get_sprite()
@@ -889,3 +925,89 @@ func _safe_play_animated_sprite(sprite: AnimatedSprite2D, anim_name: String) -> 
 	if not sprite.sprite_frames: return
 	if not sprite.sprite_frames.has_animation(anim_name): return
 	sprite.play(anim_name)
+
+func _apply_crowd_avoidance(delta: float) -> void:
+	var speed := velocity.length()
+	# Preserve planted attacks, frozen actors, lunges and knockback trajectories.
+	if is_dying or is_spawning or hit_stun_timer > 0.0 or speed < 5.0 or speed > move_speed * 1.5 or knockback_velocity.length() > 5.0:
+		_crowd_offset = Vector2.ZERO
+		return
+	var forward := velocity / speed
+	var right := forward.orthogonal()
+	var correction := Vector2.ZERO
+	var own_radius := clampf(_get_nav_clearance(), 8.0, 40.0)
+	for sample in EnemyCrowd.neighbors(self):
+		var other = sample.body
+		if not is_instance_valid(other) or other.get("is_dying") == true: continue
+		var offset: Vector2 = sample.position - global_position
+		var distance := offset.length()
+		var other_radius := 16.0
+		if other.has_method("_get_nav_clearance"):
+			other_radius = clampf(other._get_nav_clearance(), 8.0, 40.0)
+		var spacing := own_radius + other_radius + 5.0
+		if distance > spacing + speed * 0.3: continue
+		var toward := offset / maxf(distance, 0.01)
+		if distance < 0.01:
+			toward = Vector2.RIGHT if get_instance_id() < other.get_instance_id() else Vector2.LEFT
+		var overlap := clampf((spacing - distance) / spacing, 0.0, 1.0)
+		correction -= toward * overlap * speed * 0.85
+		var relative_velocity: Vector2 = velocity - sample.velocity
+		var closing := relative_velocity.dot(toward)
+		if forward.dot(toward) > 0.2 and closing > 0.0:
+			var anticipation := clampf((spacing + closing * 0.3 - distance) / spacing, 0.0, 1.0)
+			# Fixed right-hand preference avoids alternating left/right in head-on traffic.
+			var side := -1.0 if offset.dot(right) > spacing * 0.25 else 1.0
+			correction += right * side * anticipation * speed * 0.75
+	correction = correction.limit_length(speed * 0.85)
+	_crowd_offset = _crowd_offset.lerp(correction, 1.0 - exp(-10.0 * delta))
+	var candidate := (velocity + _crowd_offset).limit_length(speed)
+	# Do not let separation steer into scenery or cut a pathfinding corner.
+	var probe_time := maxf(delta, 0.12)
+	if not test_move(global_transform, candidate * probe_time):
+		velocity = candidate
+	else:
+		_crowd_offset = Vector2.ZERO
+
+var _reposition_goal := Vector2.ZERO
+var _reposition_left := 0.0
+var _reposition_side := 1.0
+
+func begin_ranged_reposition(preferred_distance: float, duration: float = 1.0) -> bool:
+	_reposition_left = 0.0
+	if is_dying or not is_instance_valid(target) or move_speed <= 0.0: return false
+	var away := target.global_position.direction_to(global_position)
+	if away == Vector2.ZERO: away = Vector2.RIGHT
+	_reposition_side = -_reposition_side
+	var best_score := -INF
+	var neighbors := EnemyCrowd.neighbors(self)
+	var exclusions := EnemyNavigation.actor_exclusions(get_tree())
+	for step in [0.65, 1.0]:
+		var travel: float = clampf(move_speed * duration * step, 28.0, 125.0)
+		for index in range(12):
+			var direction := away.rotated(TAU * index / 12.0)
+			var candidate := global_position + direction * travel
+			if not _can_walk_segment(global_position, candidate): continue
+			var query := PhysicsRayQueryParameters2D.create(candidate, target.global_position, EnemyNavigation.OBSTACLE_MASK)
+			query.exclude = exclusions
+			if not get_world_2d().direct_space_state.intersect_ray(query).is_empty(): continue
+			var distance := candidate.distance_to(target.global_position)
+			var score := -absf(distance - preferred_distance) + direction.dot(away.orthogonal()) * _reposition_side * 18.0 + travel * 0.12
+			for sample in neighbors:
+				score -= maxf(0.0, 65.0 - candidate.distance_to(sample.position)) * 1.5
+			if score > best_score:
+				best_score = score
+				_reposition_goal = candidate
+	if best_score == -INF: return false
+	_reposition_left = duration
+	return true
+
+func process_ranged_reposition(delta: float) -> bool:
+	if _reposition_left <= 0.0 or is_dying: return false
+	_reposition_left = maxf(0.0, _reposition_left - delta)
+	var offset := _reposition_goal - global_position
+	if offset.length() < 5.0 or not _can_walk_segment(global_position, _reposition_goal):
+		_reposition_left = 0.0
+		velocity = Vector2.ZERO
+		return false
+	velocity = offset.normalized() * minf(move_speed, offset.length() / maxf(delta, 0.001))
+	return true

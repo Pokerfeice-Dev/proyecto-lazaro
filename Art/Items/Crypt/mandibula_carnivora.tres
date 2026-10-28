@@ -8,4 +8,7 @@ item_name = "Mandíbula"
 icon = ExtResource("2")
 type = 0
 slot = 0
-stats = {"crit_damage": 0.15}
+stats = {
+"damage": 2.0,
+"crit_chance": 0.04
+}

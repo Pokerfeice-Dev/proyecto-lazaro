@@ -24,21 +24,21 @@ const MELEE_WEAPONS: Array[Dictionary] = [
 ]
 
 const ITEMS: Array[Dictionary] = [
-	{"name": "Brazo Reforzado", "path": "res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres"},
+	{"name": "Brazo Musculoso", "path": "res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres"},
 	{"name": "Brazo Ligero", "path": "res://Art/Items/Player/Arms/Item3_BrazoLigero.tres"},
-	{"name": "Brazo Armado", "path": "res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"},
-	{"name": "Torso Blindado", "path": "res://Art/Items/Player/Body/Item2_TorsoBlindado.tres"},
-	{"name": "Torso Espinado", "path": "res://Art/Items/Player/Body/Item3_TorsoEspinado.tres"},
+	{"name": "Brazo Canino", "path": "res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"},
+	{"name": "Torso Musculoso", "path": "res://Art/Items/Player/Body/Item2_TorsoBlindado.tres"},
+	{"name": "Torso Canino", "path": "res://Art/Items/Player/Body/Item3_TorsoEspinado.tres"},
 	{"name": "Torso Ligero", "path": "res://Art/Items/Player/Body/Item4_TorsoLigero.tres"},
-	{"name": "Piernas Rodantes", "path": "res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres"},
+	{"name": "Piernas Ligeras", "path": "res://Art/Items/Player/Legs/Item2_PiernasRodantes.tres"},
 	{"name": "Piernas Caninas", "path": "res://Art/Items/Player/Legs/Item3_PiernasCaninas.tres"},
-	{"name": "Piernas Biónicas", "path": "res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres"},
+	{"name": "Piernas Musculosas", "path": "res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres"},
 	{"name": "Licuadora", "path": "res://Art/Items/Weapons/Item1.tres"},
 	{"name": "Aguijón", "path": "res://Art/Items/Weapons/Item2.tres"},
 	{"name": "Cerebro", "path": "res://Art/Items/Weapons/Item3.tres"},
 	{"name": "Cabeza de Perro", "path": "res://Art/Items/Weapons/Item4.tres"},
 	{"name": "Pulmones", "path": "res://Art/Items/Weapons/Item5.tres"},
-	{"name": "Motocicleta", "path": "res://Art/Items/Weapons/Item6.tres"},
+	{"name": "Moto", "path": "res://Art/Items/Weapons/Item6.tres"},
 	{"name": "Colmena", "path": "res://Art/Items/Weapons/Item7_Colmena.tres"},
 	{"name": "Cabeza Humana", "path": "res://Art/Items/Weapons/Item8_CabezaHumana.tres"},
 	{"name": "Sierra", "path": "res://Art/Items/Weapons/Item9_SierraCircular.tres"},
@@ -93,15 +93,21 @@ func _ready() -> void:
 	visible = false
 	_build_ui()
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if not event is InputEventKey: return
 	if not event.pressed or event.echo: return
-	if not GameData.cheats_enabled(): return
-	if event.keycode == KEY_U or event.keycode == KEY_T:
+	if _is_toggle_shortcut(event):
 		_toggle_menu()
+		get_viewport().set_input_as_handled()
 		return
 	if is_open and event.keycode == KEY_ESCAPE:
 		close_menu()
+		get_viewport().set_input_as_handled()
+
+func _is_toggle_shortcut(event: InputEventKey) -> bool:
+	var is_ctrl = event.ctrl_pressed or event.is_command_or_control_autoremap()
+	var is_x = event.keycode == KEY_X or event.physical_keycode == KEY_X
+	return is_ctrl and is_x
 
 func _toggle_menu() -> void:
 	if is_open:
@@ -115,7 +121,7 @@ func open_menu() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_update_god_mode_btn()
 	_refresh_log()
-	_show_status("Menú de depuración y cheats abierto (Tecla U / T)")
+	_show_status("Menú de depuración y cheats abierto (CONTROL+X)")
 
 func close_menu() -> void:
 	is_open = false
@@ -288,11 +294,11 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_canino()
 	)
 	
-	_add_synergy_card(tab, "Impulso Ligero", "trituradora_biomecanica", "Torso Ligero, Piernas Rodantes, Brazo Ligero", func():
+	_add_synergy_card(tab, "Impulso Ligero", "trituradora_biomecanica", "Torso Ligero, Piernas Ligeras, Brazo Ligero", func():
 		_activate_synergy_ligero()
 	)
 	
-	_add_synergy_card(tab, "Set Musculoso", "acorazado_muscular", "Torso Blindado, Brazo Reforzado, Piernas Biónicas", func():
+	_add_synergy_card(tab, "Set Musculoso", "acorazado_muscular", "Torso Musculoso, Brazo Musculoso, Piernas Musculosas", func():
 		_activate_synergy_musculoso()
 	)
 

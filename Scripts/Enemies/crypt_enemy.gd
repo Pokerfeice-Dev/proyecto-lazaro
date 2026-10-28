@@ -128,6 +128,10 @@ func process_movement(delta: float) -> void:
 			if _spray_tick <= 0.0:
 				_spray_tick = 0.3
 				_apply_poison_in_cone()
+	if phase == Phase.RECOVERY and _is_mobile_ranged():
+		process_ranged_reposition(delta)
+		art.walk(velocity)
+		return
 	if phase != Phase.CHASE: return
 	if not has_detected_player:
 		art.walk(Vector2.ZERO)
@@ -136,10 +140,6 @@ func process_movement(delta: float) -> void:
 	if distance <= attack_range and _clear_path_to(target.global_position):
 		if kind != Kind.DEAD_BEEKEEPER or _can_summon():
 			_begin_attack()
-		return
-	if kind == Kind.LASER_EYE:
-		art.face(global_position.direction_to(target.global_position))
-		art.walk(Vector2.ZERO)
 		return
 	var speed_multiplier = rear_speed_multiplier if kind == Kind.GHOUL and player_has_back_turned() else 1.0
 	_steer(get_nav_direction_to_target(), delta)
@@ -237,6 +237,7 @@ func _next_phase() -> void:
 		Phase.ATTACK:
 			$BurstTimer.stop()
 			_enter_phase(Phase.RECOVERY, recovery_time)
+			if _is_mobile_ranged(): begin_ranged_reposition(attack_range * 0.75, recovery_time)
 		Phase.RECOVERY:
 			if kind == Kind.GARGOYLE and _shield_cooldown <= 0.0:
 				_enter_phase(Phase.STONE_WARNING, stone_warning_time)
@@ -283,6 +284,7 @@ func _place_echo() -> void:
 	_echoes = _echoes.filter(func(mark): return is_instance_valid(mark))
 	if _echoes.size() >= 3: return
 	var echo = echo_scene.instantiate()
+	register_attack(echo)
 	echo.damage = damage
 	get_parent().add_child(echo)
 	echo.global_position = target.global_position
@@ -293,6 +295,7 @@ func _place_echo() -> void:
 
 func _spawn_projectile() -> void:
 	var projectile = projectile_scene.instantiate()
+	register_attack(projectile)
 	projectile.direction = locked_direction
 	projectile.damage = damage
 	projectile.speed = projectile_speed
@@ -443,3 +446,6 @@ func die() -> void:
 		if is_instance_valid(echo): echo.queue_free()
 	_echoes.clear()
 	super.die()
+
+func _is_mobile_ranged() -> bool:
+	return kind in [Kind.CENTIPEDE, Kind.DEATH_SQUAD, Kind.LASER_EYE, Kind.DEAD_BEEKEEPER, Kind.FLESH_BEE, Kind.BELL_KEEPER]

@@ -9,7 +9,6 @@ id = "mezcladora"
 item_name = "Licuadora"
 icon = ExtResource("1_bjsbo")
 stats = {
-"damage": 5.0,
-"knockback_force": 30.0,
-"projectile_speed": -50.0
+"attack_speed": -0.08,
+"damage": 3.0
 }

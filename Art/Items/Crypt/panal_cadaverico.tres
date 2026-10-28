@@ -4,8 +4,11 @@
 [resource]
 script = ExtResource("1")
 id = "panal_cadaverico"
-item_name = "Panal Podrido"
+item_name = "Panal"
 icon = ExtResource("2")
 type = 0
 slot = 0
-stats = {"crit_chance": 0.12}
+stats = {
+"crit_chance": 0.1,
+"attack_speed": 0.05
+}

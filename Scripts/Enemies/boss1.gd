@@ -566,8 +566,10 @@ func _spawn_single_missile_strike() -> void:
 	var target_pos = global_position + Vector2(randf_range(-200, 200), randf_range(100, 300))
 	if player and is_instance_valid(player):
 		target_pos = player.global_position + Vector2(randf_range(-20, 20), randf_range(-20, 20))
-		
+
 	var strike = airstrike_scene.instantiate()
+		
+	register_attack(strike)
 	strike.global_position = target_pos
 	strike.damage = int(float(damage) * 1.2)
 	get_tree().current_scene.add_child(strike)
@@ -575,6 +577,7 @@ func _spawn_single_missile_strike() -> void:
 func _spawn_projectile_at_angle(pos: Vector2, angle: float) -> void:
 	if not projectile_scene: return
 	var proj = projectile_scene.instantiate()
+	register_attack(proj)
 	proj.source_name = BOSS_NAME
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = pos
@@ -655,6 +658,7 @@ func die() -> void:
 	_stop_all_boss_sounds()
 	var body = _get_sprite()
 	if body is AnimatedSprite2D: body.stop()
+	if body: body.hide()
 	var death_tween := create_tween()
 	for i in 5:
 		death_tween.tween_callback(_death_small_blast)

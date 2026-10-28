@@ -11,6 +11,6 @@ icon = ExtResource("1_tex")
 type = 2
 slot = 7
 stats = {
-"attack_speed": 0.15,
-"move_speed_percent": 0.05
+"attack_speed": 0.12,
+"move_speed_percent": 0.04
 }

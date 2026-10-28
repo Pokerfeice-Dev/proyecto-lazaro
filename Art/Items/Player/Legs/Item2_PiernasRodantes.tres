@@ -11,7 +11,7 @@ icon = ExtResource("1_tex")
 type = 3
 slot = 9
 stats = {
-"dash_cooldown_percent": -0.3,
-"dash_speed_percent": 0.2,
-"move_speed_percent": 0.15
+"dash_cooldown_percent": -0.12,
+"dash_speed_percent": 0.08,
+"move_speed_percent": 0.1
 }

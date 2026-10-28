@@ -9,5 +9,5 @@ id = "colmena"
 item_name = "Colmena"
 icon = ExtResource("1_tex")
 stats = {
-"crit_chance": 0.1
+"crit_chance": 0.12
 }

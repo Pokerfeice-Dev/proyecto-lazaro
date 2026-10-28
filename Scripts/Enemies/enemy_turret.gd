@@ -24,6 +24,9 @@ var _turret_flash_tween: Tween = null
 func _ready() -> void:
 	super._ready()
 	has_footstep_fx = false
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		_ignore_enemy_collision(enemy)
+	get_tree().node_added.connect(_on_body_added)
 	if sprite_base:
 		_default_base_modulate = sprite_base.modulate
 		_default_base_modulate.a = 1.0
@@ -144,6 +147,7 @@ func _draw_aiming_laser() -> void:
 func _shoot_projectile() -> void:
 	if not projectile_scene: return
 	var proj = projectile_scene.instantiate()
+	register_attack(proj)
 	proj.source_name = "Delivery"
 	var spawn_pos = bullet_mark.global_position
 	var shoot_dir = Vector2.from_angle(sprite_cannon.global_rotation)
@@ -209,3 +213,14 @@ func _start_turret_flash_tween() -> void:
 
 func _flash_red() -> void:
 	_flash_hit()
+
+# Preserve the damage body for bullets/melee, but let enemies pass through it.
+func _on_body_added(node: Node) -> void:
+	if node is PhysicsBody2D:
+		_ignore_enemy_collision.call_deferred(node)
+
+func _ignore_enemy_collision(node: Node) -> void:
+	if not is_instance_valid(node) or node == self: return
+	if node is PhysicsBody2D and node.is_in_group("enemy"):
+		add_collision_exception_with(node)
+		node.add_collision_exception_with(self)

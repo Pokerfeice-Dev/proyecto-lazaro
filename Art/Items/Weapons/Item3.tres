@@ -9,6 +9,6 @@ id = "cerebro"
 item_name = "Cerebro"
 icon = ExtResource("1_tex")
 stats = {
-"cone_spread_angle": -5.0,
-"lifetime": 1.0
+"attack_speed": 0.08,
+"crit_chance": 0.08
 }

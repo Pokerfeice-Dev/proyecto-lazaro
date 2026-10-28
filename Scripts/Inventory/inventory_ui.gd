@@ -1115,9 +1115,10 @@ func _render_primary_weapon_stats(p: Node2D) -> void:
 	if stats_weapon_name and p.active_weapon:
 		stats_weapon_name.text = _get_weapon_display_name_text(p.active_weapon)
 
-	var base_dmg = p._get_weapon_damage() * p._get_weapon_damage_multiplier() if p.active_weapon else 10.0
+	var base_dmg = p._get_weapon_damage() if p.active_weapon else 10.0
 	var equip_dmg = p._get_equip_stat("damage", true)
-	var total_dmg = int((base_dmg + equip_dmg) * (1.0 + p._get_equip_stat("damage_multiplier", true)))
+	var base_mult = p._get_weapon_damage_multiplier() if p.active_weapon else 1.0
+	var total_dmg = int((base_dmg + equip_dmg) * (base_mult + p._get_equip_stat("damage_multiplier", true)))
 
 	var aps = p._get_weapon_attack_speed() if p.active_weapon else 1.0
 	var total_aps = aps * (1.0 + p._get_equip_stat("attack_speed", true))
@@ -1144,7 +1145,7 @@ func _render_secondary_weapon_stats(p: Node2D) -> void:
 
 	var base_dmg = float(p.second_weapon.damage) if p.second_weapon and "damage" in p.second_weapon else 15.0
 	var equip_dmg = p._get_equip_stat("damage", false)
-	var total_dmg = int((base_dmg + equip_dmg) * (1.0 + p._get_equip_stat("damage_multiplier", false)))
+	var total_dmg = maxi(1, roundi((base_dmg + equip_dmg) * maxf(0.1, 1.0 + p._get_equip_stat("damage_multiplier", false))))
 
 	var base_aps = float(p.second_weapon.attack_speed) if p.second_weapon and "attack_speed" in p.second_weapon else 1.0
 	var total_aps = base_aps * (1.0 + p._get_equip_stat("attack_speed", false))

@@ -299,8 +299,9 @@ animations = [{
 "speed": 12.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_af2qg"]
-size = Vector2(18.5, 17.5)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_af2qg"]
+radius = 8.75
+height = 18.5
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_e7l14"]
 animations = [{
@@ -440,7 +441,8 @@ autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=749432307]
 position = Vector2(2, 4)
-shape = SubResource("RectangleShape2D_af2qg")
+rotation = 1.57079632679
+shape = SubResource("CapsuleShape2D_af2qg")
 
 [node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=1713860462]
 scale = Vector2(0.8, 0.8)

@@ -1162,8 +1162,9 @@ animations = [{
 "speed": 8.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(12, 33)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_uydgp"]
+radius = 7.0
+height = 33.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_tgfvv"]
 
@@ -1210,7 +1211,7 @@ frame = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1078907818]
 position = Vector2(0, 0.5)
-shape = SubResource("RectangleShape2D_player")
+shape = SubResource("CapsuleShape2D_uydgp")
 
 [node name="Weapon_mark" type="Marker2D" parent="." unique_id=1115865836]
 position = Vector2(14, -3)

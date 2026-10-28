@@ -125,6 +125,7 @@ func _on_summon_animation_finished() -> void:
 		summon_anim.hide()
 	_trigger_attack_light_fade_out()
 	_spawn_bee()
+	begin_ranged_reposition((min_chase_dist + max_chase_dist) * 0.5)
 
 func _spawn_bee() -> void:
 	if is_dying:
@@ -181,6 +182,9 @@ func process_movement(delta: float) -> void:
 			anim_sprite.play("idle")
 		return
 		
+	if process_ranged_reposition(delta):
+		_play_walk_animation(velocity.normalized())
+		return
 	var dist = global_position.distance_to(target.global_position)
 	var has_los = has_line_of_sight_to_player()
 	
