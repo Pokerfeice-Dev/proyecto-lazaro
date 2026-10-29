@@ -2,6 +2,10 @@ extends Node2D
 
 @export var player_scene: PackedScene = preload("res://Scenes/Player/Player.tscn")
 func _ready() -> void:
+	# Volver al laboratorio termina la run (muerte, abandono o victoria):
+	# no se conserva nada de lo que se juntó o se equipó en ella.
+	if name == "Lab_room":
+		GameData.clear_items()
 	_spawn_or_reposition_player()
 	_setup_music_loop()
 	_setup_room_specific_logic()

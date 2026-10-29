@@ -972,6 +972,17 @@ func clear_items() -> void:
 		equipment_slots[k] = null
 	flesh = 0
 	flesh_changed.emit(flesh)
+	_refresh_player_gear()
+
+# El jugador sigue vivo entre salas: si no se le avisa, se quedaba con las
+# sinergias, el arma transformada y las estadísticas de lo que tenía equipado.
+func _refresh_player_gear() -> void:
+	var player = get_tree().get_first_node_in_group("player") if is_inside_tree() else null
+	if not player: return
+	var equipment = player.get_node_or_null("Equipment")
+	if equipment: equipment.equipment_changed.emit()
+	var inventory = player.get_node_or_null("Inventory")
+	if inventory: inventory.inventory_updated.emit()
 
 ## Build del evento: todas las armas se pueden elegir desde el principio y
 ## todas las sinergias están habilitadas (no descubiertas: su sprite y su nombre

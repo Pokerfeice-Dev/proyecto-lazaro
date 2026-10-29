@@ -30,7 +30,7 @@ projectile_speed = 300.0
 bullet_count = 3
 cone_spread_angle = 25.0
 lifetime = 0.6
-attack_speed = 0.5
+attack_speed = 0.6
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013830]
 texture_filter = 1

@@ -26,6 +26,7 @@ animations = [{
 [node name="Revolver" type="Node2D" unique_id=1627227960]
 script = ExtResource("1_qekul")
 id = "pistol"
+attack_speed = 1.2
 projectile_speed = 400.0
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=341135821]

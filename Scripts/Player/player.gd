@@ -2056,8 +2056,10 @@ func _apply_nemesis_look(sprite: Node2D) -> void:
 	var base_scale: Vector2 = sprite.get_meta("base_scale")
 	if _is_daga_del_odio_active() and stats.max_health > 0:
 		var t = 1.0 - clampf(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
-		sprite.modulate = Color(1.0, 1.0 - 0.7 * t, 1.0 - 0.7 * t)
-		sprite.scale = base_scale * (1.0 + 0.6 * t)
+		# antes se oscurecía casi a negro y crecía un 60%: la hoja (ya roja) se
+		# volvía una mancha. Ahora el tinte es más suave y crece hasta un 25%.
+		sprite.modulate = Color(1.0 + 0.3 * t, 1.0 - 0.4 * t, 1.0 - 0.4 * t)
+		sprite.scale = base_scale * (1.0 + 0.25 * t)
 	else:
 		sprite.modulate = Color.WHITE
 		sprite.scale = base_scale

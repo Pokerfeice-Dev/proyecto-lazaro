@@ -1,3 +1,13 @@
+## 2026-10-29 (Arreglos de la lista del 27/10 y del feedback de Forlazio)
+
+- **Jefe 2 (El Primogénito) sin atacar:** si el jugador se alejaba, el jefe pasaba casi todo el tiempo dando saltitos para perseguirlo y su ataque tocaba siempre en medio de un saltito, así que se salteaba. Ahora el ataque queda pendiente y sale apenas termina el saltito (`boss2.gd`, `_pattern_due`).
+- **Puerta en la sala de Prometeo:** estaba abierta desde el principio y al cruzarla se volvía a cargar la sala del jefe (se reiniciaba la pelea). Ahora empieza cerrada y, cuando se abre al ganar, lleva al laboratorio, igual que el portal (`Level3_Room4BossFight.tscn`).
+- **Se pierde todo al terminar la run:** al morir, abandonar o volver al laboratorio se vacían la mochila y lo equipado en el cuerpo y en las armas. El jugador sigue vivo entre salas y antes no se enteraba: se quedaba con la sinergia, el arma transformada y las estadísticas. Ahora se le avisa (`GameData._refresh_player_gear()`) y el laboratorio limpia todo al entrar.
+- **Armas base más rápidas:** Pistola, Uzi, Escopeta, Hacha y Maza atacan un 20% más seguido (1.2, 2.4, 0.6, 1.2 y 0.6 ataques por segundo). La Daga va con la propuesta de Uri: 9 de daño (antes 8) y 1.5 de velocidad (antes 1). Las sinergias no cambian.
+- **Nemesis:** con poca vida, la hoja se oscurecía casi a negro y crecía un 60%, y se veía como una mancha. Ahora el tinte rojo es más suave y crece hasta un 25%.
+- **Cámara lenta del tutorial con sonido:** entrada (el tiempo se frena), zumbido mientras dura, la bala que pasa lenta y salida al esquivar (`Audio/Sfx/IA/slowmo_*`).
+- **Cámara lenta del tutorial con joystick:** el cartel muestra el botón del dash (A con joystick, ESPACIO con teclado) y acepta cualquier botón de dash (Espacio, Shift o A). Antes, con teclado, solo funcionaba Shift.
+
 ## 2026-10-25 (Mochila de 12, sonidos de sinergias y opciones)
 
 - **Mochila limitada a 12 lugares** (prueba): cada objeto ocupa un casillero (los repetidos ya no se apilan). El inventario muestra 12 casilleros más grandes, en 4 x 3, y el contador se pone rojo cuando está llena.

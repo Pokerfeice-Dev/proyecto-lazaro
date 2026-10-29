@@ -30,7 +30,7 @@ shoot_sound = NodePath("Bullet_sound")
 damage = 4.0
 projectile_speed = 500.0
 lifetime = 1.5
-attack_speed = 2.0
+attack_speed = 2.4
 
 [node name="Weapon_Sprites" type="AnimatedSprite2D" parent="." unique_id=2137013830]
 texture_filter = 1

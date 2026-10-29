@@ -46,6 +46,7 @@ animations = [{
 
 [node name="Axe" type="Node2D" unique_id=1003498797]
 script = ExtResource("2_script")
+attack_speed = 1.2
 knockback_force = 60.0
 swing_start_angle = -25.0
 swing_end_angle = 120.0
