@@ -576,6 +576,7 @@ func _apply_freeze_visuals() -> void:
 	var sprite = _get_sprite()
 	if sprite:
 		sprite.modulate = FREEZE_COLOR
+	StatusFx.show_freeze(self) # costra de hielo en los pies (se queda en el último cuadro)
 
 func _pause_enemy_for_freeze() -> void:
 	_pause_enemy_animations()
@@ -634,6 +635,7 @@ func _unfreeze_enemy() -> void:
 	var sprite = _get_sprite()
 	if sprite and is_instance_valid(sprite):
 		sprite.modulate = _default_modulate
+	StatusFx.hide_freeze(self) # antes de reanudar las animaciones
 	_resume_enemy_animations()
 	_resume_enemy_internal_timers()
 	set_physics_process(true)
@@ -721,6 +723,8 @@ func _check_death() -> void:
 func die() -> void:
 	if is_dying: return
 	is_dying = true
+	StatusFx.hide_fire(self)
+	StatusFx.hide_freeze(self)
 	_disable_physics()
 	GameData.run_enemies_killed += 1
 	GameData.protocol_enemy_defeated(self)

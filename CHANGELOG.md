@@ -1,3 +1,9 @@
+## 2026-10-30 (Sprites de fuego y hielo)
+
+- **Estados de fuego y hielo con el arte de turco** (`Art/Effects/StatusEffects/`): las llamas (17x28, 4 cuadros) van en loop sobre el enemigo mientras dura la quemadura, y la costra de hielo (23x14, 4 cuadros) crece en sus pies y se queda en el último cuadro mientras está congelado. Los dos se sacan solos al terminar el efecto o al morir el enemigo.
+- Lo maneja `Scripts/Effects/status_fx.gd` (`StatusFx.show_fire/hide_fire/show_freeze/hide_freeze`), que lo engancha `IgniteEffect` (quemadura) y `EnemyBase.freeze_enemy` (congelado). Si un enemigo arde y se congela a la vez, las llamas se pausan junto con él y siguen cuando se descongela.
+- Probado con tres enemigos: solo fuego, solo hielo y los dos juntos; sin errores.
+
 ## 2026-10-30 (Todo desbloqueado para la muestra)
 
 - **Interruptor nuevo `frankengun/desbloquear_todo`** (prendido): las seis armas se pueden elegir desde el principio y las 15 sinergias están habilitadas pero sin descubrir, igual que en el build del evento, pero con el juego completo: las tres zonas, sin cortar en el primer jefe, sin QR ni video al final y sin volver al menú por inactividad. También se aplica a las partidas guardadas al cargarlas. Para volver al juego normal, apagarlo en Proyecto > Configuración del proyecto (`GameData.unlock_all_enabled()`).
