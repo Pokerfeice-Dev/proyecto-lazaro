@@ -113,6 +113,7 @@ func _ready() -> void:
 	setup_damage_effect()
 	_init_stats()
 	add_to_group("player")
+	set_collision_mask_value(5, true) # vacíos de la zona 3: frenan al jugador, no a las balas
 	GameData.register_player(self)
 	_initialize_protocols()
 	_init_weapon()
@@ -1995,16 +1996,18 @@ func _get_daga_del_odio_bonus(stat_name: String) -> float:
 	var health_ratio = clamp(float(stats.current_health) / float(stats.max_health), 0.0, 1.0)
 	var t = 1.0 - health_ratio
 	match stat_name:
+		# Con 10% de vida llegaba a ~800 de DPS (medido por Uri). Tope provisorio
+		# hasta el rework: ronda los 100 de DPS con 10% de vida y 50 con la mitad.
 		"damage":
-			return 60.0 * t
+			return 20.0 * t
 		"attack_speed":
-			return 2.4 * t
-		"attack_range_percent":
-			return 1.2 * t
-		"crit_chance":
 			return 1.0 * t
+		"attack_range_percent":
+			return 0.8 * t
+		"crit_chance":
+			return 0.4 * t
 		"crit_damage":
-			return 1.2 * t
+			return 0.5 * t
 	return 0.0
 
 ## Tiñe la hoja de la daga de rojo (mas intenso cuanta menos vida queda)

@@ -112,6 +112,7 @@ func _ready() -> void:
 	add_to_group("enemy")
 	# Bodies keep the enemy layer for weapon hits; movement uses soft avoidance.
 	set_collision_mask_value(2, false)
+	set_collision_mask_value(5, true) # vacíos de la zona 3 (ver combat_room.gd)
 	_find_player()
 	
 	var sprite = _get_sprite()

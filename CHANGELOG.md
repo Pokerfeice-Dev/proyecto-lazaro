@@ -1,3 +1,10 @@
+## 2026-10-29 (Mapas 2 y 3 más legibles, Uzi y tope de Nemesis)
+
+- **Zona 2, obstáculos con contorno:** con la niebla de la Cripta no se veía con qué cosa chocabas. Ahora los tiles con colisión de `Tile_Objects` tienen un borde celeste claro y un relleno muy suave (`Scripts/World/obstacle_outline.gd`, lo agrega `combat_room.gd` en las salas `Level2_*`).
+- **Zona 3, las balas pasan por los vacíos:** las "paredes" de la zona 3 son vacíos. Siguen frenando al jugador y a los enemigos, pero las balas (las tuyas y las enemigas) pasan por encima. En las salas `Level3_*`, la capa `Walls` usa una copia del tileset con su propia capa de colisión (la 5, valor 16), que solo miran el jugador y los enemigos.
+- **Uzi:** 6 de daño (antes 4), como propuso Uri. Era el arma más débil.
+- **Nemesis, tope provisorio hasta el rework:** con 10% de vida llegaba a unos 800 de DPS. Ahora el bonus por vida baja es más chico: ronda los 100 de DPS con 10% de vida y 50 con la mitad.
+
 ## 2026-10-29 (Arreglos de la lista del 27/10 y del feedback de Forlazio)
 
 - **Jefe 2 (El Primogénito) sin atacar:** si el jugador se alejaba, el jefe pasaba casi todo el tiempo dando saltitos para perseguirlo y su ataque tocaba siempre en medio de un saltito, así que se salteaba. Ahora el ataque queda pendiente y sale apenas termina el saltito (`boss2.gd`, `_pattern_due`).
