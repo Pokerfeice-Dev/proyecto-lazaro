@@ -1,3 +1,7 @@
+## 2026-10-30 (Todo desbloqueado para la muestra)
+
+- **Interruptor nuevo `frankengun/desbloquear_todo`** (prendido): las seis armas se pueden elegir desde el principio y las 15 sinergias están habilitadas pero sin descubrir, igual que en el build del evento, pero con el juego completo: las tres zonas, sin cortar en el primer jefe, sin QR ni video al final y sin volver al menú por inactividad. También se aplica a las partidas guardadas al cargarlas. Para volver al juego normal, apagarlo en Proyecto > Configuración del proyecto (`GameData.unlock_all_enabled()`).
+
 ## 2026-10-30 (Sin contorno en la zona 2 y soltar objetos con joystick)
 
 - **Zona 2:** se sacó el contorno celeste de los obstáculos (no gustó). Se borró `Scripts/World/obstacle_outline.gd`. Lo de la zona 3 (las balas pasan por los bordes que dan al vacío) sigue igual.

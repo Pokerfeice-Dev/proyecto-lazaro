@@ -989,8 +989,16 @@ func _refresh_player_gear() -> void:
 ## se revelan recién al armarlas).
 const EVENT_WEAPONS: Array[String] = ["pistol", "uzi", "shotgun", "daga", "hacha", "maze"]
 
+## Muestras: todas las armas y sinergias desde el principio, pero con el juego
+## completo (sin cortar en el primer jefe, sin QR ni modo stand). Se prende con
+## frankengun/desbloquear_todo en la configuración del proyecto.
+const UNLOCK_ALL_SETTING := "frankengun/desbloquear_todo"
+
+func unlock_all_enabled() -> bool:
+	return is_event_build() or bool(ProjectSettings.get_setting(UNLOCK_ALL_SETTING, false))
+
 func _apply_event_unlocks() -> void:
-	if not is_event_build(): return
+	if not unlock_all_enabled(): return
 	for id in EVENT_WEAPONS:
 		unlock_codex_entry("weapons", id, false)
 	unlock_all_synergies()
