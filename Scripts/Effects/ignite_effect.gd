@@ -33,6 +33,7 @@ static func apply_ignite(target: Node, damage_per_tick: int, tick_interval: floa
 	target.add_child(timer)
 	target.set_meta(IGNITE_META_KEY, timer)
 	timer.start()
+	StatusFx.show_fire(target) # llamas en loop mientras dure la quemadura
 
 	_spawn_embers(timer)
 
@@ -52,6 +53,8 @@ static func _on_ignite_tick(timer: Timer) -> void:
 	if ticks_left <= 0 or not is_instance_valid(target):
 		if is_instance_valid(target) and target.has_meta(IGNITE_META_KEY):
 			target.remove_meta(IGNITE_META_KEY)
+		if is_instance_valid(target):
+			StatusFx.hide_fire(target)
 		timer.queue_free()
 		return
 

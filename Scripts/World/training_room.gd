@@ -6,7 +6,6 @@ extends Node2D
 
 enum TutorialState {
 	MOVE,
-	DASH,
 	DODGE,
 	AIM,
 	SHOOT,
@@ -23,7 +22,7 @@ enum TutorialState {
 var current_state: TutorialState = TutorialState.MOVE
 
 const ICON_CHECK := preload("res://Art/Ui/svg/icon_check.svg")
-const STEP_TOTAL := 12 # pasos antes de COMPLETE
+const STEP_TOTAL := 11 # pasos antes de COMPLETE
 const LEARNED := [
 	"Moverte y esquivar",
 	"Disparar y golpear cuerpo a cuerpo",
@@ -102,8 +101,6 @@ func _is_move_input_pressed() -> bool:
 func _check_state_transitions() -> void:
 	if current_state == TutorialState.MOVE:
 		_check_move_transition()
-	elif current_state == TutorialState.DASH:
-		_check_dash_transition()
 	elif current_state == TutorialState.SHOOT:
 		_check_shoot_transition()
 	elif current_state == TutorialState.MELEE:
@@ -115,10 +112,6 @@ func _check_state_transitions() -> void:
 
 func _check_move_transition() -> void:
 	if _is_move_input_pressed():
-		_transition_to_state(TutorialState.DASH)
-
-func _check_dash_transition() -> void:
-	if Input.is_action_just_pressed("dash"):
 		_transition_to_state(TutorialState.AIM)
 
 func _check_shoot_transition() -> void:
@@ -385,21 +378,19 @@ func _update_dialogue_text() -> void:
 	match current_state:
 		TutorialState.MOVE:
 			_show_step(0, "Muévete por la sala", ["W", "A", "S", "D"], true)
-		TutorialState.DASH:
-			_show_step(1, _pad_or_keys("Esquiva con el dash: por un instante eres intangible", "Esquiva con ESPACIO o SHIFT: por un instante eres intangible"), ["ESPACIO"], true)
 		TutorialState.DODGE:
 			tutorial_hud.hide_card()
 			pointer.clear()
 		TutorialState.AIM:
-			_show_step(2, _pad_or_keys("Apunta con el analógico derecho: la mira lo sigue", "Apunta con el mouse: tus armas siguen al cursor"), ["MOUSE_MOVE"], true)
+			_show_step(1, _pad_or_keys("Apunta con el analógico derecho: la mira lo sigue", "Apunta con el mouse: tus armas siguen al cursor"), ["MOUSE_MOVE"], true)
 		TutorialState.SHOOT:
-			_show_step(3, "Dispara con tu arma a distancia", ["MOUSE_L"], true)
+			_show_step(2, "Dispara con tu arma a distancia", ["MOUSE_L"], true)
 		TutorialState.MELEE:
-			_show_step(4, "Golpea al maniquí con tu arma cuerpo a cuerpo", ["MOUSE_R"], false, [mannequin_inst], "%d/2" % _melee_hits)
+			_show_step(3, "Golpea al maniquí con tu arma cuerpo a cuerpo", ["MOUSE_R"], false, [mannequin_inst], "%d/2" % _melee_hits)
 		TutorialState.MANNEQUIN:
-			_show_step(5, "Ahora dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % mannequin_hits_received)
+			_show_step(4, "Ahora dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % mannequin_hits_received)
 		TutorialState.COMBAT:
-			_show_step(7, "Elimina al enemigo. Los obstáculos bloquean sus disparos", ["MOUSE_L"], false, [shooter_inst])
+			_show_step(6, "Elimina al enemigo. Los obstáculos bloquean sus disparos", ["MOUSE_L"], false, [shooter_inst])
 		TutorialState.SYNERGY_PICKUP:
 			_show_synergy_pickup_step()
 		TutorialState.SYNERGY_OPEN_INVENTORY:
@@ -407,7 +398,7 @@ func _update_dialogue_text() -> void:
 		TutorialState.SYNERGY_EQUIP:
 			_show_synergy_right_click_step()
 		TutorialState.SYNERGY_ATTACK:
-			_show_step(11, "¡Tu pistola mutó en Mente Colmena! Dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % synergy_hits_received)
+			_show_step(10, "¡Tu pistola mutó en Mente Colmena! Dispárale al maniquí", ["MOUSE_L"], false, [mannequin_inst], "%d/3" % synergy_hits_received)
 		TutorialState.COMPLETE:
 			tutorial_hud.hide_card()
 			pointer.clear()
@@ -416,12 +407,12 @@ func _update_dialogue_text() -> void:
 func _show_synergy_pickup_step() -> void:
 	_set_synergy_tutorial_inventory_guidance(false)
 	var remaining = _synergy_drops.filter(func(d): return is_instance_valid(d))
-	_show_step(8, "Recoge las 3 piezas del suelo", ["E"], false, remaining, "%d/3" % _drops_picked, 26.0)
+	_show_step(7, "Recoge las 3 piezas del suelo", ["E"], false, remaining, "%d/3" % _drops_picked, 26.0)
 
 func _show_synergy_open_inventory_step() -> void:
 	var equipped_count := _get_equipped_synergy_piece_count()
 	_set_synergy_tutorial_inventory_guidance(false)
-	_show_step(9, _pad_or_keys("Abre el inventario para instalar las piezas de la sinergia", "Abre el inventario (I o TAB) para instalar las piezas de la sinergia"), ["I"], true, [], "%d/3" % equipped_count)
+	_show_step(8, _pad_or_keys("Abre el inventario para instalar las piezas de la sinergia", "Abre el inventario (I o TAB) para instalar las piezas de la sinergia"), ["I"], true, [], "%d/3" % equipped_count)
 
 # Paso 8: el inventario ya está abierto; ahora se muestra la acción exacta.
 func _show_synergy_right_click_step() -> void:
@@ -431,9 +422,9 @@ func _show_synergy_right_click_step() -> void:
 	var equipped_count := _get_equipped_synergy_piece_count()
 	_set_synergy_tutorial_inventory_guidance(true)
 	if InputMode.is_gamepad():
-		_show_step(10, "Elige cada pieza y presiona X. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["E"], false, [], "%d/3" % equipped_count)
+		_show_step(9, "Elige cada pieza y presiona X. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["E"], false, [], "%d/3" % equipped_count)
 	else:
-		_show_step(10, "Haz CLIC DERECHO sobre cada pieza. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["MOUSE_R"], false, [], "%d/3" % equipped_count)
+		_show_step(9, "Haz CLIC DERECHO sobre cada pieza. Se equipan en los 3 huecos resaltados de ARMA PRINCIPAL", ["MOUSE_R"], false, [], "%d/3" % equipped_count)
 
 # Texto distinto para joystick y para teclado.
 func _pad_or_keys(pad_text: String, keys_text: String) -> String:
@@ -495,13 +486,9 @@ func _show_complete_screen() -> void:
 	window.body.add_child(UIStyle.divider())
 	for skill in LEARNED:
 		window.body.add_child(_learned_row(skill))
-	var note = UIStyle.label("Puedes seguir practicando: la armería, la incubadora y Victoria siguen aquí.", 16, UIStyle.COLOR_MUTED)
-	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	window.body.add_child(note)
-	window.add_button("SEGUIR PRACTICANDO", false, "ESC", window.close)
-	window.add_button("VOLVER AL LABORATORIO", true, "E", func():
-		window.close()
-		_complete_tutorial_and_exit())
+	# Tanto confirmar como cerrar con ESC/B llevan al laboratorio.
+	window.closed.connect(_complete_tutorial_and_exit, CONNECT_ONE_SHOT)
+	window.add_button("VOLVER AL LABORATORIO", true, "E", window.close)
 
 func _complete_header() -> Control:
 	var row = HBoxContainer.new()

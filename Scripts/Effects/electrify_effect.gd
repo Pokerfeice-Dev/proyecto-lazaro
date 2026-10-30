@@ -36,13 +36,14 @@ static func apply_electrify(target: Node, chain_damage: int, stun_duration: floa
 	# El tinte amarillo se activa ANTES del take_damage: asi el flash blanco
 	# del golpe decanta en amarillo (_get_flash_target_color ya lo contempla)
 	# en vez de volver al color normal del enemigo.
-	if "is_electrified" in target:
+	var immune: bool = target.has_method("is_crowd_control_immune") and target.is_crowd_control_immune()
+	if not immune and "is_electrified" in target:
 		target.is_electrified = true
 	target.take_damage(chain_damage, false)
 	var sprite = target._get_sprite() if target.has_method("_get_sprite") else null
-	if sprite and is_instance_valid(sprite):
+	if not immune and sprite and is_instance_valid(sprite):
 		sprite.modulate = STUN_COLOR
-	if "hit_stun_timer" in target:
+	if not immune and "hit_stun_timer" in target:
 		target.hit_stun_timer = max(target.hit_stun_timer, stun_duration)
 
 	var revert_timer := Timer.new()

@@ -165,11 +165,13 @@ func _ready() -> void:
 # botones, y aparecen LB / RB al lado de las pestañas.
 func _setup_pad_hints() -> void:
 	var hints = %BottomBar.get_node("MarginContainer/HBoxContainer")
+	# primero se copia el cartel de "equipar" limpio: si se copiaba después,
+	# "Soltar" se llevaba también la X del joystick
+	_add_drop_hint(hints)
 	KeycapSwitch.swap_icon(hints.get_node("HBoxContainer/TextureRect"), "A")
 	_pad_keycap(hints.get_node("HBoxContainer2/PanelContainer"), "X")
 	_pad_keycap(hints.get_node("HBoxContainer3/PanelContainer"), "RS")
 	_pad_keycap(hints.get_node("HBoxContainer4/PanelContainer"), "B")
-	_add_drop_hint(hints)
 	_pad_keycap(top_bar.get_node("HBoxContainer/HBoxContainer/PanelContainer"), "B")
 	KeycapSwitch.add_tab_hints(top_bar.get_node("TabsBox"), 34.0)
 	KeycapSwitch.add_tab_hints(%CodexCategories, 34.0, "LT", "RT")
@@ -199,7 +201,7 @@ func _add_drop_hint(hints: Node) -> void:
 	(drop.get_node("PanelContainer/Label") as Label).text = "Q"
 	for child in drop.get_children():
 		if child is Label: child.text = "Soltar"
-	_pad_keycap(drop.get_node("PanelContainer"), "DPAD")
+	_pad_keycap(drop.get_node("PanelContainer"), "DPAD_UP")
 
 # Q o flecha arriba del joystick: tira al piso el objeto elegido.
 func _is_drop_input(event: InputEvent) -> bool:

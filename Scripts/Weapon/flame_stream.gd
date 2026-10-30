@@ -198,6 +198,9 @@ func _on_tick() -> void:
 		_apply_tick_to_body(body, tick_damage)
 
 func _apply_tick_to_body(body: Node2D, tick_damage: float) -> void:
+	if body.is_in_group("destructible") and body.has_method("take_damage"):
+		body.take_damage(tick_damage)
+		return
 	if not body.is_in_group("enemy"):
 		return
 	if body.has_method("take_damage"):

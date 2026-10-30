@@ -144,8 +144,8 @@ func _setup_health_bar() -> void:
 func apply_knockback(_force: float, _direction: Vector2) -> void:
 	pass # no lo empuja nada: se mueve solo por decisión propia
 
-func freeze_enemy(duration: float = 5.0) -> void:
-	super.freeze_enemy(minf(duration, 0.8)) # el hielo lo frena apenas
+func is_crowd_control_immune() -> bool:
+	return true
 
 # Entrada propia del códice (la de EnemyBase desbloquearía la del boss 1).
 func _unlock_bestiary_entry() -> void:

@@ -1,6 +1,9 @@
 extends EnemyBase
 class_name Boss2
 
+func is_crowd_control_immune() -> bool:
+	return true
+
 ## El Primogénito, jefe de La Cripta (inspirado en Monstro, de TBoI): el primer
 ## Lázaro fallido, convertido en una masa de carne. Persigue a los saltos,
 ## muerde cuerpo a cuerpo, hace el "gran salto" (desaparece hacia arriba, su
@@ -151,6 +154,10 @@ var is_transitioning_phase: bool = false
 var great_leap_combo: int = 0
 var _leap_hunting: bool = false
 var _cornered_time: float = 0.0
+## El ataque tocaba mientras daba saltitos para perseguir: si el jugador se
+## alejaba, siempre lo agarraba ocupado y nunca atacaba. Ahora queda pendiente
+## y sale apenas termina el saltito.
+var _pattern_due: bool = false
 var _camera_rest_zoom: Vector2 = Vector2.ONE
 var _intro_falling := false
 var _intro_shadow_scale := Vector2.ONE
@@ -242,6 +249,9 @@ func _on_chase_timer_timeout() -> void:
 	if is_dying: return
 	if current_state != State.IDLE: return
 	if not target: return
+	if _pattern_due:
+		_pick_next_pattern()
+		return
 	var dist = global_position.distance_to(target.global_position)
 	if dist <= chase_trigger_distance:
 		_check_cornered()
@@ -337,10 +347,13 @@ func _apply_melee_damage() -> void:
 
 func _on_pattern_timeout() -> void:
 	if is_dying: return
-	if current_state != State.IDLE: return
+	if current_state != State.IDLE:
+		_pattern_due = true # ocupado (saltito, mordida): ataca cuando termine
+		return
 	_pick_next_pattern()
 
 func _pick_next_pattern() -> void:
+	_pattern_due = false
 	pattern_execute_count += 1
 	if pattern_execute_count >= patterns_between_summon_check and not _has_living_minions():
 		pattern_execute_count = 0

@@ -19,6 +19,9 @@ func process_movement(_delta: float) -> void:
 	# Stay completely static
 	velocity = Vector2.ZERO
 
+func apply_knockback(_force: float, _direction: Vector2) -> void:
+	pass # El maniquí permanece fijo incluso al recibir golpes cuerpo a cuerpo.
+
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	if is_dying:
 		return

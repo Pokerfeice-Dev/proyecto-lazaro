@@ -3,6 +3,11 @@ extends Projectile
 var bounces_left: int = 3
 
 func _on_body_entered(body: Node2D) -> void:
+	if is_destroyed: return
+	if _should_ignore_body(body): return
+	if body.is_in_group("destructible"):
+		super._process_body_hit(body)
+		return
 	if target_group != "" and body.is_in_group(target_group):
 		_handle_enemy_collision(body)
 		return

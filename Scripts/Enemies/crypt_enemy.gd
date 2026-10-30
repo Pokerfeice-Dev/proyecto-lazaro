@@ -176,6 +176,10 @@ func _begin_attack() -> void:
 	telegraph.summon_points = PackedVector2Array([_summon_offset(0), _summon_offset(1)])
 	_enter_phase(Phase.ANTICIPATION, anticipation_time)
 
+func _should_pause_timer_for_freeze(timer: Timer) -> bool:
+	# La invulnerabilidad de piedra debe vencer aun bajo control de masas.
+	return not (timer == $PhaseTimer and kind == Kind.GARGOYLE and phase in [Phase.STONE_WARNING, Phase.STONE])
+
 func _enter_phase(next: Phase, duration: float) -> void:
 	phase = next
 	velocity = Vector2.ZERO
@@ -190,6 +194,12 @@ func _enter_phase(next: Phase, duration: float) -> void:
 	_update_phase_fx(duration)
 	_update_phase_art()
 	$PhaseTimer.start(maxf(duration, 0.01))
+	if is_frozen_by_ice:
+		var timer: Timer = $PhaseTimer
+		timer.paused = _should_pause_timer_for_freeze(timer)
+		_frozen_paused_timers.erase(timer)
+		if timer.paused:
+			_frozen_paused_timers.append(timer)
 
 func _update_phase_fx(duration: float) -> void:
 	if gas: gas.emitting = phase == Phase.ATTACK

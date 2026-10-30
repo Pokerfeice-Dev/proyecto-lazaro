@@ -5,11 +5,13 @@ func _ready() -> void:
 	var room = load("res://Scenes/Rooms/tutorial_room.tscn").instantiate()
 	add_child(room)
 	await get_tree().create_timer(0.5).timeout
-	room._transition_to_state(room.TutorialState.DASH)
-	Input.action_press("dash")
-	room._check_dash_transition()
-	Input.action_release("dash")
+	assert(room.current_state == room.TutorialState.MOVE)
+	Input.action_press("move_right")
+	room._check_move_transition()
+	Input.action_release("move_right")
 	assert(room.current_state == room.TutorialState.AIM)
+	assert(room.STEP_TOTAL == 11)
+	assert("PASO 2/11" in room.tutorial_hud._tab.text)
 	assert(not is_instance_valid(room.shooter_inst))
 	room._transition_to_state(room.TutorialState.MANNEQUIN)
 	for i in range(3): room._on_mannequin_hit()
@@ -23,6 +25,10 @@ func _ready() -> void:
 	var cine = room._dodge_cinematic
 	assert(cine.shooter == carpenter)
 	assert(cine.stage == 2, "Must wait for Shift")
+	assert(cine.head_prompt.visible and cine.head_prompt.key == "SHIFT")
+	assert(cine.prompt.text == "PULSA SHIFT O ESPACIO PARA EVADIR")
+	assert(is_zero_approx(cine.transition.color.a), "Entry transition must finish before dodge prompt")
+	assert(cine.slow_audio.playing, "Slow motion ambience must play while waiting")
 	var player = GameData.get_player()
 	assert(player.is_cutscene_frozen)
 	var pos = player.global_position

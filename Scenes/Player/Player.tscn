@@ -1196,7 +1196,7 @@ script = ExtResource("103_dust")
 [node name="DropShadow" type="Sprite2D" parent="." unique_id=1821202540]
 modulate = Color(0, 0, 0, 0.38)
 show_behind_parent = true
-position = Vector2(0, 15)
+position = Vector2(0, 20)
 scale = Vector2(0.40625, 0.375)
 texture = SubResource("GradientTexture2D_6tu5v")
 script = ExtResource("102_shadow")

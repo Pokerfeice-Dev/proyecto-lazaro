@@ -46,7 +46,8 @@ size = Vector2(35.892857, 55.71428)
 
 [node name="Dagger" type="Node2D" unique_id=873535165]
 script = ExtResource("2_script")
-damage = 8
+damage = 9
+attack_speed = 1.5
 knockback_force = 40.0
 swing_start_angle = -30.0
 swing_end_angle = 130.0

@@ -35,7 +35,7 @@ position = Vector2(1300, 573)
 [node name="Door" parent="." unique_id=1922391837 instance=ExtResource("3_ymn5s")]
 position = Vector2(1274, -64)
 rotation = 1.5707964
-start_locked = false
+custom_next_scene = "res://Scenes/Rooms/lab_room.tscn"
 
 [node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1185336654]
 layer = -10

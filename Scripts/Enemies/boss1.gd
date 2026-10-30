@@ -1,6 +1,9 @@
 extends EnemyBase
 class_name Boss1
 
+func is_crowd_control_immune() -> bool:
+	return true
+
 @export var projectile_scene: PackedScene = preload("res://Scenes/Enemies/enemy_shooter_projectile.tscn")
 @export var airstrike_scene: PackedScene = preload("res://Scenes/Enemies/BossAirstrike.tscn")
 

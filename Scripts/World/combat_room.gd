@@ -71,6 +71,7 @@ var _enemy_navigation: RefCounted
 func _ready() -> void:
 	add_to_group("combat_room")
 	_setup_crypt_fog()
+	_setup_zone_readability()
 	_apply_difficulty_settings()
 	_setup_player()
 	_setup_spawn_points()
@@ -95,6 +96,25 @@ func _setup_crypt_fog() -> void:
 	var fog = crypt_fog_scene.instantiate()
 	fog.name = "CryptFog"
 	add_child(fog)
+
+# Zona 3: los bordes del piso dan al vacío (son tiles de "Floor" con colisión):
+# frenan a jugador y enemigos, pero las balas pasan por encima. Se usa una capa
+# de colisión propia (VOID_LAYER_BIT), que solo miran los cuerpos (player.gd y
+# enemy_base.gd), no los proyectiles. Las paredes de verdad ("Walls") y los
+# objetos siguen frenando balas.
+const VOID_LAYER_BIT := 5 # valor 16
+
+func _setup_zone_readability() -> void:
+	var file = get_scene_file_path().get_file()
+	if file.begins_with("Level3_"):
+		_make_layer_void(get_node_or_null("Floor") as TileMapLayer)
+
+func _make_layer_void(layer: TileMapLayer) -> void:
+	if not layer or not layer.tile_set or layer.tile_set.get_physics_layers_count() == 0: return
+	var void_set: TileSet = layer.tile_set.duplicate() # el tileset compartido no se toca
+	void_set.set_physics_layer_collision_layer(0, 1 << (VOID_LAYER_BIT - 1))
+	void_set.set_physics_layer_collision_mask(0, 0)
+	layer.tile_set = void_set
 
 func _is_crypt_room() -> bool:
 	return GameData.current_level == 2 or get_scene_file_path().get_file().begins_with("Level2_")

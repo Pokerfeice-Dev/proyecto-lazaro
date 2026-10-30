@@ -78,6 +78,7 @@ var base_move_speed: float = -1.0
 var _speed_modifiers: Dictionary = {}
 
 func set_speed_modifier(source_id: String, multiplier: float) -> void:
+	if is_crowd_control_immune() and multiplier < 1.0: return
 	if base_move_speed < 0.0:
 		base_move_speed = move_speed
 	_speed_modifiers[source_id] = multiplier
@@ -112,6 +113,7 @@ func _ready() -> void:
 	add_to_group("enemy")
 	# Bodies keep the enemy layer for weapon hits; movement uses soft avoidance.
 	set_collision_mask_value(2, false)
+	set_collision_mask_value(5, true) # vacíos de la zona 3 (ver combat_room.gd)
 	_find_player()
 	
 	var sprite = _get_sprite()
@@ -144,6 +146,9 @@ func _find_player() -> void:
 
 func _setup_health_bar() -> void:
 	var bar = ProgressBar.new()
+	var bar_material := CanvasItemMaterial.new()
+	bar_material.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+	bar.material = bar_material
 	bar.max_value = max_health
 	bar.value = current_health
 	bar.show_percentage = false
@@ -304,7 +309,8 @@ func process_movement(_delta: float) -> void:
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	if is_dying: return
 	current_health -= amount
-	hit_stun_timer = 0.15
+	if not is_crowd_control_immune():
+		hit_stun_timer = 0.15
 	alert_to_player()
 	_show_damage_text(amount, is_crit)
 	_flash_hit()
@@ -561,8 +567,11 @@ var is_electrified: bool = false # tinte amarillo mientras dura el stun de Relam
 var _freeze_timer: Timer = null
 var _frozen_paused_timers: Array[Timer] = []
 
+func is_crowd_control_immune() -> bool:
+	return false
+
 func freeze_enemy(duration: float = 5.0) -> void:
-	if is_dying: return
+	if is_dying or is_crowd_control_immune(): return
 	is_frozen_by_ice = true
 	velocity = Vector2.ZERO
 	set_physics_process(false)
@@ -575,6 +584,7 @@ func _apply_freeze_visuals() -> void:
 	var sprite = _get_sprite()
 	if sprite:
 		sprite.modulate = FREEZE_COLOR
+	StatusFx.show_freeze(self) # costra de hielo en los pies (se queda en el último cuadro)
 
 func _pause_enemy_for_freeze() -> void:
 	_pause_enemy_animations()
@@ -589,12 +599,15 @@ func _pause_enemy_animations() -> void:
 			anim_player.pause()
 
 func _pause_enemy_internal_timers() -> void:
-	_frozen_paused_timers.clear()
+	# Conservar los timers ya pausados cuando se renueva la congelación.
 	for child in find_children("*", "Timer", true, false):
 		var t = child as Timer
-		if t != _freeze_timer and not t.is_stopped() and t.paused == false:
+		if t != _freeze_timer and not t.is_stopped() and not t.paused and _should_pause_timer_for_freeze(t):
 			t.paused = true
 			_frozen_paused_timers.append(t)
+
+func _should_pause_timer_for_freeze(_timer: Timer) -> bool:
+	return true
 
 func _resume_enemy_animations() -> void:
 	for anim_sprite in find_children("*", "AnimatedSprite2D", true, false):
@@ -633,6 +646,7 @@ func _unfreeze_enemy() -> void:
 	var sprite = _get_sprite()
 	if sprite and is_instance_valid(sprite):
 		sprite.modulate = _default_modulate
+	StatusFx.hide_freeze(self) # antes de reanudar las animaciones
 	_resume_enemy_animations()
 	_resume_enemy_internal_timers()
 	set_physics_process(true)
@@ -649,6 +663,7 @@ func apply_status_effect(effect_type: String) -> void:
 			_apply_slow_effect(3.0, 0.5)
 
 func _apply_stun_effect(duration: float) -> void:
+	if is_crowd_control_immune(): return
 	hit_stun_timer = maxf(hit_stun_timer, duration)
 	is_electrified = true
 	var sprite = _get_sprite()
@@ -672,6 +687,7 @@ func _apply_burn_effect(duration: float) -> void:
 	IgniteEffect.apply_ignite(self, burn_dmg, tick_interval, duration)
 
 func _apply_slow_effect(duration: float, multiplier: float) -> void:
+	if is_crowd_control_immune(): return
 	set_speed_modifier("nitrogen_slow", multiplier)
 	var timer = get_tree().create_timer(duration)
 	timer.timeout.connect(_on_slow_effect_timeout)
@@ -720,6 +736,8 @@ func _check_death() -> void:
 func die() -> void:
 	if is_dying: return
 	is_dying = true
+	StatusFx.hide_fire(self)
+	StatusFx.hide_freeze(self)
 	_disable_physics()
 	GameData.run_enemies_killed += 1
 	GameData.protocol_enemy_defeated(self)

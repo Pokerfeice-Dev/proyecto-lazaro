@@ -972,14 +972,33 @@ func clear_items() -> void:
 		equipment_slots[k] = null
 	flesh = 0
 	flesh_changed.emit(flesh)
+	_refresh_player_gear()
+
+# El jugador sigue vivo entre salas: si no se le avisa, se quedaba con las
+# sinergias, el arma transformada y las estadísticas de lo que tenía equipado.
+func _refresh_player_gear() -> void:
+	var player = get_tree().get_first_node_in_group("player") if is_inside_tree() else null
+	if not player: return
+	var equipment = player.get_node_or_null("Equipment")
+	if equipment: equipment.equipment_changed.emit()
+	var inventory = player.get_node_or_null("Inventory")
+	if inventory: inventory.inventory_updated.emit()
 
 ## Build del evento: todas las armas se pueden elegir desde el principio y
 ## todas las sinergias están habilitadas (no descubiertas: su sprite y su nombre
 ## se revelan recién al armarlas).
 const EVENT_WEAPONS: Array[String] = ["pistol", "uzi", "shotgun", "daga", "hacha", "maze"]
 
+## Muestras: todas las armas y sinergias desde el principio, pero con el juego
+## completo (sin cortar en el primer jefe, sin QR ni modo stand). Se prende con
+## frankengun/desbloquear_todo en la configuración del proyecto.
+const UNLOCK_ALL_SETTING := "frankengun/desbloquear_todo"
+
+func unlock_all_enabled() -> bool:
+	return is_event_build() or bool(ProjectSettings.get_setting(UNLOCK_ALL_SETTING, false))
+
 func _apply_event_unlocks() -> void:
-	if not is_event_build(): return
+	if not unlock_all_enabled(): return
 	for id in EVENT_WEAPONS:
 		unlock_codex_entry("weapons", id, false)
 	unlock_all_synergies()

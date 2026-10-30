@@ -1,8 +1,10 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 [ext_resource type="Script" path="res://Scripts/Enemies/crypt_enemy.gd" id="1"]
 [ext_resource type="AudioStream" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="2"]
 [ext_resource type="Script" path="res://Scripts/Effects/crypt_telegraph.gd" id="3"]
 [ext_resource type="SpriteFrames" path="res://Art/Enemies/Crypt/crypt_death_fx_frames.tres" id="4"]
+[sub_resource type="CanvasItemMaterial" id="health_material"]
+light_mode = 1
 [sub_resource type="CircleShape2D" id="body"]
 radius = 14.0
 [sub_resource type="Animation" id="anticipation"]
@@ -56,6 +58,7 @@ color = Color(0.8, 0.8, 1, 0.7)
 polygon = PackedVector2Array(-5, -4, 5, -4, 5, 3, -5, 3)
 color = Color(0.1, 0.12, 0.15, 1)
 [node name="HealthBar" type="ProgressBar" parent="."]
+material = SubResource("health_material")
 offset_left = -15.0
 offset_top = -30.0
 offset_right = 15.0
