@@ -97,7 +97,6 @@ func _setup_crypt_fog() -> void:
 	fog.name = "CryptFog"
 	add_child(fog)
 
-# Zona 2: contorno en los obstáculos (con la niebla no se veía con qué chocabas).
 # Zona 3: los bordes del piso dan al vacío (son tiles de "Floor" con colisión):
 # frenan a jugador y enemigos, pero las balas pasan por encima. Se usa una capa
 # de colisión propia (VOID_LAYER_BIT), que solo miran los cuerpos (player.gd y
@@ -107,9 +106,7 @@ const VOID_LAYER_BIT := 5 # valor 16
 
 func _setup_zone_readability() -> void:
 	var file = get_scene_file_path().get_file()
-	if file.begins_with("Level2_"):
-		ObstacleOutline.attach(get_node_or_null("Tile_Objects") as TileMapLayer)
-	elif file.begins_with("Level3_"):
+	if file.begins_with("Level3_"):
 		_make_layer_void(get_node_or_null("Floor") as TileMapLayer)
 
 func _make_layer_void(layer: TileMapLayer) -> void:

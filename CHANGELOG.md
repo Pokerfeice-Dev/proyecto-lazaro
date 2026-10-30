@@ -1,7 +1,12 @@
+## 2026-10-30 (Sin contorno en la zona 2 y soltar objetos con joystick)
+
+- **Zona 2:** se sacó el contorno celeste de los obstáculos (no gustó). Se borró `Scripts/World/obstacle_outline.gd`. Lo de la zona 3 (las balas pasan por los bordes que dan al vacío) sigue igual.
+- **Soltar objetos con joystick:** ya se podía con la flecha de arriba de la cruceta, pero en la barra de abajo del inventario "Soltar" aparecía con la X del joystick encima (se copiaba el cartel de "Equipar" después de convertirlo). Ahora muestra una cruceta con la flecha de arriba marcada (`PadGlyph` "DPAD_UP") y con teclado sigue la Q. Probado: con joystick, la flecha arriba suelta el objeto elegido y cae al piso.
+
 ## 2026-10-29 (Mapas 2 y 3 más legibles, Uzi y tope de Nemesis)
 
 - **Zona 2, obstáculos con contorno:** con la niebla de la Cripta no se veía con qué cosa chocabas. Ahora los tiles con colisión de `Tile_Objects` tienen un borde celeste claro y un relleno muy suave (`Scripts/World/obstacle_outline.gd`, lo agrega `combat_room.gd` en las salas `Level2_*`).
-- **Zona 3, las balas pasan por los vacíos:** las "paredes" de la zona 3 son vacíos. Siguen frenando al jugador y a los enemigos, pero las balas (las tuyas y las enemigas) pasan por encima. En las salas `Level3_*`, la capa `Walls` usa una copia del tileset con su propia capa de colisión (la 5, valor 16), que solo miran el jugador y los enemigos.
+- **Zona 3, las balas pasan por los vacíos:** los bordes del piso que dan al abismo (tiles de `Floor` con colisión) siguen frenando al jugador y a los enemigos, pero las balas (las tuyas y las enemigas) pasan por encima. En las salas `Level3_*`, la capa `Floor` usa una copia del tileset con su propia capa de colisión (la 5, valor 16), que solo miran el jugador y los enemigos. Las paredes de verdad (`Walls`) y los objetos siguen frenando balas.
 - **Uzi:** 6 de daño (antes 4), como propuso Uri. Era el arma más débil.
 - **Nemesis, tope provisorio hasta el rework:** con 10% de vida llegaba a unos 800 de DPS. Ahora el bonus por vida baja es más chico: ronda los 100 de DPS con 10% de vida y 50 con la mitad.
 

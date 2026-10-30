@@ -50,6 +50,7 @@ static func draw_button(ci: CanvasItem, rect: Rect2, p_button: String, p_pressed
 		"BACK": _draw_menu(ci, rect, p_pressed, false)
 		"LS", "RS": _draw_stick(ci, rect, p_button, p_pressed, font)
 		"DPAD": _draw_dpad(ci, rect, p_pressed)
+		"DPAD_UP": _draw_dpad(ci, rect, p_pressed, true) # cruceta con la flecha de arriba marcada
 		_: _draw_bumper(ci, rect, p_button, p_pressed, font)
 
 # Botón redondo de color con la letra.
@@ -110,7 +111,7 @@ static func _draw_stick(ci: CanvasItem, rect: Rect2, text: String, p: float, fon
 	_center_text(ci, font, text, top, int(r * 0.62), OUTLINE)
 
 # Cruceta.
-static func _draw_dpad(ci: CanvasItem, rect: Rect2, p: float) -> void:
+static func _draw_dpad(ci: CanvasItem, rect: Rect2, p: float, up_only := false) -> void:
 	var s = minf(rect.size.x, rect.size.y)
 	var c = rect.get_center()
 	var w = s * 0.32
@@ -119,6 +120,11 @@ static func _draw_dpad(ci: CanvasItem, rect: Rect2, p: float) -> void:
 	ci.draw_rect(Rect2(c - Vector2(s * 0.45, w / 2.0), Vector2(s * 0.9, w)), col)
 	ci.draw_rect(Rect2(c - Vector2(w / 2.0, s * 0.45), Vector2(w, s * 0.9)), OUTLINE, false, 1.5)
 	ci.draw_rect(Rect2(c - Vector2(s * 0.45, w / 2.0), Vector2(s * 0.9, w)), OUTLINE, false, 1.5)
+	if up_only:
+		# brazo de arriba relleno y con su flechita, para que se lea "arriba"
+		ci.draw_rect(Rect2(c - Vector2(w / 2.0, s * 0.45), Vector2(w, s * 0.45 - w / 2.0)), OUTLINE)
+		var tip = c - Vector2(0, s * 0.38)
+		ci.draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-w * 0.32, w * 0.4), tip + Vector2(w * 0.32, w * 0.4)]), BODY)
 
 static func _box(rect: Rect2, p: float) -> StyleBoxFlat:
 	var box = StyleBoxFlat.new()
