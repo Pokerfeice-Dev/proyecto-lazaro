@@ -39,6 +39,18 @@ var prompt_row: HBoxContainer
 var key_icon: Control
 var key_icon_pad := false
 
+# Sonidos de la cámara lenta: entra (el tiempo se frena), zumbido mientras dura,
+# la bala que pasa lenta y la salida cuando se esquiva.
+const SFX_SLOWMO_IN := preload("res://Audio/Sfx/IA/slowmo_entrada.wav")
+const SFX_SLOWMO_LOOP := preload("res://Audio/Sfx/IA/slowmo_ambiente.ogg")
+const SFX_SLOWMO_OUT := preload("res://Audio/Sfx/IA/slowmo_salida.wav")
+const SFX_SLOWMO_BULLET := preload("res://Audio/Sfx/IA/slowmo_bala.wav")
+var slowmo_loop: AudioStreamPlayer
+# Tecla o botón del dash al lado del texto (ESPACIO con teclado, A con joystick)
+var prompt_row: HBoxContainer
+var key_icon: Control
+var key_icon_pad := false
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	previous_scale = Engine.time_scale
@@ -160,7 +172,16 @@ func _build_overlay() -> void:
 	prompt_row.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	prompt_row.offset_top = -62
 	prompt_row.offset_bottom = -8
+	prompt_row = HBoxContainer.new()
+	prompt_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	prompt_row.add_theme_constant_override("separation", 16)
+	prompt_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(prompt_row)
+	prompt_row.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	prompt_row.offset_top = -62
+	prompt_row.offset_bottom = -8
 	prompt = Label.new()
+	prompt_row.add_child(prompt)
 	prompt_row.add_child(prompt)
 	prompt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 <<<<<<< HEAD
@@ -220,6 +241,9 @@ func _input(event: InputEvent) -> void:
 			_hide_dash_key()
 			_stop_slowmo_loop()
 			_play_sfx(SFX_SLOWMO_OUT, 0.0, true)
+			_hide_dash_key()
+			_stop_slowmo_loop()
+			_play_sfx(SFX_SLOWMO_OUT, 0.0, true)
 			prompt.modulate = Color(0.3, 1.0, 0.8)
 	get_viewport().set_input_as_handled()
 
@@ -245,6 +269,7 @@ func _process(delta: float) -> void:
 				bullet.rotation = PI
 				add_child(bullet)
 				bullet.global_position = shooter.global_position + Vector2(-18, 0)
+				_play_sfx(SFX_SLOWMO_BULLET, -2.0)
 				_play_sfx(SFX_SLOWMO_BULLET, -2.0)
 				stage = 1
 				elapsed = 0.0
@@ -284,6 +309,7 @@ func restore(cancelled := true) -> void:
 	for child in get_children():
 		if child is AudioStreamPlayer: child.stop()
 	Engine.time_scale = previous_scale
+	_stop_slowmo_loop()
 	_stop_slowmo_loop()
 	for layer in hidden_layers:
 		if is_instance_valid(layer): layer.show()
