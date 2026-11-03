@@ -42,6 +42,7 @@ enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
 modo_evento=false
 cheats=true
 desbloquear_todo=true
+qr_final=true
 
 [global]
 

@@ -39,18 +39,6 @@ var prompt_row: HBoxContainer
 var key_icon: Control
 var key_icon_pad := false
 
-# Sonidos de la cámara lenta: entra (el tiempo se frena), zumbido mientras dura,
-# la bala que pasa lenta y la salida cuando se esquiva.
-const SFX_SLOWMO_IN := preload("res://Audio/Sfx/IA/slowmo_entrada.wav")
-const SFX_SLOWMO_LOOP := preload("res://Audio/Sfx/IA/slowmo_ambiente.ogg")
-const SFX_SLOWMO_OUT := preload("res://Audio/Sfx/IA/slowmo_salida.wav")
-const SFX_SLOWMO_BULLET := preload("res://Audio/Sfx/IA/slowmo_bala.wav")
-var slowmo_loop: AudioStreamPlayer
-# Tecla o botón del dash al lado del texto (ESPACIO con teclado, A con joystick)
-var prompt_row: HBoxContainer
-var key_icon: Control
-var key_icon_pad := false
-
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	previous_scale = Engine.time_scale
@@ -99,7 +87,11 @@ func _stage_scene() -> void:
 	var push_in := create_tween().set_ignore_time_scale(true)
 	push_in.tween_property(camera, "zoom", camera.zoom * 1.08, 1.8).set_trans(Tween.TRANS_SINE)
 	Engine.time_scale = 0.12
-<<<<<<< HEAD
+	# entrada de la cámara lenta, zumbido que dura hasta que se esquiva y latido de fondo
+	_play_sfx(SFX_SLOWMO_IN, 0.0)
+	var loop_stream: AudioStream = SFX_SLOWMO_LOOP
+	loop_stream.set("loop", true) # el zumbido se repite hasta que se esquiva
+	slowmo_loop = _play_sfx(loop_stream, -6.0)
 	var heartbeat := preload("res://Audio/Sfx/Low_health_heartbeat.wav").duplicate() as AudioStreamWAV
 	heartbeat.loop_begin = 0
 	heartbeat.loop_end = int(heartbeat.get_length() * heartbeat.mix_rate)
@@ -119,11 +111,6 @@ func _play_cinematic_sound(stream: AudioStream, volume: float, pitch := 1.0) -> 
 	sound.play()
 	sound.finished.connect(sound.queue_free)
 	return sound
-=======
-	_play_sfx(SFX_SLOWMO_IN, 0.0)
-	var loop_stream: AudioStream = SFX_SLOWMO_LOOP
-	loop_stream.set("loop", true) # el zumbido se repite hasta que se esquiva
-	slowmo_loop = _play_sfx(loop_stream, -6.0)
 
 # El sonido sigue aunque el juego esté en cámara lenta (no depende de time_scale).
 func _play_sfx(stream: AudioStream, volume_db: float, keep_after_free := false) -> AudioStreamPlayer:
@@ -143,7 +130,6 @@ func _play_sfx(stream: AudioStream, volume_db: float, keep_after_free := false) 
 func _stop_slowmo_loop() -> void:
 	if is_instance_valid(slowmo_loop):
 		slowmo_loop.stop()
->>>>>>> 7cfea6efeb3b6ec6882ad69f4ca800ef32419be9
 
 func _hide_hud(node: Node) -> void:
 	if node is CanvasLayer and node.visible:
@@ -172,19 +158,10 @@ func _build_overlay() -> void:
 	prompt_row.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	prompt_row.offset_top = -62
 	prompt_row.offset_bottom = -8
-	prompt_row = HBoxContainer.new()
-	prompt_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	prompt_row.add_theme_constant_override("separation", 16)
-	prompt_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	overlay.add_child(prompt_row)
-	prompt_row.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	prompt_row.offset_top = -62
-	prompt_row.offset_bottom = -8
 	prompt = Label.new()
 	prompt_row.add_child(prompt)
-	prompt_row.add_child(prompt)
 	prompt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-<<<<<<< HEAD
+	prompt.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	prompt.add_theme_font_size_override("font_size", 24)
 	prompt.text = ""
 	head_prompt = TutorialInputIcon.create("SHIFT", 1.15)
@@ -197,11 +174,6 @@ func _build_overlay() -> void:
 	transition.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_child(transition)
 	transition.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-=======
-	prompt.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	prompt.add_theme_font_size_override("font_size", 26)
-	prompt.text = "OBSERVA EL DISPARO"
->>>>>>> 7cfea6efeb3b6ec6882ad69f4ca800ef32419be9
 
 # Muestra la tecla (o el botón del joystick) del dash delante del texto.
 func _show_dash_key() -> void:
@@ -219,14 +191,10 @@ func _hide_dash_key() -> void:
 func _input(event: InputEvent) -> void:
 	if restored: return
 	if stage == 2 and released and not event.is_echo():
-<<<<<<< HEAD
 		var keyboard: bool = event is InputEventKey and event.pressed and event.keycode in [KEY_SHIFT, KEY_SPACE]
 		var gamepad: bool = event is InputEventJoypadButton and event.is_action_pressed("dash")
-		if keyboard or gamepad:
-=======
 		# la acción "dash" ya incluye Espacio, Shift y la A del joystick
-		if event.is_action_pressed("dash"):
->>>>>>> 7cfea6efeb3b6ec6882ad69f4ca800ef32419be9
+		if keyboard or gamepad or event.is_action_pressed("dash"):
 			stage = 3
 			elapsed = 0.0
 			head_prompt.hide()
@@ -238,9 +206,6 @@ func _input(event: InputEvent) -> void:
 			player._start_dash()
 			player.dash_dir = Vector2.DOWN
 			prompt.text = "¡EVASIÓN PERFECTA!"
-			_hide_dash_key()
-			_stop_slowmo_loop()
-			_play_sfx(SFX_SLOWMO_OUT, 0.0, true)
 			_hide_dash_key()
 			_stop_slowmo_loop()
 			_play_sfx(SFX_SLOWMO_OUT, 0.0, true)
@@ -270,7 +235,6 @@ func _process(delta: float) -> void:
 				add_child(bullet)
 				bullet.global_position = shooter.global_position + Vector2(-18, 0)
 				_play_sfx(SFX_SLOWMO_BULLET, -2.0)
-				_play_sfx(SFX_SLOWMO_BULLET, -2.0)
 				stage = 1
 				elapsed = 0.0
 		1:
@@ -280,16 +244,11 @@ func _process(delta: float) -> void:
 				elapsed = 0.0
 				head_prompt.show()
 		2:
-<<<<<<< HEAD
 			head_prompt.key = "ESPACIO" if InputMode.is_gamepad() else "SHIFT"
 			head_prompt.position = player.get_global_transform_with_canvas().origin - Vector2(head_prompt.size.x * 0.5, 110.0 + head_prompt.size.y)
 			head_prompt.position.y += sin(elapsed * 5.0) * 5.0
 			head_prompt._process(real_delta)
 			prompt.text = "PULSA EL BOTÓN DE EVASIÓN" if InputMode.is_gamepad() else "PULSA SHIFT O ESPACIO PARA EVADIR"
-=======
-			_show_dash_key()
-			prompt.text = "PARA ESQUIVAR CON EL DASH" if InputMode.is_gamepad() else "O SHIFT PARA ESQUIVAR CON EL DASH"
->>>>>>> 7cfea6efeb3b6ec6882ad69f4ca800ef32419be9
 			prompt.modulate = Color(1.0, 0.85 + sin(elapsed * 5.0) * 0.15, 0.4)
 		3:
 			# Movimiento dirigido con colisión real; no admite disparos ni movimiento libre.
@@ -309,7 +268,6 @@ func restore(cancelled := true) -> void:
 	for child in get_children():
 		if child is AudioStreamPlayer: child.stop()
 	Engine.time_scale = previous_scale
-	_stop_slowmo_loop()
 	_stop_slowmo_loop()
 	for layer in hidden_layers:
 		if is_instance_valid(layer): layer.show()

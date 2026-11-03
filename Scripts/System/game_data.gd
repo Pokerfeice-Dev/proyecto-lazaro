@@ -997,6 +997,13 @@ const UNLOCK_ALL_SETTING := "frankengun/desbloquear_todo"
 func unlock_all_enabled() -> bool:
 	return is_event_build() or bool(ProjectSettings.get_setting(UNLOCK_ALL_SETTING, false))
 
+## Muestras con el juego completo: al morir o al vencer a Prometeo aparece el QR de
+## opinión (sin cortar la run en el primer jefe). Se prende con frankengun/qr_final.
+const QR_FINAL_SETTING := "frankengun/qr_final"
+
+func qr_final_enabled() -> bool:
+	return bool(ProjectSettings.get_setting(QR_FINAL_SETTING, false))
+
 func _apply_event_unlocks() -> void:
 	if not unlock_all_enabled(): return
 	for id in EVENT_WEAPONS:

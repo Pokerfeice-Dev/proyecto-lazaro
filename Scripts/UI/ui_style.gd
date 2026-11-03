@@ -57,11 +57,12 @@ static func panel(tex: Texture2D) -> PanelContainer:
 	return p
 
 ## Tamaño de letra legible: en el evento la gente se acercaba a la pantalla
-## para leer. Sube más los textos chicos que los títulos (que ya se leen bien).
+## para leer y en las notebooks (pantalla chica) la letra quedaba diminuta.
+## Sube más los textos chicos que los títulos (que ya se leen bien).
 static func readable(size: int) -> int:
-	if size <= 14: return size + 4
-	if size <= 20: return size + 3
-	if size <= 28: return size + 2
+	if size <= 14: return size + 5
+	if size <= 20: return size + 4
+	if size <= 28: return size + 3
 	return size
 
 ## Agranda (una sola vez) los textos de una pantalla armada en el editor:

@@ -12,6 +12,8 @@ class IsolatedGameData extends "res://Scripts/System/game_data.gd":
 
 func _ready() -> void:
 	assert(not GameData.is_event_build(), "El proyecto principal debe iniciar sin modo evento")
+	# la muestra con el juego completo prende el QR final; el juego normal no lo tiene
+	ProjectSettings.set_setting(GameData.QR_FINAL_SETTING, false)
 	assert(not EventOutro.should_show(), "El juego normal no debe mostrar QR")
 	var data = IsolatedGameData.new()
 	add_child(data)

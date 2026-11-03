@@ -56,17 +56,23 @@ func _setup_sign() -> void:
 	for light in [close_light, open_light]:
 		if light: light.color = sign_color
 
-# Ícono siempre recto (top_level), con un leve tinte del color de la puerta.
+# Ícono con un leve tinte del color de la puerta. En la puerta de la pared lateral (sin girar)
+# va pegado al marco y girado igual que la puerta, como el cerebro de O.M.N.I.A.; en las demás
+# queda recto en la posición indicada.
 func _setup_door_icon() -> void:
 	if not door_icon: return
 	var icon_sprite = Sprite2D.new()
 	icon_sprite.texture = door_icon
 	icon_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	add_child(icon_sprite)
-	icon_sprite.top_level = true
-	icon_sprite.global_position = global_position + door_icon_offset
 	icon_sprite.scale = Vector2(0.7, 0.7)
 	icon_sprite.modulate = Color.WHITE.lerp(sign_color, 0.25)
+	add_child(icon_sprite)
+	if absf(wrapf(rotation, -PI, PI)) < 0.1:
+		icon_sprite.position = Vector2(-52, 0)
+		icon_sprite.rotation = -PI / 2.0
+		return
+	icon_sprite.top_level = true
+	icon_sprite.global_position = global_position + door_icon_offset
 
 func _init_lights_base_energy() -> void:
 	if close_light:

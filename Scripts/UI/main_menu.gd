@@ -58,19 +58,20 @@ func _ready():
 	_atmosphere.particles_enabled = FxSettings.on("particulas_menu")
 
 # ---- Pantalla de título: los botones aparecen recién al tocar algo ----
-var _title_label: Label = null
+var _title_label: TitlePrompt = null # cartel animado (scripts/UI/title_prompt.gd)
 
 func _show_title_prompt() -> void:
 	button_group.visible = false
-	_title_label = UIStyle.label("PRESIONA CUALQUIER BOTÓN", 30, UIStyle.COLOR_GOLD)
-	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title_label = TitlePrompt.new()
+	_title_label.modulate.a = 0.0 # hasta que se acomoda, para que no aparezca corrido
 	add_child(_title_label)
 	await get_tree().process_frame
-	_title_label.size.x = maxf(button_group.size.x, _title_label.get_minimum_size().x)
-	_title_label.position = button_group.position + Vector2((button_group.size.x - _title_label.size.x) / 2.0, button_group.size.y / 2.0)
-	var t = _title_label.create_tween().set_loops()
-	t.tween_property(_title_label, "modulate:a", 0.35, 0.8).set_trans(Tween.TRANS_SINE)
-	t.tween_property(_title_label, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
+	await get_tree().process_frame
+	if not is_instance_valid(_title_label): return
+	var centro = button_group.position + button_group.size / 2.0 - _title_label.size / 2.0
+	centro.x = clampf(centro.x, 20.0, size.x - _title_label.size.x - 20.0) # que no se corte en pantallas angostas
+	_title_label.position = centro
+	_title_label.modulate.a = 1.0
 
 func _input(event: InputEvent) -> void:
 	if not is_instance_valid(_title_label): return
@@ -78,9 +79,11 @@ func _input(event: InputEvent) -> void:
 	if not pressed: return
 	get_viewport().set_input_as_handled()
 	GameData.show_title_screen = false
-	_title_label.queue_free()
+	_title_label.salir()
 	_title_label = null
 	if has_node("Btn_snd"): $Btn_snd.play()
+	if is_instance_valid(_atmosphere): _atmosphere.surge() # chispazo de la atmósfera al entrar
+	await get_tree().create_timer(0.26).timeout # el cartel se apaga y recién ahí aparecen los botones
 	button_group.visible = true
 	await get_tree().process_frame # que el contenedor acomode los botones antes de animarlos
 	_play_intro_animation()

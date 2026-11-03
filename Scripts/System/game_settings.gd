@@ -21,6 +21,7 @@ const DEFAULTS := {
 		"vsync": true,
 		"fps_max": 0,            # 0 = sin limite
 		"mostrar_fps": false,
+		"calidad": 0,            # 0 automática (según la placa de video), 1 alta, 2 media, 3 baja
 	},
 	"audio": {
 		"general": 100.0,
@@ -59,6 +60,7 @@ func _ready() -> void:
 	_apply_web_optimizations()
 	_load_settings()
 	_apply_all()
+	add_child(preload("res://Scripts/System/quality_manager.gd").new()) # calidad gráfica
 
 func _apply_web_optimizations() -> void:
 	if not OS.has_feature("web"): return

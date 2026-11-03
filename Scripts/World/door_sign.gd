@@ -8,7 +8,7 @@ class_name DoorSign
 ## Lo crea Door cuando tiene "sign_text".
 
 const WORLD_SCALE := 0.4 # fuente grande achicada: se ve nítida con el zoom de la cámara
-const FONT_SIZE := 30
+const FONT_SIZE := 38 # más grande: en notebooks el cartel se leía chico
 
 var text: String = ""
 var icon: Texture2D
@@ -51,7 +51,7 @@ func _ready() -> void:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_plate.add_child(row)
 	if icon:
-		_icon_rect = UIStyle.icon(icon, 36)
+		_icon_rect = UIStyle.icon(icon, 44)
 		_icon_rect.modulate = color
 		_icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(_icon_rect)

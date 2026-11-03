@@ -26,8 +26,14 @@ const MORE_CONTENT := [
 static var _showing := false
 
 ## Se muestra en el build del evento o con el interruptor del modo evento
-## prendido (o mientras corre una run del evento).
+## prendido (o mientras corre una run del evento), y en las muestras con el juego
+## completo (frankengun/qr_final): ahí solo sale el QR de opinión, al morir o al
+## vencer a Prometeo.
 static func should_show() -> bool:
+	return GameData.is_event_build() or GameData.is_event_demo() or GameData.qr_final_enabled()
+
+# El video de "solo el comienzo" es de la demo de la zona 1: con el juego completo no va.
+static func _is_demo() -> bool:
 	return GameData.is_event_build() or GameData.is_event_demo()
 
 static func is_showing() -> bool:
@@ -46,8 +52,13 @@ static func play(on_done: Callable) -> void:
 	texts.add_child(_text("¡Gracias por jugar!", 30, UIStyle.COLOR_GOLD))
 	texts.add_child(_text("Nos ayudaría mucho saber cómo te fue.", 20, UIStyle.COLOR_TEXT))
 	texts.add_child(_text("Escanea el código con tu celular y completa un formulario corto. Es anónimo y toma un par de minutos.", 18, UIStyle.COLOR_MUTED))
-	w.add_button("CONTINUAR", true, "E", w.close)
-	w.closed.connect(_show_more.bind(on_done))
+	if _is_demo():
+		w.add_button("CONTINUAR", true, "E", w.close)
+		w.closed.connect(_show_more.bind(on_done))
+		return
+	texts.add_child(_text("Síguenos y juega en " + ITCH_TEXT, 20, UIStyle.COLOR_TEAL))
+	w.add_button("TERMINAR", true, "E", w.close)
+	w.closed.connect(_finish.bind(on_done))
 
 static func _show_more(on_done: Callable) -> void:
 	var w = UIWindow.open("  ESTO ES SOLO EL COMIENZO", ICON_INFO, 1260.0)

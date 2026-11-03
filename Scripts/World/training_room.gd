@@ -55,6 +55,7 @@ func _ready() -> void:
 	# El inventario pausa el árbol: el tutorial debe detectar cuando se abre para
 	# poder pasar del paso 7 (abrir) al 8 (equipar con clic derecho).
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_pausar_lo_que_cuelga_de_la_sala()
 	# Lo que se desbloquee o equipe aquí es de prueba: al salir se vuelve atrás.
 	GameData.begin_sandbox()
 	_spawn_player()
@@ -66,6 +67,18 @@ func _ready() -> void:
 	_setup_tutorial_ui()
 	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
 	_update_dialogue_text()
+
+# La sala corre aun con el árbol pausado, y todo lo que cuelga de ella lo heredaba:
+# con un cartel o el inventario abierto, el jugador, los enemigos y las balas seguían
+# moviéndose de fondo. Cada hijo (los que ya hay y los que se agreguen) vuelve a ser pausable.
+func _pausar_lo_que_cuelga_de_la_sala() -> void:
+	for child in get_children():
+		_hacer_pausable(child)
+	child_entered_tree.connect(_hacer_pausable)
+
+func _hacer_pausable(node: Node) -> void:
+	if node.process_mode == Node.PROCESS_MODE_INHERIT:
+		node.process_mode = Node.PROCESS_MODE_PAUSABLE
 
 # Teclado <-> joystick: los textos del paso cambian (clic derecho / X, etc.).
 func _on_input_mode_changed(_gamepad: bool) -> void:

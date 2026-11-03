@@ -33,12 +33,12 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -304.0
+offset_left = -345.0
 offset_top = 43.0
-offset_right = -154.0
+offset_right = -195.0
 offset_bottom = 123.0
 grow_horizontal = 0
-scale = Vector2(1.5, 1.5)
+scale = Vector2(1.9, 1.9)
 
 [node name="Flesh_container" type="HBoxContainer" parent="Control/CurrencyContainer" unique_id=2000000000]
 layout_mode = 2
@@ -82,13 +82,13 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -247.99988
-offset_top = -127.99994
-offset_right = -77.99988
-offset_bottom = -48.0
+offset_left = -310.0
+offset_top = -162.0
+offset_right = -140.0
+offset_bottom = -82.0
 grow_horizontal = 0
 grow_vertical = 0
-scale = Vector2(1.3, 1.3)
+scale = Vector2(1.625, 1.625)
 
 [node name="PrimaryPanel" type="TextureRect" parent="Control/WeaponHUD" unique_id=-1294967295]
 custom_minimum_size = Vector2(80, 80)
@@ -131,7 +131,7 @@ offset_left = 32.0
 offset_top = 32.0
 offset_right = 136.0
 offset_bottom = 68.0
-scale = Vector2(3.4, 3.4)
+scale = Vector2(4.25, 4.25)
 value = 100.0
 texture_under = ExtResource("5_i4i0y")
 texture_over = ExtResource("6_yenib")
@@ -140,11 +140,11 @@ texture_progress_offset = Vector2(31, 14)
 
 [node name="DashCDBar" type="TextureProgressBar" parent="Control" unique_id=688935870]
 layout_mode = 0
-offset_left = 137.0
-offset_top = 96.99999
-offset_right = 191.0
-offset_bottom = 99.99999
-scale = Vector2(3.4, 3.4)
+offset_left = 163.25
+offset_top = 113.25
+offset_right = 217.25
+offset_bottom = 116.25
+scale = Vector2(4.25, 4.25)
 offset_transform_enabled = true
 offset_transform_position = Vector2(0.115, -0.12)
 max_value = 5.0
@@ -157,22 +157,22 @@ visible = false
 
 [node name="Eyelight" type="PointLight2D" parent="." unique_id=553443514]
 visible = false
-position = Vector2(89, 80)
+position = Vector2(103.25, 92)
 color = Color(0.9019608, 0.050980393, 0.050980393, 1)
 energy = 1.8
 blend_mode = 1
 range_layer_min = -100
 range_layer_max = 100
 texture = ExtResource("11_pydgx")
-texture_scale = 0.1
+texture_scale = 0.125
 
 [node name="Eyelight2" type="PointLight2D" parent="." unique_id=1751700178]
 visible = false
-position = Vector2(89, 107)
+position = Vector2(103.25, 125.75)
 color = Color(0.9019608, 0.050980393, 0.050980393, 1)
 energy = 1.8
 blend_mode = 1
 range_layer_min = -100
 range_layer_max = 100
 texture = ExtResource("11_pydgx")
-texture_scale = 0.1
+texture_scale = 0.125

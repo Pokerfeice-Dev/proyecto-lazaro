@@ -25,6 +25,7 @@ const ROWS := {
 		{"tipo": "opciones", "clave": "modo_pantalla", "texto": "Modo de pantalla", "items": ["Pantalla completa", "Ventana", "Ventana sin bordes"], "valores": [0, 1, 2], "desc": "Pantalla completa, ventana común (1600x900) o ventana sin bordes del tamaño del monitor."},
 		{"tipo": "toggle", "clave": "vsync", "texto": "Sincronización vertical (VSync)", "desc": "Evita el 'tearing' de la imagen. Si sientes los controles lentos, prueba desactivarlo."},
 		{"tipo": "opciones", "clave": "fps_max", "texto": "Límite de FPS", "items": ["Sin límite", "30", "60", "120", "144"], "valores": [0, 30, 60, 120, 144], "desc": "Limitar los cuadros por segundo baja el uso de la placa de video y la temperatura."},
+		{"tipo": "opciones", "clave": "calidad", "texto": "Calidad gráfica", "items": ["Automática", "Alta", "Media", "Baja"], "valores": [0, 1, 2, 3], "desc": "Si el juego va lento, baja la calidad: Media y Baja sacan la niebla y la mayoría de las luces, que es lo que más pesa en placas de video integradas. Automática elige según tu placa."},
 		{"tipo": "toggle", "clave": "mostrar_fps", "texto": "Mostrar FPS", "desc": "Muestra un contador de cuadros por segundo arriba a la derecha."},
 	],
 	"audio": [

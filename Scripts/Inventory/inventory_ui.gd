@@ -159,7 +159,12 @@ func _ready() -> void:
 	_setup_pad_hints()
 	for slot in inventory_slots + ui_slots:
 		slot.slot_pad_equip.connect(_on_slot_pad_equip)
+	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
 	update_ui()
+
+# Si se cambia entre mouse y joystick con el inventario abierto, el icono de equipar se redibuja.
+func _on_input_mode_changed(_gamepad: bool) -> void:
+	_refresh_synergy_tutorial_guidance()
 
 # Con joystick, las teclas de la barra de abajo y de "Cerrar" pasan a ser
 # botones, y aparecen LB / RB al lado de las pestañas.
@@ -865,7 +870,9 @@ func _add_synergy_tutorial_right_click_hint(slot: UISlot) -> void:
 	hint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hint.z_index = 2
 	slot.add_child(hint)
-	var mouse = TutorialInputIcon.create("MOUSE_R", 0.66, randf_range(0.0, TutorialInputIcon.PRESS_EVERY))
+	# equipar: clic derecho con mouse, X con joystick (MOUSE_R se dibujaría como LT)
+	var equip_key = "E" if InputMode.is_gamepad() else "MOUSE_R"
+	var mouse = TutorialInputIcon.create(equip_key, 0.66, randf_range(0.0, TutorialInputIcon.PRESS_EVERY))
 	mouse.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mouse.size = mouse.custom_minimum_size
 	mouse.set_anchors_preset(Control.PRESET_CENTER)

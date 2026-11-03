@@ -94,7 +94,8 @@ func _setup_protocol_hud() -> void:
 	_protocol_panel = UIStyle.panel(UIStyle.TEX_PANEL_INSET)
 	_protocol_panel.name = "ProtocolHUD"
 	_protocol_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_protocol_panel.position = Vector2(32, 170)
+	_protocol_panel.position = Vector2(32, 205) # debajo de la barra de vida agrandada
+	_protocol_panel.scale = Vector2(1.25, 1.25)
 	_protocol_panel.custom_minimum_size = Vector2(354, 58)
 	_protocol_panel.visible = false
 	control.add_child(_protocol_panel)
