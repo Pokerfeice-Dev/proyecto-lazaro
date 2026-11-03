@@ -1,4 +1,10 @@
-## 2026-10-30 (Muestra: rendimiento, UX y HUD más grande)
+## 2026-11-03 (Arranque arcade en el menú y mouse que se trababa)
+	
+	- **Mouse que se quedaba "pegado" al apuntar:** si había un joystick conectado (o un analógico que se movía solo), el juego pasaba a modo joystick y la mira se iba al enemigo más cercano. Para volver al mouse hacía falta un movimiento brusco o un clic, porque se miraba el recorrido de cada evento por separado y los mouse de muchos Hz mandan 1 o 2 píxeles por evento. Ahora se suma el recorrido de los últimos 0,25 s, así que cualquier movimiento normal del mouse devuelve el control al instante. Además, el analógico tiene que pasar de 0,6 (antes 0,45) para robarle el apuntado al mouse (`input_mode.gd`).
+	- **Cartel "PRESIONA CUALQUIER BOTÓN" más grande y centrado:** va centrado abajo, sobre el logo, con letra más grande y una placa de vidrio esmerilado (desenfoca y oscurece un poco lo de atrás), así el título se sigue viendo. Se arregló el barrido de luz y el chispazo del cartel, que no se dibujaban y llenaban el registro de errores.
+	- **Arranque tipo arcade al tocar un botón:** suena un efecto nuevo (moneda + descarga eléctrica + golpe, `Audio/Sfx/IA/menu_inicio_arcade.mp3`), la pantalla da un fogonazo, todo el menú hace un zoom de golpe que vuelve con un rebote y tiembla. Los barrotes se sacuden más que Lázaro para dar profundidad, y Lázaro, los barrotes y el logo se "encienden" un instante. Recién después aparecen los botones. Con "Fondo animado del menú" apagado, el golpe es más suave.
+	
+	## 2026-10-30 (Muestra: rendimiento, UX y HUD más grande)
 	
 	- **Tutorial roto por un merge:** `Scripts/World/tutorial_dodge_cinematic.gd` había quedado con marcadores de conflicto (`<<<<<<<`) y bloques repetidos, así que no compilaba y la sala del tutorial se quedaba sin lógica. Se resolvió conservando lo de las dos versiones (indicador sobre la cabeza y SHIFT/Espacio, más los sonidos de la cámara lenta). Ahora el proyecto no tiene ningún otro marcador de conflicto.
 	- **Tutorial, inventario con joystick:** el cartel de equipar decía LT; ahora muestra X (el icono se redibuja si cambias entre mouse y joystick con el inventario abierto).

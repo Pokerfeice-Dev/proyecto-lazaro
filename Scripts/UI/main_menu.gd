@@ -11,18 +11,25 @@ var _menu_motion := true
 var _parallax := Vector2.ZERO
 var _leaving := false
 var _button_tweens: Dictionary = {}
+# Arranque tipo arcade al tocar un botón en el título: zoom de golpe y temblor
+# que se apagan solos (los usa _process para todo el fondo).
+var _kick_zoom := 0.0
+var _kick_shake := 0.0
+const SFX_ARRANQUE := preload("res://Audio/Sfx/IA/menu_inicio_arcade.mp3")
 
 func _process(delta: float) -> void:
 	var target := Vector2.ZERO
 	if _menu_motion and not is_instance_valid(_options_screen) and not _leaving:
 		target = (get_local_mouse_position() / size - Vector2(0.5, 0.5)).clamp(Vector2(-0.5, -0.5), Vector2(0.5, 0.5))
 	_parallax = _parallax.lerp(target, 1.0 - exp(-delta * 3.0))
+	_apply_kick()
 	for node_name in ["Background", "Barrotes"]:
 		var plane = get_node_or_null(node_name) as Control
 		if plane:
+			var depth = 0.6 if node_name == "Background" else 1.5 # los barrotes, adelante, se sacuden más
 			plane.pivot_offset = plane.size / 2.0
-			plane.scale = Vector2.ONE * 1.035
-			plane.position = _parallax * (-12.0 if node_name == "Background" else -24.0)
+			plane.scale = Vector2.ONE * (1.035 + maxf(_kick_zoom, 0.0) * depth * 0.5)
+			plane.position = _parallax * (-12.0 if node_name == "Background" else -24.0) + _shake_offset(_kick_shake * depth)
 
 func _ready():
 	play_button.pressed.connect(_on_play_pressed)
@@ -68,9 +75,8 @@ func _show_title_prompt() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if not is_instance_valid(_title_label): return
-	var centro = button_group.position + button_group.size / 2.0 - _title_label.size / 2.0
-	centro.x = clampf(centro.x, 20.0, size.x - _title_label.size.x - 20.0) # que no se corte en pantallas angostas
-	_title_label.position = centro
+	# centrado abajo, sobre el logo: la placa es de vidrio esmerilado y el título se sigue viendo
+	_title_label.position = Vector2(size.x / 2.0, size.y * 0.8) - _title_label.size / 2.0
 	_title_label.modulate.a = 1.0
 
 func _input(event: InputEvent) -> void:
@@ -81,13 +87,82 @@ func _input(event: InputEvent) -> void:
 	GameData.show_title_screen = false
 	_title_label.salir()
 	_title_label = null
-	if has_node("Btn_snd"): $Btn_snd.play()
-	if is_instance_valid(_atmosphere): _atmosphere.surge() # chispazo de la atmósfera al entrar
-	await get_tree().create_timer(0.26).timeout # el cartel se apaga y recién ahí aparecen los botones
+	_arcade_start()
+	await get_tree().create_timer(0.45).timeout # pasa el golpe y recién ahí aparecen los botones
 	button_group.visible = true
 	await get_tree().process_frame # que el contenedor acomode los botones antes de animarlos
 	_play_intro_animation()
 	_setup_button_fx() # ya con los botones visibles y acomodados (incluye la cascada)
+
+# ---- Arranque tipo arcade (como poner la moneda): sonido, destello, zoom de golpe
+# y temblor de todo el menú (fondo, Lázaro, barrotes y logo), con Lázaro que se enciende.
+func _arcade_start() -> void:
+	_play_start_sound()
+	if is_instance_valid(_atmosphere): _atmosphere.surge() # chispazo de la atmósfera
+	_flash_screen()
+	_light_up(get_node_or_null("Background") as CanvasItem, Color(1.9, 1.6, 1.6))
+	_light_up(get_node_or_null("Barrotes") as CanvasItem, Color(1.6, 1.8, 2.0))
+	_light_up(logo, Color(2.0, 2.0, 2.2))
+	var strength = 1.0 if _menu_motion else 0.35 # sin animaciones de menú, un golpe más suave
+	# el zoom entra de golpe (sin tween: si el primer cuadro tarda, igual se ve),
+	# se sostiene un instante, vuelve y da un rebote chico
+	var peak = 0.11 * strength
+	_set_kick_zoom(peak)
+	var zoom = create_tween()
+	zoom.tween_interval(0.1)
+	zoom.tween_method(_set_kick_zoom, peak, 0.0, 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	zoom.tween_method(_set_kick_zoom, 0.0, peak * 0.3, 0.09).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	zoom.tween_method(_set_kick_zoom, peak * 0.3, 0.0, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var shake = create_tween()
+	shake.tween_method(_set_kick_shake, 22.0 * strength, 0.0, 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+func _set_kick_zoom(value: float) -> void:
+	_kick_zoom = value
+
+func _set_kick_shake(value: float) -> void:
+	_kick_shake = value
+
+func _play_start_sound() -> void:
+	var sfx = AudioStreamPlayer.new()
+	sfx.stream = SFX_ARRANQUE
+	sfx.bus = "SFX"
+	add_child(sfx)
+	sfx.play()
+	sfx.finished.connect(sfx.queue_free)
+
+# Zoom y temblor de todo el menú (la escena entera se mueve como una cámara).
+func _apply_kick() -> void:
+	if _kick_zoom == 0.0 and _kick_shake == 0.0:
+		if scale != Vector2.ONE or position != Vector2.ZERO:
+			scale = Vector2.ONE
+			position = Vector2.ZERO
+		return
+	pivot_offset = size / 2.0
+	# el rebote elástico no baja de 1: si no, se verían los bordes negros de la pantalla
+	scale = Vector2.ONE * (1.0 + maxf(_kick_zoom, 0.0))
+	position = _shake_offset(_kick_shake * 0.5)
+
+func _shake_offset(amount: float) -> Vector2:
+	if amount <= 0.0: return Vector2.ZERO
+	return Vector2(randf_range(-amount, amount), randf_range(-amount, amount))
+
+# Destello blanco que tapa la pantalla y se va (encima de todo el menú).
+func _flash_screen() -> void:
+	var flash = ColorRect.new()
+	flash.color = Color(1.0, 0.97, 0.9, 0.9)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(flash)
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var t = flash.create_tween()
+	t.tween_interval(0.05) # un instante a pleno, como el fogonazo de una máquina que arranca
+	t.tween_property(flash, "color:a", 0.0, 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_callback(flash.queue_free)
+
+# Una capa del fondo se "enciende" (sobreexpuesta) y vuelve a su color.
+func _light_up(node: CanvasItem, peak: Color) -> void:
+	if not node: return
+	node.modulate = peak
+	node.create_tween().tween_property(node, "modulate", Color.WHITE, 0.8).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 
 # Animación de aparición: fade + leve escala desde el centro del bloque de botones.
 func _play_intro_animation() -> void:

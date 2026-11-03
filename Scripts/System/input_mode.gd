@@ -23,8 +23,9 @@ signal mode_changed(gamepad: bool)
 
 const STICK_DEADZONE := 0.25
 const AIM_DEADZONE := 0.3
-const SWITCH_THRESHOLD := 0.45
+const SWITCH_THRESHOLD := 0.6 # un analógico gastado o apoyado no debe robarle el apuntado al mouse
 const MOUSE_SWITCH_DISTANCE := 6.0
+const MOUSE_SWITCH_WINDOW := 0.25 # segundos en los que se suma el recorrido del mouse
 const AIM_DISTANCE := 140.0
 const AIM_ASSIST_ANGLE := deg_to_rad(16.0)
 const AIM_ASSIST_RANGE := 520.0
@@ -43,6 +44,8 @@ var _switch_armed := true
 var _trigger_down := {} # eje del gatillo -> apretado
 var _memo_event: InputEvent
 var _memo_tap := false
+var _mouse_travel := 0.0
+var _mouse_travel_msec := 0
 
 ## Etiqueta de botón por tecla de teclado (lo que muestran los carteles).
 const PAD_FOR_KEY := {
@@ -109,12 +112,25 @@ func _input(event: InputEvent) -> void:
 		_set_gamepad(false)
 	elif event is InputEventMouseButton and event.pressed:
 		_set_gamepad(false)
-	elif event is InputEventMouseMotion and event.relative.length() > MOUSE_SWITCH_DISTANCE:
+	elif event is InputEventMouseMotion and gamepad and _mouse_moved_enough(event):
 		_set_gamepad(false)
+
+# Con un mouse de muchos Hz cada evento trae 1 o 2 píxeles: si se miraba evento por
+# evento, al mover el mouse despacio nunca volvía al modo teclado y la mira quedaba
+# "pegada" en el blanco del joystick hasta hacer un movimiento brusco o un clic.
+# Ahora se suma el recorrido de los últimos instantes.
+func _mouse_moved_enough(event: InputEventMouseMotion) -> bool:
+	var now = Time.get_ticks_msec()
+	if now - _mouse_travel_msec > int(MOUSE_SWITCH_WINDOW * 1000.0):
+		_mouse_travel = 0.0
+	_mouse_travel_msec = now
+	_mouse_travel += event.relative.length()
+	return _mouse_travel > MOUSE_SWITCH_DISTANCE
 
 func _set_gamepad(on: bool) -> void:
 	if gamepad == on: return
 	gamepad = on
+	_mouse_travel = 0.0
 	_locked_target = null
 	_switch_armed = true
 	mode_changed.emit(on)
