@@ -44,6 +44,13 @@ var _window: VBoxContainer
 var _rows: VBoxContainer
 var _button: Button
 var _leaving := false
+var death_fx: Control
+var death_rows: Array[Dictionary] = []
+var death_position := Vector2(-1, -1)
+signal OnDeathTitleSlam
+signal OnStatRowReveal(index: int)
+signal OnKillerStamped
+signal OnReturnToLabTriggered
 
 static func show_demo_completed(tree: SceneTree) -> RunEndScreen:
 	var s = RunEndScreen.new()
@@ -55,10 +62,11 @@ static func show_demo_completed(tree: SceneTree) -> RunEndScreen:
 	tree.root.add_child(s)
 	return s
 
-static func show_death(tree: SceneTree) -> RunEndScreen:
+static func show_death(tree: SceneTree, screen_position: Vector2 = Vector2(-1, -1)) -> RunEndScreen:
 	RunLog.finish("muerte")
 	var s = RunEndScreen.new()
 	s.title_text = "HAS MUERTO"
+	s.death_position = screen_position
 	s.subtitle_text = "VUÉLVETE MÁS FUERTE E INTÉNTALO DE NUEVO"
 	tree.root.add_child(s)
 	return s
@@ -87,13 +95,25 @@ func _ready() -> void:
 		_fill_rows()
 	PadFocus.push_modal(self, _button) # con joystick el botón arranca enfocado
 	RunLog.screen("Resultado")
-	_animate_in()
+	if victory:
+		_animate_in()
+	else:
+		death_fx = preload("res://Scripts/UI/death_monitor.gd").new()
+		add_child(death_fx)
+		death_fx.setup(self, _bg, _header, _window, _rows, _button, death_rows, death_position)
 
 func _input(event: InputEvent) -> void:
 	if _leaving: return
 	if demo_completed: return # Los botones manejan Enter/A según el foco.
-	if not (event is InputEventKey and event.pressed and not event.echo): return
-	if event.is_action_pressed("ui_accept") or event.physical_keycode == KEY_E:
+	if event is InputEventKey and event.echo: return
+	var accept = event.is_action_pressed("ui_accept")
+	if event is InputEventKey:
+		accept = accept or (event.pressed and event.physical_keycode in [KEY_E, KEY_SPACE, KEY_ENTER])
+	var click = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
+	if not victory and death_fx != null and not death_fx.is_ready() and (accept or click):
+		get_viewport().set_input_as_handled()
+		death_fx.finish_opening()
+	elif accept:
 		get_viewport().set_input_as_handled()
 		_on_return()
 
@@ -186,7 +206,11 @@ func _build_footer() -> HBoxContainer:
 # Datos de la run: muerte (con quién te mató) o victoria.
 func _fill_rows() -> void:
 	var time_text = GameData.format_time(GameData.get_run_elapsed_seconds())
-	_add_row(ICON_TIME, "TIEMPO DE LA RUN" if victory else "TIEMPO SOBREVIVIDO", "", _text_value(time_text))
+	var time_value = _text_value(time_text)
+	if not victory:
+		time_value.set_meta("count_to", GameData.get_run_elapsed_seconds())
+		time_value.set_meta("is_time", true)
+	_add_row(ICON_TIME, "TIEMPO DE LA RUN" if victory else "TIEMPO SOBREVIVIDO", "", time_value)
 	if not victory:
 		_add_row(ICON_ROOM, "SALAS RECORRIDAS", "", _text_value("1 - %d" % GameData.current_run_room))
 	_add_row(ICON_KILLS, "ENEMIGOS ELIMINADOS", "", _count_value(GameData.run_enemies_killed))
@@ -245,7 +269,7 @@ func _add_row(icon: Texture2D, title: String, subtitle: String, value: Control) 
 	var frame = UIStyle.panel(UIStyle.TEX_SLOT["normal"])
 	frame.custom_minimum_size = Vector2(44, 44)
 	var ic = UIStyle.icon(icon, 26)
-	ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if icon == ICON_SCRAP: ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	if icon != ICON_SCRAP: # el ícono de chatarra ya tiene sus colores
 		ic.modulate = _accent
 	frame.add_child(ic)
@@ -261,6 +285,7 @@ func _add_row(icon: Texture2D, title: String, subtitle: String, value: Control) 
 	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(value)
 	_rows.add_child(row)
+	death_rows.append({"row": row, "icon": frame, "value": value})
 
 func _text_value(text: String) -> Label:
 	var l = Label.new()
@@ -347,6 +372,14 @@ func _on_demo_menu() -> void:
 
 func _on_return() -> void:
 	if _leaving: return
+	if not victory and death_fx != null:
+		if not death_fx.is_ready():
+			death_fx.finish_opening()
+		else:
+			_leaving = true
+			OnReturnToLabTriggered.emit()
+			death_fx.close_monitor()
+		return
 	_leaving = true
 	var t = create_tween().set_parallel(true)
 	t.tween_property(_bg, "modulate:a", 0.0, 0.45)

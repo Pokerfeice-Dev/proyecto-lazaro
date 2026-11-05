@@ -1692,7 +1692,17 @@ func _play_death_sound() -> void:
 
 # Pantalla de muerte con la UI nueva (también se usa con joystick).
 func _show_death_screen() -> void:
-	RunEndScreen.show_death(get_tree())
+	# Visual-only remnant: the dead player stays hidden and disabled.
+	if anim_sprite and anim_sprite.sprite_frames:
+		var corpse = Sprite2D.new()
+		corpse.texture = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame)
+		get_parent().add_child(corpse)
+		corpse.global_transform = anim_sprite.global_transform
+		corpse.flip_h = anim_sprite.flip_h
+		corpse.offset = anim_sprite.offset
+		corpse.rotation += PI * 0.5
+		corpse.modulate = Color(0.65, 0.45, 0.45)
+	RunEndScreen.show_death(get_tree(), get_global_transform_with_canvas().origin)
 
 ## title / subtitle vacíos = textos de siempre ("¡HAS GANADO!" y completaste la run).
 func show_win_screen(next_scene: String, title: String = "", subtitle: String = "") -> void:

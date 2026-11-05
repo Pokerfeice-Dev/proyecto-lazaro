@@ -102,7 +102,7 @@ func _synergy_row(weapon_id: String, weapon_unlocked: bool) -> Control:
 		chip.mouse_filter = Control.MOUSE_FILTER_PASS
 		chip.tooltip_text = SynergyManager.SYNERGIES[syn_id].get("name", "") if known else "Sinergia sin descubrir"
 		var ic = PixelIcon.make(OmniaCatalog.synergy_icon(syn_id), 36.0, 1) if known else UIStyle.icon(preload("res://Art/Ui/svg/icon_lock.svg"), 26)
-		ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		if known: ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ic.self_modulate = OmniaCatalog.synergy_tint(syn_id)
 		if not known:

@@ -128,6 +128,9 @@ static func keycap(key_text: String, pad_text: String = "") -> PanelContainer:
 static func icon(tex: Texture2D, size: float = 22.0) -> TextureRect:
 	var r = TextureRect.new()
 	r.texture = tex
+	# Vector UI uses supersampled imports; sprites retain their pixel-art filter.
+	if tex and tex.resource_path.get_extension().to_lower() == "svg":
+		r.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	r.custom_minimum_size = Vector2(size, size)
 	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

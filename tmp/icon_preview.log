@@ -1,0 +1,15 @@
+Godot Engine v4.8.dev3.official.51105ccbe - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 621.01 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 2060
+
+SCRIPT ERROR: Invalid access to property or key 'scene_file_path' on a base object of type 'null instance'.
+   at: _ready (res://Scripts/System/scene_transition.gd:80)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://Scripts/System/scene_transition.gd:80)
+Codex unlocked: levels -> distrito_1
+Codex unlocked: weapons -> pistol
+Codex unlocked: weapons -> daga
+Codex unlocked: weapons -> uzi
+Codex unlocked: weapons -> shotgun
+Codex unlocked: weapons -> hacha
+Codex unlocked: weapons -> maze
+ICON_QUALITY_OK: 32 icons, 96px + mipmaps; top original / bottom improved

@@ -16,7 +16,7 @@ const ICON_LOCK := preload("res://Art/Ui/svg/icon_lock.svg")
 const ICON_CHECK := preload("res://Art/Ui/svg/icon_check.svg")
 const ICON_RANGED := preload("res://Art/Ui/svg/icon_projectiles.svg")
 const ICON_MELEE := preload("res://Art/Ui/svg/icon_damage.svg")
-const CARD_SIZE := Vector2(360, 104)
+const CARD_SIZE := Vector2(360, 140)
 
 const PRIMARY_WEAPONS := [
 	{"id": "pistol", "name": "Pistola", "desc": "Precisión y cadencia estable"},
@@ -174,6 +174,12 @@ func _weapon_card(slot: String, w: Dictionary, group: ButtonGroup) -> Control:
 	check.modulate = UIStyle.COLOR_GOLD
 	check.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(check)
+	# Button does not propagate its children's minimum size to the column.
+	# Include padding and the actual text/synergy height to prevent overflow.
+	var fit_height = func():
+		btn.custom_minimum_size.y = maxf(CARD_SIZE.y, m.get_combined_minimum_size().y)
+	m.minimum_size_changed.connect(fit_height)
+	fit_height.call_deferred()
 
 	check.visible = unlocked and selections[slot] == w.id
 	if unlocked:
@@ -184,6 +190,7 @@ func _weapon_card(slot: String, w: Dictionary, group: ButtonGroup) -> Control:
 func _weapon_art(id: String, unlocked: bool) -> Control:
 	var frame = _ignore(UIStyle.panel(UIStyle.TEX_SLOT["normal" if unlocked else "disabled"]))
 	frame.custom_minimum_size = Vector2(76, 76)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var art = _ignore(PixelIcon.make(_codex_icon(id), 62.0, 2))
 	frame.add_child(art)
 	if not unlocked:
@@ -224,7 +231,7 @@ func _synergy_row(weapon_id: String, weapon_unlocked: bool) -> Control:
 		chip.mouse_filter = Control.MOUSE_FILTER_PASS
 		chip.tooltip_text = SynergyManager.SYNERGIES[syn_id].get("name", "") if known else "Sinergia sin descubrir"
 		var ic = _ignore(PixelIcon.make(OmniaCatalog.synergy_icon(syn_id), 36.0, 1) if known else UIStyle.icon(preload("res://Art/Ui/svg/icon_lock.svg"), 22))
-		ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		if known: ic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		ic.self_modulate = OmniaCatalog.synergy_tint(syn_id)
 		if not known:
 			var mat = ShaderMaterial.new()
