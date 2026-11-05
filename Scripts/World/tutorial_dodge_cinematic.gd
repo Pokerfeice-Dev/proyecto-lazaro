@@ -87,14 +87,6 @@ func _stage_scene() -> void:
 	var push_in := create_tween().set_ignore_time_scale(true)
 	push_in.tween_property(camera, "zoom", camera.zoom * 1.08, 1.8).set_trans(Tween.TRANS_SINE)
 	Engine.time_scale = 0.12
-<<<<<<< Updated upstream
-	# entrada de la cámara lenta, zumbido que dura hasta que se esquiva y latido de fondo
-	_play_sfx(SFX_SLOWMO_IN, 0.0)
-	var loop_stream: AudioStream = SFX_SLOWMO_LOOP
-	loop_stream.set("loop", true) # el zumbido se repite hasta que se esquiva
-	slowmo_loop = _play_sfx(loop_stream, -6.0)
-=======
->>>>>>> Stashed changes
 	var heartbeat := preload("res://Audio/Sfx/Low_health_heartbeat.wav").duplicate() as AudioStreamWAV
 	heartbeat.loop_begin = 0
 	heartbeat.loop_end = int(heartbeat.get_length() * heartbeat.mix_rate)
@@ -168,10 +160,7 @@ func _build_overlay() -> void:
 	prompt = Label.new()
 	prompt_row.add_child(prompt)
 	prompt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-<<<<<<< Updated upstream
 	prompt.size_flags_vertical = Control.SIZE_EXPAND_FILL
-=======
->>>>>>> Stashed changes
 	prompt.add_theme_font_size_override("font_size", 24)
 	prompt.text = ""
 	head_prompt = TutorialInputIcon.create("SHIFT", 1.15)
@@ -201,17 +190,10 @@ func _hide_dash_key() -> void:
 func _input(event: InputEvent) -> void:
 	if restored: return
 	if stage == 2 and released and not event.is_echo():
-<<<<<<< Updated upstream
-		var keyboard: bool = event is InputEventKey and event.pressed and event.keycode in [KEY_SHIFT, KEY_SPACE]
-		var gamepad: bool = event is InputEventJoypadButton and event.is_action_pressed("dash")
-		# la acción "dash" ya incluye Espacio, Shift y la A del joystick
-		if keyboard or gamepad or event.is_action_pressed("dash"):
-=======
 		var keyboard: bool = event is InputEventKey and event.pressed and (event.keycode in [KEY_SHIFT, KEY_SPACE] or event.physical_keycode in [KEY_SHIFT, KEY_SPACE])
 		var gamepad: bool = (event is InputEventJoypadButton or event is InputEventJoypadMotion) and event.is_action_pressed("dash")
 		var is_dash: bool = event.is_action_pressed("dash") or keyboard or gamepad
 		if is_dash:
->>>>>>> Stashed changes
 			stage = 3
 			elapsed = 0.0
 			head_prompt.hide()
@@ -265,10 +247,7 @@ func _process(delta: float) -> void:
 			head_prompt.position = player.get_global_transform_with_canvas().origin - Vector2(head_prompt.size.x * 0.5, 110.0 + head_prompt.size.y)
 			head_prompt.position.y += sin(elapsed * 5.0) * 5.0
 			head_prompt._process(real_delta)
-<<<<<<< Updated upstream
-=======
 			_show_dash_key()
->>>>>>> Stashed changes
 			prompt.text = "PULSA EL BOTÓN DE EVASIÓN" if InputMode.is_gamepad() else "PULSA SHIFT O ESPACIO PARA EVADIR"
 			prompt.modulate = Color(1.0, 0.85 + sin(elapsed * 5.0) * 0.15, 0.4)
 		3:
