@@ -3,19 +3,8 @@
 [ext_resource type="Script" uid="uid://dqtcuvephytk2" path="res://Scripts/Enemies/enemy_summoner.gd" id="1_8nw21"]
 [ext_resource type="Texture2D" uid="uid://vtlosvww8q0n" path="res://Art/Lights/White_light.png" id="2_5lx2d"]
 [ext_resource type="Texture2D" uid="uid://k5ovfim6e75k" path="res://Art/Enemy_Summoner/beekeeperattack_18x31.png" id="3_75xv6"]
-[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="3_len3v"]
 [ext_resource type="Texture2D" uid="uid://b5l5oe88n3s7y" path="res://Art/Enemy_Summoner/beekeeper_walk_spritesheet.png" id="3_p0rgy"]
-[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="4_5lx2d"]
 [ext_resource type="Texture2D" uid="uid://deu7cspupf5t8" path="res://Art/Enemy_Summoner/beekeeperidle_new_16x31.png" id="4_75xv6"]
-[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="5_75xv6"]
-[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="6_8nwnc"]
-[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="7_541gb"]
-[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="8_xjiyy"]
-[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="9_f8nas"]
-[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="10_8fins"]
-[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="11_yjxll"]
-[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="12_b0m8m"]
-[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="13_upyui"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_s0n60"]
 [ext_resource type="AudioStream" uid="uid://da1s21bkob4dy" path="res://Audio/Enemy_snd/Enemy_range_shoot.mp3" id="15_len3v"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="16_shadow"]
@@ -343,111 +332,6 @@ animations = [{
 radius = 17
 height = 45
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_e7l14"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("3_len3v")
-}, {
-"duration": 1.0,
-"texture": ExtResource("4_5lx2d")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_75xv6")
-}, {
-"duration": 1.0,
-"texture": ExtResource("6_8nwnc")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_541gb")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_xjiyy")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_f8nas")
-}, {
-"duration": 1.0,
-"texture": ExtResource("10_8fins")
-}, {
-"duration": 1.0,
-"texture": ExtResource("11_yjxll")
-}, {
-"duration": 1.0,
-"texture": ExtResource("12_b0m8m")
-}, {
-"duration": 1.0,
-"texture": null
-}],
-"loop": 0,
-"name": &"death",
-"speed": 30.0
-}]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_o2jaa"]
-atlas = ExtResource("13_upyui")
-region = Rect2(0, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2l7ve"]
-atlas = ExtResource("13_upyui")
-region = Rect2(64, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_7rpbl"]
-atlas = ExtResource("13_upyui")
-region = Rect2(128, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jbpaa"]
-atlas = ExtResource("13_upyui")
-region = Rect2(192, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_631ej"]
-atlas = ExtResource("13_upyui")
-region = Rect2(256, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_76jir"]
-atlas = ExtResource("13_upyui")
-region = Rect2(320, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_guj8s"]
-atlas = ExtResource("13_upyui")
-region = Rect2(384, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_htgoa"]
-atlas = ExtResource("13_upyui")
-region = Rect2(448, 128, 64, 64)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_r07o6"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o2jaa")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2l7ve")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_7rpbl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jbpaa")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_631ej")
-}, {
-"duration": 0.8,
-"texture": SubResource("AtlasTexture_76jir")
-}, {
-"duration": 0.6,
-"texture": SubResource("AtlasTexture_guj8s")
-}, {
-"duration": 0.4,
-"texture": SubResource("AtlasTexture_htgoa")
-}],
-"loop": 0,
-"name": &"summon",
-"speed": 12.0
-}]
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_10tr6"]
 radius = 9.586417
 
@@ -487,21 +371,6 @@ autoplay = "idle"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=749432307]
 position = Vector2(-1, -0.5)
 shape = SubResource("CapsuleShape2D_af2qg")
-
-[node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=1713860462]
-scale = Vector2(0.8, 0.8)
-sprite_frames = SubResource("SpriteFrames_e7l14")
-animation = &"death"
-frame = 10
-frame_progress = 1.0
-
-[node name="Summon_anim" type="AnimatedSprite2D" parent="." unique_id=1910675046]
-visible = false
-modulate = Color(1, 1, 1, 0.92156863)
-position = Vector2(0, 8)
-scale = Vector2(2, 2)
-sprite_frames = SubResource("SpriteFrames_r07o6")
-animation = &"summon"
 
 [node name="Death_sound" type="AudioStreamPlayer2D" parent="." unique_id=1595089151]
 stream = ExtResource("14_s0n60")

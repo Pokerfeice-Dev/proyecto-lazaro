@@ -5,7 +5,6 @@ class_name Delivery
 @export var fire_rate: float = 1.5
 @export var projectile_scene: PackedScene = preload("res://Scenes/Enemies/enemy_shooter_projectile.tscn")
 
-@onready var sprite_base: Sprite2D = $Sprite_BaseTurret
 @onready var sprite_cannon: Sprite2D = $Sprite_CannonTurret
 @onready var bullet_mark: Marker2D = $Sprite_CannonTurret/Bullet_Mark
 
@@ -17,7 +16,6 @@ var _anticipation_tween: Tween = null
 
 @onready var attack_sound: AudioStreamPlayer2D = $Attack_sound
 
-var _default_base_modulate: Color = Color.WHITE
 var _default_cannon_modulate: Color = Color.WHITE
 var _turret_flash_tween: Tween = null
 
@@ -27,9 +25,6 @@ func _ready() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		_ignore_enemy_collision(enemy)
 	get_tree().node_added.connect(_on_body_added)
-	if sprite_base:
-		_default_base_modulate = sprite_base.modulate
-		_default_base_modulate.a = 1.0
 	if sprite_cannon:
 		_default_cannon_modulate = sprite_cannon.modulate
 		_default_cannon_modulate.a = 1.0
@@ -170,32 +165,24 @@ func _on_shoot_area_body_exited(body: Node2D) -> void:
 # --- Sobrescribir funciones de efectos visuales de Sprite ---
 
 func _hide_sprite_alpha() -> void:
-	if sprite_base:
-		sprite_base.modulate.a = 0.0
 	if sprite_cannon:
 		sprite_cannon.modulate.a = 0.0
 
 func _fade_in_sprite() -> void:
+	if is_dying: return
 	var t = create_tween().set_parallel(true)
-	if sprite_base:
-		t.tween_property(sprite_base, "modulate:a", 1.0, 0.2)
 	if sprite_cannon:
 		t.tween_property(sprite_cannon, "modulate:a", 1.0, 0.2)
 	t.chain().tween_callback(_finish_spawn)
 
 func _hide_sprite() -> void:
-	if sprite_base:
-		sprite_base.hide()
 	if sprite_cannon:
 		sprite_cannon.hide()
 
 func _flash_hit() -> void:
-	if not sprite_base:
-		return
 	if not sprite_cannon:
 		return
 	_cancel_turret_flash_tween()
-	sprite_base.modulate = Color(3.0, 3.0, 3.0, 1.0)
 	sprite_cannon.modulate = Color(3.0, 3.0, 3.0, 1.0)
 	_start_turret_flash_tween()
 
@@ -208,7 +195,6 @@ func _cancel_turret_flash_tween() -> void:
 
 func _start_turret_flash_tween() -> void:
 	_turret_flash_tween = create_tween().set_parallel(true)
-	_turret_flash_tween.tween_property(sprite_base, "modulate", _default_base_modulate, 0.18)
 	_turret_flash_tween.tween_property(sprite_cannon, "modulate", _default_cannon_modulate, 0.18)
 
 func _flash_red() -> void:

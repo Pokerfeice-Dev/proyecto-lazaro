@@ -75,7 +75,6 @@ func _stage_scene() -> void:
 	shooter.velocity = Vector2.ZERO
 	shooter.process_mode = Node.PROCESS_MODE_DISABLED
 	shooter.global_position = Vector2(-30, -40)
-	shooter.get_node("Summon_anim").hide()
 	shooter.anim_sprite.process_mode = Node.PROCESS_MODE_ALWAYS
 	shooter.anim_sprite.play("idle")
 	shooter.anim_sprite.flip_h = true

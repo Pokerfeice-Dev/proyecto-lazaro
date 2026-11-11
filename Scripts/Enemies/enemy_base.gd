@@ -38,7 +38,6 @@ class_name EnemyBase
 var target: Node2D = null
 var is_spawning: bool = false
 var is_dying: bool = false
-@export var use_legacy_death_fx := false
 const PIXEL_DEATH = preload("res://Scripts/Effects/pixel_death.gd")
 var knockback_velocity: Vector2 = Vector2.ZERO
 var hit_stun_timer: float = 0.0
@@ -751,28 +750,20 @@ func die() -> void:
 	_unlock_bestiary_entry()
 	enemy_died.emit(self)
 	_attempt_drops()
-	if not use_legacy_death_fx:
-		_spawn_pixel_death()
+	_spawn_pixel_death()
 	_hide_sprite()
 	_hide_health_bar()
 	_fade_shadow()
 	_play_death_sound()
-	if use_legacy_death_fx:
-		_play_death_fx()
-	else:
-		var legacy_fx = get_node_or_null("Death_fx")
-		if legacy_fx:
-			legacy_fx.hide()
-		# Mantiene vivo el jefe final hasta que termine su flujo de victoria.
-		var delay := 1.1
-		if "victory_delay" in self:
-			delay = maxf(delay, get("victory_delay") + 0.5)
-		get_tree().create_timer(delay, false).timeout.connect(_check_sound_and_free)
+	# Mantiene vivo el jefe final hasta que termine su flujo de victoria.
+	var delay := 1.1
+	if "victory_delay" in self:
+		delay = maxf(delay, get("victory_delay") + 0.5)
+	get_tree().create_timer(delay, false).timeout.connect(_check_sound_and_free)
 
 func _spawn_pixel_death() -> void:
-	# La torreta tiene base y cañón separados; los demás exponen su cuerpo.
-	if get_node_or_null("Sprite_BaseTurret") or get_node_or_null("Sprite_CannonTurret"):
-		PIXEL_DEATH.spawn_from(get_node_or_null("Sprite_BaseTurret"))
+	# El repartidor usa su sprite orientable; los demás exponen su cuerpo.
+	if get_node_or_null("Sprite_CannonTurret"):
 		PIXEL_DEATH.spawn_from(get_node_or_null("Sprite_CannonTurret"))
 	else:
 		PIXEL_DEATH.spawn_from(_get_sprite())
@@ -921,18 +912,6 @@ func _play_death_sound() -> void:
 	if not death_sound.has_method("play"): return
 	death_sound.bus = "SFX"
 	death_sound.play()
-
-func _play_death_fx() -> void:
-	var death_fx = get_node_or_null("Death_fx")
-	if not death_fx:
-		_check_sound_and_free()
-		return
-	death_fx.show()
-	_safe_play_animated_sprite(death_fx, "death")
-	death_fx.animation_finished.connect(_on_death_fx_finished, CONNECT_ONE_SHOT)
-
-func _on_death_fx_finished() -> void:
-	queue_free()
 
 func _check_sound_and_free() -> void:
 	var ds = get_node_or_null("Death_sound")

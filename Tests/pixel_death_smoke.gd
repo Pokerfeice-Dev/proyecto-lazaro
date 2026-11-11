@@ -21,22 +21,17 @@ func _verify() -> void:
 		var enemy = load(paths[i]).instantiate()
 		enemy.position = Vector2(450 + i * 450, 540)
 		add_child(enemy)
-		if enemy.has_node("Sprite_BaseTurret"):
-			enemy.get_node("Sprite_BaseTurret").show()
 		enemies.append(enemy)
 	await get_tree().create_timer(0.3).timeout
 	for enemy in enemies:
-		assert(not enemy.use_legacy_death_fx)
 		enemy.die()
-		if enemy.has_node("Death_fx"):
-			assert(not enemy.get_node("Death_fx").visible)
 	var effects := 0
 	for child in get_children():
 		if child.get_script() == FX:
 			effects += 1
 			assert(not child.pieces.is_empty())
 			assert(child.pieces.size() <= 256)
-	assert(effects >= 4, "Follower, turret base/cannon and ghoul must fragment")
+	assert(effects >= 3, "Follower, delivery driver and ghoul must fragment")
 	await get_tree().create_timer(0.25).timeout
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw

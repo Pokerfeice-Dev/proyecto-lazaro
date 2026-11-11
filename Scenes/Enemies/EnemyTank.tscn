@@ -3,19 +3,8 @@
 [ext_resource type="Script" uid="uid://3vgnfvuw72p5" path="res://Scripts/Enemies/enemy_tank.gd" id="1_et"]
 [ext_resource type="Texture2D" uid="uid://dw8jeq5vm70bx" path="res://Art/Enemy_tank/mecha_attack_spritesheet.png" id="3_j5aix"]
 [ext_resource type="Texture2D" uid="uid://ckognkoa5ml8x" path="res://Art/Enemy_tank/mechaidle.png" id="4_lrvj6"]
-[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="5_00hgu"]
 [ext_resource type="Texture2D" uid="uid://dxac6l6xqbe04" path="res://Art/Enemy_tank/mecha_walk_spritesheet.png" id="5_bht2j"]
-[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="6_s1c57"]
-[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="7_y1qo3"]
-[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="8_v357f"]
-[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="9_sc3p5"]
-[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="10_uc11c"]
-[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="11_j5aix"]
-[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="12_lrvj6"]
-[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="13_bht2j"]
-[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="14_rqgaj"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="15_jtnus"]
-[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="16_po6uv"]
 [ext_resource type="AudioStream" uid="uid://d1xqc1066qerx" path="res://Audio/Enemy_snd/Enemy_tank.mp3" id="17_yosx3"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="18_shadow"]
 [ext_resource type="Texture2D" uid="uid://couygmo6natqo" path="res://Art/Enemy_tank/frame0000.png" id="19_rqgaj"]
@@ -282,112 +271,7 @@ animations = [{
 radius = 17.9512826
 height = 46.7942481
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_t3qsv"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("5_00hgu")
-}, {
-"duration": 1.0,
-"texture": ExtResource("6_s1c57")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_y1qo3")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_v357f")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_sc3p5")
-}, {
-"duration": 1.0,
-"texture": ExtResource("10_uc11c")
-}, {
-"duration": 1.0,
-"texture": ExtResource("11_j5aix")
-}, {
-"duration": 1.0,
-"texture": ExtResource("12_lrvj6")
-}, {
-"duration": 1.0,
-"texture": ExtResource("13_bht2j")
-}, {
-"duration": 1.0,
-"texture": ExtResource("14_rqgaj")
-}, {
-"duration": 1.0,
-"texture": null
-}],
-"loop": 0,
-"name": &"death",
-"speed": 30.0
-}]
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_evenc"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_o2jaa"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(0, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2l7ve"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(64, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_7rpbl"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(128, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jbpaa"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(192, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_631ej"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(256, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_76jir"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(320, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_guj8s"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(384, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_htgoa"]
-atlas = ExtResource("16_po6uv")
-region = Rect2(448, 128, 64, 64)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_jgr5a"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o2jaa")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2l7ve")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_7rpbl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jbpaa")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_631ej")
-}, {
-"duration": 0.8,
-"texture": SubResource("AtlasTexture_76jir")
-}, {
-"duration": 0.6,
-"texture": SubResource("AtlasTexture_guj8s")
-}, {
-"duration": 0.4,
-"texture": SubResource("AtlasTexture_htgoa")
-}],
-"loop": 0,
-"name": &"summon",
-"speed": 12.0
-}]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_u7fip"]
 radius = 7.7124033
@@ -458,13 +342,6 @@ position = Vector2(-1.5, -5.0487137)
 rotation = 1.57079632679
 shape = SubResource("CapsuleShape2D_126gs")
 
-[node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=1742289656]
-scale = Vector2(1.0454252, 1.0454252)
-sprite_frames = SubResource("SpriteFrames_t3qsv")
-animation = &"death"
-frame = 10
-frame_progress = 1.0
-
 [node name="Area_attack" type="Area2D" parent="." unique_id=1242110169]
 scale = Vector2(0.7612371, 0.7612371)
 
@@ -477,15 +354,6 @@ debug_color = Color(0.89411765, 0, 0, 0.41960785)
 
 [node name="Death_sound" type="AudioStreamPlayer2D" parent="." unique_id=1755537331]
 stream = ExtResource("15_jtnus")
-
-[node name="Summon_anim" type="AnimatedSprite2D" parent="." unique_id=839134825]
-modulate = Color(1, 1, 1, 0.92156863)
-position = Vector2(1.9999999, 13)
-scale = Vector2(3.2626467, 3.2626467)
-sprite_frames = SubResource("SpriteFrames_jgr5a")
-animation = &"summon"
-frame = 7
-frame_progress = 1.0
 
 [node name="Detect_area" type="Area2D" parent="." unique_id=1050815686]
 scale = Vector2(0.88871574, 0.9029864)

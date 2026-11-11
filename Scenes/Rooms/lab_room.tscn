@@ -15,7 +15,6 @@
 [ext_resource type="Texture2D" uid="uid://cmyglk0irr7j4" path="res://Art/Ui/svg/icon_damage.svg" id="sign_icon_run"]
 [ext_resource type="Texture2D" uid="uid://b41n5tbtychou" path="res://Art/Ui/svg/icon_range.svg" id="sign_icon_training"]
 
-
 [node name="Lab_room" type="Node2D" unique_id=377400053]
 script = ExtResource("1_lab_room_gd")
 

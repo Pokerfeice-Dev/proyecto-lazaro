@@ -1,0 +1,298 @@
+Godot Engine v4.8.dev3.official.51105ccbe - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Inicialización del proyecto (5 steps)
+[   0% ] first_scan_filesystem | Escaneando la estructura del archivo...
+[  16% ] first_scan_filesystem | Cargando nombres de clases globales...
+[  33% ] first_scan_filesystem | Verificando GDExtensions...
+[  50% ] first_scan_filesystem | Creando scripts de carga automática...
+[  66% ] first_scan_filesystem | Inicializando plugins...
+ERROR: Port 9080 is already in use! (PID 2144, process: Godot_v4.8.exe) Please change the port in MCP settings or close the conflicting application.
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] start (res://addons/godot_mcp/native_mcp/mcp_http_server_legacy.gd:102)
+       [1] start (res://addons/godot_mcp/native_mcp/mcp_server_core_legacy.gd:221)
+       [2] _start_native_server (res://addons/godot_mcp/mcp_server_native.gd:501)
+       [3] _enter_tree (res://addons/godot_mcp/mcp_server_native.gd:223)
+[  83% ] first_scan_filesystem | Iniciando escaneo de archivos...
+[ DONE ] first_scan_filesystem
+
+[   0% ] _update_scan_actions | Started Escaneando acciones... (2 steps)
+[   0% ] _update_scan_actions | mcp_panel.csv
+[  33% ] _update_scan_actions | tool_descriptions.csv
+[ DONE ] _update_scan_actions
+
+[   0% ] loading_editor_layout | Started Cargando editor (5 steps)
+[   0% ] loading_editor_layout | Cargando diseño del editor...
+[  16% ] loading_editor_layout | Cargando docks...
+[  33% ] loading_editor_layout | Reabriendo escenas...
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:6 - ext_resource, invalid UID: uid://b35ptpogrutal - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:7 - ext_resource, invalid UID: uid://davmbbhfa0hvu - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:8 - ext_resource, invalid UID: uid://cdwhsera1066i - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:9 - ext_resource, invalid UID: uid://buv770u4xydoq - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:10 - ext_resource, invalid UID: uid://bn75cw1dnhlhc - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:11 - ext_resource, invalid UID: uid://yg63epl0mp1u - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:12 - ext_resource, invalid UID: uid://cbcfa4lfb02u3 - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:13 - ext_resource, invalid UID: uid://doc0fstuc0gvb - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:14 - ext_resource, invalid UID: uid://dma8m0h2h2a8y - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:15 - ext_resource, invalid UID: uid://vy2lhoagsfjp - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyFollower.tscn:17 - ext_resource, invalid UID: uid://1s6rvmgqpuca - using text path instead: res://Art/Enemy_Mutation/fx/70.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/70.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:6 - ext_resource, invalid UID: uid://b35ptpogrutal - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:7 - ext_resource, invalid UID: uid://davmbbhfa0hvu - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:9 - ext_resource, invalid UID: uid://cdwhsera1066i - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:10 - ext_resource, invalid UID: uid://buv770u4xydoq - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:11 - ext_resource, invalid UID: uid://bn75cw1dnhlhc - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:12 - ext_resource, invalid UID: uid://yg63epl0mp1u - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:13 - ext_resource, invalid UID: uid://cbcfa4lfb02u3 - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:14 - ext_resource, invalid UID: uid://doc0fstuc0gvb - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:15 - ext_resource, invalid UID: uid://dma8m0h2h2a8y - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:16 - ext_resource, invalid UID: uid://vy2lhoagsfjp - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyShooter.tscn:19 - ext_resource, invalid UID: uid://1s6rvmgqpuca - using text path instead: res://Art/Enemy_Mutation/fx/70.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/70.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:6 - ext_resource, invalid UID: uid://b35ptpogrutal - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:8 - ext_resource, invalid UID: uid://davmbbhfa0hvu - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:9 - ext_resource, invalid UID: uid://cdwhsera1066i - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:10 - ext_resource, invalid UID: uid://buv770u4xydoq - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:11 - ext_resource, invalid UID: uid://bn75cw1dnhlhc - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:12 - ext_resource, invalid UID: uid://yg63epl0mp1u - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:13 - ext_resource, invalid UID: uid://cbcfa4lfb02u3 - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:14 - ext_resource, invalid UID: uid://doc0fstuc0gvb - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:15 - ext_resource, invalid UID: uid://dma8m0h2h2a8y - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:16 - ext_resource, invalid UID: uid://vy2lhoagsfjp - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTank.tscn:18 - ext_resource, invalid UID: uid://1s6rvmgqpuca - using text path instead: res://Art/Enemy_Mutation/fx/70.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/70.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:4 - ext_resource, invalid UID: uid://keah3bw6ykyl - using text path instead: res://Art/Enemy_turret/turret1.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_turret/turret1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:5 - ext_resource, invalid UID: uid://b35ptpogrutal - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:7 - ext_resource, invalid UID: uid://davmbbhfa0hvu - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:8 - ext_resource, invalid UID: uid://cdwhsera1066i - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:9 - ext_resource, invalid UID: uid://buv770u4xydoq - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:10 - ext_resource, invalid UID: uid://bn75cw1dnhlhc - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:11 - ext_resource, invalid UID: uid://yg63epl0mp1u - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:12 - ext_resource, invalid UID: uid://cbcfa4lfb02u3 - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:13 - ext_resource, invalid UID: uid://doc0fstuc0gvb - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:14 - ext_resource, invalid UID: uid://dma8m0h2h2a8y - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:15 - ext_resource, invalid UID: uid://vy2lhoagsfjp - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemyTurret.tscn:16 - ext_resource, invalid UID: uid://1s6rvmgqpuca - using text path instead: res://Art/Enemy_Mutation/fx/70.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/70.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:6 - ext_resource, invalid UID: uid://b35ptpogrutal - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:7 - ext_resource, invalid UID: uid://davmbbhfa0hvu - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:8 - ext_resource, invalid UID: uid://cdwhsera1066i - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:9 - ext_resource, invalid UID: uid://buv770u4xydoq - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:10 - ext_resource, invalid UID: uid://bn75cw1dnhlhc - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:11 - ext_resource, invalid UID: uid://yg63epl0mp1u - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:12 - ext_resource, invalid UID: uid://cbcfa4lfb02u3 - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:13 - ext_resource, invalid UID: uid://doc0fstuc0gvb - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:14 - ext_resource, invalid UID: uid://dma8m0h2h2a8y - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/Enemy_bee_summon.tscn:15 - ext_resource, invalid UID: uid://vy2lhoagsfjp - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:6 - ext_resource, invalid UID: uid://b35ptpogrutal - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:8 - ext_resource, invalid UID: uid://davmbbhfa0hvu - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:10 - ext_resource, invalid UID: uid://cdwhsera1066i - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:11 - ext_resource, invalid UID: uid://buv770u4xydoq - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:12 - ext_resource, invalid UID: uid://bn75cw1dnhlhc - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:13 - ext_resource, invalid UID: uid://yg63epl0mp1u - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:14 - ext_resource, invalid UID: uid://cbcfa4lfb02u3 - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:15 - ext_resource, invalid UID: uid://doc0fstuc0gvb - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:16 - ext_resource, invalid UID: uid://dma8m0h2h2a8y - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:17 - ext_resource, invalid UID: uid://vy2lhoagsfjp - using text path instead: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png.
+   at: _load (core/io/resource_loader.cpp:317)
+WARNING: res://Scenes/Enemies/EnemySummoner.tscn:18 - ext_resource, invalid UID: uid://1s6rvmgqpuca - using text path instead: res://Art/Enemy_Mutation/fx/70.png
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Failed loading resource: res://Art/Enemy_Mutation/fx/70.png.
+   at: _load (core/io/resource_loader.cpp:317)
+[  50% ] loading_editor_layout | Cargando el diseño del editor central...
+[  66% ] loading_editor_layout | Cargando Layout de la ventana del plugin...
+[  83% ] loading_editor_layout | Diseño del editor listo.
+[ DONE ] loading_editor_layout
+
+ERROR: Plugin is not attached to debugger.
+   at: is_active (editor/debugger/editor_debugger_plugin.cpp:102)

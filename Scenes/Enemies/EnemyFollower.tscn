@@ -3,18 +3,7 @@
 [ext_resource type="Script" uid="uid://cq1cbdfn7lfy7" path="res://Scripts/Enemies/enemy_follower.gd" id="1_efol"]
 [ext_resource type="Texture2D" uid="uid://capit0a1jetnh" path="res://Art/Enemy_Mutation/dog_idle.png" id="2_oxu7a"]
 [ext_resource type="Texture2D" uid="uid://crbv6s5pubq18" path="res://Art/Enemy_Mutation/dog_walk.png" id="3_ehcuq"]
-[ext_resource type="Texture2D" uid="uid://b35ptpogrutal" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle1.png" id="4_smbn1"]
-[ext_resource type="Texture2D" uid="uid://davmbbhfa0hvu" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle2.png" id="5_8jjyg"]
-[ext_resource type="Texture2D" uid="uid://cdwhsera1066i" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle3.png" id="6_anqt5"]
-[ext_resource type="Texture2D" uid="uid://buv770u4xydoq" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle4.png" id="7_n36py"]
-[ext_resource type="Texture2D" uid="uid://bn75cw1dnhlhc" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle5.png" id="8_71wew"]
-[ext_resource type="Texture2D" uid="uid://yg63epl0mp1u" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle6.png" id="9_o2jaa"]
-[ext_resource type="Texture2D" uid="uid://cbcfa4lfb02u3" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle7.png" id="10_2l7ve"]
-[ext_resource type="Texture2D" uid="uid://doc0fstuc0gvb" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle8.png" id="11_7rpbl"]
-[ext_resource type="Texture2D" uid="uid://dma8m0h2h2a8y" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle9.png" id="12_jbpaa"]
-[ext_resource type="Texture2D" uid="uid://vy2lhoagsfjp" path="res://Art/Enemy_Mutation/fx/Explosion_blue_circle10.png" id="13_631ej"]
 [ext_resource type="AudioStream" uid="uid://cf3oo3fi52k2h" path="res://Audio/Sfx/69_Enemy_death_01.wav" id="14_8jjyg"]
-[ext_resource type="Texture2D" uid="uid://1s6rvmgqpuca" path="res://Art/Enemy_Mutation/fx/70.png" id="15_anqt5"]
 [ext_resource type="AudioStream" uid="uid://vkx5y77agot8" path="res://Audio/Enemy_snd/Enemy_mutation.mp3" id="16_n36py"]
 [ext_resource type="Texture2D" uid="uid://d0byweagbhu27" path="res://Art/Enemy_Mutation/dog_attack.png" id="17_dogatk"]
 [ext_resource type="Script" uid="uid://2322ybglay14" path="res://Scripts/Effects/drop_shadow.gd" id="18_shadow"]
@@ -429,116 +418,8 @@ animations = [{
 radius = 7.5
 height = 25
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_76jir"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("4_smbn1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_8jjyg")
-}, {
-"duration": 1.0,
-"texture": ExtResource("6_anqt5")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_n36py")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_71wew")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_o2jaa")
-}, {
-"duration": 1.0,
-"texture": ExtResource("10_2l7ve")
-}, {
-"duration": 1.0,
-"texture": ExtResource("11_7rpbl")
-}, {
-"duration": 1.0,
-"texture": ExtResource("12_jbpaa")
-}, {
-"duration": 1.0,
-"texture": ExtResource("13_631ej")
-}, {
-"duration": 1.0,
-"texture": null
-}],
-"loop": 0,
-"name": &"death",
-"speed": 30.0
-}]
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_n36py"]
 size = Vector2(17.809877, 6.3324003)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_o2jaa"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(0, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2l7ve"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(64, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_7rpbl"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(128, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jbpaa"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(192, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_631ej"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(256, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_76jir"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(320, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_guj8s"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(384, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_htgoa"]
-atlas = ExtResource("15_anqt5")
-region = Rect2(448, 128, 64, 64)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_8jjyg"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o2jaa")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2l7ve")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_7rpbl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jbpaa")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_631ej")
-}, {
-"duration": 0.8,
-"texture": SubResource("AtlasTexture_76jir")
-}, {
-"duration": 0.6,
-"texture": SubResource("AtlasTexture_guj8s")
-}, {
-"duration": 0.4,
-"texture": SubResource("AtlasTexture_htgoa")
-}, {
-"duration": 1.0,
-"texture": null
-}],
-"loop": 0,
-"name": &"summon",
-"speed": 12.0
-}]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_anqt5"]
 radius = 10.433105
@@ -575,13 +456,6 @@ position = Vector2(-0.5, 0.5)
 rotation = 1.57079632679
 shape = SubResource("CapsuleShape2D_ef")
 
-[node name="Death_fx" type="AnimatedSprite2D" parent="." unique_id=345734890]
-scale = Vector2(0.8, 0.8)
-sprite_frames = SubResource("SpriteFrames_76jir")
-animation = &"death"
-frame = 10
-frame_progress = 1.0
-
 [node name="Area_attack" type="Area2D" parent="." unique_id=2138925458]
 scale = Vector2(0.7612371, 0.7612371)
 
@@ -592,15 +466,6 @@ shape = SubResource("RectangleShape2D_n36py")
 
 [node name="Death_sound" type="AudioStreamPlayer2D" parent="." unique_id=1404849095]
 stream = ExtResource("14_8jjyg")
-
-[node name="Summon_anim" type="AnimatedSprite2D" parent="." unique_id=1277919632]
-modulate = Color(1, 1, 1, 0.92156863)
-position = Vector2(0, 8)
-scale = Vector2(2, 2)
-sprite_frames = SubResource("SpriteFrames_8jjyg")
-animation = &"summon"
-frame = 8
-frame_progress = 1.0
 
 [node name="Detect_area" type="Area2D" parent="." unique_id=2077727772]
 visible = false

@@ -430,12 +430,10 @@ func spawn_appear() -> void:
 	super.spawn_appear()
 	art.play([&"summon"], true)
 
-# Queda el cadáver en la sala; el estallido azul (Death_fx) es el mismo del área 1.
+# El cuerpo se oculta después de crear los fragmentos de muerte.
 func _hide_sprite() -> void:
 	_cancel_active_flash_tween()
-	if use_legacy_death_fx:
-		art.leave_corpse()
-	elif _get_sprite():
+	if _get_sprite():
 		_get_sprite().hide()
 	$Sprite2D.hide()
 	for node in get_children():

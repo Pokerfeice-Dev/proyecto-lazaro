@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://chiqstmrw8p3c"]
 
 [ext_resource type="Script" uid="uid://dwjkwwo80xt0n" path="res://Scripts/UI/newgame.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://dygs5q4tto8q4" path="res://Art/Menu/Logo lazaro.png" id="2_gu4kh"]
 [ext_resource type="Material" uid="uid://b0koyh6l5my1r" path="res://Art/Menu/Animado/menu_lazaro_idle_material.tres" id="3_bmwyk"]
 [ext_resource type="Theme" uid="uid://vjygo4dmal04" path="res://Art/Ui/game_theme.tres" id="3_theme"]
 [ext_resource type="Texture2D" uid="uid://cjghxl8dyp3s6" path="res://Art/Menu/Animado/menu_lazaro_cuerpo.png" id="4_jkl6y"]
@@ -68,12 +67,3 @@ scale_amount_min = 2.0
 scale_amount_max = 4.0
 color = Color(1, 1, 1, 0.8)
 
-[node name="Logo" type="TextureRect" parent="." unique_id=1969163400]
-visible = false
-layout_mode = 0
-offset_left = -75.0
-offset_top = 252.0
-offset_right = 690.0
-offset_bottom = 762.0
-texture = ExtResource("2_gu4kh")
-expand_mode = 1

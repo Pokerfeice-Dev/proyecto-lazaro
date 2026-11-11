@@ -897,25 +897,3 @@ func _play_death_sound() -> void:
 	else:
 		super._play_death_sound()
 
-func _play_death_fx() -> void:
-	var anim_player = get_node_or_null("AnimationPlayer")
-	if anim_player and anim_player is AnimationPlayer and anim_player.has_animation("death"):
-		anim_player.play("death")
-		if not anim_player.animation_finished.is_connected(_on_custom_death_finished):
-			anim_player.animation_finished.connect(_on_custom_death_finished)
-		return
-		
-	var sprite = get_node_or_null("AnimatedSprite2D")
-	if sprite and sprite is AnimatedSprite2D and sprite.sprite_frames.has_animation("death"):
-		sprite.play("death")
-		if not sprite.animation_finished.is_connected(_on_custom_sprite_death_finished):
-			sprite.animation_finished.connect(_on_custom_sprite_death_finished)
-		return
-		
-	super._play_death_fx()
-
-func _on_custom_death_finished(_anim_name: StringName = &"") -> void:
-	queue_free()
-
-func _on_custom_sprite_death_finished() -> void:
-	queue_free()

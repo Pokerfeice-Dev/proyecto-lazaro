@@ -10,13 +10,11 @@ func _run() -> void:
 		if during_spawn:
 			dog.spawn_appear()
 		else:
-			dog.get_node("Summon_anim").hide()
 			dog._get_sprite().modulate.a = 1.0
 		dog.die()
-		assert(not dog.get_node("Summon_anim").visible)
 		assert(not dog._get_sprite().visible)
 		# Simula callbacks de aparición que llegaron después del golpe mortal.
-		dog._on_summon_finished(dog.get_node("Summon_anim"))
+		dog._fade_in_sprite()
 		dog._finish_spawn()
 		assert(not dog.is_physics_processing())
 		await get_tree().create_timer(0.35).timeout

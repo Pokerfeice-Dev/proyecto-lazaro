@@ -68,7 +68,7 @@ const ENEMIES: Array[Dictionary] = [
 	{"name": "Mecha", "path": "res://Scenes/Enemies/EnemyTank.tscn"},
 	{"name": "Delivery", "path": "res://Scenes/Enemies/EnemyTurret.tscn"},
 	{"name": "Abeja Robótica (Bee)", "path": "res://Scenes/Enemies/Enemy_bee_summon.tscn"},
-	{"name": "Dummy / Maniquí de Pruebas", "path": "res://Scenes/Enemies/Mannequin.tscn"},
+	{"name": "Dummy / Maniquí de Pruebas", "path": "res://Scenes/Enemies/dummy.tscn"},
 	{"name": "Jefe 1 (Génesis)", "path": "res://Scenes/Enemies/boss1.tscn"},
 	{"name": "Jefe 2 (Slime Gigante)", "path": "res://Scenes/Enemies/Boss2.tscn"},
 	{"name": "Jefe 3 (Prometeo)", "path": "res://Scenes/Enemies/Boss3_Prometeo.tscn"}
