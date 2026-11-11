@@ -242,6 +242,7 @@ func _on_summon_finished(summon_anim: Node) -> void:
 	_fade_in_sprite()
 
 func _fade_in_sprite() -> void:
+	if is_dying: return
 	var sprite = _get_sprite()
 	if not sprite:
 		_finish_spawn()
@@ -252,6 +253,7 @@ func _fade_in_sprite() -> void:
 	t.finished.connect(_finish_spawn, CONNECT_ONE_SHOT)
 
 func _finish_spawn() -> void:
+	if is_dying: return
 	set_physics_process(true)
 	is_spawning = false
 
@@ -736,6 +738,11 @@ func _check_death() -> void:
 func die() -> void:
 	if is_dying: return
 	is_dying = true
+	is_spawning = false
+	var summon_anim := get_node_or_null("Summon_anim") as AnimatedSprite2D
+	if summon_anim:
+		summon_anim.stop()
+		summon_anim.hide()
 	StatusFx.hide_fire(self)
 	StatusFx.hide_freeze(self)
 	_disable_physics()

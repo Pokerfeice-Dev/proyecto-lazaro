@@ -28,6 +28,9 @@ var _protocol_status_label: Label
 var _protocol_displayed_id := ""
 var _protocol_refresh_left := 0.0
 
+var _hud_base: Dictionary = {}
+var _health_numbers: Label
+
 func _ready():
 	add_to_group("hud")
 	_setup_eyelights()
@@ -38,6 +41,7 @@ func _ready():
 	update_flesh(GameData.flesh)
 	_initialize_health()
 	UIStyle.enlarge_texts(self)
+	_setup_accessibility()
 	# diferido: así ya están en el árbol los jefes de la sala (ver más abajo)
 	_play_intro_room_animation.call_deferred()
 
@@ -456,6 +460,7 @@ func _update_health_bar_values(new_health: int, max_health: int) -> void:
 	if health_bar:
 		health_bar.max_value = max_health
 		health_bar.value = new_health
+		_update_health_numbers()
 
 func update_scrap(amount: int):
 	if scrap_label:
@@ -558,3 +563,60 @@ func _get_digits(text: String) -> String:
 		if c >= "0" and c <= "9":
 			digits += c
 	return digits
+
+# Scale individual anchored HUD groups, never the inventory or whole CanvasLayer.
+func _setup_accessibility() -> void:
+	var root := get_node("Control") as Control
+	_health_numbers = Label.new()
+	_health_numbers.name = "HealthNumbers"
+	_health_numbers.position = Vector2(160, 158)
+	_health_numbers.add_theme_font_size_override("font_size", 20)
+	_health_numbers.add_theme_constant_override("outline_size", 6)
+	_health_numbers.add_theme_color_override("font_outline_color", Color.BLACK)
+	_health_numbers.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_health_numbers)
+	for child in root.get_children():
+		if child is Control:
+			_hud_base[child] = {"scale": child.scale, "position": child.position}
+	root.resized.connect(_apply_hud_accessibility)
+	# Resource counters can grow when their text changes; keep the right edge fixed.
+	root.get_node("CurrencyContainer").resized.connect(_apply_hud_accessibility.call_deferred)
+	GameSettings.setting_changed.connect(_on_accessibility_setting)
+	_apply_hud_accessibility()
+	if health_bar: _update_health_numbers()
+	if health_bar: health_bar.value_changed.connect(func(_v): _update_health_numbers())
+
+func _on_accessibility_setting(section: String, _key: String, _value: Variant) -> void:
+	if section == "accesibilidad": _apply_hud_accessibility()
+
+func _apply_hud_accessibility() -> void:
+	var factor := clampf(float(GameSettings.get_value("accesibilidad", "escala_hud")), 75, 150) / 100.0
+	var root := get_node("Control") as Control
+	const MARGIN := 32.0
+	var available := (root.size - Vector2.ONE * MARGIN * 2.0).max(Vector2.ONE)
+	# Left-side bars, numbers and protocol form one group, anchored at (32,32).
+	var left_extent := Vector2.ONE
+	for control in _hud_base:
+		if control.name in ["CurrencyContainer", "WeaponHUD"]: continue
+		var original: Dictionary = _hud_base[control]
+		left_extent = left_extent.max(original.position - Vector2.ONE * MARGIN + control.size * original.scale)
+	var left_factor := minf(factor, minf(available.x / left_extent.x, available.y / left_extent.y))
+	for control in _hud_base:
+		var original: Dictionary = _hud_base[control]
+		# Do not scale the Control's layout size as well as its visual scale.
+		# Position right/bottom groups from their actual scaled bounds instead.
+		if control.name in ["CurrencyContainer", "WeaponHUD"]:
+			var extent: Vector2 = (control.size * original.scale).max(Vector2.ONE)
+			var group_factor := minf(factor, minf(available.x / extent.x, available.y / (extent.y + 110.0)))
+			control.scale = original.scale * group_factor
+			var drawn_size: Vector2 = control.size * control.scale
+			control.position.x = root.size.x - MARGIN - drawn_size.x
+			control.position.y = root.size.y - MARGIN - drawn_size.y if control.name == "WeaponHUD" else MARGIN
+		else:
+			control.scale = original.scale * left_factor
+			control.position = Vector2.ONE * MARGIN + (original.position - Vector2.ONE * MARGIN) * left_factor
+	_health_numbers.visible = bool(GameSettings.get_value("accesibilidad", "vida_numerica"))
+
+func _update_health_numbers() -> void:
+	if _health_numbers and health_bar:
+		_health_numbers.text = "%d / %d" % [int(health_bar.value), int(health_bar.max_value)]

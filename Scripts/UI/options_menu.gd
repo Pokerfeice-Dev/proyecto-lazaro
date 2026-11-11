@@ -177,6 +177,7 @@ func _build_actions_column(container: Control) -> void:
 
 	_continue_btn = _add_action(box, "CONTINUAR", true, close)
 	save_btn = _add_action(box, SAVE_TEXT, false, _on_save_pressed)
+	UIStyle.style_text(save_btn, "positive")
 	_add_action(box, "MÁS OPCIONES", false, _on_more_options_pressed)
 
 	var spacer = Control.new()
@@ -184,7 +185,8 @@ func _build_actions_column(container: Control) -> void:
 	box.add_child(spacer)
 	box.add_child(UIStyle.divider())
 
-	_add_action(box, "VOLVER AL MENÚ PRINCIPAL", false, _on_menu_pressed)
+	var leave_btn := _add_action(box, "VOLVER AL MENÚ PRINCIPAL", false, _on_menu_pressed)
+	UIStyle.style_text(leave_btn, "warning")
 
 func _add_action(parent: Control, text: String, primary: bool, callback: Callable) -> Button:
 	var btn = UIStyle.button(text, primary)

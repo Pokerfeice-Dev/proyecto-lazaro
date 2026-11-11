@@ -33,13 +33,13 @@ func _draw() -> void:
 	if released:
 		var t := clampf(age / 0.65, 0, 1)
 		var fade := 1 - t
-		var radius := (9 + t * 45) * (0.65 if birth else 1.0)
-		_hexagon(center, radius, Color(gold, fade), 2)
-		draw_arc(center, radius * 0.75, -age * 6, TAU - age * 6, 18, Color(green, fade * 0.7), 2)
+		var burst_radius := (9 + t * 45) * (0.65 if birth else 1.0)
+		_hexagon(center, burst_radius, Color(gold, fade), 2)
+		draw_arc(center, burst_radius * 0.75, -age * 6, TAU - age * 6, 18, Color(green, fade * 0.7), 2)
 		var count := 12 if OS.has_feature("web") else 20
 		for i in count:
 			var direction := Vector2.from_angle(float(i) * TAU / count + sin(i * 5.7) * 0.25)
-			var point := center + direction * radius * (0.7 + fposmod(i * 0.37, 0.8))
+			var point := center + direction * burst_radius * (0.7 + fposmod(i * 0.37, 0.8))
 			point.y += t * t * 18
 			var tint := gold if i % 2 == 0 else green
 			draw_line(point.round(), (point - direction * 8 * fade).round(), Color(tint, fade * 0.6), 2)

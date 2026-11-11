@@ -714,6 +714,7 @@ func unlock_all_synergies() -> void:
 		"speed_demon",
 		"snowman",
 		"holy_fire",
+		"marcapasos",
 		"alto_octanaje"
 	]
 	for syn_id in all_ids:

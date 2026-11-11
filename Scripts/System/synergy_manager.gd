@@ -142,6 +142,14 @@ const SYNERGIES = {
 		},
 		"weapon_scene_override": "res://Scenes/Weapon/SpeedDemonDagger.tscn"
 	},
+	"marcapasos": {
+		"name": "Marcapasos",
+		"description": "El primer ataque inicia un latido. Pulsa de nuevo cuando el indicador entre en la zona dorada: el golpe genera una onda potenciada. Tres aciertos rítmicos consecutivos contraen a los enemigos delante de ti. Fallar el ritmo reinicia la cadena.",
+		"required_weapon": "maze",
+		"required_items": ["bateria", "pulmones", "cerebro"],
+		"stat_modifiers": {},
+		"weapon_scene_override": "res://Scenes/Weapon/PacemakerMace.tscn"
+	},
 	"holy_fire": {
 		"name": "Holy Fire",
 		"description": "La maza arde con fuego sagrado: cada golpe quema al enemigo y le deja una lengua de fuego sobre la cabeza que escupe llamas en 8 direcciones, quemando a los enemigos de alrededor. Si golpeas a otro enemigo, la lengua salta hacia él.",

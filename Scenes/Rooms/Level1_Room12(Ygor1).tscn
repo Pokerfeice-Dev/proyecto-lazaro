@@ -64,45 +64,43 @@ start_locked = false
 [node name="Iluminacion" type="Node2D" parent="." unique_id=20202020]
 
 [node name="Lampara_pie" parent="Iluminacion" unique_id=1509059318 instance=ExtResource("7_uw3uw")]
-position = Vector2(257.00006, -504.00003)
+position = Vector2(317, -498.99994)
 scale = Vector2(0.9696379, 0.9696379)
 
 [node name="Lampara_pie2" parent="Iluminacion" unique_id=529554107 instance=ExtResource("7_uw3uw")]
-position = Vector2(657, -499.00003)
+position = Vector2(605.00006, -496.00006)
 scale = Vector2(0.9401976, 0.9401976)
 
 [node name="Lampara_pie3" parent="Iluminacion" unique_id=1832025593 instance=ExtResource("7_uw3uw")]
-position = Vector2(260.00003, -157.00003)
+position = Vector2(320, -208.00002)
 scale = Vector2(0.9116512, 0.9116512)
 
 [node name="Lampara_pie4" parent="Iluminacion" unique_id=38847949 instance=ExtResource("7_uw3uw")]
-position = Vector2(676, -148.99998)
+position = Vector2(607, -207.99998)
 scale = Vector2(0.8839715, 0.8839715)
 
-[node name="Lampara_pie5" parent="Iluminacion" unique_id=1054721834 instance=ExtResource("7_uw3uw")]
-position = Vector2(475, -449)
-scale = Vector2(0.85713226, 0.85713226)
-
 [node name="lampara_pared" parent="Iluminacion" unique_id=1368619277 instance=ExtResource("8_uw3uw")]
-position = Vector2(396, -614)
+position = Vector2(368, -625)
 
 [node name="lampara_pared2" parent="Iluminacion" unique_id=107790674 instance=ExtResource("8_uw3uw")]
-position = Vector2(538, -610)
+position = Vector2(561, -626)
 
 [node name="lampara_pared3" parent="Iluminacion" unique_id=982145617 instance=ExtResource("8_uw3uw")]
-position = Vector2(738, -529)
-
-[node name="lampara_pared4" parent="Iluminacion" unique_id=1710650968 instance=ExtResource("8_uw3uw")]
-position = Vector2(743, -202)
+position = Vector2(754, -429)
+rotation = 1.5707964
 
 [node name="lampara_pared5" parent="Iluminacion" unique_id=410800143 instance=ExtResource("8_uw3uw")]
-position = Vector2(547, -95)
+position = Vector2(557, -79)
+rotation = 3.1415927
 
 [node name="lampara_pared6" parent="Iluminacion" unique_id=2001334547 instance=ExtResource("8_uw3uw")]
-position = Vector2(398, -91)
+position = Vector2(363, -80)
+rotation = 3.1415927
 
 [node name="lampara_pared7" parent="Iluminacion" unique_id=2142553182 instance=ExtResource("8_uw3uw")]
-position = Vector2(197, -163)
+position = Vector2(175, -177)
+rotation = -1.5707964
 
-[node name="lampara_pared8" parent="Iluminacion" unique_id=616508487 instance=ExtResource("8_uw3uw")]
-position = Vector2(193, -536)
+[node name="lampara_pared8" parent="Iluminacion" unique_id=631929448 instance=ExtResource("8_uw3uw")]
+position = Vector2(175, -558)
+rotation = -1.5707964

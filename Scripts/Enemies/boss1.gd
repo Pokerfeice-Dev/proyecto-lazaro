@@ -748,6 +748,9 @@ func _spawn_minions() -> void:
 		_spawn_mutation_at(global_position + Vector2(150, 200))
 		
 	_play_spawn_roar()
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("apply_custom_camera_shake"):
+		player.apply_custom_camera_shake(10.0, 0.65)
 
 func _find_spawn_node(node_name: String) -> Node2D:
 	var parent = get_parent()

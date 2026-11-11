@@ -138,6 +138,7 @@ const STAT_LABELS: Dictionary = {
 
 func _ready() -> void:
 	UIStyle.enlarge_texts(self) # letra más grande (en el evento costaba leer)
+	_setup_text_roles()
 	_auto_fetch_player_nodes()
 	_limit_inventory_slots()
 	for node in main_three_columns.find_children("*", "PanelContainer", true, false):
@@ -163,6 +164,18 @@ func _ready() -> void:
 	update_ui()
 
 # Si se cambia entre mouse y joystick con el inventario abierto, el icono de equipar se redibuja.
+func _setup_text_roles() -> void:
+	for control in [detail_name_label, tooltip_name]:
+		UIStyle.style_text(control, "selected")
+	for control in [detail_meta_label, tooltip_type]:
+		UIStyle.style_text(control, "muted")
+	for control in [detail_desc_label, tooltip_desc, stats_synergy_description, stats_body_synergy_desc]:
+		UIStyle.style_text(control, "normal")
+	for control in [stats_body_synergy_title, stats_weapon_name, tooltip_action]:
+		UIStyle.style_text(control, "positive")
+	UIStyle.style_text(detail_stats_label, "normal")
+	UIStyle.style_text(tooltip_stats, "normal")
+
 func _on_input_mode_changed(_gamepad: bool) -> void:
 	_refresh_synergy_tutorial_guidance()
 
@@ -476,8 +489,8 @@ func update_ui() -> void:
 
 func _update_header_data() -> void:
 	if capacity_label and inventory:
-		capacity_label.text = "%d / %d" % [inventory.items.size(), inventory_slots.size()]
-		capacity_label.modulate = UIStyle.COLOR_WARNING if inventory.is_full() else Color.WHITE
+		capacity_label.text = "%d / %d%s" % [inventory.items.size(), inventory_slots.size(), " · LLENA" if inventory.is_full() else ""]
+		UIStyle.style_text(capacity_label, "warning" if inventory.is_full() else "muted")
 
 func _auto_fetch_player_nodes() -> void:
 	if inventory and equipment and player_sprite: return
@@ -1028,11 +1041,11 @@ func _format_single_stat_diff_line(stat_key: String, old_val: float, new_val: fl
 	var diff_str = ("%+d%%" % round(diff * 100)) if is_percent else ("%+d" % int(diff) if diff == int(diff) else "%+.1f" % diff)
 
 	var is_improvement = _is_stat_improvement(stat_key, diff)
-	var col = "#52D8C6" if is_improvement else "#EDB35B"
+	var role := "positive" if is_improvement else "negative"
 
 	if abs(diff) < 0.001:
-		return "%s: %s" % [label, new_str]
-	return "%s: %s → [color=%s]%s (%s)[/color]" % [label, old_str, col, new_str, diff_str]
+		return "%s: %s" % [label, UIStyle.colored_text(new_str, "normal" if is_comparing else "selected")]
+	return "%s: %s → %s" % [label, old_str, UIStyle.colored_text("%s (%s)" % [new_str, diff_str], role)]
 
 func _is_stat_improvement(stat_key: String, diff: float) -> bool:
 	if stat_key == "cone_spread_angle":
@@ -1177,7 +1190,7 @@ func _set_attribute_value(row: HBoxContainer, value_text: String, delta_text: St
 	var delta_label: Label = row.get_node("Delta")
 	delta_label.text = delta_text
 	delta_label.visible = not delta_text.is_empty()
-	delta_label.modulate = Color("#52D8C6") if delta_text.begins_with("+") else Color("#EDB35B")
+	UIStyle.style_text(delta_label, "positive" if delta_text.begins_with("+") else "negative")
 
 func _get_preview_delta(stat_name: String) -> String:
 	if selected_item == null: return ""
@@ -1311,6 +1324,7 @@ func _show_slot_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 		var is_unlocked = GameData.is_codex_unlocked(codex_cat, item_data.id)
 		tooltip_name.text = entry.get("name", "???") if is_unlocked else "???"
 		tooltip_rarity.text = "DESBLOQUEADO" if is_unlocked else "BLOQUEADO"
+		UIStyle.style_text(tooltip_rarity, "positive" if is_unlocked else "muted")
 		tooltip_type.text = codex_cat.to_upper()
 		tooltip_desc.text = entry.get("lore", "") if is_unlocked else "Información clasificada."
 		tooltip_stats.text = entry.get("stats", "") if is_unlocked else ""
@@ -1318,6 +1332,7 @@ func _show_slot_tooltip(item_data: ItemData, slot_rect: Rect2) -> void:
 	else:
 		tooltip_name.text = item_data.item_name
 		tooltip_rarity.text = "RARO"
+		UIStyle.style_text(tooltip_rarity, "selected")
 		tooltip_type.text = _get_item_type_string(item_data)
 		tooltip_desc.text = _get_item_description(item_data)
 		tooltip_stats.text = _format_item_comparison_stats(item_data)
@@ -1343,6 +1358,7 @@ func _on_weapon_badge_hovered(is_main: bool) -> void:
 	if not panel: return
 	tooltip_name.text = "ARMA " + ("PRINCIPAL" if is_main else "SECUNDARIA")
 	tooltip_rarity.text = "EQUIPADA"
+	UIStyle.style_text(tooltip_rarity, "positive")
 	tooltip_type.text = "ARMAMENTO ACTIVO"
 	tooltip_desc.text = "Arma actualmente en tus manos. Los módulos contiguos aumentan sus características."
 	tooltip_stats.text = ""

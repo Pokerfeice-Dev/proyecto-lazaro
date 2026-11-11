@@ -16,13 +16,13 @@ class_name Player
 @export var animation_frame_offsets: Dictionary = {
 	"idle_default": [
 		Vector2(0, 0),
-		Vector2(0, 1),
-		Vector2(0, 2),
-		Vector2(0, 1),
 		Vector2(0, 0),
-		Vector2(0, -1),
-		Vector2(0, -2),
-		Vector2(0, -1)
+		Vector2(0, 1.3),
+		Vector2(0, 2.6),
+		Vector2(0, 3.9),
+		Vector2(0, 2.6),
+		Vector2(0, 1.3),
+		Vector2(0, 0)
 	]
 }
 
@@ -108,6 +108,7 @@ var _last_enemy_hit_msec: int = 0
 var _arrival_scene_id: int = 0
 
 func _ready() -> void:
+	RenderingServer.frame_pre_draw.connect(_sync_weapon_idle_pose)
 	_last_enemy_hit_msec = Time.get_ticks_msec()
 	_init_timers()
 	setup_damage_effect()
@@ -452,12 +453,12 @@ func _physics_process(delta: float) -> void:
 	_update_ranged_synergy_visual(delta)
 	_check_dash_input()
 	_process_movement(delta)
+	update_animation()
 	update_glock()
 	_update_camera_drift(delta)
 	_process_actions()
 	_arrogancia_shield.set_active(_is_arrogancia_reflect_active())
 	move_and_slide()
-	update_animation()
 
 func record_enemy_hit(_enemy: Node2D = null) -> void:
 	_last_enemy_hit_msec = Time.get_ticks_msec()
@@ -1199,10 +1200,10 @@ func _update_primary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radiu
 	if not active_weapon:
 		return
 	var base_pos = _get_weapon_base_position(dir)
-	active_weapon.look_at(mouse_pos)
 	active_weapon.position = base_pos
 	_flip_weapon(active_weapon, dir)
-	active_weapon.show_behind_parent = dir.y < 0
+	active_weapon.look_at(mouse_pos)
+	active_weapon.show_behind_parent = _weapon_is_behind_body()
 
 func _update_secondary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_radius: float) -> void:
 	if is_instance_valid(_speed_demon_driver) and _speed_demon_driver.is_attacking():
@@ -1210,27 +1211,36 @@ func _update_secondary_weapon_pivot(mouse_pos: Vector2, dir: Vector2, _orbit_rad
 		mouse_pos = global_position + dir * 1000.0
 	var base_pos = _get_weapon_base_position(dir)
 	if second_weapon:
-		second_weapon.look_at(mouse_pos)
 		second_weapon.position = base_pos
 		_flip_weapon(second_weapon, dir)
-		second_weapon.show_behind_parent = dir.y < 0
+		second_weapon.look_at(mouse_pos)
+		second_weapon.show_behind_parent = _weapon_is_behind_body()
 	if left_melee_weapon:
-		left_melee_weapon.look_at(mouse_pos)
 		left_melee_weapon.position = base_pos
 		_flip_weapon(left_melee_weapon, dir)
-		left_melee_weapon.show_behind_parent = dir.y < 0
+		left_melee_weapon.look_at(mouse_pos)
+		left_melee_weapon.show_behind_parent = _weapon_is_behind_body()
 
 func _get_weapon_base_position(dir: Vector2) -> Vector2:
 	var base_pos = _get_static_weapon_mark_position(dir)
 	var anim_offset = _get_animation_offset()
-	var final_offset = _apply_flip_to_offset(anim_offset, dir.x < 0)
+	var final_offset = _apply_flip_to_offset(anim_offset, _weapon_uses_left_hand())
 	return base_pos + final_offset
 
-func _get_static_weapon_mark_position(dir: Vector2) -> Vector2:
+func _get_static_weapon_mark_position(_dir: Vector2) -> Vector2:
 	var mark_node = get_node_or_null("Weapon_mark")
 	if not mark_node:
 		return Vector2.ZERO
-	return _apply_flip_to_offset(mark_node.position, dir.x < 0)
+	return _apply_flip_to_offset(mark_node.position, _weapon_uses_left_hand())
+
+# El arte frontal tiene la mano del arma a la derecha; el trasero, a la
+# izquierda. Cambiar según el signo del cursor despegaba el arma del cuerpo
+# en mitad de esas poses. La mano y el espejo siguen la pose visible.
+func _weapon_uses_left_hand() -> bool:
+	return last_dir in ["left", "down_left", "up_left", "up"]
+
+func _weapon_is_behind_body() -> bool:
+	return last_dir in ["up", "up_left", "up_right"]
 
 func _get_animation_offset() -> Vector2:
 	if not anim_sprite:
@@ -1258,9 +1268,9 @@ func _apply_flip_to_offset(offset: Vector2, should_flip: bool) -> Vector2:
 	return offset
 
 
-func _flip_weapon(weapon: Node2D, dir: Vector2) -> void:
+func _flip_weapon(weapon: Node2D, _dir: Vector2) -> void:
 	var base_scale = abs(weapon.scale.x)
-	if dir.x < 0:
+	if _weapon_uses_left_hand():
 		weapon.scale.y = -base_scale
 		return
 	weapon.scale.y = base_scale
@@ -1273,8 +1283,15 @@ func update_animation() -> void:
 
 func _update_facing_direction() -> void:
 	var mouse_dir = (get_aim_position() - global_position).normalized()
-	if mouse_dir != Vector2.ZERO:
-		last_dir = _get_8_dir_string(mouse_dir)
+	_set_aim_facing(mouse_dir)
+
+func _set_aim_facing(direction: Vector2) -> void:
+	if direction.is_zero_approx(): return
+	# Un margen pequeño evita alternar cuerpo/mano por ruido del mouse o stick
+	# en el límite entre poses. El arma sigue apuntando sin suavizado ni retraso.
+	var current := _get_dir_vector(last_dir)
+	if absf(current.angle_to(direction)) > PI / 8.0 + deg_to_rad(4.0):
+		last_dir = _get_8_dir_string(direction)
 
 
 func _play_player_sprite_animation() -> void:
@@ -1308,10 +1325,56 @@ func _play_run_animation() -> void:
 	anim_sprite.play("run_" + last_dir)
 
 func _play_idle_animation() -> void:
-	if _is_diagonal(last_dir):
-		anim_sprite.play("idle_diagonal_" + last_dir)
+	var next := "idle_diagonal_" + last_dir if _is_diagonal(last_dir) else "idle_" + last_dir
+	if anim_sprite.animation == next:
+		anim_sprite.play(next)
 		return
-	anim_sprite.play("idle_" + last_dir)
+	var phase := _animation_phase(anim_sprite) if anim_sprite.animation.begins_with("idle") else 0.0
+	anim_sprite.play(next)
+	_set_animation_phase(anim_sprite, phase)
+
+# El cuerpo es el único reloj del reposo. Se lee justo antes de dibujar,
+# después de que AnimatedSprite2D haya avanzado (no un tick de física antes).
+func _sync_weapon_idle_pose() -> void:
+	if not is_inside_tree() or get_tree().paused or is_cutscene_frozen: return
+	if not anim_sprite or not anim_sprite.animation.begins_with("idle"): return
+	update_glock()
+	var phase := _animation_phase(anim_sprite)
+	for container in [active_weapon, second_weapon, left_melee_weapon]:
+		if not is_instance_valid(container): continue
+		for sprite in container.find_children("*", "AnimatedSprite2D", true, false):
+			# Los disparos, ataques y sus efectos conservan su propia duración.
+			if sprite.animation.begins_with("idle"):
+				_set_animation_phase(sprite, phase)
+		var weapon = container.get("current_weapon")
+		if weapon and "melee_sprite" in weapon:
+			var sheet = weapon.melee_sprite
+			if sheet is Sprite2D and sheet.hframes > 1:
+				sheet.frame = mini(int(phase * sheet.hframes), sheet.hframes - 1)
+
+func _animation_phase(sprite: AnimatedSprite2D) -> float:
+	var frames := sprite.sprite_frames
+	var total := 0.0
+	var elapsed := 0.0
+	for index in frames.get_frame_count(sprite.animation):
+		var duration := frames.get_frame_duration(sprite.animation, index)
+		total += duration
+		if index < sprite.frame: elapsed += duration
+		elif index == sprite.frame: elapsed += duration * sprite.frame_progress
+	return fposmod(elapsed / total, 1.0) if total > 0.0 else 0.0
+
+func _set_animation_phase(sprite: AnimatedSprite2D, phase: float) -> void:
+	var frames := sprite.sprite_frames
+	var total := 0.0
+	for index in frames.get_frame_count(sprite.animation):
+		total += frames.get_frame_duration(sprite.animation, index)
+	var remaining := fposmod(phase, 1.0) * total
+	for index in frames.get_frame_count(sprite.animation):
+		var duration := frames.get_frame_duration(sprite.animation, index)
+		if remaining < duration:
+			sprite.set_frame_and_progress(index, remaining / duration)
+			return
+		remaining -= duration
 
 func _is_diagonal(dir_str: String) -> bool:
 	return dir_str in ["up_left", "up_right", "down_left", "down_right"]
@@ -2059,7 +2122,10 @@ func _update_melee_synergy_visual(_delta: float = 0.0) -> void:
 # Las hojas de varios cuadros se animan solas (si no, quedaban quietas en el primero).
 func _animate_weapon_sheet(sprite: Node2D) -> void:
 	if sprite is Sprite2D and sprite.hframes > 1:
-		sprite.frame = int(Time.get_ticks_msec() / 1000.0 * WEAPON_SHEET_FPS) % sprite.hframes
+		if anim_sprite and anim_sprite.animation.begins_with("idle"):
+			sprite.frame = mini(int(_animation_phase(anim_sprite) * sprite.hframes), sprite.hframes - 1)
+		else:
+			sprite.frame = int(Time.get_ticks_msec() / 1000.0 * WEAPON_SHEET_FPS) % sprite.hframes
 	elif sprite is AnimatedSprite2D and not sprite.is_playing():
 		sprite.play()
 
@@ -2404,6 +2470,8 @@ func _update_ranged_synergy_visual(_delta: float = 0.0) -> void:
 		sprite.modulate = base_modulate
 
 func _exit_tree() -> void:
+	if RenderingServer.frame_pre_draw.is_connected(_sync_weapon_idle_pose):
+		RenderingServer.frame_pre_draw.disconnect(_sync_weapon_idle_pose)
 	GameData.unregister_player(self)
 
 func apply_melee_item_status(body: Node2D) -> void:

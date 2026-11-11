@@ -48,6 +48,7 @@ func _ready():
 		else:
 			continue_button.disabled = true
 	
+	_apply_text_roles()
 	if GameData.show_title_screen:
 		_show_title_prompt()
 	else:
@@ -65,6 +66,13 @@ func _ready():
 	_atmosphere.particles_enabled = FxSettings.on("particulas_menu")
 
 # ---- Pantalla de título: los botones aparecen recién al tocar algo ----
+func _apply_text_roles() -> void:
+	var can_continue := continue_button != null and not continue_button.disabled
+	UIStyle.style_text(play_button, "normal" if can_continue else "selected")
+	if continue_button: UIStyle.style_text(continue_button, "selected" if can_continue else "muted")
+	UIStyle.style_text(options_button, "normal")
+	UIStyle.style_text(exit_button, "muted")
+
 var _title_label: TitlePrompt = null # cartel animado (scripts/UI/title_prompt.gd)
 
 func _show_title_prompt() -> void:

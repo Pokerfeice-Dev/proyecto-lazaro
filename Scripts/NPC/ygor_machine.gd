@@ -171,7 +171,6 @@ func _label_text() -> String:
 			if player_in_range:
 				return "%s\n%s\n[E] Reciclar\n+%d carne" % [title, item.item_name, _recycle_value(item)]
 			return title
-	return title
 
 # --- Uso ---
 

@@ -18,9 +18,15 @@ const TABS := [
 	{"id": "audio", "titulo": "Audio"},
 	{"id": "fx", "titulo": "Efectos"},
 	{"id": "juego", "titulo": "Juego"},
+	{"id": "accesibilidad", "titulo": "Accesibilidad"},
 ]
 
 const ROWS := {
+	"accesibilidad": [
+		{"tipo": "slider", "clave": "brillo", "texto": "Brillo", "min": 70, "max": 150, "desc": "Aclara u oscurece la imagen del juego. 100% conserva el aspecto original."},
+		{"tipo": "slider", "clave": "escala_hud", "texto": "Tamaño del HUD", "min": 75, "max": 150, "desc": "Ajusta vida, recursos, protocolo y armas. No cambia el inventario ni los menús. 100% es el tamaño original."},
+		{"tipo": "toggle", "clave": "vida_numerica", "texto": "Mostrar vida numérica", "desc": "Muestra la vida actual y máxima junto a la barra, sin depender solo de su color o longitud. En Efectos puedes desactivar sacudidas y luces parpadeantes."},
+	],
 	"video": [
 		{"tipo": "opciones", "clave": "modo_pantalla", "texto": "Modo de pantalla", "items": ["Pantalla completa", "Ventana", "Ventana sin bordes"], "valores": [0, 1, 2], "desc": "Pantalla completa, ventana común (1600x900) o ventana sin bordes del tamaño del monitor."},
 		{"tipo": "toggle", "clave": "vsync", "texto": "Sincronización vertical (VSync)", "desc": "Evita el 'tearing' de la imagen. Si sientes los controles lentos, prueba desactivarlo."},
@@ -172,7 +178,7 @@ func _make_tab_bar() -> HBoxContainer:
 		b.text = tab.titulo
 		b.toggle_mode = true
 		b.button_group = group
-		b.custom_minimum_size = Vector2(220, 60)
+		b.custom_minimum_size = Vector2(180, 60)
 		b.add_theme_font_size_override("font_size", 26)
 		b.focus_mode = Control.FOCUS_NONE
 		# la pestaña activa queda resaltada con el color de acento
@@ -269,8 +275,8 @@ func _make_slider(section: String, data: Dictionary) -> HBoxContainer:
 	h.custom_minimum_size = Vector2(380, 0)
 	h.add_theme_constant_override("separation", 14)
 	var s = HSlider.new()
-	s.min_value = 0
-	s.max_value = 100
+	s.min_value = data.get("min", 0)
+	s.max_value = data.get("max", 100)
 	s.step = 5
 	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER

@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Weapon/mace.tscn" id="1"]
+[ext_resource type="Script" path="res://Scripts/Weapon/pacemaker.gd" id="2"]
+
+[node name="PacemakerMace" instance=ExtResource("1")]
+script = ExtResource("2")
+id = "maze"

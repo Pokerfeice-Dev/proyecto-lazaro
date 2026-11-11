@@ -48,6 +48,7 @@ const ARSENAL := [
 ## icon: sprite de la sinergia. Si no hay, se usa el arma que pide o la primera pieza.
 ## tint (opcional): color para diferenciar las que usan un sprite prestado.
 const SINERGIAS := [
+	{"id": "marcapasos", "cost": 300, "icon": "res://Art/Weapons/Melee/Mace/weapon_mace_sprite.png"},
 	{"id": "pistola_mente_colmena", "cost": 300, "icon": "res://Art/Weapons/Distance/Pistol/HiveMindPistol/synergy_hivemind_sprite.png"},
 	{"id": "roadkill", "cost": 300, "icon": "res://Art/Weapons/Distance/Pistol/Roadkill/synergy_roadkill_sprite.png"},
 	{"id": "minigun", "cost": 300, "icon": "res://Art/Weapons/Distance/Uzi/synergy_heavymetal_sprite.png"},

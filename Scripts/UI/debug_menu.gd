@@ -310,6 +310,8 @@ func _create_synergies_tab(tabs: TabContainer) -> void:
 		_activate_synergy_arrogancia()
 	)
 
+	_add_synergy_card(tab, "Marcapasos", "marcapasos", "Maza + Batería, Pulmones, Cerebro · Tres golpes al ritmo", _activate_synergy_marcapasos)
+
 	_add_synergy_card(tab, "Holy Fire", "holy_fire", "Maza + Gasolina, Pulmones, Cabeza Humana", func():
 		_activate_synergy_holy_fire()
 	)
@@ -462,6 +464,15 @@ func _activate_synergy_arrogancia() -> void:
 		{"path": "res://Art/Items/Weapons/Item7_Colmena.tres", "slot": ItemData.ItemSlot.SEC_W3}
 	])
 	_show_status("Sinergia 'Arrogancia' activada y equipada.")
+
+func _activate_synergy_marcapasos() -> void:
+	GameData.unlock_synergy("marcapasos")
+	_equip_melee_weapon_and_mods("res://Scenes/Weapon/mace.tscn", [
+		{"path": "res://Art/Items/Weapons/Item10_Bateria.tres", "slot": ItemData.ItemSlot.SEC_W1},
+		{"path": "res://Art/Items/Weapons/Item5.tres", "slot": ItemData.ItemSlot.SEC_W2},
+		{"path": "res://Art/Items/Weapons/Item3.tres", "slot": ItemData.ItemSlot.SEC_W3}
+	])
+	_show_status("Marcapasos equipado: pulsa ataque cuerpo a cuerpo al entrar en la zona dorada. Tres aciertos = contracción.")
 
 func _activate_synergy_holy_fire() -> void:
 	GameData.unlock_synergy("holy_fire")
@@ -926,12 +937,12 @@ func _refresh_log() -> void:
 	var total_sec := 0
 	for r in rows:
 		total_sec += int(r.get("duracion_seg", "0"))
-	var avg: int = total_sec / rows.size()
+	var avg: int = int(float(total_sec) / rows.size())
 	var event_runs = rows.filter(func(r): return r.get("modo", "") == "evento").size()
 	var deaths = rows.filter(func(r): return r.get("resultado", "") == "muerte")
 	_log_title("RESUMEN")
 	_log_line("Runs: %d (del evento: %d)" % [rows.size(), event_runs], Color.WHITE, 14)
-	_log_line("Duración promedio: %d:%02d · tiempo total jugado: %d min" % [avg / 60, avg % 60, total_sec / 60], Color.WHITE, 14)
+	_log_line("Duración promedio: %d:%02d · tiempo total jugado: %d min" % [int(avg / 60.0), avg % 60, int(total_sec / 60.0)], Color.WHITE, 14)
 	_log_line("Resultado: " + _count_text(rows, "resultado"), Color.WHITE, 13)
 	_log_line("Hasta dónde llegaron: " + _count_text(rows, "sala"), Color.WHITE, 13)
 	_log_line("Qué los mató: " + _count_text(deaths, "causa"), Color.WHITE, 13)

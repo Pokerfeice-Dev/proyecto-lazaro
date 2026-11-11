@@ -203,22 +203,22 @@ func _draw_electric_arcs(direction: Vector2, side: Vector2, length: float, energ
 	if OS.has_feature("web"): count = mini(count, 6)
 	var tick := floorf(clock * 18)
 	for i in count:
-		var seed := float(i) * 17.13 + tick * 3.71
+		var arc_seed := float(i) * 17.13 + tick * 3.71
 		var life := fposmod(clock * 5 + float(i) * 0.37, 1.0)
 		var alpha := sin(life * PI) * power
-		var t := (float(i) + 0.5 + sin(seed) * 0.25) / count
+		var t := (float(i) + 0.5 + sin(arc_seed) * 0.25) / count
 		var start := origin.lerp(endpoint, t)
 		var sign_side := 1.0 if i % 2 == 0 else -1.0
-		var reach := (14 + 20 * (0.5 + 0.5 * sin(seed * 1.7))) * sin(life * PI)
+		var reach := (14 + 20 * (0.5 + 0.5 * sin(arc_seed * 1.7))) * sin(life * PI)
 		var bolt := PackedVector2Array([start.round()])
 		for step in range(1, 5):
 			var progress := float(step) / 4.0
-			var bend := sin(seed + step * 2.4) * 9 * sin(progress * PI)
+			var bend := sin(arc_seed + step * 2.4) * 9 * sin(progress * PI)
 			bolt.append((start + side * sign_side * reach * progress + direction * (progress * 12 + bend)).round())
 		var tint := Color("70dcff") if i % 3 == 0 else energy.lerp(Color.WHITE, 0.35)
 		draw_polyline(bolt, Color(tint, alpha * 0.18), 6)
 		draw_polyline(bolt, Color(tint, alpha * 0.9), 2)
-		var fork := bolt[2] + direction * (10 + sin(seed) * 5) + side * sign_side * 7
+		var fork := bolt[2] + direction * (10 + sin(arc_seed) * 5) + side * sign_side * 7
 		draw_polyline(PackedVector2Array([bolt[1], bolt[2], fork.round()]), Color(tint, alpha * 0.65), 1)
 		draw_rect(Rect2(bolt[4] - Vector2.ONE, Vector2(2, 2)), Color(0.9, 1, 1, alpha))
 

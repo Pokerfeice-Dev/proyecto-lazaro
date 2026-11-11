@@ -38,7 +38,7 @@ func play(p_boss: Node2D, start_delay: float, _subtitle: String = "") -> void:
 	await _wait(0.45)
 	_roar()
 	await _wait(2.2)
-	_move_camera_back(1.0)
+	preload("res://Scripts/Enemies/boss_arena_camera.gd").begin(_camera, boss, 1.0)
 	await _wait(1.0)
 	_finish()
 

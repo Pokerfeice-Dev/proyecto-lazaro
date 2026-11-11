@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_nkrm6"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_q1imp"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_cv2kv"]
-[ext_resource type="PackedScene" path="res://Scenes/World/CosmicPortal.tscn" id="3_q1imp"]
+[ext_resource type="PackedScene" uid="uid://wf6c8rvrignp" path="res://Scenes/World/CosmicPortal.tscn" id="3_q1imp"]
 [ext_resource type="PackedScene" uid="uid://7l31lhldop1n" path="res://Scenes/Enemies/boss1.tscn" id="4_nu4ea"]
 [ext_resource type="AudioStream" uid="uid://v1qbykjg5lpe" path="res://Audio/Music/BossFight2.ogg" id="5_nkrm6"]
 
@@ -84,12 +84,13 @@ tile_set = ExtResource("2_q1imp")
 position = Vector2(-2, -129)
 
 [node name="CosmicPortal" parent="." unique_id=261365328 instance=ExtResource("3_q1imp")]
-position = Vector2(-1, -345)
+position = Vector2(-1, -299)
 destination_scene = "res://Scenes/Rooms/Level2_Room1.tscn"
 defeated_boss = NodePath("../Boss")
 advance_after_boss = true
 
 [node name="Door" parent="." unique_id=1484883866 instance=ExtResource("3_cv2kv")]
+visible = false
 position = Vector2(5, -571)
 rotation = 1.5707964
 custom_next_scene = "res://Scenes/Rooms/lab_room.tscn"
@@ -109,11 +110,11 @@ libraries/ = SubResource("AnimationLibrary_q1imp")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=172476215]
 color = Color(0.36, 0.38, 0.5, 1)
+
 [node name="Spawns" type="Node2D" parent="." unique_id=30303030]
 
 [node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=1315336209]
 position = Vector2(-286, -203)
-
 
 [node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=1894963541]
 position = Vector2(289, -203)

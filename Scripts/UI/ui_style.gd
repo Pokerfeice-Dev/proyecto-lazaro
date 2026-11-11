@@ -9,6 +9,33 @@ const COLOR_TEXT := Color("#E5EEF0")
 const COLOR_MUTED := Color("#8DAAB4")
 const COLOR_GOLD := Color("#F4C45E")
 const COLOR_TEAL := Color("#52D8C6")
+const COLOR_DANGER := Color("#F28B82")
+# Roles compartidos: resaltar datos y estados, no párrafos completos.
+const TEXT_ROLES := {
+	"normal": COLOR_TEXT,
+	"muted": COLOR_MUTED,
+	"selected": COLOR_GOLD,
+	"positive": COLOR_TEAL,
+	"warning": Color("#EDB35B"),
+	"negative": COLOR_DANGER,
+}
+
+static func text_color(role: String) -> Color:
+	return TEXT_ROLES.get(role, COLOR_TEXT)
+
+static func style_text(control: Control, role: String) -> void:
+	var color := text_color(role)
+	# Evita multiplicar el color semántico por tintes de estados anteriores.
+	control.modulate = Color.WHITE
+	var key := "default_color" if control is RichTextLabel else "font_color"
+	control.add_theme_color_override(key, color)
+	if control is Button:
+		for state in ["font_hover_color", "font_focus_color", "font_pressed_color"]:
+			control.add_theme_color_override(state, color.lightened(0.15))
+		control.add_theme_color_override("font_disabled_color", COLOR_MUTED)
+
+static func colored_text(text: String, role: String) -> String:
+	return "[color=#%s]%s[/color]" % [text_color(role).to_html(false), text.replace("[", "[lb]")]
 const COLOR_DARK := Color("#171D22")
 const COLOR_BACKDROP := Color(0.0, 0.0, 0.0, 0.75)
 

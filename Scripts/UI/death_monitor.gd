@@ -158,7 +158,7 @@ func _render() -> void:
 	title.add_theme_color_override('font_outline_color', RED.darkened(0.38 + sin(elapsed * 2.6) * 0.12))
 	if slam >= 1 and not slammed:
 		slammed = true
-		host.OnDeathTitleSlam.emit()
+		host.notify_title_slam()
 	var glitch := 1.0 if fmod(elapsed, GLITCH_INTERVAL) < 0.035 and elapsed > OPEN_END else 0.0
 	for i in ghosts.size():
 		var ghost := ghosts[i]
@@ -198,8 +198,8 @@ func _render() -> void:
 			item.icon.modulate = Color(1 + sin(p * PI) * 1.5, 1, 1)
 		if p > 0 and revealed <= i:
 			revealed = i + 1
-			host.OnStatRowReveal.emit(i)
-			if i == stats.size() - 1: host.OnKillerStamped.emit()
+			host.notify_stat_row_reveal(i)
+			if i == stats.size() - 1: host.notify_killer_stamped()
 	footer.modulate.a = progress(BUTTON_START, 0.20)
 	footer.position = bases[footer] + Vector2(0, 12 * (1 - cubic(progress(BUTTON_START, 0.20))))
 	if closing >= 0:
@@ -224,8 +224,8 @@ func _draw() -> void:
 			draw_line(corner, corner + Vector2(0, direction.y * 16), GOLD, 2)
 		var scan := progress(PANEL_START, 0.25)
 		if scan < 1:
-			var y := lerpf(rect.position.y, rect.end.y, scan)
-			draw_line(Vector2(rect.position.x, y), Vector2(rect.end.x, y), CYAN, 2)
+			var scan_y := lerpf(rect.position.y, rect.end.y, scan)
+			draw_line(Vector2(rect.position.x, scan_y), Vector2(rect.end.x, scan_y), CYAN, 2)
 		var edge := fmod(elapsed * 180, rect.size.x)
 		draw_line(rect.position + Vector2(edge, 0), rect.position + Vector2(minf(edge + 55, rect.size.x), 0), Color(CYAN, 0.6), 2)
 		for i in stats.size():

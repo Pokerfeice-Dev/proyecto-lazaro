@@ -119,7 +119,16 @@ func _setup_interact_label() -> void:
 		interact_label.position = Vector2(-70, -90)
 		add_child(interact_label)
 	interact_label.text = "[E] Hablar con Ygor"
+	# The mirrored prompt follows the label's bottom center, not its origin.
+	# Recenter after text/font changes instead of relying on the old editor width.
+	interact_label.resized.connect(_position_interact_label)
+	_position_interact_label()
 	interact_label.visible = false
+
+func _position_interact_label() -> void:
+	var frame := anim_sprite.sprite_frames.get_frame_texture("idle", 0)
+	var head := anim_sprite.position + (anim_sprite.offset - Vector2(0, frame.get_height() * 0.5)) * anim_sprite.scale
+	interact_label.position = head - Vector2(interact_label.size.x * 0.5, interact_label.size.y + 6.0)
 
 func _find_label_child() -> Label:
 	for child in get_children():

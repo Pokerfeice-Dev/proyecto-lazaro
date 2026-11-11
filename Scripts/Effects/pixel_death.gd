@@ -6,16 +6,17 @@ const DURATION := 0.85
 var texture: Texture2D
 var pieces: Array[Dictionary] = []
 var elapsed := 0.0
+var duration := DURATION
 
-static func spawn_from(body: Node2D) -> void:
+static func spawn_from(body: Node2D, lifetime: float = DURATION) -> void:
 	if not body or not body.is_visible_in_tree(): return
 	if body is Sprite2D or body is AnimatedSprite2D:
-		_spawn_sprite(body)
+		_spawn_sprite(body, lifetime)
 	for child in body.get_children():
 		if child is Node2D:
-			spawn_from(child)
+			spawn_from(child, lifetime)
 
-static func _spawn_sprite(sprite: Node2D) -> void:
+static func _spawn_sprite(sprite: Node2D, lifetime: float) -> void:
 	var tex: Texture2D
 	var region: Rect2
 	if sprite is AnimatedSprite2D:
@@ -30,6 +31,7 @@ static func _spawn_sprite(sprite: Node2D) -> void:
 			region.position += Vector2(sprite.frame_coords) * region.size
 	if not tex: return
 	var fx = new()
+	fx.duration = maxf(lifetime, 0.01)
 	fx.texture = tex
 	fx.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	fx.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -51,13 +53,13 @@ static func _spawn_sprite(sprite: Node2D) -> void:
 				"source": Rect2(region.position + pos, size),
 				"dest": Rect2(dest, size),
 				"velocity": Vector2(randf_range(-28, 28), randf_range(-65, -20)),
-				"delay": randf_range(0.0, 0.18),
+				"delay": randf_range(0.0, minf(0.18, fx.duration * 0.2)),
 				"flip": Vector2(-1 if sprite.flip_h else 1, -1 if sprite.flip_v else 1),
 			})
 
 func _process(delta: float) -> void:
 	elapsed += delta
-	if elapsed >= DURATION:
+	if elapsed >= duration:
 		queue_free()
 	else:
 		queue_redraw()
@@ -65,7 +67,7 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	for piece in pieces:
 		var age := maxf(0.0, elapsed - float(piece.delay))
-		var progress := clampf(age / (DURATION - float(piece.delay)), 0.0, 1.0)
+		var progress := clampf(age / (duration - float(piece.delay)), 0.0, 1.0)
 		var rect: Rect2 = piece.dest
 		rect.position += (piece.velocity * age + Vector2(0, -25) * age * age).round()
 		var shrink := 1.0 - progress * 0.8

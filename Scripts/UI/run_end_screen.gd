@@ -403,3 +403,13 @@ func _leave() -> void:
 	else:
 		RunLog.screens_done()
 		SceneTransition.change_scene(next_scene)
+
+# The timeline notifies the screen; public audio hooks are owned/emitted here.
+func notify_title_slam() -> void:
+	OnDeathTitleSlam.emit()
+
+func notify_stat_row_reveal(index: int) -> void:
+	OnStatRowReveal.emit(index)
+
+func notify_killer_stamped() -> void:
+	OnKillerStamped.emit()

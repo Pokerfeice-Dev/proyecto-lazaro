@@ -109,6 +109,18 @@ const TEST_SYNERGIES: Array[Dictionary] = [
 		]
 	},
 	{
+		"id": "marcapasos",
+		"name": "Marcapasos",
+		"weapon_type": "melee",
+		"weapon_id": "maze",
+		"desc": "Maza + Tres golpes al ritmo generan una contracción",
+		"items": [
+			"res://Art/Items/Weapons/Item10_Bateria.tres",
+			"res://Art/Items/Weapons/Item5.tres",
+			"res://Art/Items/Weapons/Item3.tres"
+		]
+	},
+	{
 		"id": "holy_fire",
 		"name": "Holy Fire",
 		"weapon_type": "melee",

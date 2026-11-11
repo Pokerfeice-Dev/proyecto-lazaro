@@ -16,6 +16,11 @@ const SETTINGS_PATH := "user://opciones.cfg"
 const WINDOWED_SIZE := Vector2i(1600, 900)
 
 const DEFAULTS := {
+	"accesibilidad": {
+		"brillo": 100.0,
+		"escala_hud": 100.0,
+		"vida_numerica": false,
+	},
 	"video": {
 		"modo_pantalla": 0,      # 0 pantalla completa, 1 ventana, 2 ventana sin bordes
 		"vsync": true,
@@ -49,6 +54,7 @@ const DEFAULTS := {
 	},
 }
 
+var _brightness_rect: ColorRect
 var _values: Dictionary = {}
 var _save_pending: bool = false
 var _fps_layer: CanvasLayer = null
@@ -92,6 +98,8 @@ func get_value(section: String, key: String) -> Variant:
 
 func set_value(section: String, key: String, value: Variant) -> void:
 	if not _values.has(section): return
+	if key == "brillo": value = clampf(float(value), 70.0, 150.0)
+	if key == "escala_hud": value = clampf(float(value), 75.0, 150.0)
 	_values[section][key] = value
 	_apply(key, value)
 	_queue_save()
@@ -136,6 +144,7 @@ func _apply_all() -> void:
 
 func _apply(key: String, value: Variant) -> void:
 	match key:
+		"brillo": _apply_brightness(float(value))
 		"modo_pantalla": _apply_window_mode(int(value))
 		"vsync": DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if value else DisplayServer.VSYNC_DISABLED)
 		"fps_max": Engine.max_fps = int(value)
@@ -247,3 +256,20 @@ func _notification(what: int) -> void:
 		AudioServer.set_bus_mute(0, true)
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		AudioServer.set_bus_mute(0, float(get_value("audio", "general")) <= 0.0)
+
+# Screen correction below overlays/menus; identity at 100%, no washed-out white veil.
+func _apply_brightness(value: float) -> void:
+	if not _brightness_rect:
+		var correction := CanvasLayer.new()
+		correction.layer = 90
+		add_child(correction)
+		_brightness_rect = ColorRect.new()
+		_brightness_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_brightness_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var material := ShaderMaterial.new()
+		material.shader = preload("res://Art/Ui/shaders/accessibility_brightness.gdshader")
+		_brightness_rect.material = material
+		correction.add_child(_brightness_rect)
+	value = clampf(value, 70.0, 150.0)
+	_brightness_rect.material.set_shader_parameter("brightness", value / 100.0)
+	_brightness_rect.visible = not is_equal_approx(value, 100.0)

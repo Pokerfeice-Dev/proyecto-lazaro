@@ -47,7 +47,7 @@ func play(p_boss: Node2D, start_delay: float) -> void:
 		return
 	_roar()
 	await _wait(HOLD_AFTER_ROAR)
-	_move_camera(_base_position, _base_zoom, TRAVEL_TIME * 0.9, Tween.EASE_IN_OUT)
+	preload("res://Scripts/Enemies/boss_arena_camera.gd").begin(_camera, boss, TRAVEL_TIME * 0.9)
 	await _wait(TRAVEL_TIME * 0.9)
 	_finish()
 

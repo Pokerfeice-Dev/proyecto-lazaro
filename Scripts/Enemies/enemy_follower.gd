@@ -52,6 +52,9 @@ func die() -> void:
 	_restore_sprite_modulate()
 	super.die()
 
+func _spawn_pixel_death() -> void:
+	PIXEL_DEATH.spawn_from(_get_sprite(), 0.25)
+
 func _play_attack_sound() -> void:
 	if attack_sound:
 		attack_sound.play()
