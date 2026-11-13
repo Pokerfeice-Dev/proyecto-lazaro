@@ -30,6 +30,8 @@ var _protocol_refresh_left := 0.0
 
 var _hud_base: Dictionary = {}
 var _health_numbers: Label
+var _inventory_count: Label
+var _inventory_count_value := -1
 
 func _ready():
 	add_to_group("hud")
@@ -41,9 +43,62 @@ func _ready():
 	update_flesh(GameData.flesh)
 	_initialize_health()
 	UIStyle.enlarge_texts(self)
+	_setup_inventory_hint()
 	_setup_accessibility()
+	add_child(preload("res://Scripts/UI/inventory_reminder.gd").new())
 	# diferido: así ya están en el árbol los jefes de la sala (ver más abajo)
 	_play_intro_room_animation.call_deferred()
+
+func _setup_inventory_hint() -> void:
+	var row := HBoxContainer.new()
+	row.name = "InventoryHint"
+	row.alignment = BoxContainer.ALIGNMENT_END
+	row.add_theme_constant_override("separation", 7)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	get_node("Control/CurrencyContainer").add_child(row)
+	var backpack := BackpackIcon.new()
+	backpack.custom_minimum_size = Vector2(24, 28)
+	backpack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(backpack)
+	_inventory_count = UIStyle.label("", 12, UIStyle.COLOR_MUTED)
+	_inventory_count.name = "InventoryCount"
+	_inventory_count.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_inventory_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(_inventory_count)
+	_update_inventory_count()
+	var refresh := func(_gamepad: bool):
+		var previous := row.get_node_or_null("InventoryKey")
+		if previous:
+			row.remove_child(previous)
+			previous.queue_free()
+		var key_icon := TutorialInputIcon.create("TAB", 0.55)
+		key_icon.name = "InventoryKey"
+		key_icon.animate = false
+		row.add_child(key_icon)
+	refresh.call(InputMode.is_gamepad())
+	InputMode.instance().mode_changed.connect(refresh)
+
+func _update_inventory_count() -> void:
+	if not is_instance_valid(_inventory_count): return
+	var count := GameData.inventory_items.size()
+	if count == _inventory_count_value: return
+	_inventory_count_value = count
+	_inventory_count.text = "%d/%d" % [count, Inventory.CAPACITY]
+	_inventory_count.add_theme_color_override("font_color", UIStyle.COLOR_WARNING if count >= Inventory.CAPACITY else UIStyle.COLOR_MUTED)
+
+class BackpackIcon extends Control:
+	func _draw() -> void:
+		var outline := UIStyle.COLOR_TEAL
+		var body := StyleBoxFlat.new()
+		body.bg_color = Color("#23353B")
+		body.border_color = outline
+		body.set_border_width_all(2)
+		body.set_corner_radius_all(3)
+		draw_style_box(body, Rect2(8, 2, 8, 7))
+		draw_style_box(body, Rect2(3, 7, 18, 20))
+		draw_style_box(body, Rect2(6, 16, 12, 8))
+		draw_line(Vector2(7, 12), Vector2(17, 12), outline, 1.0)
+		draw_line(Vector2(15, 11), Vector2(15, 14), UIStyle.COLOR_TEXT, 1.0)
 
 func _setup_weapon_hud() -> void:
 	var circle_bg = _create_filled_circle_texture(Color(0.05, 0.05, 0.1, 0.7), Color(0.2, 0.8, 1.0, 0.8))
@@ -239,6 +294,7 @@ func _create_dash_label() -> Label:
 	return lbl
 
 func _process(delta: float) -> void:
+	_update_inventory_count()
 	var p = GameData.get_player()
 	if not p:
 		if is_instance_valid(_protocol_panel):

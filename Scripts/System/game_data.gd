@@ -206,6 +206,26 @@ func reset_boss_state() -> void:
 
 # ── Items & Inventory ────────────────────────────────────────────────────────
 var inventory_items: Array[ItemData] = []
+signal inventory_guidance_changed
+var run_items_received := 0
+var run_inventory_opened := false
+
+func reset_inventory_guidance() -> void:
+	run_items_received = 0
+	run_inventory_opened = false
+	inventory_guidance_changed.emit()
+
+func note_inventory_item_received() -> void:
+	if run_inventory_opened: return
+	run_items_received = mini(run_items_received + 1, 3)
+	inventory_guidance_changed.emit()
+
+func note_inventory_opened() -> void:
+	run_inventory_opened = true
+	inventory_guidance_changed.emit()
+
+func needs_inventory_reminder() -> bool:
+	return run_items_received >= 3 and not run_inventory_opened
 var equipment_slots: Dictionary = {}
 
 var codex_unlocks: Dictionary = {
@@ -313,6 +333,7 @@ func _add_room_if_valid(file_name: String, path: String, prefix: String, result:
 	result.append(path + clean_name)
 
 func start_new_run() -> String:
+	reset_inventory_guidance()
 	RunLog.begin()
 	reset_protocol_run()
 	# El build de Buenos Aires Game Dev conserva el flujo normal de inicio;
@@ -653,6 +674,7 @@ const SANDBOX_KEYS: Array[String] = [
 	"scrap", "flesh", "core_upgrades", "unlocked_synergies", "activated_synergies", "synergy_item_hints",
 	"unlocked_protocols", "active_protocol", "chosen_primary_weapon", "chosen_melee_weapon",
 	"codex_unlocks", "inventory_items", "equipment_slots",
+	"run_items_received", "run_inventory_opened",
 	"weapon_damage", "weapon_fire_rate", "weapon_bullet_count", "weapon_bullet_speed",
 	"weapon_spread", "weapon_damage_multiplier", "weapon_crit_chance", "weapon_crit_damage",
 	"weapon_piercing", "melee_damage", "melee_speed", "melee_range", "melee_knockback",
@@ -968,6 +990,7 @@ func delete_save(slot: int) -> void:
 		DirAccess.remove_absolute(path)
 
 func clear_items() -> void:
+	reset_inventory_guidance()
 	inventory_items.clear()
 	for k in equipment_slots.keys():
 		equipment_slots[k] = null
@@ -1012,6 +1035,7 @@ func _apply_event_unlocks() -> void:
 	unlock_all_synergies()
 
 func reset_data() -> void:
+	reset_inventory_guidance()
 	reset_protocol_run()
 	scrap = 0
 	flesh = 0

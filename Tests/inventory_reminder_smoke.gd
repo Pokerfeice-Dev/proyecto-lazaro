@@ -1,0 +1,37 @@
+extends Node
+
+func _ready() -> void:
+	GameData.begin_sandbox()
+	GameData.reset_inventory_guidance()
+	var inventory := Inventory.new()
+	add_child(inventory)
+	inventory.items = []
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var reminder = preload("res://Scripts/UI/inventory_reminder.gd").new()
+	layer.add_child(reminder)
+	assert(not reminder.visible)
+	for count in 2:
+		assert(inventory.add_item(ItemData.new()))
+	assert(not reminder.visible)
+	assert(inventory.add_item(ItemData.new(), true))
+	assert(GameData.run_items_received == 2, "Devolver equipo no cuenta como recoger")
+	assert(inventory.add_item(ItemData.new()))
+	assert(reminder.visible)
+	assert(reminder._message.get_parsed_text().contains("Toca I para abrir el inventario y equipar objetos"))
+	# El estado sobrevive al HUD/sala, pero se cancela al abrir inventario.
+	reminder.free()
+	reminder = preload("res://Scripts/UI/inventory_reminder.gd").new()
+	layer.add_child(reminder)
+	assert(reminder.visible)
+	GameData.note_inventory_opened()
+	assert(not reminder.visible)
+	GameData.reset_inventory_guidance()
+	GameData.note_inventory_opened()
+	for count in 3: inventory.add_item(ItemData.new())
+	assert(not reminder.visible)
+	GameData.reset_inventory_guidance()
+	assert(not reminder.visible and GameData.run_items_received == 0)
+	GameData.end_sandbox()
+	print("INVENTORY_REMINDER_OK: tercer objeto, cambio de sala, apertura y reinicio")
+	get_tree().quit()

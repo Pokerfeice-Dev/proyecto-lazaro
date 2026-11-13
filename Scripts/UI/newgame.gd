@@ -409,22 +409,29 @@ func _show_tutorial_prompt(slot: int) -> void:
 	var title = _make_label("¿Quieres hacer el tutorial?", 26, COLOR_ACENTO, FONT_TITULO)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
-	var cancel_hint = "B para cancelar" if InputMode.is_gamepad() else "clic fuera o Esc para cancelar"
-	var sub = _make_label("Slot %02d · partida nueva   (%s)" % [slot, cancel_hint], 16, Color(0.68, 0.78, 0.78))
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(sub)
 
-	var hbox = HBoxContainer.new()
-	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox.add_theme_constant_override("separation", 22)
-	vbox.add_child(hbox)
-	# Ambas opciones usan blanco: el color de acción anterior se perdía sobre fondos variados.
+	var choices = VBoxContainer.new()
+	choices.alignment = BoxContainer.ALIGNMENT_CENTER
+	choices.add_theme_constant_override("separation", 14)
+	vbox.add_child(choices)
 	var yes_btn = _make_popup_button("SÍ")
-	var no_btn = _make_popup_button("NO, SOY UN EXPERTO")
+	var no_btn = _make_popup_button("No, ya sé jugar")
+	yes_btn.custom_minimum_size = Vector2(360, 96)
+	no_btn.custom_minimum_size = Vector2(260, 48)
+	yes_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	no_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	yes_btn.add_theme_font_size_override("font_size", 42)
+	no_btn.add_theme_font_size_override("font_size", 18)
+	var yes_color := Color("#79E49B")
+	for btn in [yes_btn, no_btn]:
+		var color: Color = yes_color if btn == yes_btn else UIStyle.COLOR_DANGER
+		for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+			btn.add_theme_color_override(key, color)
+		_apply_button_styles(btn, color, 3 if btn == yes_btn else 1)
 	yes_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/tutorial_room.tscn"))
 	no_btn.pressed.connect(_start_new_game.bind(slot, popup, "res://Scenes/Rooms/lab_room.tscn"))
-	hbox.add_child(yes_btn)
-	hbox.add_child(no_btn)
+	choices.add_child(yes_btn)
+	choices.add_child(no_btn)
 	PadFocus.push_modal(popup, yes_btn) # el foco pasa al cartel, no queda en las tarjetas de atrás
 
 	_animate_popup_in(bg, panel)

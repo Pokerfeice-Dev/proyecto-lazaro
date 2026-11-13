@@ -33,6 +33,8 @@ func add_item(item: ItemData, force: bool = false) -> bool:
 		notify_full()
 		return false
 	items.append(item)
+	if item and not force:
+		GameData.note_inventory_item_received()
 	if GameData.has_method("unlock_codex_entry") and item:
 		GameData.unlock_codex_entry("items", item.id)
 	inventory_updated.emit()

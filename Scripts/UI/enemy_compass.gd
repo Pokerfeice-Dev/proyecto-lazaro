@@ -8,6 +8,9 @@ const EDGE_MARGIN: float = 42.0
 const OFFSCREEN_MARGIN: float = 40.0
 const MAX_TRACKED_ENEMIES: int = 2
 const INACTIVITY_SECONDS: float = 10.0
+const EXIT_ATTENTION_DELAY := 4.0
+var _cleared_seconds := 0.0
+var _tracked_room_id := 0
 
 var arrows: Array[CompassArrow] = []
 var inactivity_arrow: CompassArrow
@@ -40,10 +43,20 @@ func _process(delta: float) -> void:
 	_update_compass(delta)
 
 func _update_compass(delta: float) -> void:
+	if get_tree().paused: return
+	var room = get_tree().get_first_node_in_group("combat_room")
+	var room_id: int = room.get_instance_id() if room else 0
+	if room_id != _tracked_room_id:
+		_tracked_room_id = room_id
+		_cleared_seconds = 0.0
+		exit_arrow.set_attention(false, 0.0, true)
 	if _is_room_cleared():
+		_cleared_seconds += delta
 		_hide_enemy_arrows(delta)
 		_update_exit_arrow(delta)
 		return
+	_cleared_seconds = 0.0
+	exit_arrow.set_attention(false, delta, true)
 	var alive_enemies = _get_alive_enemies(delta)
 	if not _is_room_eligible():
 		_hide_regular_enemy_arrows(delta)
@@ -141,9 +154,12 @@ func _track_target(arrow: CompassArrow, target: Node2D, viewport_size: Vector2, 
 		arrow.fade_out(delta)
 		return
 	var screen_pos = target.get_global_transform_with_canvas().origin
+	var margin := 60.0 if arrow.attention > 0.0 else EDGE_MARGIN
 	if not _is_pos_offscreen(screen_pos, viewport_size):
 		if show_when_visible:
-			arrow.update_pointer(screen_pos + Vector2(0.0, -42.0), PI * 0.5, delta)
+			var pointer_pos: Vector2 = screen_pos + Vector2(0.0, -margin)
+			pointer_pos = pointer_pos.clamp(Vector2.ONE * margin, viewport_size - Vector2.ONE * margin)
+			arrow.update_pointer(pointer_pos, PI * 0.5, delta)
 		else:
 			arrow.fade_out(delta)
 		return
@@ -151,7 +167,7 @@ func _track_target(arrow: CompassArrow, target: Node2D, viewport_size: Vector2, 
 	var dir = (screen_pos - center).normalized()
 	if dir == Vector2.ZERO:
 		dir = Vector2.UP
-	var target_pos = _calculate_edge_position(dir, viewport_size)
+	var target_pos = _calculate_edge_position(dir, viewport_size, margin)
 	arrow.update_pointer(target_pos, dir.angle(), delta)
 
 func _update_inactivity_arrow(alive_enemies: Array[Node2D], delta: float) -> void:
@@ -181,6 +197,7 @@ func _get_closest_enemy(player: Node2D, enemies: Array[Node2D]) -> Node2D:
 
 func _update_exit_arrow(delta: float) -> void:
 	var exit_door = _get_open_exit_door()
+	exit_arrow.set_attention(exit_door != null and _cleared_seconds >= EXIT_ATTENTION_DELAY, delta)
 	if not exit_door:
 		exit_arrow.fade_out(delta)
 		return
@@ -198,9 +215,9 @@ func _is_pos_offscreen(pos: Vector2, viewport_size: Vector2) -> bool:
 	var rect = Rect2(Vector2.ZERO, viewport_size).grow(-OFFSCREEN_MARGIN)
 	return not rect.has_point(pos)
 
-func _calculate_edge_position(dir: Vector2, viewport_size: Vector2) -> Vector2:
+func _calculate_edge_position(dir: Vector2, viewport_size: Vector2, margin: float = EDGE_MARGIN) -> Vector2:
 	var center = viewport_size / 2.0
-	var half_extents = center - Vector2(EDGE_MARGIN, EDGE_MARGIN)
+	var half_extents = center - Vector2(margin, margin)
 	var t_x = half_extents.x / absf(dir.x) if dir.x != 0.0 else INF
 	var t_y = half_extents.y / absf(dir.y) if dir.y != 0.0 else INF
 	return center + dir * minf(t_x, t_y)
@@ -219,6 +236,9 @@ func _hide_regular_enemy_arrows(delta: float) -> void:
 
 # Flecha indicadora individual con dibujo vectorial y animación suave
 class CompassArrow extends Node2D:
+	var attention := 0.0
+	var _attention_time := 0.0
+	var _attention_pulse := 0.0
 	var current_alpha: float = 0.0
 	var target_alpha: float = 0.0
 	var body_color: Color = Color(1.0, 0.42, 0.16, 0.95)
@@ -229,6 +249,10 @@ class CompassArrow extends Node2D:
 		modulate.a = 0.0
 
 	func _draw() -> void:
+		if attention > 0.0:
+			var glow := UIStyle.COLOR_TEAL
+			glow.a = attention * (0.16 + 0.12 * _attention_pulse)
+			draw_circle(Vector2.ZERO, 22.0, glow)
 		_draw_shadow()
 		_draw_body()
 		_draw_pip()
@@ -249,7 +273,19 @@ class CompassArrow extends Node2D:
 			Vector2(-4, 0),
 			Vector2(-9, 9)
 		])
-		draw_colored_polygon(body_points, body_color)
+		var accent := UIStyle.COLOR_GOLD.lerp(UIStyle.COLOR_TEAL, _attention_pulse * 0.75)
+		draw_colored_polygon(body_points, body_color.lerp(accent, attention))
+
+	func set_attention(enabled: bool, delta: float, reset: bool = false) -> void:
+		if reset:
+			attention = 0.0
+			_attention_time = 0.0
+		else:
+			attention = move_toward(attention, 1.0 if enabled else 0.0, delta * 3.0)
+			if enabled: _attention_time += delta
+		_attention_pulse = 0.5 - 0.5 * cos(_attention_time * TAU * 1.2)
+		scale = Vector2.ONE * (1.0 + attention * (0.65 + 0.35 * _attention_pulse))
+		queue_redraw()
 
 	func _draw_pip() -> void:
 		draw_circle(Vector2(-15, 0), 2.5, pip_color)
@@ -272,7 +308,7 @@ class CompassArrow extends Node2D:
 			return
 		visible = true
 		var pulse = 0.82 + 0.18 * sin(Time.get_ticks_msec() * 0.006)
-		modulate.a = current_alpha * pulse
+		modulate.a = current_alpha * lerpf(pulse, 1.0, attention)
 
 	func _apply_motion(target_pos: Vector2, target_rot: float, delta: float) -> void:
 		if position == Vector2.ZERO:

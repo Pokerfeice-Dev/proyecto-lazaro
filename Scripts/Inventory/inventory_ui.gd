@@ -273,6 +273,7 @@ func toggle_visibility() -> void:
 		_animate_open()
 
 func _animate_open() -> void:
+	GameData.note_inventory_opened()
 	_is_animating = true
 	RunLog.note("inventario")
 	visible = true
