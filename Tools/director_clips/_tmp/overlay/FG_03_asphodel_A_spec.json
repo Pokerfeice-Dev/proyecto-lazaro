@@ -1,0 +1,79 @@
+{
+ "id": "FG_03_asphodel",
+ "version": "A",
+ "cara": "MARCOS",
+ "fps": 30,
+ "total": 31.1,
+ "fin_juego": 27.9,
+ "huecos": [],
+ "elementos": [
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Fields of Asphodel",
+   "t0": 0.2,
+   "t1": 3.6
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "ZONA 1 · ASPHODEL",
+   "t0": 0.3,
+   "t1": 3.5
+  },
+  {
+   "tipo": "sub",
+   "texto": "Una ciudad\nen ruinas",
+   "t0": 4.1,
+   "t1": 6.5
+  },
+  {
+   "tipo": "sub",
+   "texto": "tomada por\n*androides*",
+   "t0": 6.7,
+   "t1": 9.2
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "YGOR · COMERCIO CLANDESTINO",
+   "color": "dorado",
+   "tam": 40,
+   "t0": 9.5,
+   "t1": 13.0
+  },
+  {
+   "tipo": "sub",
+   "texto": "Piezas a cambio\nde *carne*",
+   "t0": 9.6,
+   "t1": 13.0
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "SALA DEL TESORO",
+   "color": "dorado",
+   "t0": 13.3,
+   "t1": 16.2
+  },
+  {
+   "tipo": "sub",
+   "texto": "Un cargamento\n*sin vigilancia*",
+   "t0": 13.4,
+   "t1": 16.2
+  },
+  {
+   "tipo": "sub",
+   "texto": "Y al final\nde la zona...",
+   "t0": 16.5,
+   "t1": 19.1
+  },
+  {
+   "tipo": "sub",
+   "texto": "El *primer jefe*:\n*Centinela Génesis*",
+   "t0": 22.7,
+   "t1": 27.5
+  },
+  {
+   "tipo": "cierre",
+   "t0": 27.9,
+   "t1": 31.1
+  }
+ ]
+}

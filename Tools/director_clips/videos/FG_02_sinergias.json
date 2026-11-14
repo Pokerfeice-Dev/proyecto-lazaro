@@ -1,0 +1,195 @@
+{
+ "cara": "URI",
+ "musica": {
+  "archivo": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN - GUN - 07 - FURY.mp4",
+  "desde": 15.0,
+  "vol": -10
+ },
+ "planos": [
+  {
+   "toma": "oil",
+   "marca": "disparo",
+   "desde": -1.4,
+   "dur": 3.4,
+   "entrada": "golpe",
+   "zoom": 1.1
+  },
+  {
+   "toma": "sinergia_aviso",
+   "desde": 0.8,
+   "dur": 4.2
+  },
+  {
+   "toma": "avalanche",
+   "desde": 0.1,
+   "dur": 3.0
+  },
+  {
+   "toma": "colmena",
+   "desde": 0.2,
+   "dur": 3.0
+  },
+  {
+   "toma": "minigun",
+   "desde": 0.6,
+   "dur": 3.0
+  },
+  {
+   "toma": "holy",
+   "desde": 0.3,
+   "dur": 3.0
+  },
+  {
+   "toma": "bride",
+   "desde": 0.3,
+   "dur": 3.0
+  },
+  {
+   "toma": "oil",
+   "marca": "disparo",
+   "desde": -0.1,
+   "dur": 1.8,
+   "lento": 2,
+   "zoom": 1.15
+  }
+ ],
+ "textos": [
+  {
+   "plano": 0,
+   "t": 0.2,
+   "dur": 1.5,
+   "tipo": "titulo",
+   "texto": "TU CUERPO ES LA RECETA",
+   "ceja": "FRANKEN-GUN · SINERGIAS"
+  },
+  {
+   "plano": 0,
+   "t": 1.9,
+   "dur": 1.5,
+   "tipo": "numero",
+   "texto": "x4"
+  },
+  {
+   "plano": 1,
+   "t": 0.2,
+   "dur": 4.0,
+   "tipo": "sub",
+   "texto": "3 piezas + 1 arma\n= *un arma nueva*"
+  },
+  {
+   "plano": 2,
+   "t": 0.1,
+   "dur": 2.8,
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Fury"
+  },
+  {
+   "plano": 2,
+   "t": 0.1,
+   "dur": 2.8,
+   "tipo": "etiqueta",
+   "texto": "AVALANCHE"
+  },
+  {
+   "plano": 2,
+   "t": 0.2,
+   "dur": 2.7,
+   "tipo": "sub",
+   "texto": "Congela todo\nlo que *toca*"
+  },
+  {
+   "plano": 3,
+   "t": 0.1,
+   "dur": 2.8,
+   "tipo": "etiqueta",
+   "texto": "MENTE COLMENA"
+  },
+  {
+   "plano": 3,
+   "t": 0.2,
+   "dur": 2.7,
+   "tipo": "sub",
+   "texto": "Abejas que\n*cazan solas*"
+  },
+  {
+   "plano": 4,
+   "t": 0.1,
+   "dur": 2.8,
+   "tipo": "etiqueta",
+   "texto": "HEAVY METAL"
+  },
+  {
+   "plano": 4,
+   "t": 0.2,
+   "dur": 2.7,
+   "tipo": "sub",
+   "texto": "Más rápida cuanto\n*más disparas*"
+  },
+  {
+   "plano": 5,
+   "t": 0.1,
+   "dur": 2.8,
+   "tipo": "etiqueta",
+   "texto": "HOLY FIRE"
+  },
+  {
+   "plano": 5,
+   "t": 0.2,
+   "dur": 2.7,
+   "tipo": "sub",
+   "texto": "Una lengua de fuego\nque *salta*"
+  },
+  {
+   "plano": 6,
+   "t": 0.1,
+   "dur": 2.8,
+   "tipo": "etiqueta",
+   "texto": "THE BRIDE"
+  },
+  {
+   "plano": 6,
+   "t": 0.2,
+   "dur": 2.7,
+   "tipo": "sub",
+   "texto": "Descargas\n*en cadena*"
+  },
+  {
+   "plano": 7,
+   "t": 0.2,
+   "dur": 3.4,
+   "tipo": "numero",
+   "texto": "15",
+   "y": 250
+  },
+  {
+   "plano": 7,
+   "t": 0.4,
+   "dur": 3.2,
+   "tipo": "sub",
+   "texto": "*sinergias*\npara descubrir",
+   "dorado": true
+  }
+ ],
+ "huecos": [
+  {
+   "despues": 0,
+   "dur": 4.5,
+   "quien": "URI",
+   "guion": "Hachazo, hachazo, disparo... y explotan todos en cadena."
+  },
+  {
+   "despues": 1,
+   "dur": 5.0,
+   "quien": "URI",
+   "guion": "Soy Uri, programo Franken-Gun. Cada sinergia es una receta: tres piezas y un arma."
+  },
+  {
+   "despues": 6,
+   "dur": 4.5,
+   "quien": "URI",
+   "guion": "Hay 15. Algunas, todavía no las encontró nadie del público."
+  }
+ ],
+ "id": "FG_02_sinergias",
+ "salida": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN-GUN REDES"
+}

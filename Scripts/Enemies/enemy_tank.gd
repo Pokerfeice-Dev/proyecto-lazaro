@@ -26,6 +26,22 @@ var wander_direction: Vector2 = Vector2.ZERO
 @export var slam_radius: float = 48.0
 @export var slam_offset: Vector2 = Vector2(0, 4)
 
+# Carga: acelera hacia el jugador; si este lo atraviesa con el dash, queda aturdido.
+@export_category("Carga")
+@export var charge_enabled: bool = true
+@export var charge_trigger_distance: float = 240.0
+@export var charge_speed_multiplier: float = 2.4
+@export var charge_duration: float = 1.0
+@export var charge_cooldown: float = 5.0
+@export var charge_stun: float = 1.0
+
+const CHARGE_TINT := Color(1.6, 0.8, 0.5, 1.0)
+const STUN_TINT := Color(1.4, 1.4, 0.6, 1.0)
+
+var _charge_time_left: float = 0.0
+var _charge_cooldown_left: float = 2.0
+var _stun_time_left: float = 0.0
+
 var attack_cooldown_timer: Timer
 var has_damaged_this_attack: bool = false
 var _is_charging_attack: bool = false
@@ -230,6 +246,7 @@ func perform_attack() -> void:
 	has_damaged_this_attack = false
 	velocity = Vector2.ZERO
 	knockback_velocity = Vector2.ZERO
+	_end_charge()
 	
 	_kill_attack_light()
 	_is_charging_attack = true
@@ -367,7 +384,7 @@ func process_movement(delta: float) -> void:
 	if not has_detected_player:
 		_process_wander(delta)
 	else:
-		_process_chase()
+		_process_chase(delta)
 		
 	update_sprite_direction()
 	update_animation_state()
@@ -378,16 +395,56 @@ func _process_wander(delta: float) -> void:
 		_pick_new_wander_direction()
 	velocity = wander_direction * (move_speed * 0.5)
 
-func _process_chase() -> void:
+func _process_chase(delta: float) -> void:
+	_charge_cooldown_left = maxf(0.0, _charge_cooldown_left - delta)
+	if _stun_time_left > 0.0:
+		_stun_time_left -= delta
+		velocity = Vector2.ZERO
+		if _stun_time_left <= 0.0: _set_tint(_default_modulate)
+		return
 	var dist = global_position.distance_to(target.global_position)
 	if dist <= attack_range:
 		if _can_attack:
 			perform_attack()
 			return
+		_end_charge()
 		velocity = Vector2.ZERO
 		return
 	var dir = get_nav_direction_to_target()
+	if _charge_time_left > 0.0:
+		_charge_time_left -= delta
+		velocity = dir * move_speed * charge_speed_multiplier
+		if _player_dashed_through(dist): _stun_after_charge()
+		elif _charge_time_left <= 0.0: _end_charge()
+		return
+	if _can_start_charge(dist):
+		_charge_time_left = charge_duration
+		_charge_cooldown_left = charge_cooldown
+		_set_tint(CHARGE_TINT)
 	velocity = dir * move_speed
+
+func _can_start_charge(dist: float) -> bool:
+	if not charge_enabled or _charge_cooldown_left > 0.0: return false
+	return dist > attack_range * 1.5 and dist <= charge_trigger_distance and has_line_of_sight_to_player()
+
+# El dash del jugador lo cruza mientras carga.
+func _player_dashed_through(dist: float) -> bool:
+	if not target or target.get("is_dashing") != true: return false
+	return dist <= attack_range * 0.9
+
+func _stun_after_charge() -> void:
+	_charge_time_left = 0.0
+	_stun_time_left = charge_stun
+	velocity = Vector2.ZERO
+	_set_tint(STUN_TINT)
+
+func _end_charge() -> void:
+	if _charge_time_left <= 0.0 and _stun_time_left <= 0.0: return
+	_charge_time_left = 0.0
+	_set_tint(_default_modulate)
+
+func _set_tint(color: Color) -> void:
+	if anim_sprite: anim_sprite.modulate = color
 
 func update_sprite_direction() -> void:
 	if current_state == State.ATTACK: return

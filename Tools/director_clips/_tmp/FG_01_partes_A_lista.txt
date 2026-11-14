@@ -1,0 +1,8 @@
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_p00.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_p01.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_p02.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_p03.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_p04.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_p05.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_p06.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_01_partes_cierre.mkv'

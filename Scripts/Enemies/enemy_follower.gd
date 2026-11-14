@@ -29,6 +29,32 @@ var has_damaged_this_attack: bool = false
 @export var attack_range: float = 45.0
 @export var anticipation_time: float = 0.22
 
+# Embestida: se frena avisando, se lanza en línea recta y, si falla, queda aturdido.
+enum LungePhase {
+	NONE,
+	WINDUP,
+	DASH,
+	STUN
+}
+
+@export_category("Embestida")
+@export var lunge_enabled: bool = true
+@export var lunge_min_distance: float = 80.0
+@export var lunge_max_distance: float = 170.0
+@export var lunge_windup: float = 0.4
+@export var lunge_speed: float = 400.0
+@export var lunge_duration: float = 0.3
+@export var lunge_stun: float = 0.8
+@export var lunge_cooldown: float = 2.5
+
+const LUNGE_STUN_TINT := Color(1.4, 1.4, 0.6, 1.0)
+
+var _lunge_phase: LungePhase = LungePhase.NONE
+var _lunge_time_left: float = 0.0
+var _lunge_cooldown_left: float = 1.0
+var _lunge_dir: Vector2 = Vector2.RIGHT
+var _lunge_hit: bool = false
+
 var is_anticipating: bool = false
 var _anticipation_tween: Tween = null
 
@@ -49,6 +75,7 @@ func _exit_tree() -> void:
 
 func die() -> void:
 	is_anticipating = false
+	_lunge_phase = LungePhase.NONE
 	_restore_sprite_modulate()
 	super.die()
 
@@ -83,6 +110,7 @@ func _create_attack_timer() -> void:
 func _on_attack_timer_timeout() -> void:
 	if current_state == State.DEAD: return
 	if current_state == State.ATTACK or is_anticipating: return
+	if _lunge_phase != LungePhase.NONE: return
 	_check_overlapping_for_attack()
 
 func _check_overlapping_for_attack() -> void:
@@ -194,9 +222,80 @@ func process_movement(delta: float) -> void:
 		update_animation_state()
 		return
 
+	if _process_lunge(delta): return
 	move_towards_target()
 	update_sprite_direction()
 	update_animation_state()
+
+# Devuelve true mientras la embestida controla el movimiento.
+func _process_lunge(delta: float) -> bool:
+	_lunge_cooldown_left = maxf(0.0, _lunge_cooldown_left - delta)
+	match _lunge_phase:
+		LungePhase.WINDUP:
+			velocity = Vector2.ZERO
+			_lunge_time_left -= delta
+			if _lunge_time_left <= 0.0: _start_lunge_dash()
+			return true
+		LungePhase.DASH:
+			_lunge_time_left -= delta
+			velocity = _lunge_dir * lunge_speed
+			_apply_lunge_damage()
+			update_animation_state()
+			if _lunge_time_left <= 0.0 or is_on_wall(): _start_lunge_stun()
+			return true
+		LungePhase.STUN:
+			velocity = Vector2.ZERO
+			_lunge_time_left -= delta
+			if _lunge_time_left <= 0.0: _end_lunge()
+			return true
+	if _can_start_lunge():
+		_start_lunge_windup()
+		return true
+	return false
+
+func _can_start_lunge() -> bool:
+	if not lunge_enabled or _lunge_cooldown_left > 0.0: return false
+	if current_state == State.ATTACK or is_anticipating: return false
+	if not is_instance_valid(target): return false
+	var dist = global_position.distance_to(target.global_position)
+	if dist < lunge_min_distance or dist > lunge_max_distance: return false
+	return _can_walk_segment(global_position, target.global_position)
+
+func _start_lunge_windup() -> void:
+	_lunge_phase = LungePhase.WINDUP
+	_lunge_time_left = lunge_windup
+	_lunge_dir = global_position.direction_to(target.global_position)
+	velocity = Vector2.ZERO
+	_update_facing_from_direction(_lunge_dir)
+	play_animation("idle")
+	_play_anticipation_visuals()
+
+func _start_lunge_dash() -> void:
+	_lunge_phase = LungePhase.DASH
+	_lunge_time_left = lunge_duration
+	_lunge_hit = false
+	_play_attack_sound()
+
+func _apply_lunge_damage() -> void:
+	if _lunge_hit or is_dying: return
+	for body in attack_area.get_overlapping_bodies():
+		if body.is_in_group("player") and body.has_method("take_damage"):
+			body.take_damage(damage, "Mutante Seguidor", global_position)
+			_lunge_hit = true
+			return
+
+func _start_lunge_stun() -> void:
+	_lunge_phase = LungePhase.STUN
+	_lunge_time_left = lunge_stun
+	velocity = Vector2.ZERO
+	_restore_sprite_modulate()
+	play_animation("idle")
+	if anim_sprite: anim_sprite.modulate = LUNGE_STUN_TINT
+
+func _end_lunge() -> void:
+	_lunge_phase = LungePhase.NONE
+	_lunge_cooldown_left = lunge_cooldown
+	_restore_sprite_modulate()
 
 func _process_wander(delta: float) -> void:
 	current_state = State.WANDER

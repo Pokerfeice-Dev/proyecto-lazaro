@@ -1,0 +1,39 @@
+Godot Engine v4.8.dev3.official.51105ccbe - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 581.80 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1050
+
+Movie Maker mode enabled, recording movie in 1600×900 @ 30 FPS...
+WARNING: Current available space on disk is low (4.49 GiB). MovieWriter will fail during movie recording if the disk runs out of available space.
+   at: begin (servers/movie_writer/movie_writer.cpp:117)
+Codex unlocked: levels -> distrito_1
+Codex unlocked: weapons -> pistol
+Codex unlocked: weapons -> daga
+Codex unlocked: weapons -> uzi
+Codex unlocked: weapons -> shotgun
+Codex unlocked: weapons -> hacha
+Codex unlocked: weapons -> maze
+Codex unlocked: weapons -> uzi
+Codex unlocked: weapons -> shotgun
+Codex unlocked: weapons -> hacha
+Codex unlocked: weapons -> maze
+[SYNERGY DEBUG] No active synergies. Reverting to base weapon.
+Codex unlocked: items -> torso_espinado
+Codex unlocked: items -> brazo_armado
+[SYNERGY DEBUG] Active Synergies: ["bestia_de_caza"] | Weapon Override: 
+Codex unlocked: items -> piernas_caninas
+Codex unlocked: enemies -> follower
+--------------------------------------------------------------------------------
+Done recording movie at path: C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_salida/partes_canino.avi
+108 frames at 30 FPS (movie length: 00:00:03:18), recorded in 00:00:14 (21% of real-time speed).
+CPU render time: 0.11 seconds (average: 1.06 ms/frame)
+GPU render time: 1.58 seconds (average: 14.60 ms/frame)
+Encoding time: 1.84 seconds (average: 17.03 ms/frame)
+--------------------------------------------------------------------------------
+ERROR: 1 RID allocations of type 'N5GLES37TextureE' were leaked at exit.
+ERROR: Texture with GL ID of 21: leaked 5460 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Parameter "RenderingServer::get_singleton()" is null.
+   at: ~CompressedTexture2D (scene/resources/compressed_texture.cpp:464)
+WARNING: 7 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2527)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

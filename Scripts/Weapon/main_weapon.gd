@@ -302,6 +302,79 @@ func _play_current_weapon_effects() -> void:
 	if sound and sound.has_method("play"):
 		sound.bus = "SFX"
 		sound.play()
+	_apply_recoil()
+	_play_muzzle_flash()
+
+# ── Fogonazo y casquillo ──
+# Cada disparo deja un fogonazo animado en la boca del cañón (hijo del arma: acompaña el retroceso) y
+# expulsa un casquillo. La escopeta usa el fogonazo grande y suelta el casquillo al bombear.
+func _play_muzzle_flash() -> void:
+	var weapon := current_weapon
+	if weapon == null or not is_inside_tree(): return
+	var path := weapon.scene_file_path.to_lower()
+	if "flame" in path: return # el lanzallamas ya tiene su propio efecto
+	var mark := weapon.get_node_or_null("Bullet_mark_right") as Node2D
+	if mark == null: return
+	var base := get_base_weapon_id()
+	var fx := "muzzle_flash"
+	var s := 1.0
+	if base == "uzi": s = 0.8
+	elif base == "shotgun": fx = "muzzle_flash_big"
+	WeaponFx.play(weapon, fx, mark.position, 0.0, Vector2(s, s), false, true, 2, 1.0)
+	var aim := weapon.global_transform.x.normalized()
+	if base == "shotgun":
+		get_tree().create_timer(0.36).timeout.connect(_eject_casing.bind(weapon, aim, 1.3))
+	else:
+		_eject_casing(weapon, aim, 1.0)
+
+func _eject_casing(weapon: Node2D, aim: Vector2, strength: float) -> void:
+	if not is_instance_valid(weapon) or not weapon.is_inside_tree(): return
+	WeaponFx.casing(get_tree(), weapon.global_position + aim * 6.0, aim, strength)
+
+# ── Retroceso del arma ──────────────────────────────────────────────────────
+# Cada disparo empuja el arma hacia atrás y levanta el cañón; después vuelve a su lugar. Cada arma
+# tiene su carácter: la pistola da un golpe seco (y alterna entre subir y torcerse), la uzi vibra
+# rápido y la escopeta patea fuerte y termina con el bombeo del cartucho.
+
+var _recoil_flip: bool = false
+
+func _apply_recoil() -> void:
+	var weapon := current_weapon
+	if weapon == null: return
+	var old: Variant = weapon.get_meta("recoil_tween", null)
+	if old is Tween and (old as Tween).is_valid(): (old as Tween).kill()
+	weapon.position = Vector2.ZERO
+	weapon.rotation = 0.0
+	_recoil_flip = not _recoil_flip
+	var kick := 6.0
+	var tilt := 0.3
+	var time := 0.16
+	var jitter := 0.0
+	var pump := false
+	match get_base_weapon_id():
+		"uzi":
+			kick = 3.0
+			tilt = 0.07
+			time = 0.07
+			jitter = 1.6
+		"shotgun":
+			kick = 11.0
+			tilt = 0.4
+			time = 0.3
+			pump = true
+	# Una de cada dos veces el cañón se tuerce hacia abajo en vez de subir.
+	var lift := -tilt if (_recoil_flip or pump) else tilt * 0.45
+	var back := Vector2(-kick, randf_range(-jitter, jitter))
+	var tween := weapon.create_tween()
+	weapon.set_meta("recoil_tween", tween)
+	tween.tween_property(weapon, "position", back, time * 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(weapon, "rotation", lift, time * 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(weapon, "position", Vector2.ZERO, time * 0.78).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(weapon, "rotation", 0.0, time * 0.78).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if pump:
+		tween.tween_interval(0.05)
+		tween.tween_property(weapon, "position", Vector2(-5.0, 0.0), 0.07).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(weapon, "position", Vector2.ZERO, 0.09).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 func get_bullet_spawn_pos(fallback: Vector2) -> Vector2:
 	if not current_weapon:

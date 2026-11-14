@@ -1,0 +1,121 @@
+{
+ "cara": "URI",
+ "musica": {
+  "archivo": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN - GUN - 10 - THE CRYPT AWAKENS.mp4",
+  "desde": 5.0,
+  "vol": -9
+ },
+ "planos": [
+  {
+   "toma": "primogenito",
+   "desde": 2.5,
+   "dur": 3.0,
+   "entrada": "golpe"
+  },
+  {
+   "toma": "cripta",
+   "desde": 0.3,
+   "dur": 5.5
+  },
+  {
+   "toma": "apicultora",
+   "desde": 0.5,
+   "dur": 5.5
+  },
+  {
+   "toma": "primogenito",
+   "desde": 5.5,
+   "dur": 5.0,
+   "entrada": "temblor"
+  },
+  {
+   "toma": "primogenito",
+   "marca": "pelea",
+   "desde": 0.5,
+   "dur": 4.0
+  }
+ ],
+ "textos": [
+  {
+   "plano": 0,
+   "t": 0.2,
+   "dur": 2.7,
+   "tipo": "titulo",
+   "texto": "LA CRIPTA",
+   "ceja": "FRANKEN-GUN · LO QUE VIENE · ZONA 2"
+  },
+  {
+   "plano": 0,
+   "t": 0.0,
+   "dur": 22.0,
+   "tipo": "desarrollo",
+   "texto": "EN DESARROLLO"
+  },
+  {
+   "plano": 1,
+   "t": 0.2,
+   "dur": 4.5,
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · The Crypt Awakens"
+  },
+  {
+   "plano": 1,
+   "t": 0.4,
+   "dur": 5.0,
+   "tipo": "sub",
+   "texto": "Arte *provisorio*:\nel dibujo final llega después"
+  },
+  {
+   "plano": 2,
+   "t": 0.2,
+   "dur": 5.2,
+   "tipo": "etiqueta",
+   "texto": "LA APICULTORA"
+  },
+  {
+   "plano": 2,
+   "t": 0.3,
+   "dur": 5.0,
+   "tipo": "sub",
+   "texto": "Invoca abejas\n*carnívoras*"
+  },
+  {
+   "plano": 3,
+   "t": 0.3,
+   "dur": 4.6,
+   "tipo": "jefe",
+   "texto": "El Primogénito",
+   "dy": 60
+  },
+  {
+   "plano": 4,
+   "t": 0.2,
+   "dur": 3.7,
+   "tipo": "sub",
+   "texto": "Síguenos para verla\n*terminada*",
+   "dorado": true
+  }
+ ],
+ "huecos": [
+  {
+   "despues": 0,
+   "dur": 4.5,
+   "quien": "URI",
+   "guion": "Esto es lo que estamos haciendo ahora: la Zona 2."
+  },
+  {
+   "despues": 2,
+   "dur": 5.0,
+   "quien": "URI",
+   "guion": "La apicultora muerta invoca abejas; yo programé que nunca sean más de dos."
+  },
+  {
+   "despues": 3,
+   "dur": 4.5,
+   "quien": "URI",
+   "guion": "Y el jefe, El Primogénito: salta, escupe bilis y llama a sus crías."
+  }
+ ],
+ "id": "FG_05_cripta",
+ "salida": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN-GUN REDES"
+}

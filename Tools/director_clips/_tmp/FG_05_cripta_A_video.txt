@@ -1,0 +1,1 @@
+color=c=0x0b0f12:s=1080x1920:r=30:d=26.200[fondo];[0:v]format=yuva420p[juego];[fondo][juego]overlay=0:420:shortest=0[a];[a][1:v]overlay=0:0:format=auto[b];[b][2:v]overlay=0:0:format=auto[c];[3:v]setpts=PTS-STARTPTS+23.000/TB[p0];[c][p0]overlay=0:0:enable='between(t,23.000,26.200)':eof_action=pass[d0];[d0]format=yuv420p[v]

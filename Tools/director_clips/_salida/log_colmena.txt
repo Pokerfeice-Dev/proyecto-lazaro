@@ -1,0 +1,24 @@
+Godot Engine v4.8.dev3.official.51105ccbe - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 581.80 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1050
+
+Codex unlocked: levels -> distrito_1
+Codex unlocked: weapons -> pistol
+Codex unlocked: weapons -> daga
+Codex unlocked: weapons -> uzi
+Codex unlocked: weapons -> shotgun
+Codex unlocked: weapons -> hacha
+Codex unlocked: weapons -> maze
+Codex unlocked: weapons -> uzi
+Codex unlocked: weapons -> shotgun
+Codex unlocked: weapons -> hacha
+Codex unlocked: weapons -> maze
+[SYNERGY DEBUG] No active synergies. Reverting to base weapon.
+Codex unlocked: items -> colmena
+Codex unlocked: items -> cerebro
+[SYNERGY DEBUG] Active Synergies: ["pistola_mente_colmena"] | Weapon Override: res://Scenes/Weapon/HivemindPistol.tscn
+Codex unlocked: items -> cabeza_humana
+ERROR: 1 RID allocations of type 'N5GLES37TextureE' were leaked at exit.
+ERROR: Texture with GL ID of 21: leaked 5460 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Parameter "RenderingServer::get_singleton()" is null.
+   at: ~CompressedTexture2D (scene/resources/compressed_texture.cpp:464)

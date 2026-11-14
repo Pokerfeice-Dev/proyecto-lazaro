@@ -120,7 +120,7 @@ glitch_enabled = false
 position = Vector2(-142, -272)
 
 [node name="lampara_pared2" parent="Iluminacion" unique_id=20235849 instance=ExtResource("9_4wq7d")]
-position = Vector2(334, -275)
+position = Vector2(252, 117)
 
 [node name="lampara_pared3" parent="Iluminacion" unique_id=1989119132 instance=ExtResource("9_4wq7d")]
 position = Vector2(-338, -144)

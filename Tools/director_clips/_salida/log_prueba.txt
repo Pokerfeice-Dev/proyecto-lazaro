@@ -1,0 +1,37 @@
+Godot Engine v4.8.dev3.official.51105ccbe - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 581.80 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1050
+
+Codex unlocked: levels -> distrito_1
+Codex unlocked: weapons -> pistol
+Codex unlocked: weapons -> daga
+Codex unlocked: weapons -> uzi
+Codex unlocked: weapons -> shotgun
+Codex unlocked: weapons -> hacha
+Codex unlocked: weapons -> maze
+Codex unlocked: weapons -> uzi
+Codex unlocked: weapons -> shotgun
+Codex unlocked: weapons -> hacha
+Codex unlocked: weapons -> maze
+[SYNERGY DEBUG] No active synergies. Reverting to base weapon.
+COMBATE f30 jugador=(-267.321, 32.12293) blanco=(-293.5081, 102.0648) mira=(-293.5081, 102.0648)
+COMBATE f45 jugador=(-244.7159, 32.44454) blanco=(-258.8033, -0.213629) mira=(-258.8033, -0.213629)
+COMBATE f60 jugador=(-229.3662, 49.87416) blanco=(-256.7805, 58.59918) mira=(-256.7805, 58.59918)
+COMBATE f75 jugador=(-224.192, 58.40882) blanco=(-272.0531, 70.76035) mira=(-272.0531, 70.76035)
+COMBATE f90 jugador=(-215.8129, 70.28701) blanco=(-248.351, 70.00449) mira=(-248.351, 70.00449)
+Codex unlocked: enemies -> follower
+COMBATE f105 jugador=(-224.6592, 126.2625) blanco=(-208.4326, 88.68459) mira=(-208.4326, 88.68459)
+COMBATE f120 jugador=(-259.0594, 147.9883) blanco=(-227.4867, 107.4748) mira=(-227.4867, 107.4748)
+COMBATE f135 jugador=(-259.227, 173.2957) blanco=(-210.8227, 118.5754) mira=(-210.8227, 118.5754)
+COMBATE f150 jugador=(-307.0585, 183.9529) blanco=(-247.3813, 149.895) mira=(-247.3813, 149.895)
+COMBATE f165 jugador=(-329.2431, 159.401) blanco=(-247.4357, 152.8945) mira=(-247.4357, 152.8945)
+COMBATE f180 jugador=(-326.8683, 129.7064) blanco=(-234.6636, 163.2799) mira=(-234.6636, 163.2799)
+COMBATE f195 jugador=(-312.7588, 103.3629) blanco=(-234.6636, 163.2799) mira=(-234.6636, 163.2799)
+COMBATE f210 jugador=(-314.9749, 105.8413) blanco=(-234.6636, 163.2799) mira=(-234.6636, 163.2799)
+COMBATE f225 jugador=(-328.7543, 132.3606) blanco=(-234.6636, 163.2799) mira=(-234.6636, 163.2799)
+COMBATE f240 jugador=(-315.9204, 141.4195) blanco=(-252.1113, -79.36198) mira=(-252.1113, -79.36198)
+COMBATE f255 jugador=(-277.3558, 118.3149) blanco=(-252.1113, -79.36198) mira=(-252.1113, -79.36198)
+ERROR: 1 RID allocations of type 'N5GLES37TextureE' were leaked at exit.
+ERROR: Texture with GL ID of 21: leaked 5460 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:82)
+ERROR: Parameter "RenderingServer::get_singleton()" is null.
+   at: ~CompressedTexture2D (scene/resources/compressed_texture.cpp:464)

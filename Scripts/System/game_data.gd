@@ -504,19 +504,31 @@ func get_room_config() -> Dictionary:
 		if depth >= 3: weights["crypt_laser_eye"] = 0.8
 		if depth >= 4: weights["crypt_dead_beekeeper"] = 0.7
 		if depth >= 5: weights["crypt_bell_keeper"] = 0.8
+		# Rediseño: kamikaze, tirador que huye y escudero también pisan la cripta, más tarde que en el laboratorio.
+		if depth >= 3: weights["kamikaze"] = 1.0
+		if depth >= 4: weights["kiter"] = 0.8
+		if depth >= 6: weights["shielder"] = 0.7
 	else:
 		weights = {"follower": 5.0}
 		if depth >= 2 or level == 3: weights["shooter"] = 3.0
 		if depth >= 4 or level == 3: weights["tank"] = 1.5
 		if depth >= 5 or level == 3: weights["turret"] = 1.0
 		if depth >= 6 or level == 3: weights["summoner"] = 0.75
+		# Rediseño: kamikaze, tirador que huye y escudero (zona 1 y 3); brazo, torso hueco y eco son de la zona 3.
+		if depth >= 3 or level == 3: weights["kamikaze"] = 1.5
+		if depth >= 4 or level == 3: weights["kiter"] = 1.2
+		if depth >= 5 or level == 3: weights["shielder"] = 1.0
+		if level == 3:
+			weights["wandering_arm"] = 2.0
+			weights["hollow_torso"] = 0.8
+			weights["lazarus_echo"] = 1.0
 	return {
 		"total_enemies": curve.totals[depth - 1],
 		"max_concurrent": curve.caps[depth - 1],
 		"spawn_interval": curve.intervals[depth - 1],
 		"allowed_enemies": weights.keys(),
 		"enemy_weights": weights,
-		"special_caps": {"summoner": 1, "tank": 2 if level == 3 else 1, "turret": 2 if level == 3 else 1, "crypt_dead_beekeeper": 1, "crypt_laser_eye": 1, "crypt_bell_keeper": 1, "crypt_centipede": 2},
+		"special_caps": {"summoner": 1, "tank": 2 if level == 3 else 1, "turret": 2 if level == 3 else 1, "crypt_dead_beekeeper": 1, "crypt_laser_eye": 1, "crypt_bell_keeper": 1, "crypt_centipede": 2, "kamikaze": 3, "kiter": 2, "shielder": 2, "wandering_arm": 3, "hollow_torso": 1, "lazarus_echo": 1},
 		"elite_chance": 0.0 if level == 1 and depth <= 2 else minf(0.08, 0.02 + 0.01 * level + 0.003 * depth)
 	}
 

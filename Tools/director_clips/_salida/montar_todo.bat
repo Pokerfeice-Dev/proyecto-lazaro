@@ -1,0 +1,11 @@
+@echo off
+cd /d "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro"
+set EXE="C:\Program Files\Godot\Godot.exe\Godot.exe"
+%EXE% --path . --write-movie "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\oil.avi" --fixed-fps 30 res://Tools/director_clips/director_clip.tscn -- toma oil > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\rec_oil.txt" 2>&1
+%EXE% --path . --write-movie "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\partes_drop.avi" --fixed-fps 30 res://Tools/director_clips/director_clip.tscn -- toma partes_drop > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\rec_partes_drop.txt" 2>&1
+"C:\Users\Marcos\AppData\Local\Programs\Python\Python312\python.exe" Tools\director_clips\montaje.py Tools\director_clips\videos\FG_01_partes.json A B > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\montaje_FG_01_partes.txt" 2>&1
+"C:\Users\Marcos\AppData\Local\Programs\Python\Python312\python.exe" Tools\director_clips\montaje.py Tools\director_clips\videos\FG_02_sinergias.json A B > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\montaje_FG_02_sinergias.txt" 2>&1
+"C:\Users\Marcos\AppData\Local\Programs\Python\Python312\python.exe" Tools\director_clips\montaje.py Tools\director_clips\videos\FG_03_asphodel.json A B > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\montaje_FG_03_asphodel.txt" 2>&1
+"C:\Users\Marcos\AppData\Local\Programs\Python\Python312\python.exe" Tools\director_clips\montaje.py Tools\director_clips\videos\FG_04_omnia.json A B > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\montaje_FG_04_omnia.txt" 2>&1
+"C:\Users\Marcos\AppData\Local\Programs\Python\Python312\python.exe" Tools\director_clips\montaje.py Tools\director_clips\videos\FG_05_cripta.json A B > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\montaje_FG_05_cripta.txt" 2>&1
+echo listo > "C:\Users\Marcos\Documents\GitHub\proyecto-lazaro\Tools\director_clips\_salida\montaje_listo.txt"

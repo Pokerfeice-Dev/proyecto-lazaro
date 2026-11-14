@@ -1,0 +1,54 @@
+{
+ "id": "FG_05_cripta",
+ "dur_planos": [
+  3.0,
+  5.5,
+  5.5,
+  5.0,
+  4.0
+ ],
+ "cierre": 3.2,
+ "A": {
+  "inicios": [
+   0,
+   3.0,
+   8.5,
+   14.0,
+   19.0
+  ],
+  "fin_juego": 23.0,
+  "total": 26.2,
+  "huecos": []
+ },
+ "B": {
+  "inicios": [
+   0.0,
+   7.5,
+   13.0,
+   23.5,
+   33.0
+  ],
+  "fin_juego": 37.0,
+  "total": 40.2,
+  "huecos": [
+   {
+    "t0": 3.0,
+    "t1": 7.5,
+    "quien": "URI",
+    "guion": "Esto es lo que estamos haciendo ahora: la Zona 2."
+   },
+   {
+    "t0": 18.5,
+    "t1": 23.5,
+    "quien": "URI",
+    "guion": "La apicultora muerta invoca abejas; yo program\u00e9 que nunca sean m\u00e1s de dos."
+   },
+   {
+    "t0": 28.5,
+    "t1": 33.0,
+    "quien": "URI",
+    "guion": "Y el jefe, El Primog\u00e9nito: salta, escupe bilis y llama a sus cr\u00edas."
+   }
+  ]
+ }
+}

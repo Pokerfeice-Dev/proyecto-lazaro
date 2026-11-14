@@ -21,7 +21,18 @@ var _elite_chance := 0.05
 var _scheduled_enemies: Array[WeakRef] = []
 const ENEMY_IDS := {
 	"EnemyFollower": "follower", "EnemyShooter": "shooter", "EnemyTank": "tank", "EnemyTurret": "turret", "EnemySummoner": "summoner",
+	"EnemyKamikaze": "kamikaze", "EnemyKiter": "kiter", "EnemyShielder": "shielder", "EnemyWanderingArm": "wandering_arm", "EnemyHollowTorso": "hollow_torso", "EnemyLazarusEcho": "lazarus_echo",
 	"CryptGargoyle": "crypt_gargoyle", "CryptGhoul": "crypt_ghoul", "CryptDeathSquad": "crypt_death_squad", "CryptCentipede": "crypt_centipede", "CryptLaserEye": "crypt_laser_eye", "CryptDeadBeekeeperSummoner": "crypt_dead_beekeeper", "CryptBellKeeper": "crypt_bell_keeper"
+}
+
+# Enemigos del rediseño: los que aparecen en la zona 1 y 2 (kamikaze, kiter, escudero) y los de la zona 3.
+const REDESIGN_ENEMY_SCENES := {
+	"kamikaze": "res://Scenes/Enemies/EnemyKamikaze.tscn",
+	"kiter": "res://Scenes/Enemies/EnemyKiter.tscn",
+	"shielder": "res://Scenes/Enemies/EnemyShielder.tscn",
+	"wandering_arm": "res://Scenes/Enemies/EnemyWanderingArm.tscn",
+	"hollow_torso": "res://Scenes/Enemies/EnemyHollowTorso.tscn",
+	"lazarus_echo": "res://Scenes/Enemies/EnemyLazarusEcho.tscn",
 }
 
 const CRYPT_ENEMY_SCENES := {
@@ -211,6 +222,7 @@ func _build_enemy_pool(allowed: Array) -> void:
 		for id in allowed:
 			if CRYPT_ENEMY_SCENES.has(id):
 				new_pool.append(load(CRYPT_ENEMY_SCENES[id]))
+		_add_redesign_if_allowed(allowed, new_pool)
 		enemy_pool = new_pool
 		return
 	_add_follower_if_allowed(allowed, new_pool)
@@ -218,6 +230,7 @@ func _build_enemy_pool(allowed: Array) -> void:
 	_add_tank_if_allowed(allowed, new_pool)
 	_add_turret_if_allowed(allowed, new_pool)
 	_add_summoner_if_allowed(allowed, new_pool)
+	_add_redesign_if_allowed(allowed, new_pool)
 
 	if new_pool.is_empty(): return
 	enemy_pool = new_pool
@@ -237,6 +250,11 @@ func _add_tank_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 func _add_turret_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 	if not allowed.has("turret") and not allowed.has("delivery"): return
 	pool.append(preload("res://Scenes/Enemies/EnemyTurret.tscn"))
+
+func _add_redesign_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
+	for id in REDESIGN_ENEMY_SCENES:
+		if allowed.has(id):
+			pool.append(load(REDESIGN_ENEMY_SCENES[id]))
 
 func _add_summoner_if_allowed(allowed: Array, pool: Array[PackedScene]) -> void:
 	if not allowed.has("summoner"): return

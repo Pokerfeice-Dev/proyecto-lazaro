@@ -1,0 +1,6 @@
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_04_omnia_p00.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_04_omnia_p01.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_04_omnia_p02.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_04_omnia_p03.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_04_omnia_p04.mkv'
+file 'C:/Users/Marcos/Documents/GitHub/proyecto-lazaro/Tools/director_clips/_tmp/FG_04_omnia_cierre.mkv'

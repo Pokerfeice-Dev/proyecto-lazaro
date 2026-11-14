@@ -24,6 +24,12 @@ const SOURCES := {
 	"enemies/crypt_dead_beekeeper": ["res://Art/Enemies/Crypt/DeadBeekeeper/dead_beekeeper_frames.tres", "idle"],
 	"enemies/crypt_flesh_bee": ["res://Art/Enemies/Crypt/FleshBee/flesh_bee_frames.tres", "idle"],
 	"enemies/crypt_bell_keeper": ["res://Art/Enemies/Crypt/BellKeeper/bell_keeper_frames.tres", "idle_down"],
+	"enemies/kamikaze": ["res://Art/Enemies/Redesign/kamikaze_frames.tres", "idle"],
+	"enemies/kiter": ["res://Art/Enemies/Redesign/kiter_frames.tres", "idle"],
+	"enemies/shielder": ["res://Art/Enemies/Redesign/shielder_frames.tres", "idle"],
+	"enemies/wandering_arm": ["res://Art/Enemies/Redesign/wandering_arm_frames.tres", "idle"],
+	"enemies/hollow_torso": ["res://Art/Enemies/Redesign/hollow_torso_frames.tres", "idle"],
+	"enemies/lazarus_echo": ["res://Art/Enemies/Redesign/lazarus_echo_frames.tres", "idle"],
 	"enemies/boss2": ["res://Scenes/Enemies/Boss2.tscn", "idle_front"],
 	"enemies/boss3": ["res://Art/Enemies/Prometeo/prometeo_frames.tres", "idle_down"],
 	"npcs/ygor": ["res://Scenes/Ygor/ygor.tscn", "idle"],
@@ -127,8 +133,10 @@ static func _load_frames(key: String) -> Dictionary:
 	var out := {}
 	if SOURCES.has(key):
 		var sf = _find_sprite_frames(SOURCES[key][0], SOURCES[key][1])
+		if not sf:
+			sf = _find_sprite_frames(SOURCES[key][0], SOURCES[key][1], true)
 		if sf:
-			var anim_name = SOURCES[key][1]
+			var anim_name = _resolve_anim(sf, SOURCES[key][1])
 			var frames = []
 			for i in sf.get_frame_count(anim_name):
 				frames.append(sf.get_frame_texture(anim_name, i))
@@ -136,10 +144,19 @@ static func _load_frames(key: String) -> Dictionary:
 	_frames_cache[key] = out
 	return out
 
-static func _find_sprite_frames(path: String, anim_name: String) -> SpriteFrames:
+# Si la animación pedida no existe, usa la primera que empiece con "idle" (los sprites nuevos
+# traen idle_down / idle_side, no un "idle" a secas).
+static func _resolve_anim(sf: SpriteFrames, wanted: String) -> String:
+	if sf.has_animation(wanted): return wanted
+	for n in sf.get_animation_names():
+		if String(n).begins_with("idle"): return String(n)
+	return ""
+
+static func _find_sprite_frames(path: String, anim_name: String, lenient: bool = false) -> SpriteFrames:
 	if not ResourceLoader.exists(path): return null
 	var res = load(path)
 	if res is SpriteFrames:
+		if lenient: return res if _resolve_anim(res, anim_name) != "" else null
 		return res if res.has_animation(anim_name) else null
 	if not res is PackedScene: return null
 	var state = (res as PackedScene).get_state()
@@ -147,6 +164,7 @@ static func _find_sprite_frames(path: String, anim_name: String) -> SpriteFrames
 		for j in state.get_node_property_count(i):
 			if state.get_node_property_name(i, j) != "sprite_frames": continue
 			var sf = state.get_node_property_value(i, j)
-			if sf is SpriteFrames and sf.has_animation(anim_name):
+			if not sf is SpriteFrames: continue
+			if sf.has_animation(anim_name) or (lenient and _resolve_anim(sf, anim_name) != ""):
 				return sf
 	return null

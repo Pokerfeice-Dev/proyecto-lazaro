@@ -1,0 +1,61 @@
+{
+ "id": "FG_04_omnia",
+ "version": "A",
+ "cara": "URI",
+ "fps": 30,
+ "total": 20.233,
+ "fin_juego": 17.033,
+ "huecos": [],
+ "elementos": [
+  {
+   "tipo": "titulo",
+   "texto": "MORIR TAMBIÉN SUMA",
+   "ceja": "FRANKEN-GUN · O.M.N.I.A.",
+   "t0": 0.2,
+   "t1": 2.8
+  },
+  {
+   "tipo": "sub",
+   "texto": "La chatarra\nque juntas\n*se queda contigo*",
+   "dorado": true,
+   "t0": 3.2,
+   "t1": 5.033
+  },
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Laboratorio Asphodel",
+   "t0": 5.233,
+   "t1": 9.033
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "O.M.N.I.A.",
+   "t0": 5.233,
+   "t1": 8.833
+  },
+  {
+   "tipo": "sub",
+   "texto": "De vuelta en\nel *laboratorio*",
+   "t0": 5.333,
+   "t1": 8.833
+  },
+  {
+   "tipo": "sub",
+   "texto": "Mejoras\npermanentes y\n*armas nuevas*",
+   "t0": 9.233,
+   "t1": 13.933
+  },
+  {
+   "tipo": "sub",
+   "texto": "Investiga las\nsinergias\n*pista por pista*",
+   "dorado": true,
+   "t0": 14.233,
+   "t1": 17.033
+  },
+  {
+   "tipo": "cierre",
+   "t0": 17.033,
+   "t1": 20.233
+  }
+ ]
+}

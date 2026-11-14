@@ -1,0 +1,1 @@
+[0:v]fps=30,split[a0][b0];[b0]scale=1080:1080,boxblur=22:3,eq=brightness=-0.3[bg];[a0]scale=1080:-2:flags=lanczos[fg];[bg][fg]overlay=0:(H-h)/2,setsar=1[g0];[g0]scale=1080:1080:out_range=tv,setsar=1,format=yuv420p,setparams=range=tv:colorspace=bt470bg[v]

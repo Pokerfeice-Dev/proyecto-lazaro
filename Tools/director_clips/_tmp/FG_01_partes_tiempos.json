@@ -1,0 +1,60 @@
+{
+ "id": "FG_01_partes",
+ "dur_planos": [
+  2.767,
+  3.0,
+  3.0,
+  4.366,
+  3.733,
+  2.767,
+  3.166
+ ],
+ "cierre": 3.2,
+ "A": {
+  "inicios": [
+   0,
+   2.767,
+   5.7669999999999995,
+   8.767,
+   13.133,
+   16.866,
+   19.633
+  ],
+  "fin_juego": 22.799,
+  "total": 25.999,
+  "huecos": []
+ },
+ "B": {
+  "inicios": [
+   0.0,
+   7.2669999999999995,
+   10.267,
+   13.267,
+   17.633,
+   25.866,
+   33.632999999999996
+  ],
+  "fin_juego": 36.79899999999999,
+  "total": 39.998999999999995,
+  "huecos": [
+   {
+    "t0": 2.767,
+    "t1": 7.2669999999999995,
+    "quien": "MARCOS",
+    "guion": "En Franken-Gun, L\u00e1zaro no sube de nivel: se arma con partes."
+   },
+   {
+    "t0": 21.366,
+    "t1": 25.866,
+    "quien": "MARCOS",
+    "guion": "Si juntas tres del mismo tipo, se activa una sinergia."
+   },
+   {
+    "t0": 28.633,
+    "t1": 33.632999999999996,
+    "quien": "MARCOS",
+    "guion": "Cambiar una pieza la destruye, pero te cura. Elegir cu\u00e1ndo es parte del juego."
+   }
+  ]
+ }
+}

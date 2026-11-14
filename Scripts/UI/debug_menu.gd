@@ -27,6 +27,9 @@ const ITEMS: Array[Dictionary] = [
 	{"name": "Brazo Musculoso", "path": "res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres"},
 	{"name": "Brazo Ligero", "path": "res://Art/Items/Player/Arms/Item3_BrazoLigero.tres"},
 	{"name": "Brazo Canino", "path": "res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"},
+	{"name": "Torso Gordo", "path": "res://Art/Items/Player/Body/Item5_TorsoGordo.tres"},
+	{"name": "Brazo Gordo", "path": "res://Art/Items/Player/Arms/Item5_BrazoGordo.tres"},
+	{"name": "Piernas Gordas", "path": "res://Art/Items/Player/Legs/Item5_PiernasGordas.tres"},
 	{"name": "Torso Musculoso", "path": "res://Art/Items/Player/Body/Item2_TorsoBlindado.tres"},
 	{"name": "Torso Canino", "path": "res://Art/Items/Player/Body/Item3_TorsoEspinado.tres"},
 	{"name": "Torso Ligero", "path": "res://Art/Items/Player/Body/Item4_TorsoLigero.tres"},
@@ -85,6 +88,18 @@ const CRYPT_ENEMIES: Array[Dictionary] = [
 	{"name": "Apicultora Muerta (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptDeadBeekeeperSummoner.tscn"},
 	{"name": "Abeja Carnívora (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptFleshBee.tscn"},
 	{"name": "Campanero de Réquiem (Cripta)", "path": "res://Scenes/Enemies/Crypt/CryptBellKeeper.tscn"}
+]
+
+## Enemigos del rediseño de noviembre: variantes de torreta y enemigos nuevos (sprites provisionales).
+const REDESIGN_ENEMIES: Array[Dictionary] = [
+	{"name": "Torreta Láser (Delivery)", "path": "res://Scenes/Enemies/EnemyTurretLaser.tscn"},
+	{"name": "Torreta Teledirigida (Delivery)", "path": "res://Scenes/Enemies/EnemyTurretHoming.tscn"},
+	{"name": "Kamikaze", "path": "res://Scenes/Enemies/EnemyKamikaze.tscn"},
+	{"name": "Tirador que huye", "path": "res://Scenes/Enemies/EnemyKiter.tscn"},
+	{"name": "Escudero", "path": "res://Scenes/Enemies/EnemyShielder.tscn"},
+	{"name": "Brazo errante (Área 3)", "path": "res://Scenes/Enemies/EnemyWanderingArm.tscn"},
+	{"name": "Torso hueco (Área 3)", "path": "res://Scenes/Enemies/EnemyHollowTorso.tscn"},
+	{"name": "Eco de Lázaro (Área 3)", "path": "res://Scenes/Enemies/EnemyLazarusEcho.tscn"}
 ]
 
 func _ready() -> void:
@@ -843,6 +858,17 @@ func _create_spawner_tab(tabs: TabContainer) -> void:
 	tab.add_child(crypt_label)
 	for enemy in CRYPT_ENEMIES:
 		var btn = _create_button(enemy.name, func(): _spawn_scene_near_player(enemy.path, enemy.name), Color(0.72, 0.55, 1.0))
+		tab.add_child(btn)
+
+	var redesign_sep = HSeparator.new()
+	tab.add_child(redesign_sep)
+	var redesign_label = Label.new()
+	redesign_label.text = "Enemigos nuevos · Rediseño:"
+	redesign_label.add_theme_font_size_override("font_size", 14)
+	redesign_label.add_theme_color_override("font_color", Color(0.4, 0.9, 0.6))
+	tab.add_child(redesign_label)
+	for enemy in REDESIGN_ENEMIES:
+		var btn = _create_button(enemy.name, func(): _spawn_scene_near_player(enemy.path, enemy.name), Color(0.5, 0.95, 0.65))
 		tab.add_child(btn)
 		
 	var sep = HSeparator.new()

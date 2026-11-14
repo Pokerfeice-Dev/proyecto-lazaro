@@ -1,0 +1,57 @@
+{
+ "id": "FG_03_asphodel",
+ "dur_planos": [
+  3.8,
+  5.5,
+  3.8,
+  3.2,
+  6.0,
+  5.6
+ ],
+ "cierre": 3.2,
+ "A": {
+  "inicios": [
+   0,
+   3.8,
+   9.3,
+   13.1,
+   16.3,
+   22.3
+  ],
+  "fin_juego": 27.9,
+  "total": 31.099999999999998,
+  "huecos": []
+ },
+ "B": {
+  "inicios": [
+   0.0,
+   8.3,
+   13.8,
+   17.6,
+   24.8,
+   35.3
+  ],
+  "fin_juego": 40.9,
+  "total": 44.1,
+  "huecos": [
+   {
+    "t0": 3.8,
+    "t1": 8.3,
+    "quien": "MARCOS",
+    "guion": "Esta es la Zona 1: una ciudad a medio abandonar, tomada por androides."
+   },
+   {
+    "t0": 20.8,
+    "t1": 24.8,
+    "quien": "MARCOS",
+    "guion": "Ygor te vende piezas a cambio de carne. Y a veces encuentras un cargamento sin vigilancia."
+   },
+   {
+    "t0": 30.8,
+    "t1": 35.3,
+    "quien": "MARCOS",
+    "guion": "Al final te espera el Centinela G\u00e9nesis. Su tema lo hice yo, en Cakewalk."
+   }
+  ]
+ }
+}

@@ -31,7 +31,10 @@ class_name EnemyBase
 	preload("res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres"),
 	preload("res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres"),
 	preload("res://Art/Items/Player/Arms/Item3_BrazoLigero.tres"),
-	preload("res://Art/Items/Player/Arms/Item4_BrazoArmado.tres")
+	preload("res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"),
+	preload("res://Art/Items/Player/Body/Item5_TorsoGordo.tres"),
+	preload("res://Art/Items/Player/Arms/Item5_BrazoGordo.tres"),
+	preload("res://Art/Items/Player/Legs/Item5_PiernasGordas.tres")
 ]
 @export var item_drop_chance: float = 0.05
 
@@ -775,6 +778,11 @@ func _fade_shadow() -> void:
 func _unlock_bestiary_entry() -> void:
 	if not is_inside_tree() or not GameData.has_method("unlock_codex_entry"): return
 	var script_path = get_script().resource_path.to_lower()
+	# Enemigos del rediseño: se comprueban primero porque sus scripts no heredan el nombre del viejo.
+	for id in ["kamikaze", "kiter", "shielder", "wandering_arm", "hollow_torso", "lazarus_echo"]:
+		if ("enemy_" + id) in script_path:
+			GameData.unlock_codex_entry("enemies", id)
+			return
 	if "follower" in script_path:
 		GameData.unlock_codex_entry("enemies", "follower")
 	elif "shooter" in script_path or "carpenter" in script_path:
@@ -843,11 +851,28 @@ func _should_drop_flesh() -> bool:
 	var bonus = GameData.core_upgrades.get("recuperacion_restos", 0) * 0.01
 	return randf() <= (flesh_drop_chance + bonus)
 
+# Dirección para interceptar al jugador: apunta adelantado a donde va a estar cuando llegue la bala,
+# así que caminar de costado no alcanza para esquivar y toca usar el dash.
+func lead_direction(from: Vector2, bullet_speed: float, strength: float = 0.85) -> Vector2:
+	if not is_instance_valid(target): return Vector2.RIGHT
+	var to_target: Vector2 = target.global_position - from
+	if bullet_speed <= 1.0 or to_target.length() < 1.0: return to_target.normalized()
+	var vel = target.get("velocity")
+	if not (vel is Vector2): vel = Vector2.ZERO
+	var flight_time: float = to_target.length() / bullet_speed
+	var lead: Vector2 = (vel * flight_time * strength).limit_length(110.0)
+	return (to_target + lead).normalized()
+
+# Piezas que puede soltar este enemigo: las suyas (EnemyDrops) o, si no tiene lista, el pozo general.
+func _drop_pool() -> Array[ItemData]:
+	var own := EnemyDrops.pool_for(scene_file_path)
+	return own if not own.is_empty() else all_items
+
 func _should_drop_item() -> bool:
 	if not item_drop_scene:
 		print("ERROR: item_drop_scene no está asignado.")
 		return false
-	if all_items.is_empty():
+	if _drop_pool().is_empty():
 		return false
 	var chance = 0.1 if is_elite else item_drop_chance
 	var bonus = GameData.core_upgrades.get("recuperacion_restos", 0) * 0.01
@@ -860,7 +885,7 @@ func _spawn_flesh_at(pos: Vector2) -> void:
 
 func _spawn_item_at(pos: Vector2) -> void:
 	var item_drop = item_drop_scene.instantiate()
-	item_drop.item_data = all_items.pick_random()
+	item_drop.item_data = _drop_pool().pick_random()
 	item_drop.global_position = pos
 	get_tree().current_scene.call_deferred("add_child", item_drop)
 	print("Item instanciado exitosamente.")
@@ -901,6 +926,7 @@ func _disable_attack_nodes(root: Node) -> void:
 	for child in root.get_children(): _disable_attack_nodes(child)
 
 func _hide_sprite() -> void:
+	if get_meta("death_anim_playing", false): return # la muerte animada lo oculta al terminar (EnemyDeathAnim)
 	var sprite = _get_sprite()
 	if not sprite: return
 	sprite.hide()

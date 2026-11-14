@@ -1,0 +1,101 @@
+{
+ "id": "FG_04_omnia",
+ "version": "B",
+ "cara": "URI",
+ "fps": 30,
+ "total": 33.733,
+ "fin_juego": 30.533,
+ "huecos": [
+  {
+   "t0": 3.0,
+   "t1": 7.0,
+   "quien": "URI",
+   "guion": "En un roguelike vas a morir. Mucho."
+  },
+  {
+   "t0": 13.033,
+   "t1": 18.033,
+   "quien": "URI",
+   "guion": "Ahí está O.M.N.I.A., la terminal de mejoras. Yo programé la parte de investigaciones."
+  },
+  {
+   "t0": 23.033,
+   "t1": 27.533,
+   "quien": "URI",
+   "guion": "Compras pistas de cada receta, una por una. Cada muerte te acerca a la siguiente sinergia."
+  }
+ ],
+ "elementos": [
+  {
+   "tipo": "titulo",
+   "texto": "MORIR TAMBIÉN SUMA",
+   "ceja": "FRANKEN-GUN · O.M.N.I.A.",
+   "t0": 0.2,
+   "t1": 2.8
+  },
+  {
+   "tipo": "sub",
+   "texto": "La chatarra\nque juntas\n*se queda contigo*",
+   "dorado": true,
+   "t0": 7.2,
+   "t1": 9.033
+  },
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Laboratorio Asphodel",
+   "t0": 9.233,
+   "t1": 13.033
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "O.M.N.I.A.",
+   "t0": 9.233,
+   "t1": 12.833
+  },
+  {
+   "tipo": "sub",
+   "texto": "De vuelta en\nel *laboratorio*",
+   "t0": 9.333,
+   "t1": 12.833
+  },
+  {
+   "tipo": "sub",
+   "texto": "Mejoras\npermanentes y\n*armas nuevas*",
+   "t0": 18.233,
+   "t1": 22.933
+  },
+  {
+   "tipo": "sub",
+   "texto": "Investiga las\nsinergias\n*pista por pista*",
+   "dorado": true,
+   "t0": 27.733,
+   "t1": 30.533
+  },
+  {
+   "tipo": "hueco",
+   "t0": 3.0,
+   "t1": 7.0,
+   "quien": "URI",
+   "guion": "En un roguelike vas a morir. Mucho."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 13.033,
+   "t1": 18.033,
+   "quien": "URI",
+   "guion": "Ahí está O.M.N.I.A., la terminal de mejoras. Yo programé la parte de investigaciones."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 23.033,
+   "t1": 27.533,
+   "quien": "URI",
+   "guion": "Compras pistas de cada receta, una por una. Cada muerte te acerca a la siguiente sinergia."
+  },
+  {
+   "tipo": "cierre",
+   "t0": 30.533,
+   "t1": 33.733
+  }
+ ]
+}

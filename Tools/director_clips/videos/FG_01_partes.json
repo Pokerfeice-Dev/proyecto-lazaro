@@ -1,0 +1,157 @@
+{
+ "cara": "MARCOS",
+ "musica": {
+  "archivo": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN-GUN - 03 - SCRAP AND ASH.mp4",
+  "desde": 20.0,
+  "vol": -9
+ },
+ "planos": [
+  {
+   "toma": "partes_canino",
+   "desde": 0.0,
+   "dur": 3.2,
+   "entrada": "golpe"
+  },
+  {
+   "toma": "partes_drop",
+   "desde": 0.3,
+   "dur": 3.0
+  },
+  {
+   "toma": "partes_drop",
+   "marca": "cae_pieza",
+   "desde": 0.0,
+   "dur": 3.0
+  },
+  {
+   "toma": "partes_inventario",
+   "marca": "abierto",
+   "desde": 0.0,
+   "dur": 5.0,
+   "completo": true
+  },
+  {
+   "toma": "partes_aviso",
+   "desde": 0.8,
+   "dur": 4.4
+  },
+  {
+   "toma": "partes_canino",
+   "desde": 0.0,
+   "dur": 4.6,
+   "zoom": 1.12,
+   "entrada": "temblor"
+  },
+  {
+   "toma": "partes_drop",
+   "marca": "agarra",
+   "desde": -0.6,
+   "dur": 1.6,
+   "lento": 2
+  }
+ ],
+ "textos": [
+  {
+   "plano": 0,
+   "t": 0.2,
+   "dur": 2.8,
+   "tipo": "titulo",
+   "texto": "HECHO DE PARTES",
+   "ceja": "FRANKEN-GUN · ZONA 1"
+  },
+  {
+   "plano": 1,
+   "t": 0.2,
+   "dur": 2.6,
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Scrap and Ash"
+  },
+  {
+   "plano": 1,
+   "t": 0.2,
+   "dur": 2.4,
+   "tipo": "etiqueta",
+   "texto": "PIEZA DE CUERPO"
+  },
+  {
+   "plano": 1,
+   "t": 0.3,
+   "dur": 2.7,
+   "tipo": "sub",
+   "texto": "Cada enemigo suelta\nuna *pieza* de su cuerpo"
+  },
+  {
+   "plano": 2,
+   "t": 0.3,
+   "dur": 2.5,
+   "tipo": "sub",
+   "texto": "Y te la puedes *coser*"
+  },
+  {
+   "plano": 3,
+   "t": 0.2,
+   "dur": 4.6,
+   "tipo": "sub",
+   "texto": "Torso, brazos y piernas\ncambian *cómo juegas*"
+  },
+  {
+   "plano": 4,
+   "t": 0.1,
+   "dur": 2.0,
+   "tipo": "sub",
+   "texto": "Tres piezas del\n*mismo animal*..."
+  },
+  {
+   "plano": 4,
+   "t": 2.2,
+   "dur": 2.2,
+   "tipo": "sub",
+   "texto": "...despiertan una\n*sinergia*",
+   "dorado": true
+  },
+  {
+   "plano": 5,
+   "t": 0.2,
+   "dur": 4.2,
+   "tipo": "etiqueta",
+   "texto": "INSTINTO CANINO",
+   "color": "dorado"
+  },
+  {
+   "plano": 5,
+   "t": 0.3,
+   "dur": 4.0,
+   "tipo": "sub",
+   "texto": "Dos armas cuerpo a cuerpo\ny *furia* al esquivar"
+  },
+  {
+   "plano": 6,
+   "t": 0.1,
+   "dur": 3.0,
+   "tipo": "sub",
+   "texto": "Cambiar una pieza\nla destruye... *pero te cura*"
+  }
+ ],
+ "huecos": [
+  {
+   "despues": 0,
+   "dur": 4.5,
+   "quien": "MARCOS",
+   "guion": "En Franken-Gun, Lázaro no sube de nivel: se arma con partes."
+  },
+  {
+   "despues": 4,
+   "dur": 4.5,
+   "quien": "MARCOS",
+   "guion": "Si juntas tres del mismo tipo, se activa una sinergia."
+  },
+  {
+   "despues": 5,
+   "dur": 5.0,
+   "quien": "MARCOS",
+   "guion": "Cambiar una pieza la destruye, pero te cura. Elegir cuándo es parte del juego."
+  }
+ ],
+ "id": "FG_01_partes",
+ "salida": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN-GUN REDES"
+}

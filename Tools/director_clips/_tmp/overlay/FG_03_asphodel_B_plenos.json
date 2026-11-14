@@ -1,0 +1,26 @@
+[
+ {
+  "archivo": "FG_03_asphodel_B_hueco10.mp4",
+  "t0": 3.8,
+  "t1": 8.3,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_03_asphodel_B_hueco11.mp4",
+  "t0": 20.8,
+  "t1": 24.8,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_03_asphodel_B_hueco12.mp4",
+  "t0": 30.8,
+  "t1": 35.3,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_03_asphodel_B_cierre13.mp4",
+  "t0": 40.9,
+  "t1": 44.1,
+  "tipo": "cierre"
+ }
+]

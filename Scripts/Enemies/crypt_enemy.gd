@@ -14,7 +14,7 @@ enum Phase { CHASE, ANTICIPATION, ATTACK, RECOVERY, STONE_WARNING, STONE }
 @export var attack_duration := 0.35
 @export var recovery_time := 0.95
 @export var projectile_scene: PackedScene = preload("res://Scenes/Projectiles/crypt_projectile.tscn")
-@export var projectile_speed := 300.0
+@export var projectile_speed := 380.0
 @export_category("Gárgola")
 @export var stone_duration := 2.0
 @export var stone_cooldown := 5.0
@@ -37,6 +37,22 @@ enum Phase { CHASE, ANTICIPATION, ATTACK, RECOVERY, STONE_WARNING, STONE }
 @export_category("Campanero")
 @export var echo_scene: PackedScene = preload("res://Scenes/Effects/crypt_echo.tscn")
 @export var echo_count := 3
+## Segundos entre que se marca la zona y explota.
+@export var echo_warning_time := 0.9
+@export_category("Esqueleto")
+## Segundos entre cada bala de la ráfaga (salen en línea).
+@export var burst_interval := 0.15
+@export_category("Ciempiés")
+## Si está activo, recorre tramos rectos, rebota en las paredes y deja veneno en el piso.
+@export var roam_enabled := true
+@export var roam_speed_multiplier := 1.25
+@export var roam_segment_time := 1.6
+@export var puddle_duration := 3.0
+@export var puddle_interval := 0.22
+@export var puddle_radius := 14.0
+@export_category("Abejas invocadas")
+## Las abejas mueren de un golpe y persiguen solo este tiempo.
+@export var bee_lifetime := 2.5
 @export_category("Arte")
 ## Activar si el sprite original mira hacia la izquierda.
 @export var art_faces_left := false
@@ -54,6 +70,7 @@ const BELL_TINT := Color(0.5, 0.92, 1.0)
 const HIVE_TINT := Color(1.0, 0.55, 0.42)
 const GHOST_TINT := Color(1.0, 0.45, 0.75, 0.55)
 const HEALTH_BAR_GAP := 6.0
+const PoisonPuddle = preload("res://Scripts/Effects/crypt_poison_puddle.gd")
 
 var phase: Phase = Phase.CHASE
 var locked_direction := Vector2.RIGHT
@@ -68,6 +85,9 @@ var is_summoned := false
 var _move_dir := Vector2.ZERO
 var _visual_time := 0.0
 var _rushing := false
+var _roam_dir := Vector2.ZERO
+var _roam_time_left := 0.0
+var _puddle_timer := 0.0
 
 @onready var art_sprite: AnimatedSprite2D = _find_art_sprite()
 @onready var art := CryptEnemyArt.new(self, art_sprite)
@@ -79,6 +99,7 @@ func _ready() -> void:
 	has_footstep_fx = false
 	$PhaseTimer.timeout.connect(_next_phase)
 	$BurstTimer.timeout.connect(_fire_burst_shot)
+	if kind == Kind.DEATH_SQUAD: $BurstTimer.wait_time = burst_interval
 	$HealthBar.max_value = max_health
 	$HealthBar.value = current_health
 	if kind == Kind.DEAD_BEEKEEPER: add_to_group("crypt_summoner")
@@ -141,11 +162,43 @@ func process_movement(delta: float) -> void:
 		if kind != Kind.DEAD_BEEKEEPER or _can_summon():
 			_begin_attack()
 		return
+	if kind == Kind.CENTIPEDE and roam_enabled:
+		_process_roam(delta)
+		return
 	var speed_multiplier = rear_speed_multiplier if kind == Kind.GHOUL and player_has_back_turned() else 1.0
 	_steer(get_nav_direction_to_target(), delta)
 	velocity = _move_dir * move_speed * speed_multiplier
 	art.walk(velocity)
 	_rushing = speed_multiplier > 1.0
+
+# Ciempiés: avanza en tramos rectos hacia el jugador, rebota al chocar con una
+# pared y deja un charco de veneno detrás.
+func _process_roam(delta: float) -> void:
+	_roam_time_left -= delta
+	if _roam_dir == Vector2.ZERO or _roam_time_left <= 0.0:
+		_roam_dir = global_position.direction_to(target.global_position).rotated(randf_range(-0.35, 0.35))
+		_roam_time_left = roam_segment_time
+	var query = PhysicsRayQueryParameters2D.create(global_position, global_position + _roam_dir * 18.0, 5, [get_rid(), target.get_rid()])
+	var hit = get_world_2d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty() and hit.normal != Vector2.ZERO:
+		_roam_dir = _roam_dir.bounce(hit.normal).normalized()
+		_roam_time_left = roam_segment_time
+	_move_dir = _roam_dir
+	velocity = _roam_dir * move_speed * roam_speed_multiplier
+	art.walk(velocity)
+	_rushing = false
+	_puddle_timer -= delta
+	if _puddle_timer <= 0.0:
+		_puddle_timer = puddle_interval
+		_drop_puddle()
+
+func _drop_puddle() -> void:
+	var puddle = PoisonPuddle.new()
+	puddle.duration = puddle_duration
+	puddle.radius = puddle_radius
+	puddle.poison_scene = poison_scene
+	get_parent().add_child(puddle)
+	puddle.global_position = global_position
 
 # Gira de forma gradual hacia la dirección deseada, sin perder velocidad.
 func _steer(desired: Vector2, delta: float) -> void:
@@ -296,6 +349,7 @@ func _place_echo() -> void:
 	var echo = echo_scene.instantiate()
 	register_attack(echo)
 	echo.damage = damage
+	echo.warning_duration = echo_warning_time
 	get_parent().add_child(echo)
 	echo.global_position = target.global_position
 	_echoes.append(echo)
@@ -303,7 +357,19 @@ func _place_echo() -> void:
 	telegraph.ring_at(Vector2.ZERO, 54.0)
 	art.recoil = Vector2(0, -3)
 
+# Las balas del escuadrón y de la abeja carnívora se adelantan al movimiento del jugador, y en la
+# ráfaga cada una se abre unos grados distinta: caminar de costado no corta la tanda, el dash sí.
+func _refresh_shot_direction() -> void:
+	if not is_instance_valid(target): return
+	if kind != Kind.DEATH_SQUAD and kind != Kind.FLESH_BEE: return
+	var aimed := lead_direction(global_position, projectile_speed)
+	if kind == Kind.DEATH_SQUAD:
+		var spread := [-0.16, 0.0, 0.16]
+		aimed = aimed.rotated(spread[clampi(3 - _shots_remaining, 0, 2)])
+	locked_direction = aimed
+
 func _spawn_projectile() -> void:
+	_refresh_shot_direction()
 	var projectile = projectile_scene.instantiate()
 	register_attack(projectile)
 	projectile.direction = locked_direction
@@ -403,6 +469,17 @@ func _spawn_bee(index: int) -> void:
 	_summons.append(bee)
 	bee.enemy_died.connect(_on_bee_died)
 	bee.spawn_appear()
+	# Las abejas invocadas mueren de un golpe y solo persiguen un rato.
+	bee.max_health = 1
+	bee.current_health = 1
+	var bee_bar = bee.get_node_or_null("HealthBar")
+	if bee_bar:
+		bee_bar.max_value = 1
+		bee_bar.value = 1
+	get_tree().create_timer(bee_lifetime).timeout.connect(_expire_bee.bind(bee))
+
+func _expire_bee(bee) -> void:
+	if is_instance_valid(bee) and not bee.is_dying: bee.die()
 
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	if is_dying or phase == Phase.STONE: return

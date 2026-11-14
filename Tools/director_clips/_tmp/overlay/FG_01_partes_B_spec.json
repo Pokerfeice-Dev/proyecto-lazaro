@@ -1,0 +1,125 @@
+{
+ "id": "FG_01_partes",
+ "version": "B",
+ "cara": "MARCOS",
+ "fps": 30,
+ "total": 39.999,
+ "fin_juego": 36.799,
+ "huecos": [
+  {
+   "t0": 2.767,
+   "t1": 7.2669999999999995,
+   "quien": "MARCOS",
+   "guion": "En Franken-Gun, Lázaro no sube de nivel: se arma con partes."
+  },
+  {
+   "t0": 21.366,
+   "t1": 25.866,
+   "quien": "MARCOS",
+   "guion": "Si juntas tres del mismo tipo, se activa una sinergia."
+  },
+  {
+   "t0": 28.633,
+   "t1": 33.632999999999996,
+   "quien": "MARCOS",
+   "guion": "Cambiar una pieza la destruye, pero te cura. Elegir cuándo es parte del juego."
+  }
+ ],
+ "elementos": [
+  {
+   "tipo": "titulo",
+   "texto": "HECHO DE PARTES",
+   "ceja": "FRANKEN-GUN · ZONA 1",
+   "t0": 0.2,
+   "t1": 2.767
+  },
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Scrap and Ash",
+   "t0": 7.467,
+   "t1": 10.067
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "PIEZA DE CUERPO",
+   "t0": 7.467,
+   "t1": 9.867
+  },
+  {
+   "tipo": "sub",
+   "texto": "Cada enemigo\nsuelta una *pieza*\nde su cuerpo",
+   "t0": 7.567,
+   "t1": 10.267
+  },
+  {
+   "tipo": "sub",
+   "texto": "Y te la\npuedes *coser*",
+   "t0": 10.567,
+   "t1": 13.067
+  },
+  {
+   "tipo": "sub",
+   "texto": "Torso, brazos\ny piernas cambian\n*cómo juegas*",
+   "t0": 13.467,
+   "t1": 17.633
+  },
+  {
+   "tipo": "sub",
+   "texto": "Tres piezas\ndel *mismo animal*...",
+   "t0": 17.733,
+   "t1": 19.733
+  },
+  {
+   "tipo": "sub",
+   "texto": "...despiertan\nuna *sinergia*",
+   "dorado": true,
+   "t0": 19.833,
+   "t1": 21.366
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "INSTINTO CANINO",
+   "color": "dorado",
+   "t0": 26.066,
+   "t1": 28.633
+  },
+  {
+   "tipo": "sub",
+   "texto": "Dos armas\ncuerpo a cuerpo\n+ *furia*",
+   "t0": 26.166,
+   "t1": 28.633
+  },
+  {
+   "tipo": "sub",
+   "texto": "Cambiar una pieza\nla destruye...\n*pero te cura*",
+   "t0": 33.733,
+   "t1": 36.733
+  },
+  {
+   "tipo": "hueco",
+   "t0": 2.767,
+   "t1": 7.267,
+   "quien": "MARCOS",
+   "guion": "En Franken-Gun, Lázaro no sube de nivel: se arma con partes."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 21.366,
+   "t1": 25.866,
+   "quien": "MARCOS",
+   "guion": "Si juntas tres del mismo tipo, se activa una sinergia."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 28.633,
+   "t1": 33.633,
+   "quien": "MARCOS",
+   "guion": "Cambiar una pieza la destruye, pero te cura. Elegir cuándo es parte del juego."
+  },
+  {
+   "tipo": "cierre",
+   "t0": 36.799,
+   "t1": 39.999
+  }
+ ]
+}

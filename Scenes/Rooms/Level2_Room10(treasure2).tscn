@@ -61,46 +61,38 @@ color = Color(0.12, 0.14, 0.22, 1)
 position = Vector2(1067.5, -878)
 scale = Vector2(0.575, 0.575)
 
-
 [node name="Torch2" parent="Iluminacion" unique_id=1009595441 instance=ExtResource("5_f5bob")]
 position = Vector2(913, -879)
 scale = Vector2(0.575, 0.575)
-
 
 [node name="Torch3" parent="Iluminacion" unique_id=534933533 instance=ExtResource("5_f5bob")]
 position = Vector2(898.5, -626.5)
 scale = Vector2(0.575, 0.575)
 
-
 [node name="Torch4" parent="Iluminacion" unique_id=1021751522 instance=ExtResource("5_f5bob")]
 position = Vector2(1092.5, -632)
 scale = Vector2(0.575, 0.575)
 
-
 [node name="Torch5" parent="Iluminacion" unique_id=1228611408 instance=ExtResource("5_f5bob")]
 position = Vector2(999.5, -781.5)
 scale = Vector2(0.575, 0.575)
+
 [node name="Spawns" type="Node2D" parent="." unique_id=30303030]
 
 [node name="Spawn1" type="Marker2D" parent="Spawns" unique_id=1902399526]
 position = Vector2(834, -781)
 
-
 [node name="Spawn2" type="Marker2D" parent="Spawns" unique_id=235618080]
 position = Vector2(770, -854)
-
 
 [node name="Spawn3" type="Marker2D" parent="Spawns" unique_id=699654588]
 position = Vector2(868, -964)
 
-
 [node name="Spawn4" type="Marker2D" parent="Spawns" unique_id=986481909]
 position = Vector2(1158, -868)
 
-
 [node name="Spawn5" type="Marker2D" parent="Spawns" unique_id=430801653]
 position = Vector2(870, -525)
-
 
 [node name="Spawn6" type="Marker2D" parent="Spawns" unique_id=26105324]
 position = Vector2(762, -587)

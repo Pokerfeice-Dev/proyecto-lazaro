@@ -23,7 +23,10 @@ const BODY_ITEM_PATHS: Array[String] = [
 	"res://Art/Items/Player/Legs/Item4_PiernasBionicas.tres",
 	"res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres",
 	"res://Art/Items/Player/Arms/Item3_BrazoLigero.tres",
-	"res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"
+	"res://Art/Items/Player/Arms/Item4_BrazoArmado.tres",
+	"res://Art/Items/Player/Body/Item5_TorsoGordo.tres",
+	"res://Art/Items/Player/Arms/Item5_BrazoGordo.tres",
+	"res://Art/Items/Player/Legs/Item5_PiernasGordas.tres"
 ]
 
 @onready var item_sprite: Sprite2D = $Item_sprite

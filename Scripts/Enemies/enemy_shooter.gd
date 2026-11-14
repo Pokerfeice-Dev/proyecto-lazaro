@@ -14,14 +14,28 @@ var current_state: State = State.WANDER
 var wander_timer: float = 0.0
 var wander_direction: Vector2 = Vector2.ZERO
 
-@export var fire_rate: float = 1.5
+@export var fire_rate: float = 2.0
 @export var projectile_scene: PackedScene = preload("res://Scenes/Enemies/enemy_shooter_projectile.tscn")
+@export_category("Abanico")
+@export var fan_count: int = 5
+@export var fan_spread_degrees: float = 11.0
+@export var fan_damage_ratio: float = 0.5
+@export_category("Dash")
+## Velocidad de las balas: lo bastante alta para que caminar de costado no las esquive.
+@export var shot_speed: float = 540.0
+## Segunda tanda desfasada medio abanico: tapa los huecos de la primera, así que lo que queda es el dash.
+@export var second_wave_enabled: bool = true
+@export var second_wave_delay: float = 0.35
+## En la zona 1 la segunda tanda aparece desde esta sala; en las demás zonas, siempre.
+@export var second_wave_from_room: int = 4
+## Largo de las líneas que avisan hacia dónde va a salir cada bala.
+@export var aim_line_length: float = 230.0
 
 var shoot_timer: Timer
 var player_in_shoot_range: bool = false
 var player_in_detect_range: bool = false
 var is_attacking: bool = false
-@export var anticipation_time: float = 0.25
+@export var anticipation_time: float = 0.4
 var is_anticipating_shot: bool = false
 var _anticipation_tween: Tween = null
 
@@ -65,6 +79,7 @@ func process_movement(delta: float) -> void:
 	if is_dying:
 		current_state = State.DEAD
 		return
+	_update_aim_lines()
 		
 	match current_state:
 		State.REPOSITION:
@@ -232,18 +247,67 @@ func play_animation(anim_name: String) -> void:
 
 func shoot_at_target() -> void:
 	if not target or not projectile_scene: return
-	var dir = (target.global_position - global_position).normalized()
+	var dir = _aim_direction()
 	_start_attack_sequence(dir)
 	_spawn_projectile(dir)
 	_play_attack_sound()
 
+# Dispara un abanico; la bala del extremo rebota una vez en las paredes.
 func _spawn_projectile(dir: Vector2) -> void:
+	for i in fan_count:
+		var offset = (float(i) - float(fan_count - 1) * 0.5) * deg_to_rad(fan_spread_degrees)
+		_spawn_fan_bullet(dir.rotated(offset), i == fan_count - 1 and fan_count > 1)
+	if _second_wave_active():
+		get_tree().create_timer(second_wave_delay).timeout.connect(_spawn_second_wave, CONNECT_ONE_SHOT)
+
+func _second_wave_active() -> bool:
+	if not second_wave_enabled or fan_count < 2: return false
+	return GameData.current_level >= 2 or GameData.current_run_room >= second_wave_from_room
+
+# Una bala menos, entre los huecos de la primera tanda, apuntada de nuevo al jugador.
+func _spawn_second_wave() -> void:
+	if is_dying or not is_instance_valid(target): return
+	var dir := _aim_direction()
+	for i in fan_count - 1:
+		var offset = (float(i) - float(fan_count - 2) * 0.5) * deg_to_rad(fan_spread_degrees)
+		_spawn_fan_bullet(dir.rotated(offset), false)
+
+# Hacia dónde apunta el disparo. Se adelanta al movimiento del jugador.
+func _aim_direction() -> Vector2:
+	return lead_direction(global_position, shot_speed)
+
+# Cuántas líneas de aviso se dibujan.
+func _aim_line_count() -> int:
+	return fan_count
+
+var _aim_drawn: bool = false
+
+func _update_aim_lines() -> void:
+	if is_anticipating_shot or _aim_drawn: queue_redraw()
+
+# Líneas rojas que marcan por dónde van a salir las balas mientras el enemigo apunta.
+func _draw() -> void:
+	_aim_drawn = false
+	if is_dying or not is_anticipating_shot or not is_instance_valid(target): return
+	_aim_drawn = true
+	var dir := _aim_direction()
+	var count := _aim_line_count()
+	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.03)
+	for i in count:
+		var offset = (float(i) - float(count - 1) * 0.5) * deg_to_rad(fan_spread_degrees)
+		var end_point := dir.rotated(offset) * aim_line_length
+		draw_line(Vector2.ZERO, end_point, Color(1.0, 0.25, 0.2, 0.3 + 0.3 * pulse), 1.0)
+
+func _spawn_fan_bullet(dir: Vector2, bounces: bool) -> void:
 	var proj = projectile_scene.instantiate()
 	register_attack(proj)
 	proj.source_name = "Carpenter"
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = global_position
-	proj.setup(dir, damage, "player")
+	proj.setup(dir, maxi(1, int(damage * fan_damage_ratio)), "player")
+	proj.speed = shot_speed
+	if bounces and "bounces_left" in proj:
+		proj.bounces_left = 1
 
 func _start_attack_sequence(dir: Vector2) -> void:
 	is_attacking = true

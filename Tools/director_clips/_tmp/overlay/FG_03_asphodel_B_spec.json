@@ -1,0 +1,119 @@
+{
+ "id": "FG_03_asphodel",
+ "version": "B",
+ "cara": "MARCOS",
+ "fps": 30,
+ "total": 44.1,
+ "fin_juego": 40.9,
+ "huecos": [
+  {
+   "t0": 3.8,
+   "t1": 8.3,
+   "quien": "MARCOS",
+   "guion": "Esta es la Zona 1: una ciudad a medio abandonar, tomada por androides."
+  },
+  {
+   "t0": 20.8,
+   "t1": 24.8,
+   "quien": "MARCOS",
+   "guion": "Ygor te vende piezas a cambio de carne. Y a veces encuentras un cargamento sin vigilancia."
+  },
+  {
+   "t0": 30.8,
+   "t1": 35.3,
+   "quien": "MARCOS",
+   "guion": "Al final te espera el Centinela Génesis. Su tema lo hice yo, en Cakewalk."
+  }
+ ],
+ "elementos": [
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Fields of Asphodel",
+   "t0": 0.2,
+   "t1": 3.6
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "ZONA 1 · ASPHODEL",
+   "t0": 0.3,
+   "t1": 3.5
+  },
+  {
+   "tipo": "sub",
+   "texto": "Una ciudad\nen ruinas",
+   "t0": 8.6,
+   "t1": 11.0
+  },
+  {
+   "tipo": "sub",
+   "texto": "tomada por\n*androides*",
+   "t0": 11.2,
+   "t1": 13.7
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "YGOR · COMERCIO CLANDESTINO",
+   "color": "dorado",
+   "tam": 40,
+   "t0": 14.0,
+   "t1": 17.5
+  },
+  {
+   "tipo": "sub",
+   "texto": "Piezas a cambio\nde *carne*",
+   "t0": 14.1,
+   "t1": 17.5
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "SALA DEL TESORO",
+   "color": "dorado",
+   "t0": 17.8,
+   "t1": 20.7
+  },
+  {
+   "tipo": "sub",
+   "texto": "Un cargamento\n*sin vigilancia*",
+   "t0": 17.9,
+   "t1": 20.7
+  },
+  {
+   "tipo": "sub",
+   "texto": "Y al final\nde la zona...",
+   "t0": 25.0,
+   "t1": 27.6
+  },
+  {
+   "tipo": "sub",
+   "texto": "El *primer jefe*:\n*Centinela Génesis*",
+   "t0": 35.7,
+   "t1": 40.5
+  },
+  {
+   "tipo": "hueco",
+   "t0": 3.8,
+   "t1": 8.3,
+   "quien": "MARCOS",
+   "guion": "Esta es la Zona 1: una ciudad a medio abandonar, tomada por androides."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 20.8,
+   "t1": 24.8,
+   "quien": "MARCOS",
+   "guion": "Ygor te vende piezas a cambio de carne. Y a veces encuentras un cargamento sin vigilancia."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 30.8,
+   "t1": 35.3,
+   "quien": "MARCOS",
+   "guion": "Al final te espera el Centinela Génesis. Su tema lo hice yo, en Cakewalk."
+  },
+  {
+   "tipo": "cierre",
+   "t0": 40.9,
+   "t1": 44.1
+  }
+ ]
+}

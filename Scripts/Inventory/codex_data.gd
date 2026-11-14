@@ -6,25 +6,25 @@ const DATA = {
 		"follower": {
 			"name": "Perro Mecánico",
 			"lore": "Unidad canina automatizada de Asphodel Laboratories. Rastrea cualquier señal de tejido vivo y ataca cuerpo a cuerpo en manada, sin detenerse hasta destrozar a su presa.",
-			"stats": "Vida: 60 | Daño: 10 | Velocidad: Alta | Persecución directa",
+			"stats": "Vida: 60 | Daño: 10 | Velocidad: Alta | Persecución directa | Suelta: Cabeza de Perro y piezas caninas",
 			"icon": preload("res://Art/Enemy_Mutation/dog_codex_icon.png")
 		},
 		"shooter": {
 			"name": "Carpenter",
-			"lore": "Antigua unidad de mantenimiento reconvertida en centinela de Asphodel. Dispara clavos a presión con su pistola neumática y se repliega mientras el objetivo se acerca.",
-			"stats": "Vida: 40 | Daño: 10 | Cadencia: 1.5s | Rango: Largo",
+			"lore": "Antigua unidad de mantenimiento reconvertida en centinela de Asphodel. Dispara clavos a presión con su pistola neumática y se repliega mientras el objetivo se acerca. Apunta un abanico de cinco clavos marcado con líneas rojas y, ya avanzado el distrito, lo repite con una segunda tanda: caminar de costado no alcanza, hay que usar el dash.",
+			"stats": "Vida: 40 | Daño: 10 (5 por clavo) | Cadencia: 2 s | Abanico de 5 con aviso | Suelta: Sierra y piezas musculosas",
 			"icon": preload("res://Art/Enemy_Shooter/carpenter_codex_icon.png")
 		},
 		"tank": {
 			"name": "Mecha",
 			"lore": "Maquinaria pesada de demolición requisada y armada por Asphodel. Su mezcladora de cemento convertida en garra aplasta todo lo que entra en su radio de patrulla.",
-			"stats": "Vida: 180 | Daño: 25 | Velocidad: Muy baja | Rango: Corto",
+			"stats": "Vida: 180 | Daño: 25 | Velocidad: Muy baja | Rango: Corto | Suelta: Moto, Batería y piezas musculosas",
 			"icon": preload("res://Art/Enemy_tank/mecha_codex_icon.png")
 		},
 		"turret": {
 			"name": "Delivery",
-			"lore": "Motociclista repartidor sepultado y fusionado al asfalto por la biofabricación. Inmóvil, pero dispara con una cadencia implacable a todo lo que entra en su radio de alcance.",
-			"stats": "Vida: 50 | Cadencia: 1.5s | Alcance: Muy largo | Estático",
+			"lore": "Motociclista repartidor sepultado y fusionado al asfalto por la biofabricación. Inmóvil, pero dispara ráfagas de tres balas con una cadencia implacable, apuntando adelantado a donde corres. Hay que cortar la ráfaga con el dash.",
+			"stats": "Vida: 50 | Cadencia: 2,2 s | Ráfaga: 3 balas apuntadas | Alcance: Muy largo | Estático | Suelta: Gasolina, Nitrógeno y Batería",
 			"icon": preload("res://Art/Enemy_turret/deliverydriver_codex_icon.png")
 		},
 		"charger": {
@@ -36,7 +36,7 @@ const DATA = {
 		"spawner": {
 			"name": "Apicultora",
 			"lore": "Guardiana enjambre que evita el combate directo. Mantiene la distancia con el objetivo mientras libera oleadas de Robo-Abejas para desgastarlo.",
-			"stats": "Vida: 80 | Invoca Robo-Abejas cada ~3.5s | Sin ataque directo",
+			"stats": "Vida: 80 | Invoca Robo-Abejas cada ~3.5s | Sin ataque directo | Suelta: Cerebro, Cabeza Humana, Pulmones y Licuadora",
 			"icon": preload("res://Art/Enemy_Summoner/beekeeper_codex_icon.png")
 		},
 		"boss": {
@@ -48,56 +48,92 @@ const DATA = {
 		"crypt_ghoul": {
 			"name": "Ghoul",
 			"lore": "Cadáver reanimado por la biomasa que se filtró a las galerías. Conserva el instinto de un cazador: te sigue a distancia y, en cuanto le das la espalda, acelera para morderte. Mirarlo de frente lo frena.",
-			"stats": "Vida: 65 | Daño: 12 | Velocidad: Muy alta | Acelera si le das la espalda",
+			"stats": "Vida: 65 | Daño: 12 | Velocidad: Muy alta | Acelera si le das la espalda | Suelta: Tendón, Torso Gordo y Brazo Gordo",
 			"icon": preload("res://Art/Enemies/Crypt/Ghoul/ghoul_codex_icon.png")
 		},
 		"crypt_gargoyle": {
 			"name": "Gárgola",
 			"lore": "Estatua del viejo mausoleo del complejo, despertada por las esporas. Golpea en un abanico corto y, cuando recibe daño, se cubre de piedra: mientras está petrificada no le afectan los golpes ni el empuje. Ataca cuando abandone su defensa.",
-			"stats": "Vida: 130 | Daño: 16 | Petrificación: 2 s | Anticipación: 0,55 s",
+			"stats": "Vida: 130 | Daño: 16 | Petrificación: 2 s | Anticipación: 0,55 s | Suelta: Corazón y Piernas Gordas",
 			"icon": preload("res://Art/Enemies/Crypt/Gargoyle/gargoyle_codex_icon.png")
 		},
 		"crypt_centipede": {
 			"name": "Ciempiés tóxico",
 			"lore": "Insecto gigante criado en los tanques de cultivo y abandonado en la cripta. Recorre las galerías ondulando su cuerpo segmentado y, antes de atacar, apunta las mandíbulas: el gas que suelta envenena durante varios segundos. Sal del cono marcado antes de la descarga.",
-			"stats": "Vida: 95 | Daño: 10 + veneno | Alcance: Medio | Anticipación: 0,8 s",
+			"stats": "Vida: 95 | Daño: 10 + veneno | Alcance: Medio | Anticipación: 0,8 s | Suelta: Glándula",
 			"icon": preload("res://Art/Enemies/Crypt/Centipede/centipede_codex_icon.png")
 		},
 		"crypt_death_squad": {
 			"name": "Escuadrón de la muerte",
-			"lore": "Restos de la guardia de seguridad del complejo, que siguen patrullando aunque ya no les quede carne. Apuntan, fijan la dirección y disparan una ráfaga de tres balas. Muévete en cuanto veas la mira.",
-			"stats": "Vida: 100 | Daño: 13 por bala | Ráfaga: 3 disparos | Anticipación: 0,65 s",
+			"lore": "Restos de la guardia de seguridad del complejo, que siguen patrullando aunque ya no les quede carne. Apuntan adelantándose a tu movimiento y disparan una ráfaga de tres balas en abanico. Muévete en cuanto veas la mira y usa el dash para cruzar la ráfaga.",
+			"stats": "Vida: 100 | Daño: 13 por bala | Ráfaga: 3 disparos | Anticipación: 0,65 s | Suelta: Lápida y Brazo Gordo",
 			"icon": preload("res://Art/Enemies/Crypt/DeathSquad/death_squad_codex_icon.png")
 		},
 		"crypt_laser_eye": {
 			"name": "Ojo torreta",
 			"lore": "Órgano de un experimento fallido que aprendió a flotar sobre sus propios nervios. No se mueve: se encoge, carga y dispara un rayo que deja de seguirte poco antes de soltarlo. Muévete hacia un costado o busca cobertura; las paredes lo bloquean.",
-			"stats": "Vida: 85 | Daño: 22 | Alcance: Muy largo | Inmóvil | Carga: 1,2 s",
+			"stats": "Vida: 85 | Daño: 22 | Alcance: Muy largo | Inmóvil | Carga: 1,2 s | Suelta: Lente",
 			"icon": preload("res://Art/Enemies/Crypt/LaserEye/laser_eye_codex_icon.png")
 		},
 		"crypt_dead_beekeeper": {
 			"name": "Apicultora muerta",
 			"lore": "Lo que quedó de la Apicultora después de caer en la cripta. Tiene la piel verdosa y la ropa rota, pero sigue cuidando su colmena: invoca hasta tres abejas carnívoras. Si la derrotas, el enjambre muere con ella.",
-			"stats": "Vida: 120 | Invoca hasta 3 abejas | Recarga: 4,5 s",
+			"stats": "Vida: 120 | Invoca hasta 3 abejas | Recarga: 4,5 s | Suelta: Panal, Colmena y Aguijón",
 			"icon": preload("res://Art/Enemies/Crypt/DeadBeekeeper/dead_beekeeper_codex_icon.png")
 		},
 		"crypt_flesh_bee": {
 			"name": "Abeja carnívora",
-			"lore": "Robo-Abeja cubierta de carne, con alas de hueso, criada en la colmena podrida de la Apicultora muerta. Se detiene, apunta y escupe un proyectil.",
-			"stats": "Vida: 22 | Daño: 6 | Velocidad: Muy alta | Ataque a distancia",
+			"lore": "Robo-Abeja cubierta de carne, con alas de hueso, criada en la colmena podrida de la Apicultora muerta. Se detiene, apunta adelantada a donde corres y escupe un proyectil.",
+			"stats": "Vida: 22 | Daño: 6 | Velocidad: Muy alta | Ataque a distancia | Suelta: Mandíbula",
 			"icon": preload("res://Art/Enemies/Crypt/FleshBee/flesh_bee_codex_icon.png")
 		},
 		"crypt_bell_keeper": {
 			"name": "Campanero de Réquiem",
 			"lore": "Un viejo custodio de la cripta que todavía toca a muerto. Cada campanada marca el suelo donde estás y, un segundo después, el eco estalla: no regreses sobre tus pasos. Tras tres campanadas queda expuesto.",
-			"stats": "Vida: 95 | Daño: 16 por eco | 3 campanadas | Eco: 1 s",
+			"stats": "Vida: 95 | Daño: 16 por eco | 3 campanadas | Eco: 1 s | Suelta: Badajo",
 			"icon": preload("res://Art/Enemies/Crypt/BellKeeper/bell_keeper_codex_icon.png")
+		},
+		"kamikaze": {
+			"name": "Kamikaze",
+			"lore": "Perro de demolición al que le cosieron una carga de gasolina en el lomo. Corre en línea recta hacia ti y, al tocarte, se clava en el suelo y marca un círculo rojo: a los 1,2 segundos estalla. Si lo matas antes, o sales del círculo, no hace nada.",
+			"stats": "Vida: 24 | Daño: 22 al estallar | Velocidad: Muy alta | Mecha: 1,2 s | Radio: 56 | Suelta: Gasolina, Nitrógeno y Piernas Ligeras",
+			"icon": preload("res://Art/Codex/kamikaze_codex_icon.tres")
+		},
+		"kiter": {
+			"name": "Tirador que huye",
+			"lore": "Francotirador de la guardia de Asphodel que prefiere no estar nunca a tu alcance. Retrocede en cuanto te acercas y dispara una tanda de tres balas rápidas, cada una apuntada hacia donde vas a estar. Acorrálalo contra una pared o cruza la tanda con el dash.",
+			"stats": "Vida: 24 | Daño: 10 | Tanda: 3 balas | Huye a menos de 150 | Suelta: Aguijón y piezas ligeras",
+			"icon": preload("res://Art/Codex/kiter_codex_icon.tres")
+		},
+		"shielder": {
+			"name": "Escudero",
+			"lore": "Soldado blindado que avanza con un escudo enorme al frente. No ataca, pero bloquea tus golpes y balas mientras estés de ese lado. El escudo gira despacio: rodéalo y golpéalo por la espalda.",
+			"stats": "Vida: 72 | Sin ataque directo | Escudo: 140° | Velocidad: Baja | Suelta: Torso Musculoso, Brazo y Piernas Musculosas",
+			"icon": preload("res://Art/Codex/shielder_codex_icon.tres")
 		},
 		"boss2": {
 			"name": "El Primogénito",
 			"lore": "El primer intento de Lázaro: un sujeto que no resistió la resurrección y fue arrojado a la cripta. Siguió vivo absorbiendo la biomasa hasta convertirse en una masa de carne cosida con grapas quirúrgicas, que todavía lleva su brazalete de paciente de Lázaro Corp. Persigue a los saltos, desaparece hacia el techo y cae sobre tu sombra soltando un anillo de huesos, escupe bilis corrosiva que deja charcos y, si lo acorralas, vomita ghouls y abejas carnívoras. Al bajar del 40% de vida el hambre lo despierta: se regenera, se vuelve más rápido y encadena sus saltos.",
 			"stats": "Vida: 1400 | Daño: 22 | 2 fases (la 2 al 40%: +20% de vida) | Ataques: gran salto, anillo de huesos, bilis, invocación",
 			"icon": preload("res://Art/Enemy_Boss_2/boss2_codex_icon.png")
+		},
+		"wandering_arm": {
+			"name": "Brazo errante",
+			"lore": "Un brazo arrancado de algún sujeto del Núcleo que sigue moviéndose solo. Repta rápido y salta hacia ti; si conecta, se aferra y te hace daño durante un segundo. Un dash lo sacude y lo deja aturdido: úsalo para quitártelo de encima.",
+			"stats": "Vida: 28 | Daño: 3 cada 0,35 s aferrado | Aferrado: 1 s | Suelta: Brazo Gordo y otros brazos",
+			"icon": preload("res://Art/Codex/wandering_arm_codex_icon.tres")
+		},
+		"hollow_torso": {
+			"name": "Torso hueco",
+			"lore": "Un tanque lento con el pecho abierto, de donde asoma un núcleo naranja que late. Mientras el núcleo está abierto recibe el doble de daño; cada tanto se cierra con una placa y casi no lo lastiman. Espera la ventana abierta para dispararle.",
+			"stats": "Vida: 120 | Núcleo abierto: x2 daño (3 s) | Cerrado: x0,4 (2 s) | Velocidad: Muy baja | Suelta: Torso Gordo, otros torsos y Pulmones",
+			"icon": preload("res://Art/Codex/hollow_torso_codex_icon.tres")
+		},
+		"lazarus_echo": {
+			"name": "Eco de Lázaro",
+			"lore": "Una huella de ti mismo que quedó atrapada en el Núcleo. Sigue el rastro de donde estabas hace un segundo y dispara a esa posición vieja y, un instante después, otra bala adelantada a hacia dónde te mueves. Si te quedas quieto, te alcanza; si te mueves siempre igual, también.",
+			"stats": "Vida: 28 | Retraso: 1 s | Dispara 2 balas por tanda | Suelta: Cabeza Humana, Cerebro y Piernas Gordas",
+			"icon": preload("res://Art/Codex/lazarus_echo_codex_icon.tres")
 		},
 		"boss3": {
 			"name": "Prometeo",
@@ -128,19 +164,19 @@ const DATA = {
 		"daga": {
 			"name": "Daga",
 			"lore": "Un filo corto y mortífero tallado en cristal de sílice. Rápida pero con corto alcance.",
-			"stats": "Daño: 15 | APS: 1.5 | Rango: Corto",
+			"stats": "Daño: 15 | APS: 1.5 | Rango: Corto | Golpes: ráfaga de 3 puntadas, estocada y tajos",
 			"icon": preload("res://Art/Weapons/Melee/Dagger/weapon_dagger_sprite.png")
 		},
 		"maze": {
 			"name": "Maza Pesada",
 			"lore": "Un mazo pesado diseñado para fracturar corazas enemigas con pura fuerza cinética.",
-			"stats": "Daño: 35 | APS: 0.7 | Empuje: Alto",
+			"stats": "Daño: 35 | APS: 0.7 | Empuje: Alto | Golpes: mazazo, tajo de revés y giro",
 			"icon": preload("res://Art/Weapons/Melee/Mace/weapon_mace_sprite.png")
 		},
 		"hacha": {
 			"name": "Hacha de Mano",
 			"lore": "Un hacha balanceada capaz de rebanar tejidos mutantes con eficacia.",
-			"stats": "Daño: 25 | APS: 1.0 | Rango: Medio",
+			"stats": "Daño: 25 | APS: 1.0 | Rango: Medio | Golpes: hachazo, tajo y giro completo",
 			"icon": preload("res://Art/Weapons/Melee/Axe/weapon_axe_sprite.png")
 		}
 	},
@@ -207,6 +243,24 @@ const DATA = {
 			"lore": "Hojas retráctiles afiladas de titanio integradas que imitan garras salvajes.",
 			"stats": "+6% prob. crítica, +12% alcance melee",
 			"icon": preload("res://Art/Items/Player/Arms/Item4_BrazoArmado.png")
+		},
+		"torso_gordo": {
+			"name": "Torso Gordo",
+			"lore": "Un torso hinchado de grasa y tejido blando que amortigua cualquier golpe, a costa de moverse con dificultad.",
+			"stats": "+30% vida máxima, -8% vel. de movimiento",
+			"icon": preload("res://Art/Items/Player/Body/Item5_TorsoGordo.png")
+		},
+		"brazo_gordo": {
+			"name": "Brazo Gordo",
+			"lore": "Brazo grueso y blando, más útil para encajar golpes que para darlos.",
+			"stats": "+1 armadura, +6% vida máxima, -4% vel. de ataque",
+			"icon": preload("res://Art/Items/Player/Arms/Item5_BrazoGordo.png")
+		},
+		"piernas_gordas": {
+			"name": "Piernas Gordas",
+			"lore": "Piernas voluminosas que almacenan más de lo que gastan. Cada pedazo de carne recogido rinde el doble.",
+			"stats": "+2 vida por carne recogida, +10% vida máxima, -8% vel. de movimiento",
+			"icon": preload("res://Art/Items/Player/Legs/Item5_PiernasGordas.png")
 		},
 		"mezcladora": {
 			"name": "Licuadora",
@@ -305,13 +359,13 @@ const DATA = {
 		"distrito_2": {
 			"name": "Zona 2: La Cripta",
 			"lore": "Galerías bajo el complejo donde la biomasa mutada escapó a todo control. Pocos exploradores vuelven de aquí con el mismo aspecto con el que entraron.",
-			"stats": "Rango de peligro: Alto | Amenazas: Ghouls, Gárgolas, Ciempiés tóxicos, Escuadrón de la muerte, Ojos torreta, Campanero de Réquiem, Apicultora muerta, Abejas carnívoras | Jefe: El Primogénito",
+			"stats": "Rango de peligro: Alto | Amenazas: Ghouls, Gárgolas, Ciempiés tóxicos, Escuadrón de la muerte, Ojos torreta, Campanero de Réquiem, Apicultora muerta, Abejas carnívoras, Kamikazes, Tiradores que huyen, Escuderos | Jefe: El Primogénito",
 			"icon": preload("res://Art/Codex/zona2_codex_icon_cripta.png")
 		},
 		"distrito_3": {
 			"name": "Zona 3: El Núcleo",
 			"lore": "El corazón del complejo, invadido por raíces que laten como venas. Aquí espera Prometeo.",
-			"stats": "Rango de peligro: Extremo | Amenazas: Prometeo",
+			"stats": "Rango de peligro: Extremo | Amenazas: Kamikazes, Tiradores que huyen, Escuderos, Brazos errantes, Torsos huecos, Ecos de Lázaro | Jefe: Prometeo",
 			"icon": preload("res://Art/Codex/zona3_codex_icon.png")
 		}
 	}

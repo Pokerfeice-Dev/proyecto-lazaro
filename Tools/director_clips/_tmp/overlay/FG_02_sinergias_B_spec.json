@@ -1,0 +1,155 @@
+{
+ "id": "FG_02_sinergias",
+ "version": "B",
+ "cara": "URI",
+ "fps": 30,
+ "total": 42.633,
+ "fin_juego": 39.433,
+ "huecos": [
+  {
+   "t0": 3.4,
+   "t1": 7.9,
+   "quien": "URI",
+   "guion": "Hachazo, hachazo, disparo... y explotan todos en cadena."
+  },
+  {
+   "t0": 11.633000000000001,
+   "t1": 16.633000000000003,
+   "quien": "URI",
+   "guion": "Soy Uri, programo Franken-Gun. Cada sinergia es una receta: tres piezas y un arma."
+  },
+  {
+   "t0": 31.367000000000004,
+   "t1": 35.867000000000004,
+   "quien": "URI",
+   "guion": "Hay 15. Algunas, todavía no las encontró nadie del público."
+  }
+ ],
+ "elementos": [
+  {
+   "tipo": "titulo",
+   "texto": "TU CUERPO ES LA RECETA",
+   "ceja": "FRANKEN-GUN · SINERGIAS",
+   "t0": 0.2,
+   "t1": 1.7
+  },
+  {
+   "tipo": "numero",
+   "texto": "x4",
+   "t0": 1.9,
+   "t1": 3.4
+  },
+  {
+   "tipo": "sub",
+   "texto": "3 piezas\n+ 1 arma =\n*un arma nueva*",
+   "t0": 8.1,
+   "t1": 11.633
+  },
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Fury",
+   "t0": 16.733,
+   "t1": 19.533
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "AVALANCHE",
+   "t0": 16.733,
+   "t1": 19.533
+  },
+  {
+   "tipo": "sub",
+   "texto": "Congela todo\nlo que *toca*",
+   "t0": 16.833,
+   "t1": 19.533
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "MENTE COLMENA",
+   "t0": 19.733,
+   "t1": 22.533
+  },
+  {
+   "tipo": "sub",
+   "texto": "Abejas que\n*cazan solas*",
+   "t0": 19.833,
+   "t1": 22.533
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "HEAVY METAL",
+   "t0": 22.733,
+   "t1": 25.533
+  },
+  {
+   "tipo": "sub",
+   "texto": "Más rápida cuanto\n*más disparas*",
+   "t0": 22.833,
+   "t1": 25.533
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "HOLY FIRE",
+   "t0": 25.733,
+   "t1": 28.367
+  },
+  {
+   "tipo": "sub",
+   "texto": "Una lengua de\nfuego que *salta*",
+   "t0": 25.833,
+   "t1": 28.367
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "THE BRIDE",
+   "t0": 28.467,
+   "t1": 31.267
+  },
+  {
+   "tipo": "sub",
+   "texto": "Descargas\n*en cadena*",
+   "t0": 28.567,
+   "t1": 31.267
+  },
+  {
+   "tipo": "numero",
+   "texto": "15",
+   "y": 250,
+   "t0": 36.067,
+   "t1": 39.433
+  },
+  {
+   "tipo": "sub",
+   "texto": "*sinergias*\npara descubrir",
+   "dorado": true,
+   "t0": 36.267,
+   "t1": 39.433
+  },
+  {
+   "tipo": "hueco",
+   "t0": 3.4,
+   "t1": 7.9,
+   "quien": "URI",
+   "guion": "Hachazo, hachazo, disparo... y explotan todos en cadena."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 11.633,
+   "t1": 16.633,
+   "quien": "URI",
+   "guion": "Soy Uri, programo Franken-Gun. Cada sinergia es una receta: tres piezas y un arma."
+  },
+  {
+   "tipo": "hueco",
+   "t0": 31.367,
+   "t1": 35.867,
+   "quien": "URI",
+   "guion": "Hay 15. Algunas, todavía no las encontró nadie del público."
+  },
+  {
+   "tipo": "cierre",
+   "t0": 39.433,
+   "t1": 42.633
+  }
+ ]
+}

@@ -1,0 +1,66 @@
+{
+ "id": "FG_05_cripta",
+ "version": "A",
+ "cara": "URI",
+ "fps": 30,
+ "total": 26.2,
+ "fin_juego": 23.0,
+ "huecos": [],
+ "elementos": [
+  {
+   "tipo": "titulo",
+   "texto": "LO QUE VIENE",
+   "ceja": "FRANKEN-GUN · ZONA 2",
+   "t0": 0.2,
+   "t1": 2.9
+  },
+  {
+   "tipo": "desarrollo",
+   "texto": "EN DESARROLLO",
+   "t0": 0.0,
+   "t1": 22.0
+  },
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · The Crypt Awakens",
+   "t0": 3.2,
+   "t1": 7.7
+  },
+  {
+   "tipo": "sub",
+   "texto": "Arte *provisorio*:\nel dibujo final\nllega después",
+   "t0": 3.4,
+   "t1": 8.4
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "LA APICULTORA",
+   "t0": 8.7,
+   "t1": 13.9
+  },
+  {
+   "tipo": "sub",
+   "texto": "Invoca abejas\n*carnívoras*",
+   "t0": 8.8,
+   "t1": 13.8
+  },
+  {
+   "tipo": "sub",
+   "texto": "Salta, escupe\nbilis y llama\na sus *crías*",
+   "t0": 14.3,
+   "t1": 18.9
+  },
+  {
+   "tipo": "sub",
+   "texto": "Síguenos para\nverla *terminada*",
+   "dorado": true,
+   "t0": 19.2,
+   "t1": 22.9
+  },
+  {
+   "tipo": "cierre",
+   "t0": 23.0,
+   "t1": 26.2
+  }
+ ]
+}

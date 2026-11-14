@@ -1,0 +1,114 @@
+{
+ "cara": "URI",
+ "musica": {
+  "archivo": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN-GUN - 02 - LABORATORIO ASPHODEL.mp4",
+  "desde": 70.0,
+  "vol": -9
+ },
+ "planos": [
+  {
+   "toma": "muerte",
+   "desde": 0.0,
+   "dur": 3.0,
+   "entrada": "golpe"
+  },
+  {
+   "toma": "muerte",
+   "desde": 3.0,
+   "dur": 3.0
+  },
+  {
+   "toma": "lab",
+   "desde": 0.6,
+   "dur": 4.0
+  },
+  {
+   "toma": "omnia",
+   "desde": 1.0,
+   "dur": 5.0,
+   "completo": true
+  },
+  {
+   "toma": "omnia",
+   "desde": 6.0,
+   "dur": 5.0,
+   "completo": true
+  }
+ ],
+ "textos": [
+  {
+   "plano": 0,
+   "t": 0.2,
+   "dur": 2.6,
+   "tipo": "titulo",
+   "texto": "MORIR TAMBIÉN SUMA",
+   "ceja": "FRANKEN-GUN · O.M.N.I.A."
+  },
+  {
+   "plano": 1,
+   "t": 0.2,
+   "dur": 2.8,
+   "tipo": "sub",
+   "texto": "La chatarra que juntas\n*se queda contigo*",
+   "dorado": true
+  },
+  {
+   "plano": 2,
+   "t": 0.2,
+   "dur": 3.8,
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Laboratorio Asphodel"
+  },
+  {
+   "plano": 2,
+   "t": 0.2,
+   "dur": 3.6,
+   "tipo": "etiqueta",
+   "texto": "O.M.N.I.A."
+  },
+  {
+   "plano": 2,
+   "t": 0.3,
+   "dur": 3.5,
+   "tipo": "sub",
+   "texto": "De vuelta en\nel *laboratorio*"
+  },
+  {
+   "plano": 3,
+   "t": 0.2,
+   "dur": 4.7,
+   "tipo": "sub",
+   "texto": "Mejoras permanentes\ny *armas nuevas*"
+  },
+  {
+   "plano": 4,
+   "t": 0.2,
+   "dur": 4.7,
+   "tipo": "sub",
+   "texto": "Investiga las sinergias\n*pista por pista*",
+   "dorado": true
+  }
+ ],
+ "huecos": [
+  {
+   "despues": 0,
+   "dur": 4.0,
+   "quien": "URI",
+   "guion": "En un roguelike vas a morir. Mucho."
+  },
+  {
+   "despues": 2,
+   "dur": 5.0,
+   "quien": "URI",
+   "guion": "Ahí está O.M.N.I.A., la terminal de mejoras. Yo programé la parte de investigaciones."
+  },
+  {
+   "despues": 3,
+   "dur": 4.5,
+   "quien": "URI",
+   "guion": "Compras pistas de cada receta, una por una. Cada muerte te acerca a la siguiente sinergia."
+  }
+ ],
+ "id": "FG_04_omnia",
+ "salida": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN-GUN REDES"
+}

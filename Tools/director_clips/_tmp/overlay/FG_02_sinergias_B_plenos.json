@@ -1,0 +1,26 @@
+[
+ {
+  "archivo": "FG_02_sinergias_B_hueco16.mp4",
+  "t0": 3.4,
+  "t1": 7.9,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_02_sinergias_B_hueco17.mp4",
+  "t0": 11.633,
+  "t1": 16.633,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_02_sinergias_B_hueco18.mp4",
+  "t0": 31.367,
+  "t1": 35.867,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_02_sinergias_B_cierre19.mp4",
+  "t0": 39.433,
+  "t1": 42.633,
+  "tipo": "cierre"
+ }
+]

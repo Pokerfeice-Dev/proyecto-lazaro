@@ -1,0 +1,85 @@
+{
+ "id": "FG_01_partes",
+ "version": "A",
+ "cara": "MARCOS",
+ "fps": 30,
+ "total": 25.999,
+ "fin_juego": 22.799,
+ "huecos": [],
+ "elementos": [
+  {
+   "tipo": "titulo",
+   "texto": "HECHO DE PARTES",
+   "ceja": "FRANKEN-GUN · ZONA 1",
+   "t0": 0.2,
+   "t1": 2.767
+  },
+  {
+   "tipo": "credito",
+   "texto": "Música original: Marcos Amigorena · Scrap and Ash",
+   "t0": 2.967,
+   "t1": 5.567
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "PIEZA DE CUERPO",
+   "t0": 2.967,
+   "t1": 5.367
+  },
+  {
+   "tipo": "sub",
+   "texto": "Cada enemigo\nsuelta una *pieza*\nde su cuerpo",
+   "t0": 3.067,
+   "t1": 5.767
+  },
+  {
+   "tipo": "sub",
+   "texto": "Y te la\npuedes *coser*",
+   "t0": 6.067,
+   "t1": 8.567
+  },
+  {
+   "tipo": "sub",
+   "texto": "Torso, brazos\ny piernas cambian\n*cómo juegas*",
+   "t0": 8.967,
+   "t1": 13.133
+  },
+  {
+   "tipo": "sub",
+   "texto": "Tres piezas\ndel *mismo animal*...",
+   "t0": 13.233,
+   "t1": 15.233
+  },
+  {
+   "tipo": "sub",
+   "texto": "...despiertan\nuna *sinergia*",
+   "dorado": true,
+   "t0": 15.333,
+   "t1": 16.866
+  },
+  {
+   "tipo": "etiqueta",
+   "texto": "INSTINTO CANINO",
+   "color": "dorado",
+   "t0": 17.066,
+   "t1": 19.633
+  },
+  {
+   "tipo": "sub",
+   "texto": "Dos armas\ncuerpo a cuerpo\n+ *furia*",
+   "t0": 17.166,
+   "t1": 19.633
+  },
+  {
+   "tipo": "sub",
+   "texto": "Cambiar una pieza\nla destruye...\n*pero te cura*",
+   "t0": 19.733,
+   "t1": 22.733
+  },
+  {
+   "tipo": "cierre",
+   "t0": 22.799,
+   "t1": 25.999
+  }
+ ]
+}

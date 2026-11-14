@@ -1,0 +1,35 @@
+{
+ "cara": "MARCOS",
+ "musica": {
+  "archivo": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN - GUN - 04 - FIELDS OF ASPHODEL.mp4",
+  "desde": 10.0,
+  "vol": -9
+ },
+ "planos": [
+  {"toma": "asphodel_sala", "marca": "pelea", "desde": -0.9, "dur": 3.8, "entrada": "golpe"},
+  {"toma": "asphodel_mix", "desde": 0.3, "dur": 5.5},
+  {"toma": "ygor", "desde": 0.5, "dur": 3.8},
+  {"toma": "tesoro", "desde": 0.5, "dur": 3.2},
+  {"toma": "jefe1", "desde": 0.5, "dur": 6.0, "entrada": "temblor"},
+  {"archivo": "Tools/director_clips/_salida/run_jefe.mp4", "desde": 0.6, "dur": 5.6, "completo": true, "entrada": "destello"}
+ ],
+ "textos": [
+  {"plano": 0, "t": 0.2, "dur": 3.4, "tipo": "credito", "texto": "Música original: Marcos Amigorena · Fields of Asphodel"},
+  {"plano": 0, "t": 0.3, "dur": 3.2, "tipo": "etiqueta", "texto": "ZONA 1 · ASPHODEL"},
+  {"plano": 1, "t": 0.3, "dur": 2.4, "tipo": "sub", "texto": "Una ciudad en ruinas"},
+  {"plano": 1, "t": 2.9, "dur": 2.5, "tipo": "sub", "texto": "tomada por *androides*"},
+  {"plano": 2, "t": 0.2, "dur": 3.5, "tipo": "etiqueta", "texto": "YGOR · COMERCIO CLANDESTINO", "color": "dorado", "tam": 40},
+  {"plano": 2, "t": 0.3, "dur": 3.4, "tipo": "sub", "texto": "Piezas a cambio\nde *carne*"},
+  {"plano": 3, "t": 0.2, "dur": 2.9, "tipo": "etiqueta", "texto": "SALA DEL TESORO", "color": "dorado"},
+  {"plano": 3, "t": 0.3, "dur": 2.8, "tipo": "sub", "texto": "Un cargamento\n*sin vigilancia*"},
+  {"plano": 4, "t": 0.2, "dur": 2.6, "tipo": "sub", "texto": "Y al final\nde la zona..."},
+  {"plano": 5, "t": 0.4, "dur": 4.8, "tipo": "sub", "texto": "El *primer jefe*:\nel Centinela Génesis"}
+ ],
+ "huecos": [
+  {"despues": 0, "dur": 4.5, "quien": "MARCOS", "guion": "Esta es la Zona 1: una ciudad a medio abandonar, tomada por androides."},
+  {"despues": 3, "dur": 4.0, "quien": "MARCOS", "guion": "Ygor te vende piezas a cambio de carne. Y a veces encuentras un cargamento sin vigilancia."},
+  {"despues": 4, "dur": 4.5, "quien": "MARCOS", "guion": "Al final te espera el Centinela Génesis. Su tema lo hice yo, en Cakewalk."}
+ ],
+ "id": "FG_03_asphodel",
+ "salida": "D:/ADOBE/VIDEOS TERMINADOS/FRANKEN-GUN REDES"
+}

@@ -1,0 +1,26 @@
+[
+ {
+  "archivo": "FG_01_partes_B_hueco11.mp4",
+  "t0": 2.767,
+  "t1": 7.267,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_01_partes_B_hueco12.mp4",
+  "t0": 21.366,
+  "t1": 25.866,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_01_partes_B_hueco13.mp4",
+  "t0": 28.633,
+  "t1": 33.633,
+  "tipo": "hueco"
+ },
+ {
+  "archivo": "FG_01_partes_B_cierre14.mp4",
+  "t0": 36.799,
+  "t1": 39.999,
+  "tipo": "cierre"
+ }
+]

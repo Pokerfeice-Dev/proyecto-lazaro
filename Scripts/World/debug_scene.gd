@@ -11,6 +11,9 @@ const ITEMS: Array[Dictionary] = [
 	{"name": "Brazo Musculoso", "path": "res://Art/Items/Player/Arms/Item2_BrazoReforzado.tres"},
 	{"name": "Brazo Ligero", "path": "res://Art/Items/Player/Arms/Item3_BrazoLigero.tres"},
 	{"name": "Brazo Canino", "path": "res://Art/Items/Player/Arms/Item4_BrazoArmado.tres"},
+	{"name": "Torso Gordo", "path": "res://Art/Items/Player/Body/Item5_TorsoGordo.tres"},
+	{"name": "Brazo Gordo", "path": "res://Art/Items/Player/Arms/Item5_BrazoGordo.tres"},
+	{"name": "Piernas Gordas", "path": "res://Art/Items/Player/Legs/Item5_PiernasGordas.tres"},
 	{"name": "Torso Musculoso", "path": "res://Art/Items/Player/Body/Item2_TorsoBlindado.tres"},
 	{"name": "Torso Canino", "path": "res://Art/Items/Player/Body/Item3_TorsoEspinado.tres"},
 	{"name": "Torso Ligero", "path": "res://Art/Items/Player/Body/Item4_TorsoLigero.tres"},
@@ -47,6 +50,14 @@ const ENEMIES: Array[Dictionary] = [
 	{"name": "Mecha", "path": "res://Scenes/Enemies/EnemyTank.tscn"},
 	{"name": "Delivery", "path": "res://Scenes/Enemies/EnemyTurret.tscn"},
 	{"name": "Bee Minion", "path": "res://Scenes/Enemies/Enemy_bee_summon.tscn"},
+	{"name": "Turret Laser", "path": "res://Scenes/Enemies/EnemyTurretLaser.tscn"},
+	{"name": "Turret Homing", "path": "res://Scenes/Enemies/EnemyTurretHoming.tscn"},
+	{"name": "Kamikaze", "path": "res://Scenes/Enemies/EnemyKamikaze.tscn"},
+	{"name": "Kiter", "path": "res://Scenes/Enemies/EnemyKiter.tscn"},
+	{"name": "Shielder", "path": "res://Scenes/Enemies/EnemyShielder.tscn"},
+	{"name": "Wandering Arm", "path": "res://Scenes/Enemies/EnemyWanderingArm.tscn"},
+	{"name": "Hollow Torso", "path": "res://Scenes/Enemies/EnemyHollowTorso.tscn"},
+	{"name": "Lazarus Echo", "path": "res://Scenes/Enemies/EnemyLazarusEcho.tscn"},
 	{"name": "Genesis Boss", "path": "res://Scenes/Enemies/boss1.tscn"}
 ]
 

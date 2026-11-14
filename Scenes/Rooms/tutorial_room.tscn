@@ -4,6 +4,8 @@
 [ext_resource type="Script" uid="uid://qe6unypmvspn" path="res://Scripts/World/tutorial_room.gd" id="2_tutorial_script"]
 [ext_resource type="PackedScene" uid="uid://dtc62xovhjm13" path="res://Scenes/Enemies/dummy.tscn" id="3_26882"]
 [ext_resource type="PackedScene" uid="uid://c7eww4cc4qhh" path="res://Scenes/Enemies/EnemyShooter.tscn" id="4_g0wk0"]
+[ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="5_736km"]
+[ext_resource type="Texture2D" uid="uid://cwwymq8unj7q2" path="res://Art/Ui/svg/icon_chevron_left.svg" id="6_buucy"]
 
 [node name="Tutorial_Room" unique_id=678421999 instance=ExtResource("1_training_room")]
 script = ExtResource("2_tutorial_script")
@@ -29,3 +31,13 @@ visible = false
 [node name="VictoriaTrainer" parent="." index="9" unique_id=1462890512]
 visible = false
 position = Vector2(-413, 210)
+
+[node name="ExitDoor2" parent="." index="10" unique_id=201233454 instance=ExtResource("5_736km")]
+position = Vector2(-237, -253)
+rotation = 1.5707964
+start_locked = false
+custom_next_scene = "res://Scenes/Rooms/lab_room.tscn"
+sign_text = "SALIR DEL ENTRENAMIENTO"
+sign_icon = ExtResource("6_buucy")
+sign_offset = Vector2(0, -38)
+prompt_text = "[E] Salir"

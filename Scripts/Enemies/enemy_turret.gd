@@ -2,7 +2,7 @@ extends EnemyBase
 class_name Delivery
 
 @export var rotation_speed: float = 3.0
-@export var fire_rate: float = 1.5
+@export var fire_rate: float = 2.2
 @export var projectile_scene: PackedScene = preload("res://Scenes/Enemies/enemy_shooter_projectile.tscn")
 
 @onready var sprite_cannon: Sprite2D = $Sprite_CannonTurret
@@ -11,6 +11,34 @@ class_name Delivery
 var player_in_shoot_range: bool = false
 var shoot_cooldown: float = 0.0
 @export var anticipation_time: float = 0.35
+@export_category("Ráfaga")
+## Balas por disparo (solo en modo normal). Salen en fila, apuntadas adelantándose al jugador.
+@export var burst_count: int = 3
+@export var burst_gap: float = 0.14
+@export var bullet_speed: float = 520.0
+
+# Variantes de la torreta: bala normal, bala teledirigida lenta o láser que barre.
+enum FireMode {
+	NORMAL,
+	HOMING,
+	LASER
+}
+
+@export var fire_mode: FireMode = FireMode.NORMAL
+@export_category("Teledirigida")
+@export var homing_speed: float = 220.0
+@export var homing_turn_rate: float = 2.2
+@export var homing_duration: float = 2.0
+@export_category("Láser")
+@export var laser_duration: float = 1.4
+@export var laser_length: float = 250.0
+@export var laser_half_width: float = 9.0
+@export var laser_sweep_speed: float = 1.1
+@export var laser_tick_time: float = 0.4
+
+var _laser_time_left: float = 0.0
+var _laser_tick_left: float = 0.0
+var _laser_sweep_sign: float = 1.0
 var is_anticipating_shot: bool = false
 var _anticipation_tween: Tween = null
 
@@ -35,6 +63,7 @@ func _exit_tree() -> void:
 
 func die() -> void:
 	_cancel_anticipation()
+	_laser_time_left = 0.0
 	super.die()
 
 func _play_attack_sound() -> void:
@@ -60,6 +89,7 @@ func process_movement(delta: float) -> void:
 	if is_dying: return
 	
 	_update_cooldown(delta)
+	_update_laser(delta)
 	_update_cannon_rotation(delta)
 	_update_shooting()
 
@@ -68,10 +98,13 @@ func _update_cooldown(delta: float) -> void:
 		shoot_cooldown -= delta
 
 func _update_cannon_rotation(delta: float) -> void:
+	if _laser_time_left > 0.0: return
 	if not player_in_shoot_range: return
 	if not target: return
 	
 	var target_dir = (target.global_position - global_position).normalized()
+	if fire_mode == FireMode.NORMAL:
+		target_dir = lead_direction(global_position, bullet_speed)
 	var target_angle = target_dir.angle()
 	var angle_diff = wrapf(target_angle - sprite_cannon.rotation, -PI, PI)
 	sprite_cannon.rotation += clamp(angle_diff, -rotation_speed * delta, rotation_speed * delta)
@@ -79,6 +112,7 @@ func _update_cannon_rotation(delta: float) -> void:
 		queue_redraw()
 
 func _update_shooting() -> void:
+	if _laser_time_left > 0.0: return
 	if not player_in_shoot_range: return
 	if shoot_cooldown > 0.0: return
 	if not target: return
@@ -105,6 +139,9 @@ func _on_anticipation_finished() -> void:
 	_restore_cannon_modulate()
 	queue_redraw()
 	if not player_in_shoot_range or not target: return
+	if fire_mode == FireMode.LASER:
+		_start_laser()
+		return
 	_shoot_projectile()
 	shoot_cooldown = fire_rate
 
@@ -126,8 +163,57 @@ func _cancel_anticipation() -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	if _laser_time_left > 0.0:
+		_draw_laser_beam()
+		return
 	if not is_anticipating_shot: return
 	_draw_aiming_laser()
+
+# --- Láser que barre ---
+
+func _start_laser() -> void:
+	_laser_time_left = laser_duration
+	_laser_tick_left = 0.0
+	_laser_sweep_sign = 1.0 if randf() < 0.5 else -1.0
+	_play_attack_sound()
+	queue_redraw()
+
+func _update_laser(delta: float) -> void:
+	if _laser_time_left <= 0.0: return
+	_laser_time_left -= delta
+	sprite_cannon.rotation += _laser_sweep_sign * laser_sweep_speed * delta
+	_laser_tick_left = maxf(0.0, _laser_tick_left - delta)
+	_damage_with_laser()
+	queue_redraw()
+	if _laser_time_left <= 0.0:
+		shoot_cooldown = fire_rate * 2.0
+
+# Devuelve [inicio, fin] del rayo; se corta contra las paredes.
+func _laser_segment() -> Array:
+	var start_pos = bullet_mark.global_position
+	var end_pos = start_pos + Vector2.from_angle(sprite_cannon.global_rotation) * laser_length
+	var query = PhysicsRayQueryParameters2D.create(start_pos, end_pos)
+	query.collision_mask = EnemyNavigation.OBSTACLE_MASK
+	var hit = get_world_2d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty(): end_pos = hit.position
+	return [start_pos, end_pos]
+
+func _damage_with_laser() -> void:
+	if _laser_tick_left > 0.0 or not is_instance_valid(target): return
+	var segment = _laser_segment()
+	var closest = Geometry2D.get_closest_point_to_segment(target.global_position, segment[0], segment[1])
+	if closest.distance_to(target.global_position) > laser_half_width: return
+	if not target.has_method("take_damage"): return
+	target.take_damage(damage, "Delivery", global_position)
+	_laser_tick_left = laser_tick_time
+
+func _draw_laser_beam() -> void:
+	if not bullet_mark or not sprite_cannon: return
+	var segment = _laser_segment()
+	var start_pos = to_local(segment[0])
+	var end_pos = to_local(segment[1])
+	draw_line(start_pos, end_pos, Color(1.0, 0.25, 0.2, 0.35), laser_half_width * 2.0)
+	draw_line(start_pos, end_pos, Color(1.0, 0.85, 0.5, 0.95), 2.5)
 
 func _draw_aiming_laser() -> void:
 	if not bullet_mark or not sprite_cannon: return
@@ -141,6 +227,22 @@ func _draw_aiming_laser() -> void:
 
 func _shoot_projectile() -> void:
 	if not projectile_scene: return
+	_fire_bullet()
+	if fire_mode == FireMode.NORMAL:
+		for i in range(1, burst_count):
+			get_tree().create_timer(burst_gap * i).timeout.connect(_fire_burst_bullet, CONNECT_ONE_SHOT)
+	_play_attack_sound()
+
+# En ráfaga cada bala pega menos, para que la tanda completa pese lo mismo que antes un solo disparo y medio.
+func _bullet_damage_ratio() -> float:
+	if fire_mode == FireMode.NORMAL and burst_count > 1: return 0.55
+	return 1.0
+
+func _fire_burst_bullet() -> void:
+	if is_dying: return
+	_fire_bullet()
+
+func _fire_bullet() -> void:
 	var proj = projectile_scene.instantiate()
 	register_attack(proj)
 	proj.source_name = "Delivery"
@@ -148,8 +250,13 @@ func _shoot_projectile() -> void:
 	var shoot_dir = Vector2.from_angle(sprite_cannon.global_rotation)
 	get_tree().current_scene.add_child(proj)
 	proj.global_position = spawn_pos
-	proj.setup(shoot_dir, damage, "player")
-	_play_attack_sound()
+	proj.setup(shoot_dir, damage * _bullet_damage_ratio(), "player")
+	if fire_mode == FireMode.HOMING:
+		proj.speed = homing_speed
+		proj.homing_turn_rate = homing_turn_rate
+		proj.homing_time_left = homing_duration
+	else:
+		proj.speed = bullet_speed
 
 # --- Señales conectadas desde el Inspector/Escena ---
 

@@ -9,6 +9,12 @@ var target_group: String = "player"
 var source_name: String = "Infección Lázaro"
 var _boss_fx: Node2D
 var _exploding := false
+const EnemyNavigation = preload("res://Scripts/World/enemy_navigation.gd")
+
+# Rebote y persecución opcionales: con los valores por defecto la bala vuela recto como siempre.
+var bounces_left: int = 0
+var homing_turn_rate: float = 0.0 # radianes por segundo
+var homing_time_left: float = 0.0
 
 @onready var anim_sprite = $AnimatedSprite2D
 
@@ -23,7 +29,33 @@ func _ready():
 	get_tree().create_timer(lifetime).timeout.connect(queue_free)
 
 func _physics_process(delta):
+	_steer_towards_target(delta)
+	if bounces_left > 0 and _bounce_off_wall(delta): return
 	global_position += direction * speed * delta
+
+# Gira hacia el objetivo mientras dure la persecución (balas teledirigidas).
+func _steer_towards_target(delta: float) -> void:
+	if homing_turn_rate <= 0.0 or homing_time_left <= 0.0: return
+	homing_time_left -= delta
+	var targets = get_tree().get_nodes_in_group(target_group)
+	if targets.is_empty(): return
+	var wanted = direction.angle_to((targets[0].global_position - global_position).normalized())
+	var turn = clampf(wanted, -homing_turn_rate * delta, homing_turn_rate * delta)
+	direction = direction.rotated(turn)
+	rotation = direction.angle()
+
+# Mira un poco más allá del paso de este cuadro; si hay una pared, refleja la dirección.
+func _bounce_off_wall(delta: float) -> bool:
+	var reach = speed * delta + 6.0
+	var query = PhysicsRayQueryParameters2D.create(global_position, global_position + direction * reach)
+	query.collision_mask = EnemyNavigation.OBSTACLE_MASK
+	var hit = get_world_2d().direct_space_state.intersect_ray(query)
+	if hit.is_empty(): return false
+	direction = direction.bounce(hit.normal).normalized()
+	rotation = direction.angle()
+	global_position = hit.position + hit.normal * 2.0
+	bounces_left -= 1
+	return true
 
 func enable_boss_comet(enhanced: bool = false) -> void:
 	if is_instance_valid(_boss_fx): return
@@ -49,6 +81,12 @@ func _on_body_entered(body: Node2D):
 			body.take_damage(int(damage), source_name, source_position)
 		_explode()
 	elif not body.is_in_group("enemy") and not body.is_in_group("projectile_pass"):
+		# Si todavía le queda un rebote y el rayo no alcanzó a verla, vuelve por donde vino.
+		if bounces_left > 0:
+			bounces_left -= 1
+			direction = -direction
+			rotation = direction.angle()
+			return
 		# Colisión con pared u otro objeto sólido
 		_explode()
 

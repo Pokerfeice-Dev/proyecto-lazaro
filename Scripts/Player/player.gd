@@ -135,6 +135,8 @@ func _ready() -> void:
 	if equip:
 		equip.equipment_changed.connect(_on_equipment_changed)
 		equip.body_part_equipped.connect(_on_body_part_equipped)
+	add_child(BodyLayers.new()) # cuerpo por capas: cada pieza se ve del color de su set
+	add_child(PerfProbe.new()) # TEMPORAL: sonda de rendimiento (res://perf_probe.log)
 	_update_player_stats()
 	get_tree().scene_changed.connect(_queue_arrival_fx)
 	hide() # Evita ver el cuerpo completo antes de reunir los píxeles.
