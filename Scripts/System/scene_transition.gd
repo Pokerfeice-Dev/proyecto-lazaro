@@ -18,11 +18,12 @@ var _music_trim_db := {
 	"res://Audio/Music/Asphodel_B.ogg": -0.9,
 	"res://Audio/Music/Ost-Batalla_master.ogg": -0.9,
 	"res://Audio/Music/Cripta_A.ogg": -0.9,
-	"res://Audio/Music/Nucleo_A.ogg": -0.9,
+	"res://Audio/Music/Nucleo_A.mp3": -0.9,
 }
 
-# Zona 3 (El Nucleo): el loop vuelve al compas 9 (20.0 s) de Nucleo_A.ogg.
-const NUCLEO_LOOP_OFFSET := 20.0
+# Zona 3 (El Nucleo): Nucleo_A.mp3 (320 kbps, para que no pierda calidad). El loop vuelve al compas 9:
+# 20.0 s + 1105 muestras de retardo del codificador MP3 (44100 Hz), que Godot no descuenta.
+const NUCLEO_LOOP_OFFSET := 20.0 + 1105.0 / 44100.0
 
 func _ready():
 	layer = 120 # Aseguramos que se superponga por encima de cualquier otro CanvasLayer u objeto HUD.
@@ -63,8 +64,8 @@ func _ready():
 
 	# Zona 3 (Level3_Room*): tema de El Nucleo. Si el archivo no esta, la zona queda en silencio.
 	level3_music = AudioStreamPlayer.new()
-	if ResourceLoader.exists("res://Audio/Music/Nucleo_A.ogg"):
-		level3_music.stream = load("res://Audio/Music/Nucleo_A.ogg")
+	if ResourceLoader.exists("res://Audio/Music/Nucleo_A.mp3"):
+		level3_music.stream = load("res://Audio/Music/Nucleo_A.mp3")
 	level3_music.volume_db = -5.0 + _get_music_trim(level3_music)
 	level3_music.bus = "Music"
 	add_child(level3_music)
@@ -234,8 +235,8 @@ func _setup_loops() -> void:
 	_set_stream_loop(mainmenu_music)
 	_set_stream_loop(level2_music)
 	_set_stream_loop(level3_music)
-	if level3_music and level3_music.stream is AudioStreamOggVorbis:
-		(level3_music.stream as AudioStreamOggVorbis).loop_offset = NUCLEO_LOOP_OFFSET
+	if level3_music and level3_music.stream is AudioStreamMP3:
+		(level3_music.stream as AudioStreamMP3).loop_offset = NUCLEO_LOOP_OFFSET
 	_set_stream_loop(lab_music)
 	for track in _zone1_tracks:
 		if track:

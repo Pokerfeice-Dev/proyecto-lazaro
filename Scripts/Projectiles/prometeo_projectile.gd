@@ -8,7 +8,7 @@ class_name PrometeoProjectile
 var _energy_tail := PackedVector2Array()
 var _tail_clock := 0.0
 
-var homing_turn_rate: float = 0.0
+# homing_turn_rate ya viene de enemy_shooter_projectile.gd (la clase padre).
 var _homing_left: float = 0.0
 var _homing_target: Node2D = null
 
@@ -27,7 +27,7 @@ func _ready() -> void:
 	super._ready()
 
 func _physics_process(delta: float) -> void:
-	_steer_towards_target(delta)
+	# super._physics_process ya llama a _steer_towards_target (que esta clase reemplaza).
 	super._physics_process(delta)
 	_tail_clock -= delta
 	if _tail_clock <= 0.0:
