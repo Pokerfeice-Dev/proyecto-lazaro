@@ -146,10 +146,11 @@ const ZONE_NAMES := {
 	2: "La Cripta",
 	3: "El Núcleo",
 }
-## Tiendas de Ygor por zona. La zona 3 todavía no tiene la suya, así que ahí no aparece.
+## Tiendas de Ygor por zona.
 const YGOR_ROOMS := {
 	1: "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn",
 	2: "res://Scenes/Rooms/Level2_Room13(Ygor1).tscn",
+	3: "res://Scenes/Rooms/Level3_Room15(Ygor1).tscn",
 }
 var current_level: int = 1
 var just_won_run: bool = false

@@ -62,6 +62,7 @@ const TELEPORTS: Array[Dictionary] = [
 	{"name": "🏭 Nivel 2 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level2_Room1.tscn"},
 	{"name": "🧬 Nivel 3 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level3_Room1.tscn"},
 	{"name": "🧬 Nivel 3 - Sala rediseñada (Room 5)", "path": "res://Scenes/Rooms/Level3_Room5.tscn"},
+	{"name": "🛒 Nivel 3 - Tienda Ygor (Room 15)", "path": "res://Scenes/Rooms/Level3_Room15(Ygor1).tscn"},
 	{"name": "🔬 Laboratorio / Hub", "path": "res://Scenes/Rooms/lab_room.tscn"},
 	{"name": "⚡ Mejoras de Núcleo", "path": "res://Scenes/Rooms/Core_Upgrade_Room.tscn"},
 	{"name": "🧪 Sala Sandbox de Pruebas", "path": "res://Scenes/Rooms/debug_scene.tscn"}

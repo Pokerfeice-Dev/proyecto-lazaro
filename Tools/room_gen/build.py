@@ -142,15 +142,34 @@ def room14():
     R.door = rel(B, 8, 5)
     return R
 
-ROOMS = [room5, room6, room7, room8, room9, room10, room11, room12, room13, room14]
+def room15():
+    """Tienda de Ygor de la zona 3 (Level3_Room15(Ygor1)): sala grande y despejada como las de las zonas 1 y 2.
+    Ygor al centro-arriba, 4 hologramas a sus lados (desfases de la tienda de la cripta) y las 3 máquinas
+    debajo (ygor.gd las pone a Ygor + (-88|0|88, 184) px). Entras por arriba y la puerta está abajo."""
+    R = Room('Level3_Room15(Ygor1)', 'Tienda de Ygor')
+    A = R.plateau(0, 3, 19, 15, top='A', bottom='cliff', grow=False)
+    R.zone(*rel(A, 3, 1), 13, 13, 'mauve')
+    R.zone(*rel(A, 8, 0), 3, 15, 'marks')
+    R.ring(*rel(A, 9, 4), 3, 'marks')
+    R.prop('planta_carnivora', *rel(A, 0, 1)); R.prop('cerebro_b', *rel(A, 15, 1))
+    R.prop('esqueleto_a', *rel(A, 1, 11)); R.prop('hueso', *rel(A, 15, 11))
+    R.prop('calaveras', *rel(A, 0, 8)); R.prop('roca_marron_b', *rel(A, 16, 7))
+    R.ygor = rel(A, 9, 4)
+    R.player = rel(A, 9, 0)
+    R.door = rel(A, 9, 14)
+    for x in range(4, 15):
+        for y in range(2, 14): R.reserve.add((A['IL'] + x, A['IT'] + y))
+    return R
+
+ROOMS = [room5, room6, room7, room8, room9, room10, room11, room12, room13, room14, room15]
 
 SMALL = ['huesito_a', 'huesito_b', 'huesito_c', 'piedras_bajas_a', 'piedras_bajas_b', 'calaveras', 'calaveras2', 'espinas',
          'huevo', 'coral', 'planta_ojos', 'cuerno', 'roca_marron_a', 'roca_marron_b', 'hierba_ojos_fina', 'esqueleto_a', 'esqueleto_b']
-EXTRA = {5: 6, 6: 10, 7: 5, 8: 7, 9: 10, 10: 6, 11: 7, 12: 5, 13: 8, 14: 11}
+EXTRA = {15: 3, 5: 8, 6: 12, 7: 7, 8: 9, 9: 12, 10: 8, 11: 9, 12: 7, 13: 10, 14: 13}
 
 def check(R):
     R.snap_all()
-    R.scatter(SMALL, EXTRA[int(R.name.split('Room')[-1])], seed=int(R.name.split('Room')[-1]) * 31)
+    R.scatter(SMALL, EXTRA.get(int(R.name.split('Room')[-1].split('(')[0]), 4), seed=int(R.name.split('Room')[-1].split('(')[0]) * 31)
     bad = []
     for kind, pts in (('spawn', R.spawns), ('barril', R.barrels), ('jugador', [R.player]), ('puerta', [R.door])):
         for p in pts:
@@ -174,6 +193,14 @@ def render(R, scale=2):
     for p in R.spawns: mark(p, (255, 60, 60, 255))
     for p in R.barrels: mark(p, (255, 200, 40, 255), 4)
     mark(R.player, (60, 255, 90, 255)); mark(R.door, (80, 160, 255, 255), 6)
+    if R.ygor:
+        def fmark(fx, fy, col, r):
+            cx, cy = (fx - mx) * 16, (fy - my) * 16
+            d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=col, width=2)
+        gx, gy = R.ygor[0] + 0.5, R.ygor[1] + 0.5
+        fmark(gx, gy, (80, 230, 255, 255), 9)
+        for ox, oy in ((-3.5, 3), (3.5, 3), (4.5, 8), (-4.5, 8)): fmark(gx + ox, gy + oy, (255, 120, 255, 255), 6)
+        for ox in (-2.75, 0, 2.75): fmark(gx + ox, gy + 5.75, (255, 255, 255, 255), 5)
     return im.resize((im.width * scale, im.height * scale), Image.NEAREST)
 
 if __name__ == '__main__':
@@ -187,7 +214,7 @@ if __name__ == '__main__':
     out = []
     for fn in ROOMS:
         R = fn()
-        if a.rooms and R.name.split('Room')[-1] not in a.rooms: continue
+        if a.rooms and R.name.split('Room')[-1].split('(')[0] not in a.rooms: continue
         bad = check(R)
         im = render(R)
         if a.preview:

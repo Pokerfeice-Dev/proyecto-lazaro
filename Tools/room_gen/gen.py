@@ -26,11 +26,17 @@ class Room:
         self.spawns, self.barrels = [], []
         self.player = None
         self.door = None
+        self.ygor = None           # tienda de Ygor: celda donde va Ygor
+        self.reserve = set()       # celdas que los props sueltos no pueden ocupar
 
     # ---------------------------------------------------------------- plataforma
-    def plateau(self, IL, IT, IW, IH, top='A', bottom='cliff', floor='tan', up=None, down=None):
+    def plateau(self, IL, IT, IW, IH, top='A', bottom='cliff', floor='tan', up=None, down=None, grow=True):
         """Plataforma con interior [IL, IL+IW) x [IT, IT+IH). up/down: columna (izquierda) del
         puente hacia arriba/abajo (el pasillo mide 2 de ancho)."""
+        # las plataformas salían angostas: 1 o 2 tiles de más (menos en las que ya son grandes)
+        if grow:
+            IW += 2 if IW < 14 else 1
+            IH += 2 if IH < 8 else 1
         IB = IT + IH
         if down is not None and not (IL + 3 <= down <= IL + IW - 2): raise ValueError('puente hacia abajo fuera de rango en la plataforma IL=%d' % IL)
         if up is not None and not (IL + 1 <= up <= IL + IW - 3): raise ValueError('puente hacia arriba fuera de rango en la plataforma IL=%d' % IL)
@@ -40,22 +46,35 @@ class Room:
                 self.floor[(x, y)] = base
                 self.walk.add((x, y)); self.interior.add((x, y))
             self.floor[(IL - 2, y)] = (26, 12); self.floor[(IL - 1, y)] = (27, 12)
-            self.floor[(IL + IW, y)] = (10, 32); self.floor[(IL + IW + 1, y)] = (11, 32)
-        # borde superior (3 filas) -> Walls
+            if bottom == 'solid': self.floor[(IL + IW, y)] = (24, 12); self.floor[(IL + IW + 1, y)] = (25, 12)
+            else: self.floor[(IL + IW, y)] = (10, 32); self.floor[(IL + IW + 1, y)] = (11, 32)
+        # borde superior (3 filas) -> Walls. El festón se repite cada 8 tiles (fases p0..p7): cada tramo
+        # tiene que empezar en una fase y terminar en otra para que no quede cortado contra la esquina o
+        # contra el puente; el sobrante de ancho se rellena con tiles bajos (p0).
         gap = (top == 'gap')
-        for y_off, row in ((-3, 12), (-2, 13), (-1, 14)):
-            y = IT + y_off
-            x_lo = IL - 1 if row == 12 else IL
-            x_hi = IL + IW - 1
-            for x in range(x_lo, x_hi + 1):
-                if up is not None and up - 1 <= x <= up + 2: continue
-                p = (x - (IL - 1)) % 8
-                if up is not None and x > up + 2: p = (x - (up + 2)) % 8
-                if gap and p in (3, 4):
-                    if row == 12: continue
-                    self.walls[(x, y)] = (16, row)
-                else:
-                    self.walls[(x, y)] = (16 + p, row)
+        x_first, x_last = IL - 1, IL + IW - 1
+        if up is None: segs_top = [(x_first, x_last, 0, 0 if gap else 4)]
+        else: segs_top = [(x_first, up - 2, 0, 0), (up + 3, x_last, 1, 0 if gap else 4)]
+        for (xa, xb, p_start, p_end) in segs_top:
+            n = xb - xa + 1
+            if n <= 0: continue
+            core_min = (p_end - p_start) % 8 + 1
+            if n < core_min: phases = [0] * n
+            else:
+                fill = (n - core_min) % 8
+                core = [(p_start + i) % 8 for i in range(core_min + (n - core_min - fill))]
+                phases = [0] * fill + core
+            for i, p in enumerate(phases):
+                x = xa + i
+                for y_off, row in ((-3, 12), (-2, 13), (-1, 14)):
+                    if row == 12 and x < IL - 1: continue
+                    if row != 12 and x < IL: continue
+                    y = IT + y_off
+                    if gap and p in (3, 4):
+                        if row == 12: continue
+                        self.walls[(x, y)] = (16, row)
+                    else:
+                        self.walls[(x, y)] = (16 + p, row)
         self.walls[(IL - 1, IT - 1)] = (44, 4)
         self.walls[(IL + IW, IT - 1)] = (42, 4)
         if gap: self.walls[(IL + IW + 1, IT - 1)] = (43, 4)
@@ -125,7 +144,9 @@ class Room:
             for i, t in enumerate(r):
                 self.blocked.add((x + i, y + j))
                 if t is not None: self.floor[(x + i, y + j)] = t
-                else: self.walls[(x + i, y + j)] = WALL_TILE
+                else:
+                    self.floor.pop((x + i, y + j), None)
+                    self.walls[(x + i, y + j)] = WALL_TILE
 
     def prop(self, name, x, y):
         """Pone el objeto con su esquina superior izquierda en (x, y)."""
@@ -143,7 +164,9 @@ class Room:
         for p in self.spawns + self.barrels + [self.player, self.door]:
             for dy in range(-2, 3):
                 for dx in range(-2, 3): keep.add((p[0] + dx, p[1] + dy))
+        keep |= self.reserve
         placed = 0
+        base = self.connected()      # si ya había puntos tapados por props a mano, no se exige
         cells = sorted(self.interior)
         for _ in range(400):
             if placed >= n: break
@@ -160,7 +183,14 @@ class Room:
                         if (c[0] + dx, c[1] + dy) not in self.interior: ok = False
                 if not ok: break
             if not ok: continue
-            self.prop(name, x, y); placed += 1
+            before = set(self.blocked)
+            self.prop(name, x, y)
+            if base and not self.connected():
+                for c in tiles:
+                    self.objs.pop(c, None)
+                self.blocked = before
+                continue
+            placed += 1
         return placed
 
     # ---------------------------------------------------------------- cierre
@@ -180,6 +210,19 @@ class Room:
         # origen en (0, 0)
         allc = list(self.floor) + list(self.walls) + list(self.objs)
         self.minx = min(c[0] for c in allc); self.miny = min(c[1] for c in allc)
+
+    def connected(self):
+        """True si desde el jugador se llega a todos los spawns, barriles y la puerta sin pasar por obstáculos."""
+        start = self.player
+        seen = {start}; st = [start]
+        while st:
+            x, y = st.pop()
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                c = (x + dx, y + dy)
+                if c in seen or c not in self.walk or c in self.blocked: continue
+                seen.add(c); st.append(c)
+        goals = self.spawns + self.barrels + [self.door]
+        return all(p in seen for p in goals)
 
     def free(self, x, y):
         return (x, y) in self.interior and (x, y) not in self.blocked
@@ -213,4 +256,4 @@ class Room:
         pl = lambda p: [p[0] - mx, p[1] - my]
         return {'name': self.name, 'title': self.title, 'floor': sh(self.floor), 'objects': sh(self.objs),
                 'walls': sh(self.walls), 'spawns': [pl(p) for p in self.spawns], 'barrels': [pl(p) for p in self.barrels],
-                'player': pl(self.player), 'door': pl(self.door)}
+                'player': pl(self.player), 'door': pl(self.door)} | ({'kind': 'shop', 'ygor': pl(self.ygor)} if self.ygor else {})

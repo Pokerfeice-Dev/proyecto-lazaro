@@ -22,6 +22,13 @@ const DATA := "res://Tools/level3_rooms.json"
 const ORIGIN := Vector2i(5, 6)          # celda de arriba a la izquierda (como la sala 2)
 const CELL := 32.0                      # 16 px * escala 2 del TileMapLayer
 
+# Tienda de Ygor (las entradas del JSON con "kind": "shop"). Los hologramas van a los mismos desfases
+# de Ygor que en la tienda de la cripta; las 3 máquinas las pone ygor.gd solas (Ygor + (-88|0|88, 184)).
+const YGOR_SCENE := "res://Scenes/Ygor/ygor.tscn"
+const HOLOGRAM_SCENE := "res://Scenes/Ygor/hologram_ygor_store.tscn"
+const YGOR_MUSIC := "res://Audio/Music/Ygor_Shop.ogg"
+const HOLOGRAM_OFFSETS := [Vector2(-112, 96), Vector2(112, 96), Vector2(144, 256), Vector2(-144, 256)]
+
 static func cell_center(local: Array) -> Vector2:
 	var c := ORIGIN + Vector2i(int(local[0]), int(local[1]))
 	return Vector2((c.x + 0.5) * CELL, (c.y + 0.5) * CELL)
@@ -45,7 +52,7 @@ static func build_room(spec: Dictionary, overwrite := false) -> String:
 	var root: Node = (load(TEMPLATE) as PackedScene).instantiate()
 	# escena independiente (no heredada de la sala 2): si se toca la sala 2, estas no cambian
 	root.scene_file_path = ""
-	root.name = room_name.replace("Level3_Room", "Room_")
+	root.name = "Room_Ygor3" if spec.get("kind", "") == "shop" else room_name.replace("Level3_Room", "Room_")
 	# Las capas se reemplazan por capas nuevas con las mismas propiedades: si se borran las
 	# celdas de una capa que vino de otra escena, quedan guardadas como "borradas" en el archivo.
 	var ground := fresh_layer(root, "Floor")
@@ -61,8 +68,10 @@ static func build_room(spec: Dictionary, overwrite := false) -> String:
 	var area := root.get_node("Area_entered") as Node2D
 	var area_offset := area.position - player_spawn.position
 	player_spawn.position = spawn_pos
-	area.position = spawn_pos + area_offset
 	(root.get_node("Door") as Node2D).position = cell_center(spec["door"])
+	if spec.get("kind", "") == "shop":
+		return _finish_shop(root, spec, path)
+	area.position = spawn_pos + area_offset
 	# Spawns: se reusan los marcadores de la plantilla y se agregan los que falten
 	var spawns := root.get_node("Spawns")
 	var wanted: Array = spec["spawns"]
@@ -91,6 +100,40 @@ static func build_room(spec: Dictionary, overwrite := false) -> String:
 	if err != OK: return room_name + ": error al empaquetar " + str(err)
 	err = ResourceSaver.save(packed, path)
 	return room_name + (": guardada (%s)" % spec["title"] if err == OK else ": error al guardar " + str(err))
+
+# Tienda: sin enemigos ni disparador de inicio (se borran Area_entered, Spawns y Barrels de la plantilla),
+# con Ygor, sus 4 hologramas y su música, igual que las tiendas de las zonas 1 y 2.
+static func _finish_shop(root: Node, spec: Dictionary, path: String) -> String:
+	for extra_name in ["Area_entered", "Spawns", "Barrels"]:
+		var extra := root.get_node_or_null(extra_name)
+		if extra:
+			root.remove_child(extra)
+			extra.free()
+	var ygor_pos := cell_center(spec["ygor"])
+	var ygor := (load(YGOR_SCENE) as PackedScene).instantiate() as Node2D
+	ygor.name = "Ygor"
+	root.add_child(ygor)
+	ygor.owner = root
+	ygor.position = ygor_pos
+	for i in HOLOGRAM_OFFSETS.size():
+		var holo := (load(HOLOGRAM_SCENE) as PackedScene).instantiate() as Node2D
+		holo.name = "Hologram_Ygor_Store" + ("" if i == 0 else str(i + 1))
+		root.add_child(holo)
+		holo.owner = root
+		holo.position = ygor_pos + HOLOGRAM_OFFSETS[i]
+	var music := AudioStreamPlayer.new()
+	music.name = "Ygor_music"
+	music.stream = load(YGOR_MUSIC)
+	music.volume_db = -3.0
+	music.autoplay = true
+	root.add_child(music)
+	music.owner = root
+	var packed := PackedScene.new()
+	var err := packed.pack(root)
+	root.free()
+	if err != OK: return spec["name"] + ": error al empaquetar " + str(err)
+	err = ResourceSaver.save(packed, path)
+	return spec["name"] + (": tienda guardada (%s)" % spec["title"] if err == OK else ": error al guardar " + str(err))
 
 static func fresh_layer(root: Node, layer_name: String) -> TileMapLayer:
 	var old := root.get_node_or_null(layer_name) as TileMapLayer
