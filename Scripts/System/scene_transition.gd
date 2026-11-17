@@ -5,6 +5,7 @@ var is_transitioning: bool = false
 var mainmenu_music: AudioStreamPlayer
 var combat_music: AudioStreamPlayer
 var level2_music: AudioStreamPlayer
+var level3_music: AudioStreamPlayer
 var lab_music: AudioStreamPlayer
 var teleport_sfx: AudioStreamPlayer
 
@@ -17,7 +18,11 @@ var _music_trim_db := {
 	"res://Audio/Music/Asphodel_B.ogg": -0.9,
 	"res://Audio/Music/Ost-Batalla_master.ogg": -0.9,
 	"res://Audio/Music/Cripta_A.ogg": -0.9,
+	"res://Audio/Music/Nucleo_A.ogg": -0.9,
 }
+
+# Zona 3 (El Nucleo): el loop vuelve al compas 9 (20.0 s) de Nucleo_A.ogg.
+const NUCLEO_LOOP_OFFSET := 20.0
 
 func _ready():
 	layer = 120 # Aseguramos que se superponga por encima de cualquier otro CanvasLayer u objeto HUD.
@@ -56,6 +61,14 @@ func _ready():
 	level2_music.bus = "Music"
 	add_child(level2_music)
 
+	# Zona 3 (Level3_Room*): tema de El Nucleo. Si el archivo no esta, la zona queda en silencio.
+	level3_music = AudioStreamPlayer.new()
+	if ResourceLoader.exists("res://Audio/Music/Nucleo_A.ogg"):
+		level3_music.stream = load("res://Audio/Music/Nucleo_A.ogg")
+	level3_music.volume_db = -5.0 + _get_music_trim(level3_music)
+	level3_music.bus = "Music"
+	add_child(level3_music)
+
 	# Lab y Omnia (Core_Upgrade_Room) comparten tema: vive aca y no en cada escena,
 	# asi no se reinicia al ir y volver entre las dos salas.
 	lab_music = AudioStreamPlayer.new()
@@ -65,7 +78,7 @@ func _ready():
 	add_child(lab_music)
 
 	# La musica sigue sonando aunque el juego este en pausa (inventario, opciones, popups).
-	for music in [mainmenu_music, combat_music, level2_music, lab_music]:
+	for music in [mainmenu_music, combat_music, level2_music, level3_music, lab_music]:
 		music.process_mode = Node.PROCESS_MODE_ALWAYS
 
 	teleport_sfx = AudioStreamPlayer.new()
@@ -168,6 +181,7 @@ func _set_music_cutoff(cutoff: float) -> void:
 func _set_music_volume(vol_db: float) -> void:
 	if combat_music: combat_music.volume_db = vol_db + _get_music_trim(combat_music)
 	if level2_music: level2_music.volume_db = vol_db + _get_music_trim(level2_music)
+	if level3_music: level3_music.volume_db = vol_db + _get_music_trim(level3_music)
 
 func _get_music_trim(player: AudioStreamPlayer) -> float:
 	if not player or not player.stream:
@@ -203,6 +217,8 @@ func _tween_volume(t: Tween, target_vol: float, duration: float, trans: Tween.Tr
 		t.tween_property(combat_music, "volume_db", target_vol + _get_music_trim(combat_music), duration).set_trans(trans).set_ease(Tween.EASE_OUT)
 	if level2_music:
 		t.tween_property(level2_music, "volume_db", target_vol + _get_music_trim(level2_music), duration).set_trans(trans).set_ease(Tween.EASE_OUT)
+	if level3_music:
+		t.tween_property(level3_music, "volume_db", target_vol + _get_music_trim(level3_music), duration).set_trans(trans).set_ease(Tween.EASE_OUT)
 
 func _tween_eq(t: Tween, kick: float, snare: float, snap: float, duration: float, trans: Tween.TransitionType) -> void:
 	if not music_eq: return
@@ -217,6 +233,9 @@ func _tween_eq_band(val: float, band: int) -> void:
 func _setup_loops() -> void:
 	_set_stream_loop(mainmenu_music)
 	_set_stream_loop(level2_music)
+	_set_stream_loop(level3_music)
+	if level3_music and level3_music.stream is AudioStreamOggVorbis:
+		(level3_music.stream as AudioStreamOggVorbis).loop_offset = NUCLEO_LOOP_OFFSET
 	_set_stream_loop(lab_music)
 	for track in _zone1_tracks:
 		if track:
@@ -274,11 +293,28 @@ func stop_level2_music() -> void:
 	if level2_music.playing:
 		level2_music.stop()
 
+func play_level3_music() -> void:
+	if not level3_music or not level3_music.stream:
+		return
+	if mainmenu_music.playing:
+		mainmenu_music.stop()
+	if combat_music.playing:
+		combat_music.stop()
+	if level2_music.playing:
+		level2_music.stop()
+	if not level3_music.playing:
+		level3_music.play()
+
+func stop_level3_music() -> void:
+	if level3_music and level3_music.playing:
+		level3_music.stop()
+
 # Si ya esta sonando (por ejemplo al pasar del lab a Omnia y volver) no se reinicia.
 func play_lab_music() -> void:
 	stop_main_music()
 	stop_combat_music()
 	stop_level2_music()
+	stop_level3_music()
 	if not lab_music.playing:
 		lab_music.play()
 
@@ -296,6 +332,9 @@ func _handle_scene_music(path: String) -> void:
 		set_combat_mode(true, true)
 		return
 	stop_lab_music()
+	# La musica de la zona 3 solo suena dentro de la zona 3; cualquier otra escena la corta.
+	if not "level3_room" in scene_name:
+		stop_level3_music()
 	if "mainmenu" in scene_name or "newgame" in scene_name:
 		play_main_music()
 		stop_combat_music()
@@ -316,10 +355,11 @@ func _handle_scene_music(path: String) -> void:
 		stop_main_music()
 		stop_level2_music()
 	elif "level3_room" in scene_name:
-		# Zona 3 (El Núcleo) todavía no tiene tema propio: silencio en vez de arrastrar el de otra zona.
+		# Zona 3 (El Núcleo): Nucleo_A. Si no se pudo cargar, play_level3_music no hace nada.
 		stop_main_music()
 		stop_combat_music()
 		stop_level2_music()
+		play_level3_music()
 
 func change_scene_through_portal(path: String, screen_origin: Vector2) -> void:
 	if is_transitioning: return
