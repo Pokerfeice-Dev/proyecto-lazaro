@@ -10,12 +10,12 @@ class_name GlowDecor
 ## Va dentro del nodo "Iluminacion" de la sala (QualityManager lo cuenta como luz de ambiente).
 
 const KINDS := {
-	"pod": {"region": Rect2(8, 1227, 30, 28), "color": Color(1.0, 0.64, 0.28), "energy": 0.9, "scale": 2.2},
-	"coral": {"region": Rect2(54, 1220, 20, 25), "color": Color(1.0, 0.52, 0.55), "energy": 0.72, "scale": 2.0},
-	"coral_chico": {"region": Rect2(88, 1223, 17, 20), "color": Color(1.0, 0.52, 0.55), "energy": 0.55, "scale": 1.6},
-	"luz_ambar": {"color": Color(1.0, 0.66, 0.3), "energy": 0.75, "scale": 1.9},
-	"luz_rosa": {"color": Color(1.0, 0.52, 0.55), "energy": 0.62, "scale": 1.8},
-	"luz_espora": {"color": Color(0.72, 1.0, 0.5), "energy": 0.55, "scale": 1.8},
+	"pod": {"region": Rect2(8, 1227, 30, 28), "color": Color(1.0, 0.64, 0.28), "energy": 1.6, "scale": 2.7},
+	"coral": {"region": Rect2(54, 1220, 20, 25), "color": Color(1.0, 0.52, 0.55), "energy": 1.35, "scale": 2.4},
+	"coral_chico": {"region": Rect2(88, 1223, 17, 20), "color": Color(1.0, 0.52, 0.55), "energy": 1.1, "scale": 2.0},
+	"luz_ambar": {"color": Color(1.0, 0.66, 0.3), "energy": 1.4, "scale": 2.3},
+	"luz_rosa": {"color": Color(1.0, 0.52, 0.55), "energy": 1.2, "scale": 2.2},
+	"luz_espora": {"color": Color(0.72, 1.0, 0.5), "energy": 1.1, "scale": 2.2},
 }
 
 const PULSE := 0.07 # cuánto sube y baja el brillo (7 %)
@@ -31,7 +31,7 @@ const UPDATE_INTERVAL := 0.08
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var light: PointLight2D = $PointLight2D
 
-var _base_energy := 0.9
+var _base_energy := 1.6
 var _phase := 0.0
 var _accum := 0.0
 

@@ -1,5 +1,6 @@
 ## 2026-11-17 (Puntos sueltos en el fondo negro del Área 3)
 
+- **Luces del Área 3 más fuertes:** los `Glow_decor` iluminaban poco. En `glow_decor.gd` sube la energía de cada `kind` (vaina 0,9 a 1,6; coral 0,72 a 1,35; coral chico 0,55 a 1,1; luces solas 0,55–0,75 a 1,1–1,4) y el radio un 20 % aprox. (vaina 2,2 a 2,7). Como el valor sale del `kind`, vale para todas las salas sin tocarlas; el ambiente del `CanvasModulate` no cambió.
 - **Cuadrícula de puntos rojos en el vacío de las salas `Level3_*`:** el tile `Walls (1,1)` del atlas de Cursed Land (`CursedLand_Atlas.png`) se usa unas 2.600 veces como relleno con colisión del vacío, pero tenía 2 píxeles sueltos (`#4e0f12`) en la esquina inferior derecha, que se repetían cada 32 px y formaban una rejilla de puntos sobre el fondo negro. El tile gemelo `(19,12)` tenía los mismos 2 píxeles. Se borraron los 4 píxeles del atlas, así que ambos tiles quedan vacíos y conservan su colisión. No se tocó ninguna sala ni el fondo animado.
 
 ## 2026-11-17 (Iluminación del Área 3 y arreglo de pedestales por zona)
