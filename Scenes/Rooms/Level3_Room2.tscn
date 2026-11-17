@@ -1,4 +1,5 @@
 [gd_scene format=4 uid="uid://ca6yp8asep34l"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Glow_decor.tscn" id="glow_decor_1"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_v4ugu"]
 [ext_resource type="TileSet" uid="uid://61jv1tbj0sen" path="res://Art/Tileset/Tile_set_Area3_CursedLand.tres" id="2_db2v6"]
@@ -91,3 +92,34 @@ position = Vector2(263, 886)
 
 [node name="BarrelSpawnPoint3" parent="Barrels" unique_id=2141047689 instance=ExtResource("4_80fbp")]
 position = Vector2(703, 593)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.240, 0.170, 0.250, 1)
+
+[node name="Iluminacion" type="Node2D" parent="."]
+
+[node name="Glow_tile_1" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(496, 912)
+kind = "luz_ambar"
+
+[node name="Glow_1" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(1040, 858)
+
+[node name="Glow_2" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(208, 506)
+kind = "coral"
+
+[node name="Glow_3" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(688, 506)
+
+[node name="Glow_4" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(784, 1018)
+kind = "coral"
+
+[node name="Glow_5" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(208, 826)
+
+[node name="Glow_6" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(432, 666)
+kind = "coral"
+

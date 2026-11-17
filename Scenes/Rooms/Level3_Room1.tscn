@@ -1,4 +1,5 @@
 [gd_scene format=4 uid="uid://csop6aigfec54"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Glow_decor.tscn" id="glow_decor_1"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_xhdcg"]
 [ext_resource type="TileSet" uid="uid://61jv1tbj0sen" path="res://Art/Tileset/Tile_set_Area3_CursedLand.tres" id="2_j2jcr"]
@@ -100,3 +101,46 @@ position = Vector2(1016, 653)
 
 [node name="BarrelSpawnPoint3" parent="Barrels" unique_id=2141047689 instance=ExtResource("4_1rfp2")]
 position = Vector2(727, 363)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.240, 0.170, 0.250, 1)
+
+[node name="Iluminacion" type="Node2D" parent="."]
+
+[node name="Glow_1" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(272, 346)
+
+[node name="Glow_2" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(1296, 1050)
+kind = "coral_chico"
+
+[node name="Glow_3" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(1136, 186)
+
+[node name="Glow_4" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(464, 1050)
+
+[node name="Glow_5" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(1296, 602)
+
+[node name="Glow_6" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(688, 186)
+kind = "coral_chico"
+
+[node name="Glow_7" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(880, 986)
+
+[node name="Glow_8" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(272, 730)
+kind = "coral"
+
+[node name="Glow_9" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(1456, 378)
+
+[node name="Glow_10" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(1296, 826)
+
+[node name="Glow_11" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(272, 122)
+kind = "coral_chico"
+
