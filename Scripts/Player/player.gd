@@ -445,10 +445,33 @@ func unfreeze_player() -> void:
 	set_physics_process(true)
 	set_process(true)
 
+# Aturdimiento: no puedes caminar ni hacer dash (sigues pudiendo apuntar y atacar). Lo aplican
+# enemigos que te agarran (brazo errante, torso hueco...). Cada fuente tiene su propio tiempo y
+# se libera con release_stun(); si nadie la libera, expira sola.
+var _stun_sources: Dictionary = {}
+
+func apply_stun(duration: float, source_id: String = "stun") -> void:
+	if duration <= 0.0 or is_cutscene_frozen: return
+	_stun_sources[source_id] = maxf(float(_stun_sources.get(source_id, 0.0)), duration)
+
+func release_stun(source_id: String = "stun") -> void:
+	_stun_sources.erase(source_id)
+
+func is_stunned() -> bool:
+	return not _stun_sources.is_empty()
+
+func _tick_stun(delta: float) -> void:
+	if _stun_sources.is_empty(): return
+	for id in _stun_sources.keys():
+		var left: float = float(_stun_sources[id]) - delta
+		if left <= 0.0: _stun_sources.erase(id)
+		else: _stun_sources[id] = left
+
 func _physics_process(delta: float) -> void:
 	if is_cutscene_frozen:
 		velocity = Vector2.ZERO
 		return
+	_tick_stun(delta)
 	_update_minigun_hold_time(delta)
 	_update_cerberus_hold_time(delta)
 	_update_melee_synergy_visual(delta)
@@ -472,7 +495,7 @@ func get_seconds_since_enemy_hit() -> float:
 
 func _check_dash_input() -> void:
 	if not Input.is_action_just_pressed("dash"): return
-	if is_dashing: return
+	if is_dashing or is_stunned(): return
 	if not dash_cd_timer.is_stopped(): return
 	_start_dash()
 
@@ -540,6 +563,9 @@ func _process_movement(delta: float) -> void:
 	if is_dashing:
 		_apply_dash_movement()
 		_process_dash_ghosts(delta)
+		return
+	if is_stunned():
+		velocity = Vector2.ZERO
 		return
 	if _speed_demon_push_time > 0.0:
 		_apply_speed_demon_push(delta)

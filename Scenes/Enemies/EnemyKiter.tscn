@@ -6,6 +6,8 @@
 
 [node name="EnemyKiter" instance=ExtResource("1_base")]
 script = ExtResource("2_script")
+item_drop_chance = 0.18
+flesh_drop_chance = 1.0
 
 [node name="AnimatedSprite2D" parent="." index="0"]
 scale = Vector2(1.3, 1.3)

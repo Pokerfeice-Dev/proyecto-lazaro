@@ -3,20 +3,20 @@ extends EnemyFollower
 # Brazo errante (Zona 3): caza al jugador reptando en zigzag y, cuando el salto está listo, lo
 # rodea esperando el momento. No tiene golpe cuerpo a cuerpo: su ataque es el SALTO.
 #  - Aviso: se enrolla 0,3 s y una línea roja marca hasta dónde llega (se esquiva de lado).
-#  - Si te alcanza se aferra: daño inicial, luego pellizcos cada 0,35 s y te ralentiza.
-#  - Lo sacudes con un dash (sale despedido y aturdido) o a golpes: tiene poca vida.
+#  - Si te alcanza se enrosca en ti: daño inicial, luego pellizcos cada 0,35 s y te ATURDE
+#    (no puedes caminar ni hacer dash; sí apuntar y disparar). Se ve enroscado en tu cuerpo
+#    (GripOverlay). Tiene poca vida: mátalo para soltarte antes.
 #  - Si falla el salto queda aturdido: ventana para castigarlo.
 
 @export_category("Brazo errante")
 @export var arm_speed: float = 150.0
 @export var arm_health: int = 28
 @export var leap_damage: int = 9
+## Cuánto te tiene enroscado y aturdido.
 @export var cling_time: float = 1.3
 @export var cling_tick_damage: int = 3
 @export var cling_tick_interval: float = 0.35
-## Multiplicador de velocidad del jugador mientras lo tiene encima.
-@export var cling_slow: float = 0.6
-## Aturdimiento al fallar el salto o al ser sacudido con un dash.
+## Aturdimiento del propio brazo cuando falla el salto.
 @export var shake_stun: float = 0.8
 ## Distancia a la que "agarra" en pleno salto (además del área de ataque).
 @export var grab_radius: float = 34.0
@@ -29,8 +29,11 @@ extends EnemyFollower
 var _cling_left: float = 0.0
 var _cling_tick_left: float = 0.0
 var _cling_offset: Vector2 = Vector2(8, -6)
-var _slow_key: String = ""
-var _slowing_target: Node = null
+const GRIP_SHEET := "res://Art/Enemies/Redesign/wandering_arm_grip.png"
+
+var _grip_key: String = ""
+var _gripped_target: Node = null
+var _grip_overlay: GripOverlay = null
 var _weave_time: float = 0.0
 var _orbit_sign: float = 1.0
 var _orbit_flip_cd: float = 0.0
@@ -52,17 +55,17 @@ func _ready() -> void:
 	_lunge_cooldown_left = randf_range(0.4, 1.0)   # no saltan todos a la vez
 	_orbit_sign = 1.0 if randf() < 0.5 else -1.0
 	_weave_time = randf() * TAU
-	_slow_key = "arm_cling_%d" % get_instance_id()
+	_grip_key = "arm_cling_%d" % get_instance_id()
 	_default_modulate = body_tint
 	if anim_sprite: anim_sprite.modulate = body_tint
 
 func _exit_tree() -> void:
-	_release_slow()
+	_release_grip()
 	super._exit_tree()
 
 func die() -> void:
 	_cling_left = 0.0
-	_release_slow()
+	_release_grip()
 	queue_redraw()
 	super.die()
 
@@ -158,19 +161,17 @@ func _start_cling() -> void:
 	_cling_tick_left = cling_tick_interval
 	velocity = Vector2.ZERO
 	_restore_sprite_modulate()
-	if is_instance_valid(target) and target.has_method("set_speed_modifier"):
-		target.set_speed_modifier(_slow_key, cling_slow)
-		_slowing_target = target
-	play_animation("cling")
+	if is_instance_valid(target):
+		_gripped_target = target
+		if target.has_method("apply_stun"): target.apply_stun(cling_time + 0.05, _grip_key)
+		_grip_overlay = GripOverlay.attach(target, GRIP_SHEET)
+	# Con la animación de agarre puesta, el sprite suelto del brazo se esconde.
+	if anim_sprite and is_instance_valid(_grip_overlay): anim_sprite.visible = false
 	queue_redraw()
 
 func _process_cling(delta: float) -> void:
 	if is_dying or not is_instance_valid(target):
-		_end_cling(false)
-		return
-	# El dash lo sacude.
-	if target.get("is_dashing") == true:
-		_end_cling(true)
+		_end_cling()
 		return
 	velocity = Vector2.ZERO
 	global_position = target.global_position + _cling_offset
@@ -181,22 +182,26 @@ func _process_cling(delta: float) -> void:
 		if target.has_method("take_damage"):
 			target.take_damage(cling_tick_damage, "Brazo errante", global_position)
 	if _cling_left <= 0.0:
-		_end_cling(false)
+		_end_cling()
 
-func _end_cling(shaken: bool) -> void:
+func _end_cling() -> void:
 	_cling_left = 0.0
-	_release_slow()
-	if shaken:
-		if is_instance_valid(target):
-			apply_knockback(260.0, target.global_position.direction_to(global_position))
-		_start_lunge_stun()
-	else:
-		_end_lunge()
+	_release_grip()
+	_end_lunge()
 
-func _release_slow() -> void:
-	if _slowing_target and is_instance_valid(_slowing_target) and _slowing_target.has_method("remove_speed_modifier"):
-		_slowing_target.remove_speed_modifier(_slow_key)
-	_slowing_target = null
+# Suelta al jugador: quita el stun, la animación de agarre y vuelve a mostrar el sprite del brazo.
+func _release_grip() -> void:
+	if _gripped_target and is_instance_valid(_gripped_target) and _gripped_target.has_method("release_stun"):
+		_gripped_target.release_stun(_grip_key)
+	_gripped_target = null
+	if is_instance_valid(_grip_overlay): _grip_overlay.release()
+	_grip_overlay = null
+	if anim_sprite and is_instance_valid(anim_sprite): anim_sprite.visible = true
+
+# Los golpes a un brazo que te tiene agarrado se ven en la animación de agarre.
+func take_damage(amount: int, is_crit: bool = false) -> void:
+	super.take_damage(amount, is_crit)
+	if is_instance_valid(_grip_overlay): _grip_overlay.flash()
 
 # --- Aviso del salto: hasta dónde llega ---
 

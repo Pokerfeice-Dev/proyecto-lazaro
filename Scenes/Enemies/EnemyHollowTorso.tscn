@@ -6,6 +6,8 @@
 
 [node name="EnemyHollowTorso" instance=ExtResource("1_base")]
 script = ExtResource("2_script")
+item_drop_chance = 0.22
+flesh_drop_chance = 0.9
 
 [node name="AnimatedSprite2D" parent="." index="0"]
 scale = Vector2(1.0, 1.0)

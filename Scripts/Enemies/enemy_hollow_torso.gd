@@ -4,7 +4,9 @@ extends Mecha
 #  - Cerrado: la placa lo blinda (recibe x0,4), camina hacia ti y se planta a media distancia.
 #  - Se abre: aviso de 0,6 s (la placa tiembla y se escapa luz por las rendijas).
 #  - Abierto: núcleo expuesto (recibe x2) y ASPIRA: si estás cerca te arrastra hacia él y te
-#    cuesta alejarte. El dash corta la succión.
+#    cuesta alejarte. El dash corta la succión. Si llegas hasta el núcleo te AGARRA: te
+#    aturde (sin caminar ni hacer dash; sí apuntar y disparar) y te aprieta con una caja
+#    torácica (GripOverlay) mientras te hace daño. Con el torso abierto recibe x2: ataca ahí.
 #  - Descarga: levanta los brazos y golpea el piso; del núcleo sale un anillo de esquirlas o,
 #    cada dos aperturas, pare un brazo errante por el pecho (máximo 2 vivos; si el torso
 #    muere, sus brazos mueren con él).
@@ -26,6 +28,16 @@ extends Mecha
 @export var suction_speed: float = 95.0
 ## Multiplicador de velocidad del jugador mientras lo aspira (cuesta alejarse).
 @export var suction_slow: float = 0.8
+@export_group("Agarre")
+## Si llegas a esta distancia del núcleo mientras aspira, te agarra.
+@export var grab_radius: float = 30.0
+## Cuánto te tiene aturdido y apretado.
+@export var grip_time: float = 1.3
+@export var grip_tick_damage: int = 4
+@export var grip_tick_interval: float = 0.4
+@export var grip_pull_speed: float = 200.0
+## Tiempo sin poder volver a agarrarte después de soltarte.
+@export var grip_cooldown: float = 3.0
 @export_group("Descarga")
 @export var burst_count: int = 10
 @export var burst_speed: float = 150.0
@@ -39,6 +51,8 @@ extends Mecha
 
 enum Core { CLOSED, OPENING, OPEN, DISCHARGE }
 const SUCTION_MOD := "hollow_torso_suction"
+const GRIP_KEY := "hollow_torso_grip"
+const GRIP_SHEET := "res://Art/Enemies/Redesign/hollow_torso_grip.png"
 const BURST_SCENE := preload("res://Scenes/Enemies/enemy_shooter_projectile.tscn")
 const DISCHARGE_FRAME := 8   # cuadro de la animación "attack" en el que los puños tocan el piso
 
@@ -48,6 +62,11 @@ var _cycle: int = 0
 var _pulse: float = 0.0
 var _discharged: bool = false
 var _sucking: bool = false
+var _gripped: bool = false
+var _grip_left: float = 0.0
+var _grip_tick_left: float = 0.0
+var _grip_cd: float = 0.0
+var _grip_overlay: GripOverlay = null
 var _children: Array = []   # WeakRef de los brazos que parió
 
 func _ready() -> void:
@@ -64,6 +83,7 @@ func _ready() -> void:
 	_set_core(Core.CLOSED)
 
 func _exit_tree() -> void:
+	_end_grip()
 	_release_player()
 	super._exit_tree()
 
@@ -82,10 +102,13 @@ func _on_attack_cooldown_ready() -> void:
 
 func process_movement(delta: float) -> void:
 	if is_dying:
+		_end_grip()
 		_release_player()
 		super.process_movement(delta)
 		return
 	_pulse += delta
+	_grip_cd = maxf(0.0, _grip_cd - delta)
+	if _gripped: _process_grip(delta)
 	if not has_detected_player or not is_instance_valid(target):
 		super.process_movement(delta) # deambula como el Mecha
 		queue_redraw()
@@ -145,10 +168,13 @@ func _walk_closer() -> void:
 
 # Aspira al jugador hacia el núcleo (respeta paredes: se mueve con move_and_collide).
 func _suck_player(delta: float) -> void:
-	if not (target is CharacterBody2D): return
+	if not (target is CharacterBody2D) or _gripped: return
 	var core_pos := global_position + core_offset
 	var to_core := core_pos - target.global_position
 	var d := to_core.length()
+	if d <= grab_radius and _grip_cd <= 0.0 and target.get("is_dashing") != true:
+		_start_grip()
+		return
 	if d > suction_radius or d < 20.0 or target.get("is_dashing") == true:
 		_release_player()
 		return
@@ -157,6 +183,40 @@ func _suck_player(delta: float) -> void:
 	if not _sucking and target.has_method("set_speed_modifier"):
 		target.set_speed_modifier(SUCTION_MOD, suction_slow)
 	_sucking = true
+
+# --- Agarre: si llegas al núcleo, te aturde y te aprieta ---
+
+func _start_grip() -> void:
+	_gripped = true
+	_grip_left = grip_time
+	_grip_tick_left = grip_tick_interval
+	_release_player()   # la succión termina: ahora te tiene agarrado
+	if target.has_method("apply_stun"): target.apply_stun(grip_time + 0.05, GRIP_KEY)
+	_grip_overlay = GripOverlay.attach(target, GRIP_SHEET)
+	_play_hydraulic_sound()
+
+func _process_grip(delta: float) -> void:
+	if is_dying or not is_instance_valid(target):
+		_end_grip()
+		return
+	var to_core := global_position + core_offset - target.global_position
+	if to_core.length() > 3.0 and target is CharacterBody2D:
+		(target as CharacterBody2D).move_and_collide(to_core.limit_length(grip_pull_speed * delta))
+	_grip_left -= delta
+	_grip_tick_left -= delta
+	if _grip_tick_left <= 0.0:
+		_grip_tick_left = grip_tick_interval
+		if target.has_method("take_damage"):
+			target.take_damage(grip_tick_damage, "Torso hueco", global_position)
+	if _grip_left <= 0.0: _end_grip()
+
+func _end_grip() -> void:
+	if not _gripped: return
+	_gripped = false
+	_grip_cd = grip_cooldown
+	if is_instance_valid(target) and target.has_method("release_stun"): target.release_stun(GRIP_KEY)
+	if is_instance_valid(_grip_overlay): _grip_overlay.release()
+	_grip_overlay = null
 
 func _release_player() -> void:
 	if not _sucking: return
@@ -204,6 +264,7 @@ func _alive_children() -> int:
 
 func die() -> void:
 	if is_dying: return
+	_end_grip()
 	_release_player()
 	# los brazos que parió mueren con él (como el enjambre de la apicultora muerta)
 	for r in _children:
@@ -216,6 +277,7 @@ func take_damage(amount: int, is_crit: bool = false) -> void:
 	var open := _core == Core.OPEN or (_core == Core.DISCHARGE and not _discharged)
 	var multiplier := open_damage_multiplier if open else closed_damage_multiplier
 	super.take_damage(maxi(1, int(round(amount * multiplier))), is_crit)
+	if is_instance_valid(_grip_overlay): _grip_overlay.flash()
 
 # Muerte animada con el sprite propio (animación "death"); sin ella, desintegración normal.
 func _spawn_pixel_death() -> void:
