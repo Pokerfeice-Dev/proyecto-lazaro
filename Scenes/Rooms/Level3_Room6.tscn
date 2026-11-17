@@ -3,10 +3,8 @@
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_06xqy"]
 [ext_resource type="TileSet" uid="uid://61jv1tbj0sen" path="res://Art/Tileset/Tile_set_Area3_CursedLand.tres" id="2_1bw6j"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_4trll"]
-[ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="4_suvrx"]
 [ext_resource type="Texture2D" uid="uid://d1qrp2yyniaxf" path="res://Art/Backgrounds/Area3/AnimTex_CursedLand.tres" id="5_q7wa0"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="6_wiffv"]
-[ext_resource type="Script" uid="uid://bml58pbafj2gp" path="res://Scripts/World/barrel_spawn_point.gd" id="7_r4051"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5n313"]
 size = Vector2(266.28882, 115.1699)
@@ -35,10 +33,9 @@ tile_set = ExtResource("2_1bw6j")
 [node name="player_spawn" type="Marker2D" parent="." unique_id=85825618]
 position = Vector2(656, 368)
 
-[node name="Door" type="StaticBody2D" parent="." unique_id=1922391837 instance=ExtResource("3_4trll")]
-position = Vector2(720, 1008)
+[node name="Door" parent="." unique_id=1922391837 instance=ExtResource("3_4trll")]
+position = Vector2(993, 959)
 rotation = 3.1415927
-script = ExtResource("4_suvrx")
 start_locked = false
 
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
@@ -87,10 +84,8 @@ position = Vector2(688, 1008)
 
 [node name="Barrels" type="Node2D" parent="." unique_id=40404040]
 
-[node name="BarrelSpawnPoint" type="Marker2D" parent="Barrels" unique_id=50616672 instance=ExtResource("6_wiffv")]
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("6_wiffv")]
 position = Vector2(944, 368)
-script = ExtResource("7_r4051")
 
-[node name="BarrelSpawnPoint2" type="Marker2D" parent="Barrels" unique_id=1524372349 instance=ExtResource("6_wiffv")]
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1524372349 instance=ExtResource("6_wiffv")]
 position = Vector2(816, 848)
-script = ExtResource("7_r4051")
