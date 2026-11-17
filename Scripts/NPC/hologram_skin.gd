@@ -20,11 +20,20 @@ static func apply(pedestal: Sprite2D, light: PointLight2D = null) -> void:
 	if light:
 		light.color = skin["light"]
 
-# La zona sale del nombre de la sala ("Level2_Room13..."); si no se puede saber, la de la partida.
+# La zona sale del nombre de la sala ("Level2_Room13..."). El `owner` del sprite es la
+# propia escena del pedestal, así que se sube por los padres hasta dar con la escena de la
+# sala; si no aparece, se usa la escena actual y, en último caso, la zona de la partida.
 static func zone_of(node: Node) -> int:
 	var regex := RegEx.create_from_string("Level(\\d)_")
-	var room: Node = node.owner if node.owner else node.get_tree().current_scene
-	var path: String = room.scene_file_path if room else ""
-	var m := regex.search(path.get_file())
-	var zone: int = int(m.get_string(1)) if m else GameData.current_level
-	return clampi(zone, 1, 3)
+	var cursor: Node = node
+	while cursor:
+		var m := regex.search(cursor.scene_file_path.get_file())
+		if m:
+			return clampi(int(m.get_string(1)), 1, 3)
+		cursor = cursor.get_parent()
+	var tree := node.get_tree()
+	if tree and tree.current_scene:
+		var m2 := regex.search(tree.current_scene.scene_file_path.get_file())
+		if m2:
+			return clampi(int(m2.get_string(1)), 1, 3)
+	return clampi(GameData.current_level, 1, 3)
