@@ -1,5 +1,9 @@
 [gd_scene format=4 uid="uid://dwrs6d7f6408"]
 
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_vida.tscn" id="ygor_m_vida"]
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_azar.tscn" id="ygor_m_azar"]
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_reciclaje.tscn" id="ygor_m_reciclaje"]
+
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_bnc0w"]
 [ext_resource type="TileSet" uid="uid://v7hp3gqjw54r" path="res://Art/Tileset/Tile_set.tres" id="2_whqgs"]
 [ext_resource type="PackedScene" uid="uid://c0l1odf8nhvug" path="res://Scenes/Ygor/ygor.tscn" id="5_whqgs"]
@@ -38,3 +42,12 @@ start_locked = false
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=2005806226]
 color = Color(0.12, 0.14, 0.22, 1)
+
+[node name="Machine_Vida" parent="." instance=ExtResource("ygor_m_vida")]
+position = Vector2(396, -368)
+
+[node name="Machine_Azar" parent="." instance=ExtResource("ygor_m_azar")]
+position = Vector2(524, -368)
+
+[node name="Machine_Reciclaje" parent="." instance=ExtResource("ygor_m_reciclaje")]
+position = Vector2(652, -368)

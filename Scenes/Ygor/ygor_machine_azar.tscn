@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine.tscn" id="1_base"]
+
+[node name="YgorMachine_Azar" instance=ExtResource("1_base")]
+kind = "azar"

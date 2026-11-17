@@ -36,7 +36,7 @@ var _quip_label: Label = null
 var _quip_cooldown := 0.0
 var current_dialogue_index: int = -1
 
-## Máquinas de la tienda: posición relativa a Ygor según la sala
+## Máquinas de la tienda (solo para salas que no las traen puestas): posición relativa a Ygor según la sala
 const MACHINE_KINDS := ["vida", "azar", "reciclaje"]
 const MACHINE_OFFSETS := [Vector2(-88, 184), Vector2(0, 184), Vector2(88, 184)]
 const MACHINE_OFFSETS_YGOR2 := [Vector2(-128, 102), Vector2(0, 102), Vector2(128, 102)]
@@ -88,6 +88,9 @@ func _show_quip(text: String) -> void:
 func _spawn_machines() -> void:
 	var room = get_parent()
 	if not room or room.get_node_or_null("YgorMachines"): return
+	# las salas nuevas ya traen las máquinas puestas como nodos (Machine_Vida, etc.)
+	for placed in get_tree().get_nodes_in_group("ygor_machine"):
+		if room.is_ancestor_of(placed): return
 	var holder = Node2D.new()
 	holder.name = "YgorMachines"
 	room.add_child(holder)

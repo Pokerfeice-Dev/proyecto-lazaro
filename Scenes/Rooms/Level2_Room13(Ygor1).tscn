@@ -1,5 +1,9 @@
 [gd_scene format=4 uid="uid://c006u5grfn5yp"]
 
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_vida.tscn" id="ygor_m_vida"]
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_azar.tscn" id="ygor_m_azar"]
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_reciclaje.tscn" id="ygor_m_reciclaje"]
+
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_xatws"]
 [ext_resource type="TileSet" uid="uid://coajxwom3g1rv" path="res://Art/Tileset/Level2.tres" id="3_5qui0"]
 [ext_resource type="PackedScene" uid="uid://c0l1odf8nhvug" path="res://Scenes/Ygor/ygor.tscn" id="3_jpyuj"]
@@ -183,3 +187,12 @@ rotation = -1.570796
 [node name="Wall_candle13" parent="Iluminacion" unique_id=1466117193 instance=ExtResource("8_jpyuj")]
 position = Vector2(664, -408)
 rotation = -1.570796
+
+[node name="Machine_Vida" parent="." instance=ExtResource("ygor_m_vida")]
+position = Vector2(912, -112)
+
+[node name="Machine_Azar" parent="." instance=ExtResource("ygor_m_azar")]
+position = Vector2(1000, -112)
+
+[node name="Machine_Reciclaje" parent="." instance=ExtResource("ygor_m_reciclaje")]
+position = Vector2(1088, -112)

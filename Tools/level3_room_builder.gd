@@ -23,11 +23,15 @@ const ORIGIN := Vector2i(5, 6)          # celda de arriba a la izquierda (como l
 const CELL := 32.0                      # 16 px * escala 2 del TileMapLayer
 
 # Tienda de Ygor (las entradas del JSON con "kind": "shop"). Los hologramas van a los mismos desfases
-# de Ygor que en la tienda de la cripta; las 3 máquinas las pone ygor.gd solas (Ygor + (-88|0|88, 184)).
+# de Ygor que en la tienda de la cripta; las 3 máquinas (escenas Scenes/Ygor/ygor_machine_*.tscn) van
+# debajo de Ygor en (-88|0|88, 184).
 const YGOR_SCENE := "res://Scenes/Ygor/ygor.tscn"
 const HOLOGRAM_SCENE := "res://Scenes/Ygor/hologram_ygor_store.tscn"
 const YGOR_MUSIC := "res://Audio/Music/Ygor_Shop.ogg"
 const HOLOGRAM_OFFSETS := [Vector2(-112, 96), Vector2(112, 96), Vector2(144, 256), Vector2(-144, 256)]
+const MACHINE_SCENES := ["res://Scenes/Ygor/ygor_machine_vida.tscn", "res://Scenes/Ygor/ygor_machine_azar.tscn", "res://Scenes/Ygor/ygor_machine_reciclaje.tscn"]
+const MACHINE_NAMES := ["Vida", "Azar", "Reciclaje"]
+const MACHINE_OFFSETS := [Vector2(-88, 184), Vector2(0, 184), Vector2(88, 184)]
 
 static func cell_center(local: Array) -> Vector2:
 	var c := ORIGIN + Vector2i(int(local[0]), int(local[1]))
@@ -121,6 +125,13 @@ static func _finish_shop(root: Node, spec: Dictionary, path: String) -> String:
 		root.add_child(holo)
 		holo.owner = root
 		holo.position = ygor_pos + HOLOGRAM_OFFSETS[i]
+	# las 3 máquinas puestas como nodos (vida, suerte, recicladora), debajo de Ygor
+	for i in MACHINE_SCENES.size():
+		var machine := (load(MACHINE_SCENES[i]) as PackedScene).instantiate() as Node2D
+		machine.name = "Machine_" + MACHINE_NAMES[i]
+		root.add_child(machine)
+		machine.owner = root
+		machine.position = ygor_pos + MACHINE_OFFSETS[i]
 	var music := AudioStreamPlayer.new()
 	music.name = "Ygor_music"
 	music.stream = load(YGOR_MUSIC)

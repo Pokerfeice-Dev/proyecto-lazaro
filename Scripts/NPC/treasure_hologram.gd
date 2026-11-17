@@ -41,6 +41,8 @@ var time_passed: float = 0.0
 var collected: bool = false
 
 func _ready() -> void:
+	# pedestal propio de la zona (tumba en la Cripta, vaina en el Núcleo)
+	HologramSkin.apply($Sprite2D)
 	_roll_random_reward()
 	_configure_visuals()
 	_update_label()

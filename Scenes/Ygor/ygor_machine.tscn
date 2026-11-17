@@ -1,0 +1,188 @@
+[gd_scene format=3 uid="uid://y0y3mmpic6qd"]
+
+[ext_resource type="Script" uid="uid://c40xdvugir3v5" path="res://Scripts/NPC/ygor_machine.gd" id="1_pll0m"]
+[ext_resource type="Texture2D" uid="uid://da6qxyyh88elf" path="res://Art/Ygor/Machines/Ygor_machine_azar.png" id="2_e27xa"]
+[ext_resource type="Texture2D" uid="uid://uafpme4w0xfn" path="res://Art/Ygor/Machines/Ygor_machine_azar_off.png" id="3_t8li6"]
+[ext_resource type="Texture2D" uid="uid://dr8dsrfd78oib" path="res://Art/Ygor/Machines/Ygor_machine_reciclaje.png" id="4_q3akv"]
+[ext_resource type="Texture2D" uid="uid://fnnvgrwprq4f" path="res://Art/Ygor/Machines/Ygor_machine_vida.png" id="5_xj3ex"]
+[ext_resource type="Texture2D" uid="uid://cai72oksdfba7" path="res://Art/Lights/Yellow_Light.png" id="6_c3fpx"]
+[ext_resource type="FontFile" uid="uid://ciivwagw6gb3a" path="res://Art/Fonts/Exo2-Regular.otf" id="7_e2df1"]
+[ext_resource type="AudioStream" uid="uid://dnsadsf7qssny" path="res://Audio/Sfx/Interact_reward.mp3" id="8_2vopi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6vgg5"]
+atlas = ExtResource("2_e27xa")
+region = Rect2(0, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_02jsl"]
+atlas = ExtResource("2_e27xa")
+region = Rect2(32, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lmfx1"]
+atlas = ExtResource("2_e27xa")
+region = Rect2(64, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uv0it"]
+atlas = ExtResource("2_e27xa")
+region = Rect2(96, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lvve2"]
+atlas = ExtResource("3_t8li6")
+region = Rect2(0, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_snn27"]
+atlas = ExtResource("3_t8li6")
+region = Rect2(32, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hpyd7"]
+atlas = ExtResource("4_q3akv")
+region = Rect2(0, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jlqly"]
+atlas = ExtResource("4_q3akv")
+region = Rect2(32, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ona28"]
+atlas = ExtResource("4_q3akv")
+region = Rect2(64, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q3h5o"]
+atlas = ExtResource("4_q3akv")
+region = Rect2(96, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7qcp4"]
+atlas = ExtResource("5_xj3ex")
+region = Rect2(0, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kvntg"]
+atlas = ExtResource("5_xj3ex")
+region = Rect2(32, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8cj4s"]
+atlas = ExtResource("5_xj3ex")
+region = Rect2(64, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3olkg"]
+atlas = ExtResource("5_xj3ex")
+region = Rect2(96, 0, 32, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_widr4"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6vgg5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_02jsl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lmfx1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uv0it")
+}],
+"loop": 1,
+"name": &"azar",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lvve2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_snn27")
+}],
+"loop": 1,
+"name": &"azar_off",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hpyd7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jlqly")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ona28")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q3h5o")
+}],
+"loop": 1,
+"name": &"reciclaje",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7qcp4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kvntg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8cj4s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3olkg")
+}],
+"loop": 1,
+"name": &"vida",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_f0gr4"]
+size = Vector2(26, 12)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_r03j2"]
+radius = 36.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_6affa"]
+font = ExtResource("7_e2df1")
+font_size = 24
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+shadow_color = Color(0, 0, 0, 0.647)
+
+[node name="YgorMachine" type="Node2D" unique_id=1283853482]
+script = ExtResource("1_pll0m")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=343615699]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_widr4")
+animation = &"vida"
+offset = Vector2(0, -24)
+
+[node name="Body" type="StaticBody2D" parent="." unique_id=703624332]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Body" unique_id=954131710]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_f0gr4")
+
+[node name="InteractArea" type="Area2D" parent="." unique_id=1074945945]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=995862149]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_r03j2")
+
+[node name="Glow" type="PointLight2D" parent="." unique_id=1151526288]
+position = Vector2(0, -22)
+energy = 0.45
+texture = ExtResource("6_c3fpx")
+texture_scale = 0.5
+
+[node name="Label" type="Label" parent="." unique_id=1997686744]
+offset_left = -100.0
+offset_top = -100.0
+offset_right = 100.0
+offset_bottom = -40.0
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(100, 30)
+text = "Máquina"
+label_settings = SubResource("LabelSettings_6affa")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Sfx" type="AudioStreamPlayer2D" parent="." unique_id=548509777]
+stream = ExtResource("8_2vopi")
+bus = &"SFX"

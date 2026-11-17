@@ -42,6 +42,8 @@ var purchased: bool = false
 
 func _ready() -> void:
 	add_to_group("ygor_shop_pedestal")
+	# pedestal propio de la zona (tumba en la Cripta, vaina en el Núcleo)
+	HologramSkin.apply($Sprite2D, $Item_sprite/PointLight2D)
 	_init_default_type_from_name()
 	_configure_stats_and_visuals()
 	_update_label()

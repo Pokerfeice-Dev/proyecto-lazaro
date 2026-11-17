@@ -5,10 +5,14 @@ class_name YgorMachine
 ##   "vida"      -> cura un 30% de la vida máxima; cada uso cuesta más
 ##   "azar"      -> paga carne y sale un objeto, un poco de vida, carne de vuelta o nada
 ##   "reciclaje" -> se come el último objeto de la mochila y devuelve carne
-## Se dibujan por código (no hay arte todavía) y las coloca ygor.gd en su sala.
+## Son una escena (Scenes/Ygor/ygor_machine.tscn) con su sprite animado, cuerpo, zona de
+## interacción, cartel y luz; las tres variantes (vida, suerte, recicladora) son escenas
+## heredadas que solo cambian `kind`, así se pueden poner a mano en cualquier sala.
+## Si una sala de Ygor no las trae, ygor.gd las crea con YgorMachine.create().
 
+# se carga con load() y no con preload() porque la escena usa este mismo script (referencia circular)
+const SCENE_PATH := "res://Scenes/Ygor/ygor_machine.tscn"
 const STORE_PATHS := preload("res://Scripts/NPC/hologram_ygor_store.gd")
-const SFX_USE := preload("res://Audio/Sfx/Interact_reward.mp3")
 
 const VIDA_BASE_COST := 8
 const VIDA_COST_STEP := 4
@@ -25,119 +29,60 @@ const COLORS := {
 	"azar": Color(1.0, 0.8, 0.25),
 	"reciclaje": Color(0.45, 1.0, 0.55),
 }
+# animación del sprite de cada máquina (la de la suerte rota usa "azar_off")
+const ANIM_OFF := "azar_off"
+const SPIN_SPEED := 3.0
 const TITLES := {
 	"vida": "Máquina de vida",
 	"azar": "Máquina de la suerte",
 	"reciclaje": "Recicladora",
 }
 
-var kind := "vida"
+@export_enum("vida", "azar", "reciclaje") var kind: String = "vida"
+
 var uses := 0
 var items_given := 0
 var broken := false
 var player_in_range := false
 var player_ref: Node2D = null
-var label: Label
-var _sfx: AudioStreamPlayer2D
-var _time := 0.0
 var _busy := false
+var _time := 0.0
 
+@onready var sprite: AnimatedSprite2D = $Sprite
+@onready var interact_area: Area2D = $InteractArea
+@onready var label: Label = $Label
+@onready var glow: PointLight2D = $Glow
+@onready var _sfx: AudioStreamPlayer2D = $Sfx
+
+# crea una máquina suelta (para salas que no la traen puesta)
 static func create(machine_kind: String) -> YgorMachine:
-	var m = YgorMachine.new()
+	var m = (load(SCENE_PATH) as PackedScene).instantiate() as YgorMachine
 	m.kind = machine_kind
 	m.name = "YgorMachine_" + machine_kind
 	return m
 
 func _ready() -> void:
 	add_to_group("ygor_machine")
-	_build_body()
-	_build_area()
-	_build_label()
-	_sfx = AudioStreamPlayer2D.new()
-	_sfx.stream = SFX_USE
-	_sfx.bus = "SFX"
-	add_child(_sfx)
+	interact_area.body_entered.connect(_on_body_entered)
+	interact_area.body_exited.connect(_on_body_exited)
+	# cartel de interacción con el estilo de la UI nueva (copia este Label)
+	InteractPrompt.mirror(label)
 	DropShadow.attach_to(self, Vector2(34.0, 12.0), Vector2(0.0, 1.0), 0.4)
+	_apply_look()
 	_update_label()
 
-# --- Armado ---
+# --- Aspecto ---
 
-func _build_body() -> void:
-	var body = StaticBody2D.new()
-	var shape = CollisionShape2D.new()
-	var rect = RectangleShape2D.new()
-	rect.size = Vector2(26, 12)
-	shape.shape = rect
-	shape.position = Vector2(0, -6)
-	body.add_child(shape)
-	add_child(body)
-
-func _build_area() -> void:
-	var area = Area2D.new()
-	area.collision_layer = 0
-	var shape = CollisionShape2D.new()
-	var circle = CircleShape2D.new()
-	circle.radius = 36.0
-	shape.shape = circle
-	shape.position = Vector2(0, -12)
-	area.add_child(shape)
-	add_child(area)
-	area.body_entered.connect(_on_body_entered)
-	area.body_exited.connect(_on_body_exited)
-
-func _build_label() -> void:
-	label = Label.new()
-	label.position = Vector2(-100, -100)
-	label.size = Vector2(200, 60)
-	label.scale = Vector2(0.5, 0.5)
-	label.pivot_offset = Vector2(100, 30)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	add_child(label)
-	InteractPrompt.mirror(label)
-
-# --- Dibujo ---
+# sprite y luz según el tipo de máquina (y si está agotada)
+func _apply_look() -> void:
+	sprite.play(ANIM_OFF if broken else kind)
+	glow.color = COLORS[kind]
+	glow.enabled = not broken
 
 func _process(delta: float) -> void:
+	if broken: return
 	_time += delta
-	queue_redraw()
-
-func _draw() -> void:
-	var accent: Color = COLORS[kind]
-	if broken:
-		accent = Color(0.4, 0.4, 0.45)
-	var glow = 0.55 + sin(_time * 3.0) * 0.2
-	# gabinete
-	draw_rect(Rect2(-15, -44, 30, 44), Color(0.1, 0.12, 0.16))
-	draw_rect(Rect2(-15, -44, 30, 44), accent.darkened(0.35), false, 2.0)
-	draw_rect(Rect2(-15, -48, 30, 6), accent.darkened(0.2))
-	# pantalla
-	var screen = Rect2(-11, -38, 22, 18)
-	draw_rect(screen, Color(0.02, 0.05, 0.06))
-	draw_rect(screen.grow(-1), Color(accent, 0.18 * glow))
-	_draw_symbol(Vector2(0, -29), Color(accent, glow + 0.3))
-	# bandeja y botón
-	draw_rect(Rect2(-9, -12, 18, 6), Color(0.03, 0.04, 0.05))
-	draw_circle(Vector2(9, -17), 2.0, accent if not broken else Color(0.3, 0.3, 0.3))
-	# brillo del piso
-	draw_circle(Vector2(0, -2), 4.0, Color(accent, 0.12 * glow))
-
-func _draw_symbol(c: Vector2, col: Color) -> void:
-	if broken:
-		draw_line(c + Vector2(-6, -6), c + Vector2(6, 6), col, 2.0)
-		draw_line(c + Vector2(6, -6), c + Vector2(-6, 6), col, 2.0)
-		return
-	match kind:
-		"vida":
-			draw_circle(c + Vector2(-3, -2), 3.4, col)
-			draw_circle(c + Vector2(3, -2), 3.4, col)
-			draw_colored_polygon(PackedVector2Array([c + Vector2(-6.3, -1), c + Vector2(6.3, -1), c + Vector2(0, 6)]), col)
-		"azar":
-			var font = ThemeDB.fallback_font
-			draw_string(font, c + Vector2(-4, 6), "?", HORIZONTAL_ALIGNMENT_CENTER, -1, 18, col)
-		"reciclaje":
-			draw_arc(c, 6.0, PI * 0.15, PI * 1.6, 12, col, 2.0)
-			var tip = c + Vector2(cos(PI * 1.6), sin(PI * 1.6)) * 6.0
-			draw_colored_polygon(PackedVector2Array([tip + Vector2(-3, -2), tip + Vector2(3, -1), tip + Vector2(0, 3)]), col)
+	glow.energy = 0.45 + sin(_time * 3.0) * 0.1
 
 # --- Cartel ---
 
@@ -291,6 +236,7 @@ func _give_random_item() -> void:
 	_feedback()
 	if items_given >= AZAR_MAX_ITEMS:
 		broken = true
+		_apply_look()
 		_ygor_comment("azar_rota", true)
 	else:
 		_ygor_comment("azar_premio")
@@ -310,11 +256,13 @@ func _recycle_value(item: ItemData) -> int:
 	return RECYCLE_BODY
 
 func _spin() -> void:
+	sprite.speed_scale = SPIN_SPEED # los rodillos giran rápido mientras tira
 	var t = create_tween()
 	for i in 4:
 		t.tween_property(self, "scale", Vector2(1.06, 0.95), 0.06)
 		t.tween_property(self, "scale", Vector2.ONE, 0.06)
 	await t.finished
+	sprite.speed_scale = 1.0
 
 func _feedback() -> void:
 	if _sfx: _sfx.play()

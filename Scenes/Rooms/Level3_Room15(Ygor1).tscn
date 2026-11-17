@@ -1,14 +1,15 @@
 [gd_scene format=4 uid="uid://d30xwpdg345ct"]
 
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_vida.tscn" id="ygor_m_vida"]
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_azar.tscn" id="ygor_m_azar"]
+[ext_resource type="PackedScene" path="res://Scenes/Ygor/ygor_machine_reciclaje.tscn" id="ygor_m_reciclaje"]
+
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_m8lxy"]
 [ext_resource type="TileSet" uid="uid://61jv1tbj0sen" path="res://Art/Tileset/Tile_set_Area3_CursedLand.tres" id="2_44m2o"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_o45pe"]
-[ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="4_cmqok"]
 [ext_resource type="Texture2D" uid="uid://d1qrp2yyniaxf" path="res://Art/Backgrounds/Area3/AnimTex_CursedLand.tres" id="5_soq7q"]
 [ext_resource type="PackedScene" uid="uid://c0l1odf8nhvug" path="res://Scenes/Ygor/ygor.tscn" id="6_rpyeh"]
-[ext_resource type="Script" uid="uid://bvejbc4db2n6m" path="res://Scripts/NPC/ygor.gd" id="7_016f8"]
 [ext_resource type="PackedScene" uid="uid://b2pe8uij4d7me" path="res://Scenes/Ygor/hologram_ygor_store.tscn" id="8_i4apf"]
-[ext_resource type="Script" uid="uid://bprcgdn2xrjgd" path="res://Scripts/NPC/hologram_ygor_store.gd" id="9_m6acn"]
 [ext_resource type="AudioStream" uid="uid://lafa3bjweirl" path="res://Audio/Music/Ygor_Shop.ogg" id="10_1ix5d"]
 
 [node name="Room_Ygor3" type="Node2D" unique_id=708789417]
@@ -33,12 +34,11 @@ tile_map_data = PackedByteArray("AAAFAAkAAAABAAEAAAAFAAoAAAABAAEAAAAFAAsAAAABAAE
 tile_set = ExtResource("2_44m2o")
 
 [node name="player_spawn" type="Marker2D" parent="." unique_id=85825618]
-position = Vector2(592, 368)
+position = Vector2(590, 804)
 
-[node name="Door" type="StaticBody2D" parent="." unique_id=1922391837 instance=ExtResource("3_o45pe")]
-position = Vector2(592, 816)
-rotation = 3.1415927
-script = ExtResource("4_cmqok")
+[node name="Door" parent="." unique_id=1922391837 instance=ExtResource("3_o45pe")]
+position = Vector2(598, 301)
+rotation = 1.5707964
 start_locked = false
 
 [node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1185336654]
@@ -57,27 +57,31 @@ grow_vertical = 2
 texture = ExtResource("5_soq7q")
 stretch_mode = 1
 
-[node name="Ygor" type="Node2D" parent="." unique_id=664869340 instance=ExtResource("6_rpyeh")]
+[node name="Ygor" parent="." unique_id=664869340 instance=ExtResource("6_rpyeh")]
 position = Vector2(592, 496)
-script = ExtResource("7_016f8")
 
-[node name="Hologram_Ygor_Store" type="Node2D" parent="." unique_id=1938933035 instance=ExtResource("8_i4apf")]
+[node name="Hologram_Ygor_Store" parent="." unique_id=1938933035 instance=ExtResource("8_i4apf")]
 position = Vector2(480, 592)
-script = ExtResource("9_m6acn")
 
-[node name="Hologram_Ygor_Store2" type="Node2D" parent="." unique_id=1192366117 instance=ExtResource("8_i4apf")]
+[node name="Hologram_Ygor_Store2" parent="." unique_id=1192366117 instance=ExtResource("8_i4apf")]
 position = Vector2(704, 592)
-script = ExtResource("9_m6acn")
 
-[node name="Hologram_Ygor_Store3" type="Node2D" parent="." unique_id=75413557 instance=ExtResource("8_i4apf")]
+[node name="Hologram_Ygor_Store3" parent="." unique_id=75413557 instance=ExtResource("8_i4apf")]
 position = Vector2(736, 752)
-script = ExtResource("9_m6acn")
 
-[node name="Hologram_Ygor_Store4" type="Node2D" parent="." unique_id=1908513520 instance=ExtResource("8_i4apf")]
+[node name="Hologram_Ygor_Store4" parent="." unique_id=1908513520 instance=ExtResource("8_i4apf")]
 position = Vector2(448, 752)
-script = ExtResource("9_m6acn")
 
 [node name="Ygor_music" type="AudioStreamPlayer" parent="." unique_id=1211824949]
 stream = ExtResource("10_1ix5d")
 volume_db = -3.0
 autoplay = true
+
+[node name="Machine_Vida" parent="." instance=ExtResource("ygor_m_vida")]
+position = Vector2(504, 680)
+
+[node name="Machine_Azar" parent="." instance=ExtResource("ygor_m_azar")]
+position = Vector2(592, 680)
+
+[node name="Machine_Reciclaje" parent="." instance=ExtResource("ygor_m_reciclaje")]
+position = Vector2(680, 680)
