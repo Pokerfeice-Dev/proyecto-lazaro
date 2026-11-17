@@ -1,12 +1,11 @@
 [gd_scene format=4 uid="uid://c0bbpmwkmqqpp"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Glow_decor.tscn" id="glow_decor_1"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_i4km2"]
 [ext_resource type="TileSet" uid="uid://61jv1tbj0sen" path="res://Art/Tileset/Tile_set_Area3_CursedLand.tres" id="2_fwug1"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_8jndp"]
-[ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="4_mbeft"]
 [ext_resource type="Texture2D" uid="uid://d1qrp2yyniaxf" path="res://Art/Backgrounds/Area3/AnimTex_CursedLand.tres" id="5_1yhad"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="6_fugiu"]
-[ext_resource type="Script" uid="uid://bml58pbafj2gp" path="res://Scripts/World/barrel_spawn_point.gd" id="7_tyaf5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5n313"]
 size = Vector2(266.28882, 115.1699)
@@ -35,10 +34,9 @@ tile_set = ExtResource("2_fwug1")
 [node name="player_spawn" type="Marker2D" parent="." unique_id=85825618]
 position = Vector2(592, 368)
 
-[node name="Door" type="StaticBody2D" parent="." unique_id=1922391837 instance=ExtResource("3_8jndp")]
-position = Vector2(592, 1072)
-rotation = 3.1415927
-script = ExtResource("4_mbeft")
+[node name="Door" parent="." unique_id=1922391837 instance=ExtResource("3_8jndp")]
+position = Vector2(615, 1163)
+rotation = -1.5707964
 start_locked = false
 
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
@@ -87,10 +85,37 @@ position = Vector2(560, 1072)
 
 [node name="Barrels" type="Node2D" parent="." unique_id=40404040]
 
-[node name="BarrelSpawnPoint" type="Marker2D" parent="Barrels" unique_id=50616672 instance=ExtResource("6_fugiu")]
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("6_fugiu")]
 position = Vector2(752, 368)
-script = ExtResource("7_tyaf5")
 
-[node name="BarrelSpawnPoint2" type="Marker2D" parent="Barrels" unique_id=1524372349 instance=ExtResource("6_fugiu")]
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1524372349 instance=ExtResource("6_fugiu")]
 position = Vector2(432, 1072)
-script = ExtResource("7_tyaf5")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.240, 0.170, 0.250, 1)
+
+[node name="Iluminacion" type="Node2D" parent="."]
+
+[node name="Glow_1" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(656, 570)
+kind = "coral"
+
+[node name="Glow_2" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(432, 1178)
+kind = "coral"
+
+[node name="Glow_3" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(816, 986)
+
+[node name="Glow_4" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(272, 410)
+kind = "coral"
+
+[node name="Glow_5" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(400, 922)
+kind = "coral"
+
+[node name="Glow_6" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(816, 410)
+kind = "coral"
+

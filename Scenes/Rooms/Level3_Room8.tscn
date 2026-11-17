@@ -1,12 +1,11 @@
 [gd_scene format=4 uid="uid://ctm7k3nvaacn2"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Glow_decor.tscn" id="glow_decor_1"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_ktcgr"]
 [ext_resource type="TileSet" uid="uid://61jv1tbj0sen" path="res://Art/Tileset/Tile_set_Area3_CursedLand.tres" id="2_tncrm"]
 [ext_resource type="PackedScene" uid="uid://jlr7kse1arub" path="res://Scenes/Rooms/door.tscn" id="3_abbog"]
-[ext_resource type="Script" uid="uid://boritcnabf7fh" path="res://Scripts/World/door.gd" id="4_l50dr"]
 [ext_resource type="Texture2D" uid="uid://d1qrp2yyniaxf" path="res://Art/Backgrounds/Area3/AnimTex_CursedLand.tres" id="5_ffg0s"]
 [ext_resource type="PackedScene" uid="uid://76e4pcw68cwx" path="res://Scenes/World/BarrelSpawnPoint.tscn" id="6_0mxkv"]
-[ext_resource type="Script" uid="uid://bml58pbafj2gp" path="res://Scripts/World/barrel_spawn_point.gd" id="7_gla8c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5n313"]
 size = Vector2(266.28882, 115.1699)
@@ -35,10 +34,9 @@ tile_set = ExtResource("2_tncrm")
 [node name="player_spawn" type="Marker2D" parent="." unique_id=85825618]
 position = Vector2(560, 368)
 
-[node name="Door" type="StaticBody2D" parent="." unique_id=1922391837 instance=ExtResource("3_abbog")]
-position = Vector2(528, 688)
+[node name="Door" parent="." unique_id=1922391837 instance=ExtResource("3_abbog")]
+position = Vector2(915, 687)
 rotation = 3.1415927
-script = ExtResource("4_l50dr")
 start_locked = false
 
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
@@ -84,10 +82,33 @@ position = Vector2(560, 688)
 
 [node name="Barrels" type="Node2D" parent="." unique_id=40404040]
 
-[node name="BarrelSpawnPoint" type="Marker2D" parent="Barrels" unique_id=50616672 instance=ExtResource("6_0mxkv")]
+[node name="BarrelSpawnPoint" parent="Barrels" unique_id=50616672 instance=ExtResource("6_0mxkv")]
 position = Vector2(336, 560)
-script = ExtResource("7_gla8c")
 
-[node name="BarrelSpawnPoint2" type="Marker2D" parent="Barrels" unique_id=1524372349 instance=ExtResource("6_0mxkv")]
+[node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1524372349 instance=ExtResource("6_0mxkv")]
 position = Vector2(816, 656)
-script = ExtResource("7_gla8c")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.240, 0.170, 0.250, 1)
+
+[node name="Iluminacion" type="Node2D" parent="."]
+
+[node name="Glow_1" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(528, 794)
+
+[node name="Glow_2" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(880, 410)
+kind = "coral_chico"
+
+[node name="Glow_3" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(272, 410)
+kind = "coral"
+
+[node name="Glow_4" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(272, 666)
+kind = "coral_chico"
+
+[node name="Glow_5" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(784, 794)
+kind = "coral"
+

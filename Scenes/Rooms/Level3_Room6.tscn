@@ -1,4 +1,5 @@
 [gd_scene format=4 uid="uid://o2qd08et6lpo"]
+[ext_resource type="PackedScene" path="res://Scenes/World/Glow_decor.tscn" id="glow_decor_1"]
 
 [ext_resource type="Script" uid="uid://chajmlx0f84vf" path="res://Scripts/World/combat_room.gd" id="1_06xqy"]
 [ext_resource type="TileSet" uid="uid://61jv1tbj0sen" path="res://Art/Tileset/Tile_set_Area3_CursedLand.tres" id="2_1bw6j"]
@@ -34,8 +35,8 @@ tile_set = ExtResource("2_1bw6j")
 position = Vector2(656, 368)
 
 [node name="Door" parent="." unique_id=1922391837 instance=ExtResource("3_4trll")]
-position = Vector2(993, 959)
-rotation = 3.1415927
+position = Vector2(728, 1144)
+rotation = -1.5707964
 start_locked = false
 
 [node name="Area_entered" type="Area2D" parent="." unique_id=1163780405]
@@ -89,3 +90,33 @@ position = Vector2(944, 368)
 
 [node name="BarrelSpawnPoint2" parent="Barrels" unique_id=1524372349 instance=ExtResource("6_wiffv")]
 position = Vector2(816, 848)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.240, 0.170, 0.250, 1)
+
+[node name="Iluminacion" type="Node2D" parent="."]
+
+[node name="Glow_tile_1" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(816, 1008)
+kind = "luz_rosa"
+
+[node name="Glow_1" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(272, 410)
+kind = "coral"
+
+[node name="Glow_2" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(1040, 410)
+kind = "coral_chico"
+
+[node name="Glow_3" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(528, 890)
+kind = "coral"
+
+[node name="Glow_4" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(560, 1146)
+kind = "coral"
+
+[node name="Glow_5" parent="Iluminacion" instance=ExtResource("glow_decor_1")]
+position = Vector2(464, 538)
+kind = "coral_chico"
+
