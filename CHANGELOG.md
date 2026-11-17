@@ -1,3 +1,7 @@
+## 2026-11-17 (Puntos sueltos en el fondo negro del Área 3)
+
+- **Cuadrícula de puntos rojos en el vacío de las salas `Level3_*`:** el tile `Walls (1,1)` del atlas de Cursed Land (`CursedLand_Atlas.png`) se usa unas 2.600 veces como relleno con colisión del vacío, pero tenía 2 píxeles sueltos (`#4e0f12`) en la esquina inferior derecha, que se repetían cada 32 px y formaban una rejilla de puntos sobre el fondo negro. El tile gemelo `(19,12)` tenía los mismos 2 píxeles. Se borraron los 4 píxeles del atlas, así que ambos tiles quedan vacíos y conservan su colisión. No se tocó ninguna sala ni el fondo animado.
+
 ## 2026-11-17 (Iluminación del Área 3 y arreglo de pedestales por zona)
 
 - **Iluminación del Área 3 (Tierra Maldita):** como en las zonas 1 y 2, cada sala `Level3_*` (menos la de prueba de Prometeo, que ya tenía la suya) trae un `CanvasModulate` oscuro violáceo (0,24 / 0,17 / 0,25) y un nodo `Iluminacion` con luces sin colisión. Las luces son naranja ámbar (vainas amarillas) y rosa salmón (corales), que resaltan sobre el ambiente frío y los tonos rojizos del tileset.
