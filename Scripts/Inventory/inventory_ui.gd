@@ -5,6 +5,12 @@ extends Control
 @export var equipment: Equipment
 var player_sprite: AnimatedSprite2D
 
+# Barra de vida bajo el retrato y retrato por capas (se ven los cambios de equipo al instante).
+var _health_bar: InventoryHealthBar
+var _bar_stats: PlayerStats
+var _body_layers: BodyLayers
+var _preview_key: String = ""
+
 var ui_slots: Array[UISlot] = []
 var inventory_slots: Array[UISlot] = []
 
@@ -161,6 +167,7 @@ func _ready() -> void:
 	for slot in inventory_slots + ui_slots:
 		slot.slot_pad_equip.connect(_on_slot_pad_equip)
 	InputMode.instance().mode_changed.connect(_on_input_mode_changed)
+	_setup_health_bar()
 	update_ui()
 
 # Si se cambia entre mouse y joystick con el inventario abierto, el icono de equipar se redibuja.
@@ -474,6 +481,7 @@ func update_if_visible() -> void:
 func update_ui() -> void:
 	_update_header_data()
 	_update_portrait()
+	_update_health_bar()
 	update_items_list()
 	update_equipment_display()
 	_update_weapon_displays()
@@ -509,11 +517,158 @@ func _update_portrait() -> void:
 	if not portrait_anim_sprite: return
 	_auto_fetch_player_nodes()
 	if not player_sprite or not player_sprite.sprite_frames: return
-	if portrait_anim_sprite.sprite_frames != player_sprite.sprite_frames:
+	var frames_changed := portrait_anim_sprite.sprite_frames != player_sprite.sprite_frames
+	if frames_changed:
 		portrait_anim_sprite.sprite_frames = player_sprite.sprite_frames
+	if frames_changed or not is_instance_valid(_body_layers):
+		_attach_portrait_layers()
+	# Al cambiar de sala el inventario se crea antes que el Equipment del jugador (que recién ahí toma
+	# los slots guardados): se vuelve a leer el equipo cada vez, no solo cuando cambia.
+	if is_instance_valid(_body_layers):
+		_body_layers.refresh()
 	var anim = &"idle_down"
 	if portrait_anim_sprite.sprite_frames.has_animation(anim):
 		portrait_anim_sprite.play(anim)
+
+# El retrato dibuja el cuerpo por capas (BodyLayers) con el mismo equipo del jugador: al equipar,
+# quitar o cambiar una pieza se ve al instante, igual que en el juego.
+func _attach_portrait_layers() -> void:
+	if is_instance_valid(_body_layers):
+		_body_layers.detach()
+	_body_layers = null
+	if equipment == null or portrait_anim_sprite == null: return
+	var layers := BodyLayers.new()
+	layers.external_sprite = portrait_anim_sprite
+	layers.external_equipment = equipment
+	add_child(layers)
+	_body_layers = layers
+	_preview_key = "<nuevo>"
+
+# ── Barra de vida y vista previa ──────────────────────────────────────────────
+
+func _get_player() -> Node:
+	var players := get_tree().get_nodes_in_group("player")
+	return players[0] if not players.is_empty() else null
+
+# La barra va justo debajo del retrato (entre el retrato y las armas).
+func _setup_health_bar() -> void:
+	if portrait_container == null: return
+	var portrait_area := portrait_container.get_parent()
+	var column := portrait_area.get_parent()
+	_health_bar = InventoryHealthBar.new()
+	column.add_child(_health_bar)
+	column.move_child(_health_bar, portrait_area.get_index() + 1)
+
+func _update_health_bar() -> void:
+	if _health_bar == null: return
+	var p = _get_player()
+	if p == null or p.get("stats") == null: return
+	var stats: PlayerStats = p.stats
+	if stats != _bar_stats:
+		if _bar_stats != null and _bar_stats.health_changed.is_connected(_on_player_health_changed):
+			_bar_stats.health_changed.disconnect(_on_player_health_changed)
+		_bar_stats = stats
+		_bar_stats.health_changed.connect(_on_player_health_changed)
+	_health_bar.set_health(stats.current_health, stats.max_health)
+
+# Vida en tiempo real: curas y daño mientras el inventario está abierto (efectos, venenos, etc.).
+func _on_player_health_changed(_current: int, _maximum: int) -> void:
+	if _health_bar != null and _bar_stats != null:
+		_health_bar.set_health(_bar_stats.current_health, _bar_stats.max_health)
+
+func _process(_delta: float) -> void:
+	if not visible or current_tab != "INVENTORY": return
+	_update_preview()
+
+# Con una pieza en la mano (arrastrando con el mouse, o elegida con A en el joystick) sobre un
+# casillero, el retrato muestra cómo quedaría el cuerpo y la barra, cuánta vida cambia.
+func _update_preview() -> void:
+	var changes := _hovered_changes()
+	var key := _changes_key(changes)
+	if _bar_stats != null:
+		key += "|%d/%d" % [_bar_stats.current_health, _bar_stats.max_health]
+	if key == _preview_key: return
+	_preview_key = key
+	if is_instance_valid(_body_layers):
+		var looks := {}
+		for slot in changes:
+			if BodyLayers.LAYER_SLOTS.values().has(slot):
+				looks[slot] = changes[slot]
+		_body_layers.set_preview(looks)
+	_update_health_preview(changes)
+
+func _changes_key(changes: Dictionary) -> String:
+	var parts: Array[String] = []
+	for slot in changes:
+		var piece = changes[slot]
+		parts.append("%d:%d" % [slot, piece.get_instance_id() if piece != null else 0])
+	parts.sort()
+	return ",".join(parts)
+
+# Qué quedaría en cada slot de equipo si soltaras la pieza que llevas sobre el casillero de abajo:
+# slot -> pieza (null = vacío). Vacío = no hay nada que mostrar.
+func _hovered_changes() -> Dictionary:
+	if equipment == null or inventory == null: return {}
+	var item: ItemData = null
+	var source: UISlot = null
+	var target: UISlot = null
+	if get_viewport().gui_is_dragging():
+		var data = get_viewport().gui_get_drag_data()
+		if typeof(data) != TYPE_DICTIONARY or not data.has("item"): return {}
+		item = data["item"]
+		source = data.get("source_slot")
+		target = _slot_under_mouse()
+	else:
+		item = _pad_held_item()
+		target = get_viewport().gui_get_focus_owner() as UISlot
+	if item == null or target == null or target == source: return {}
+	if target.is_inventory_slot:
+		# soltar una pieza puesta en la mochila la quita del cuerpo
+		if source != null and not source.is_inventory_slot:
+			return {source.slot_type: null}
+		return {}
+	if not target.is_valid_target_for(item): return {}
+	if source == null or source.is_inventory_slot:
+		if equipment.slots.get(target.slot_type) == item: return {}
+		return {target.slot_type: item}
+	# entre dos casilleros de equipo: se intercambian
+	return {target.slot_type: item, source.slot_type: equipment.slots.get(target.slot_type)}
+
+func _slot_under_mouse() -> UISlot:
+	var mouse := get_global_mouse_position()
+	for slot in ui_slots + inventory_slots:
+		if slot.is_visible_in_tree() and slot.get_global_rect().has_point(mouse):
+			return slot
+	return null
+
+func _update_health_preview(changes: Dictionary) -> void:
+	if _health_bar == null: return
+	var p = _get_player()
+	if changes.is_empty() or p == null or _bar_stats == null:
+		_health_bar.clear_preview()
+		return
+	var new_max := _max_health_with(p, changes)
+	var new_cur := mini(_bar_stats.current_health, new_max)
+	# una pieza de cuerpo nueva (viene de la mochila) cura al instalarse, igual que en el juego
+	for slot in changes:
+		var piece: ItemData = changes[slot]
+		if piece != null and equipment.is_body_part(piece) and inventory.items.has(piece):
+			var ratio: float = p.body_part_heal_ratio
+			new_cur = clampi(new_cur + int(round(new_max * ratio)), 0, new_max)
+	_health_bar.set_preview(new_cur, new_max)
+
+# Vida máxima con esas piezas puestas: se cambian los slots un instante (sin avisar a nadie), se
+# pregunta al jugador con su misma cuenta y se devuelven.
+func _max_health_with(p, changes: Dictionary) -> int:
+	var saved := {}
+	for slot in changes:
+		saved[slot] = equipment.slots.get(slot)
+		equipment.slots[slot] = changes[slot]
+	var bonus: float = p._get_equip_stat("max_health_percent", false)
+	for slot in saved:
+		equipment.slots[slot] = saved[slot]
+	var integrity: int = int(GameData.core_upgrades.get("integridad_estructural", 0))
+	return int(p.stats.base_max_health * (1.0 + bonus)) + integrity * 2
 
 func update_items_list() -> void:
 	if not inventory: return

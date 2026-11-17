@@ -1,7 +1,7 @@
 [gd_resource type="SpriteFrames" load_steps=38 format=3]
 
-[ext_resource type="Texture2D" path="res://Art/Player_art/lazaro_walk_spritesheet.png" id="2"]
-[ext_resource type="Texture2D" path="res://Art/Player_art/lazaro_idle_spritesheet.png" id="3"]
+[ext_resource type="Texture2D" path="res://Art/Enemies/Redesign/lazaro_echo_walk.png" id="2"]
+[ext_resource type="Texture2D" path="res://Art/Enemies/Redesign/lazaro_echo_idle.png" id="3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1"]
 atlas = ExtResource("3")

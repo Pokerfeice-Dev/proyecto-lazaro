@@ -41,6 +41,7 @@ func _ready() -> void:
 	add_child(interact_label)
 	# cartel de interacción con el estilo de la UI nueva (copia este Label)
 	InteractPrompt.mirror(interact_label)
+	CharacterLook.apply(self)
 	dialogue_box = NpcDialogueBox.create(self, "VICTORIA", "Científica de O.M.N.I.A.", ACCENT, _portrait())
 	dialogue_box.closed.connect(_on_dialogue_closed)
 

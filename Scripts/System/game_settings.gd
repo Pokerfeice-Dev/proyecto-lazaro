@@ -39,6 +39,8 @@ const DEFAULTS := {
 		"luces_parpadeantes": true,
 		"vineta": true,
 		"sombras": true,
+		"sombras_proyectadas": true,  # CastShadow (ver CharacterLook)
+		"volumen_personajes": true,   # shader character_volume (ver CharacterLook)
 		"polvo_pasos": true,
 		"sacudida_camara": true,
 		"animacion_salas": true,
@@ -156,6 +158,7 @@ func _apply(key: String, value: Variant) -> void:
 		"luces_parpadeantes": _apply_flicker(bool(value))
 		"vineta": _apply_vignette(bool(value))
 		"sombras": _set_group_visible("drop_shadows", bool(value))
+		"sombras_proyectadas", "volumen_personajes": CharacterLook.refresh_all(get_tree())
 		"brujula_enemigos": _set_group_visible("enemy_compass", bool(value))
 
 # El proyecto arranca en ventana (1600x900, Project Settings) y desde aca se pasa a pantalla

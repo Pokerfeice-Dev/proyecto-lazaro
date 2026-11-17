@@ -109,6 +109,7 @@ func _portrait() -> Texture2D:
 
 func _setup_shadow() -> void:
 	DropShadow.attach_to(self, Vector2(28.0, 14.0), Vector2(0.0, 18.0), 0.38)
+	CharacterLook.apply(self, anim_sprite)
 
 func _setup_interact_label() -> void:
 	interact_label = get_node_or_null("Label")

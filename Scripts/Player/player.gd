@@ -164,6 +164,7 @@ func _queue_arrival_fx() -> void:
 func _setup_player_shadow() -> void:
 	drop_shadow = DropShadow.attach_to(self, Vector2(26.0, 12.0), Vector2(0.0, 15.0), 0.38)
 	add_child(PlayerMarker.new()) # anillo celeste para no perder a Lázaro de vista
+	CharacterLook.apply(self, anim_sprite, true) # volumen y sombra proyectada (Opciones > Efectos)
 
 func _setup_cinematic_vignette() -> void:
 	var vignette = CinematicVignette.new()

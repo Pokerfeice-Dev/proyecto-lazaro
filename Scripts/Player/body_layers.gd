@@ -4,17 +4,25 @@ extends Node
 # Cada capa es un AnimatedSprite2D hijo del sprite principal que reproduce las mismas animaciones
 # y cuadros, pero con la hoja de esa pieza sola. Según el set de la pieza equipada en cada slot
 # (Musculoso, Ligero, Canino, Gordo) la capa usa la hoja pintada de ese set; sin set, usa la
-# original. El sprite completo sigue existiendo (Art/Player_art/*.png): se usa para el dash y para
-# cualquier animación que no esté partida en capas, y es el que leen los efectos (fantasma de dash,
-# muerte, llegada). No hay shaders ni tintes: son hojas de arte distintas.
+# original. El sprite completo sigue existiendo (Art/Player_art/*.png): se usa para cualquier animación
+# que no esté partida en capas, y es el que leen los efectos (fantasma de dash, muerte, llegada).
+# El dash también va por capas (carpetas dash y dash_invert). No hay shaders ni tintes: son hojas
+# de arte distintas.
+#
+# También lo usa el retrato del inventario (ver InventoryUI): se le pasa su propio sprite y equipo con
+# external_sprite / external_equipment antes de agregarlo al árbol, y set_preview() muestra cómo
+# quedaría el cuerpo con una pieza puesta o quitada sin equiparla de verdad.
 #
 # Hojas: res://Art/Player_art/layers/<hoja>/<capa>[_<set>].png, con la misma disposición que la
 # hoja completa. Si un día hay arte final por set, se reemplazan esos PNG y no hace falta tocar código.
 
 const LAYER_DIR := "res://Art/Player_art/layers/"
 const SETS: Array = ["musculoso", "ligero", "canino", "gordo"]
-## Hoja completa -> carpeta de capas. Las hojas de dash no están partidas (se usa el sprite completo).
+## Hoja completa -> carpeta de capas. Una animación solo se dibuja por capas si TODAS sus hojas están aquí;
+## si no, se usa el sprite completo.
 const SHEET_FOLDERS := {
+	"lazaro_dash_spritesheet.png": "dash",
+	"lazaro_dash_spritesheet_invert.png": "dash_invert",
 	"lazaro_idle_spritesheet.png": "idle",
 	"lazaro_idle_spritesheet_invert.png": "idle_invert",
 	"lazaro_walk_spritesheet.png": "walk",
@@ -39,7 +47,13 @@ var _sprite: AnimatedSprite2D
 var _equipment: Equipment
 var _layers: Dictionary = {}          # capa -> AnimatedSprite2D
 var _layer_sets: Dictionary = {}      # capa -> set actual ("" = original)
-var _frames_cache: Dictionary = {}    # "capa/set" -> SpriteFrames
+# "idRecurso/capa/set" -> SpriteFrames. Compartido: el jugador y el retrato del inventario usan las mismas.
+static var _frames_cache: Dictionary = {}
+## Uso externo (retrato): si se asignan antes de agregar el nodo, se usan en vez de los del jugador.
+var external_sprite: AnimatedSprite2D = null
+var external_equipment: Equipment = null
+## Vista previa: slot -> pieza hipotética (null = vacío). Lo que no está acá sale del equipo real.
+var _preview: Dictionary = {}
 var _layered_anims: Dictionary = {}   # animación -> true si todos sus cuadros salen de una hoja partida
 var _base_self_modulate: Color = Color.WHITE
 var _layers_active: bool = false
@@ -57,8 +71,8 @@ static var sync_calls: int = 0
 
 func _ready() -> void:
 	var player := get_parent()
-	_sprite = player.get("anim_sprite") as AnimatedSprite2D
-	_equipment = player.get_node_or_null("Equipment") as Equipment
+	_sprite = external_sprite if external_sprite != null else player.get("anim_sprite") as AnimatedSprite2D
+	_equipment = external_equipment if external_equipment != null else player.get_node_or_null("Equipment") as Equipment
 	if _sprite == null or _sprite.sprite_frames == null: return
 	process_priority = 100
 	_base_self_modulate = _sprite.self_modulate
@@ -79,9 +93,33 @@ func _ready() -> void:
 	if _equipment != null:
 		_equipment.equipment_changed.connect(refresh)
 	refresh()
+	# Al cargar una sala, el Equipment puede tomar sus slots guardados después de este _ready.
+	refresh.call_deferred()
 
 func _process(_delta: float) -> void:
+	# El retrato del inventario no se sincroniza mientras está cerrado.
+	if external_sprite != null and not external_sprite.is_visible_in_tree(): return
 	_sync()
+
+## Muestra el cuerpo como quedaría con estas piezas (slot -> ItemData o null). {} vuelve al equipo real.
+func set_preview(overrides: Dictionary) -> void:
+	if overrides.size() == _preview.size() and overrides.hash() == _preview.hash(): return
+	_preview = overrides.duplicate()
+	refresh()
+
+## Retrato del inventario: quita las capas, devuelve el sprite completo y se borra.
+func detach() -> void:
+	if _sprite != null and is_instance_valid(_sprite):
+		if _sprite.frame_changed.is_connected(_sync): _sprite.frame_changed.disconnect(_sync)
+		if _sprite.animation_changed.is_connected(_sync): _sprite.animation_changed.disconnect(_sync)
+		_sprite.self_modulate = _base_self_modulate
+	if _equipment != null and is_instance_valid(_equipment) and _equipment.equipment_changed.is_connected(refresh):
+		_equipment.equipment_changed.disconnect(refresh)
+	for layer in _layers:
+		var s: AnimatedSprite2D = _layers[layer]
+		if is_instance_valid(s): s.queue_free()
+	_layers.clear()
+	queue_free()
 
 # Nombre del set de una pieza, o "" si no pertenece a ninguno.
 # Sale de la última palabra del nombre ("Torso Musculoso" -> musculoso, "Piernas Ligeras" -> ligero).
@@ -99,7 +137,9 @@ func refresh() -> void:
 	if _layers.is_empty(): return
 	for layer in LAYER_SLOTS:
 		var item: ItemData = null
-		if _equipment != null:
+		if _preview.has(LAYER_SLOTS[layer]):
+			item = _preview[LAYER_SLOTS[layer]] as ItemData
+		elif _equipment != null and is_instance_valid(_equipment):
 			item = _equipment.slots.get(LAYER_SLOTS[layer]) as ItemData
 		var set_id := get_set_name(item)
 		if _layer_sets[layer] == set_id: continue
@@ -127,9 +167,9 @@ static func _folder_of(tex: Texture2D) -> String:
 
 # SpriteFrames de una capa: copia de las animaciones del sprite principal con la hoja de la capa.
 func _get_frames(layer: String, set_id: String) -> SpriteFrames:
-	var key := layer + "/" + set_id
-	if _frames_cache.has(key): return _frames_cache[key]
 	var src := _sprite.sprite_frames
+	var key := "%d/%s/%s" % [src.get_instance_id(), layer, set_id]
+	if _frames_cache.has(key): return _frames_cache[key]
 	var sf := SpriteFrames.new()
 	if sf.has_animation("default"): sf.remove_animation("default")
 	var file := layer + ("_" + set_id if set_id != "" else "") + ".png"

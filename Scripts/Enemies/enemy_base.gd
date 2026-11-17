@@ -131,6 +131,9 @@ func _ready() -> void:
 		modulate = Color(1.3, 0.8, 0.8)
 	_setup_health_bar()
 	_setup_enemy_shadow()
+	# Volumen y sombra proyectada (Opciones > Efectos). Diferido: algunos enemigos arman su
+	# sprite en su propio _ready, después de este.
+	_apply_character_look.call_deferred()
 
 
 
@@ -190,6 +193,13 @@ func _setup_enemy_shadow() -> void:
 		final_size *= 1.25
 	drop_shadow = DropShadow.attach_to(self, final_size, final_offset, 0.4)
 
+
+func _apply_character_look() -> void:
+	if is_dying or not is_inside_tree(): return
+	# el Centinela sale de la pared y el ataque aéreo es un efecto: sin volumen ni sombra proyectada
+	if get_script().resource_path.get_file() in ["boss1.gd", "boss_airstrike.gd"]: return
+	var sprite = _get_sprite()
+	CharacterLook.apply(self, sprite if sprite is CanvasItem else null)
 
 func _get_enemy_shadow_dimensions() -> Dictionary:
 	var script_path = get_script().resource_path.to_lower()

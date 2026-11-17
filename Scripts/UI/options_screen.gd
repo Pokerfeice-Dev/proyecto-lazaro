@@ -45,6 +45,8 @@ const ROWS := {
 		{"tipo": "toggle", "clave": "luces_parpadeantes", "texto": "Luces parpadeantes", "desc": "Zumbido y fallas de las luces con chispas. Apagado, las luces quedan fijas."},
 		{"tipo": "toggle", "clave": "vineta", "texto": "Viñeta cinematográfica", "desc": "Oscurece suavemente los bordes de la pantalla."},
 		{"tipo": "toggle", "clave": "sombras", "texto": "Sombras", "desc": "Sombras debajo de personajes, enemigos y objetos."},
+		{"tipo": "toggle", "clave": "sombras_proyectadas", "texto": "Sombras proyectadas", "desc": "Cerca de una lámpara, los personajes proyectan una sombra hacia el lado contrario a la luz. Con calidad Baja no se ven (las lámparas están apagadas)."},
+		{"tipo": "toggle", "clave": "volumen_personajes", "texto": "Volumen en personajes", "desc": "Borde de luz, sombra en los pies y reacción a las lámparas en el jugador, los enemigos y los NPC. Cuesta muy poco; apagarlo deja los sprites planos como antes."},
 		{"tipo": "toggle", "clave": "polvo_pasos", "texto": "Polvo y huellas al caminar", "desc": "Partículas y huellas que deja el jugador al moverse."},
 		{"tipo": "toggle", "clave": "sacudida_camara", "texto": "Sacudida de cámara", "desc": "Temblor de la cámara al recibir golpes y en explosiones."},
 		{"tipo": "toggle", "clave": "animacion_salas", "texto": "Animación de entrada a las salas", "desc": "Los objetos y el piso aparecen con rebote al entrar a una sala. Apagado, la sala aparece ya armada."},

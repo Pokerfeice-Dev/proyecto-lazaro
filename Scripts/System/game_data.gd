@@ -504,24 +504,25 @@ func get_room_config() -> Dictionary:
 		if depth >= 3: weights["crypt_laser_eye"] = 0.8
 		if depth >= 4: weights["crypt_dead_beekeeper"] = 0.7
 		if depth >= 5: weights["crypt_bell_keeper"] = 0.8
-		# Rediseño: kamikaze, tirador que huye y escudero también pisan la cripta, más tarde que en el laboratorio.
-		if depth >= 3: weights["kamikaze"] = 1.0
-		if depth >= 4: weights["kiter"] = 0.8
-		if depth >= 6: weights["shielder"] = 0.7
+		# Enemigos del rediseño: kamikaze, tirador que huye y escudero también pisan la cripta (desde
+		# la mitad de la zona); brazo errante, torso hueco y eco son solo del Núcleo.
+		if depth >= 2: weights["kamikaze"] = 1.4
+		if depth >= 3: weights["kiter"] = 1.2
+		if depth >= 4: weights["shielder"] = 1.0
 	else:
 		weights = {"follower": 5.0}
 		if depth >= 2 or level == 3: weights["shooter"] = 3.0
 		if depth >= 4 or level == 3: weights["tank"] = 1.5
 		if depth >= 5 or level == 3: weights["turret"] = 1.0
 		if depth >= 6 or level == 3: weights["summoner"] = 0.75
-		# Rediseño: kamikaze, tirador que huye y escudero (zona 1 y 3); brazo, torso hueco y eco son de la zona 3.
-		if depth >= 3 or level == 3: weights["kamikaze"] = 1.5
-		if depth >= 4 or level == 3: weights["kiter"] = 1.2
-		if depth >= 5 or level == 3: weights["shielder"] = 1.0
+		# Enemigos del rediseño: solo en la zona 3, donde pesan tanto como los de antes juntos.
 		if level == 3:
-			weights["wandering_arm"] = 2.0
-			weights["hollow_torso"] = 0.8
-			weights["lazarus_echo"] = 1.0
+			weights["kamikaze"] = 2.5
+			weights["kiter"] = 2.0
+			weights["shielder"] = 1.6
+			weights["wandering_arm"] = 3.0
+			weights["hollow_torso"] = 1.2
+			weights["lazarus_echo"] = 1.5
 	return {
 		"total_enemies": curve.totals[depth - 1],
 		"max_concurrent": curve.caps[depth - 1],

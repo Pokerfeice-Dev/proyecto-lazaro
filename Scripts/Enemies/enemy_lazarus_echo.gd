@@ -2,12 +2,13 @@ class_name EnemyLazarusEcho
 extends Carpenter
 # Eco de Lázaro (Área 3): sigue el rastro de donde estabas hace 1 s y dispara a
 # esa posición vieja y, un instante después, dispara otra bala adelantada a hacia dónde te mueves.
-# Sprite provisional (carpintero).
+# Sprite: las hojas de Lázaro con paleta espectral (Art/Enemies/Redesign/lazaro_echo_*.png).
 
 @export_category("Eco de Lázaro")
 @export var echo_delay: float = 1.0
 @export var echo_health: int = 28
-@export var ghost_tint: Color = Color(1.0, 0.55, 0.85, 0.8)
+## El arte ya es espectral: el tinte solo lo vuelve un poco translúcido.
+@export var ghost_tint: Color = Color(1.0, 1.0, 1.0, 0.85)
 
 var _clock: float = 0.0
 # Cada entrada es [tiempo, posición del jugador].

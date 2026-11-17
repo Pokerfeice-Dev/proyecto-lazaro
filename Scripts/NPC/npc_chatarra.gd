@@ -19,6 +19,7 @@ func _ready() -> void:
 
 func _setup_shadow() -> void:
 	DropShadow.attach_to(self, Vector2(28.0, 14.0), Vector2(0.0, 16.0), 0.38)
+	CharacterLook.apply(self)
 
 func _setup_interact_label() -> void:
 	interact_label = Label.new()
