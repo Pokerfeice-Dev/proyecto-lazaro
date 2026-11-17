@@ -54,11 +54,14 @@ const TELEPORTS: Array[Dictionary] = [
 	{"name": "💀 Jefe 1 (Génesis) - Sala 15", "path": "res://Scenes/Rooms/Level1_Room15-BossFight.tscn"},
 	{"name": "💀 Jefe 1 (Génesis) - Sala 16", "path": "res://Scenes/Rooms/Level1_Room16-BossFight.tscn"},
 	{"name": "💀 Jefe 2 (Slime) - Sala 14", "path": "res://Scenes/Rooms/Level2_Room14BossFight.tscn"},
+	{"name": "💀 Jefe 3 (Prometeo) - Sala real", "path": "res://Scenes/Rooms/Level3_Room4BossFight.tscn"},
 	{"name": "💀 Jefe 3 (Prometeo) - Sala de prueba", "path": "res://Scenes/Rooms/Level3_BossPrometeo_Prueba.tscn"},
 	{"name": "🏢 Nivel 1 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level1_Room1.tscn"},
 	{"name": "🎁 Nivel 1 - Tesoro (Room 11)", "path": "res://Scenes/Rooms/Level1_Room11(treasure).tscn"},
 	{"name": "🛒 Nivel 1 - Tienda Ygor (Room 12)", "path": "res://Scenes/Rooms/Level1_Room12(Ygor1).tscn"},
 	{"name": "🏭 Nivel 2 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level2_Room1.tscn"},
+	{"name": "🧬 Nivel 3 - Inicio (Room 1)", "path": "res://Scenes/Rooms/Level3_Room1.tscn"},
+	{"name": "🧬 Nivel 3 - Sala rediseñada (Room 5)", "path": "res://Scenes/Rooms/Level3_Room5.tscn"},
 	{"name": "🔬 Laboratorio / Hub", "path": "res://Scenes/Rooms/lab_room.tscn"},
 	{"name": "⚡ Mejoras de Núcleo", "path": "res://Scenes/Rooms/Core_Upgrade_Room.tscn"},
 	{"name": "🧪 Sala Sandbox de Pruebas", "path": "res://Scenes/Rooms/debug_scene.tscn"}
@@ -618,9 +621,30 @@ func _teleport_to(scene_path: String, scene_name: String) -> void:
 		_show_status("Error: No existe escena " + scene_path)
 		return
 	GameData.previous_scene_path = get_tree().current_scene.scene_file_path
+	_sync_run_progress(scene_path)
 	_show_status("Teletransportando a " + scene_name + "...")
 	close_menu()
 	SceneTransition.change_scene(scene_path)
+
+## Al teletransportarse a una sala de una zona, el avance de la run tiene que acompañarla: si no,
+## GameData sigue en la zona anterior y al cruzar la puerta (o la del jefe) el juego vuelve a la zona 1.
+func _sync_run_progress(scene_path: String) -> void:
+	var file := scene_path.get_file()
+	var level := 0
+	for n in range(1, GameData.MAX_LEVEL_FOR_NOW + 1):
+		if file.begins_with("Level%d_" % n):
+			level = n
+	if level == 0: return # laboratorio, mejoras de núcleo, sandbox: no pertenecen a una zona
+	GameData.current_level = level
+	GameData.last_room_path = ""
+	if not GameData.is_event_demo():
+		GameData.rooms_before_boss = randi_range(7, 10)
+	if "boss" in file.to_lower():
+		# sala de jefe: la run ya recorrió todas las salas de la zona
+		GameData.current_run_room = GameData.rooms_before_boss + 1
+		GameData.reset_boss_state()
+	else:
+		GameData.current_run_room = 1
 
 func _create_cheats_tab(tabs: TabContainer) -> void:
 	var tab = _create_scroll_tab(tabs, "Cheats")
